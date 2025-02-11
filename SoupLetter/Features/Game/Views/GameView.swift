@@ -42,10 +42,16 @@ struct GameView: View {
       }
       .overlay {
         if showingPauseMenu {
-          pauseMenu
+          PauseMenuView(showingPauseMenu: $showingPauseMenu, onResume: viewModel.resumeGame)
         }
         if showingCompletionView {
-          completionView
+          CompletionView(
+            formattedTime: viewModel.formattedTime,
+            onNextLevel: {
+              showingCompletionView = false
+              viewModel.startNextLevel()
+            }
+          )
         }
       }
       .onChange(of: viewModel.gameState) { _, newState in
@@ -155,74 +161,6 @@ struct GameView: View {
         .padding(.horizontal, 4)
       }
       .frame(height: 40)
-    }
-  }
-
-  // MARK: - Pause Menu
-
-  private var pauseMenu: some View {
-    ZStack {
-      Color.black.opacity(0.5)
-        .ignoresSafeArea()
-
-      VStack(spacing: 20) {
-        Text("Game Paused")
-          .font(.title)
-          .bold()
-
-        Button("Resume") {
-          withAnimation {
-            showingPauseMenu = false
-            viewModel.resumeGame()
-          }
-        }
-        .buttonStyle(.borderedProminent)
-
-        Button("Quit", role: .destructive) {
-          // Handle quit action
-        }
-        .buttonStyle(.bordered)
-      }
-      .padding(40)
-      .background {
-        RoundedRectangle(cornerRadius: 20)
-          .fill(Color(.systemBackground))
-          .shadow(radius: 20)
-      }
-    }
-  }
-
-  // MARK: - Completion View
-
-  private var completionView: some View {
-    ZStack {
-      Color.black.opacity(0.5)
-        .ignoresSafeArea()
-
-      VStack(spacing: 20) {
-        Text("Level Complete!")
-          .font(.title)
-          .bold()
-
-        VStack(spacing: 8) {
-          Text("Time: \(viewModel.formattedTime)")
-            .font(.subheadline)
-        }
-
-        Button("Next Level") {
-          withAnimation {
-            showingCompletionView = false
-            viewModel.startNextLevel()
-          }
-        }
-        .buttonStyle(.borderedProminent)
-      }
-      .padding(40)
-      .background {
-        RoundedRectangle(cornerRadius: 20)
-          .fill(Color(.systemBackground))
-          .shadow(radius: 20)
-      }
     }
   }
 
