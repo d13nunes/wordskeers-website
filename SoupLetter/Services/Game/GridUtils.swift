@@ -1,33 +1,46 @@
 import Foundation
 
-struct GridUtils {
-  static let directions: [(dx: Int, dy: Int)] = [
-    (0, 1),  // right
-    (1, 0),  // down
-    (1, 1),  // diagonal right down
-    (-1, 1),  // diagonal left down
-    (0, -1),  // left
-    (-1, 0),  // up
-    (-1, -1),  // diagonal left up
-    (1, -1),  // diagonal right up
+typealias Direction = (dx: Int, dy: Int)
+
+struct Directions {
+
+  static let all: [Direction] = [
+    right,
+    down,
+    diagonalRightDown,
+    diagonalLeftDown,
+    left,
+    up,
+    diagonalLeftUp,
+    diagonalRightUp,
   ]
+
+  static let right = Direction(dx: 0, dy: 1)
+  static let down = Direction(dx: 1, dy: 0)
+  static let diagonalRightDown = Direction(dx: 1, dy: 1)
+  static let diagonalLeftDown = Direction(dx: -1, dy: 1)
+  static let left = Direction(dx: 0, dy: -1)
+  static let up = Direction(dx: -1, dy: 0)
+  static let diagonalLeftUp = Direction(dx: -1, dy: -1)
+  static let diagonalRightUp = Direction(dx: 1, dy: -1)
 }
 
 extension [[String]] {
-
   func printGrid() {
     let output = self.map { $0.joined() }.joined(separator: "\n")
     print(output)
   }
 
   /// Returns the coordinates of all cells that form a word in the grid
-  func findWordCoordinates(_ word: String) -> [(Int, Int)]? {
+  func findWordCoordinates(_ word: String, directions: [Direction] = Directions.all) -> [(
+    Int, Int
+  )]? {
     let size = self.count
     let wordChars = word.uppercased().map { String($0) }
 
     for row in 0..<size {
       for col in 0..<size {
-        for direction in GridUtils.directions {
+        for direction in directions {
           var coordinates = [(Int, Int)]()
           var isValid = true
 
