@@ -4,32 +4,23 @@ import SwiftUI
 /// ViewModel responsible for coordinating game logic and UI updates
 @Observable class GameViewModel {
   // MARK: - Properties
+  private(set) var foundWords: [String] = []
 
+  /// The current game state
+  var gameState: GameState {
+    gameManager.currentState
+  }
+  /// The game grid
+  var grid: [[String]] {
+    gameManager.grid
+  }
   /// The game state manager
   private let gameManager: GameStateManager
 
   /// The word list service
   private let wordListService: WordListService
 
-  /// The current game state
-  var gameState: GameState {
-    gameManager.state
-  }
-
-  /// The current score
-  var score: Int {
-    gameManager.score
-  }
-
-  /// The current level
-  var level: Int {
-    gameManager.currentLevel
-  }
-
-  /// The game grid
-  var grid: [[Character]] {
-    gameManager.grid
-  }
+  private var foundCells: [(Int, Int)] = []
 
   /// Time elapsed in the current game
   var timeElapsed: TimeInterval {
@@ -43,16 +34,6 @@ import SwiftUI
     return String(format: "%02d:%02d", minutes, seconds)
   }
 
-  /// Current completion percentage
-  var completionPercentage: Double {
-    gameManager.completionPercentage
-  }
-
-  /// List of found words
-  var foundWords: [String] {
-    gameManager.foundWords
-  }
-
   /// Total number of words to find
   var totalWords: Int {
     gameManager.totalWords
@@ -64,9 +45,8 @@ import SwiftUI
   }
 
   // MARK: - Initialization
-
-  init(wordList: WordList, storage: any StorageProtocol) {
-    self.gameManager = GameStateManager(wordList: wordList, storage: storage)
+  init(wordList: WordList, storage: any StorageProtocol, gameManager: GameStateManager) {
+    self.gameManager = gameManager
     self.wordListService = WordListService(storage: storage)
   }
 
@@ -92,38 +72,28 @@ import SwiftUI
     gameManager.startNextLevel()
   }
 
-  // MARK: - Word Handling Methods
+  /// Submits postions for validation
+  func checkIfIsWord(in positions: [(Int, Int)]) -> Bool {
+    guard let word = gameManager.checkIfIsWord(in: positions) else {
+      return false
+    }
+    foundCells += positions
+    foundWords.append(word)
+    if foundWords.count == totalWords {
+      print("You won!")
 
-  /// Submits a word for validation
-  func submitWord(_ word: String) async {
-    await gameManager.submitWord(word)
+    }
+    return true
   }
-
-  /// Checks if a word has been found
-  func isWordFound(_ word: String) -> Bool {
-    gameManager.isWordFound(word)
-  }
-
-  /// Gets a hint for an unfound word
-  func getHint() -> String? {
-    gameManager.getHint()
-  }
-
-  /// Finds the coordinates of a word in the grid
-  func findWordCoordinates(_ word: String) -> [(Int, Int)]? {
-    gameManager.findWordCoordinates(word)
-  }
-
-  // MARK: - UI Helper Methods
 
   /// Returns the color for a cell based on its state
   func cellColor(for coordinate: (Int, Int), isSelected: Bool) -> Color {
+    func isSamePosition(position: (Int, Int)) -> Bool {
+      return position == coordinate
+    }
     if isSelected {
       return .blue
-    } else if let foundWord = foundWords.first(where: { word in
-      guard let coords = findWordCoordinates(word) else { return false }
-      return coords.contains(where: { $0 == coordinate })
-    }) {
+    } else if foundCells.contains(where: isSamePosition) {
       return .green.opacity(0.3)
     } else {
       return .clear
@@ -135,47 +105,4 @@ import SwiftUI
     isSelected ? 1.1 : 1.0
   }
 
-  /// Returns the rotation angle for a cell
-  func cellRotation(for coordinate: (Int, Int)) -> Angle {
-    if let foundWord = foundWords.first(where: { word in
-      guard let coords = findWordCoordinates(word) else { return false }
-      return coords.contains(where: { $0 == coordinate })
-    }) {
-      // Calculate rotation based on word direction
-      guard let coords = findWordCoordinates(foundWord),
-        let startIdx = coords.firstIndex(where: { $0 == coordinate })
-      else {
-        return .zero
-      }
-
-      if startIdx < coords.count - 1 {
-        let nextCoord = coords[startIdx + 1]
-        let dx = CGFloat(nextCoord.0 - coordinate.0)
-        let dy = CGFloat(nextCoord.1 - coordinate.1)
-        return Angle(radians: atan2(dy, dx))
-      }
-    }
-
-    return .zero
-  }
-
-  /// Returns accessibility label for a cell
-  func accessibilityLabel(for coordinate: (Int, Int)) -> String {
-    let letter = String(grid[coordinate.0][coordinate.1])
-    let position = "Row \(coordinate.0 + 1), Column \(coordinate.1 + 1)"
-
-    if let foundWord = foundWords.first(where: { word in
-      guard let coords = findWordCoordinates(word) else { return false }
-      return coords.contains(where: { $0 == coordinate })
-    }) {
-      return "\(letter) at \(position), part of found word \(foundWord)"
-    } else {
-      return "\(letter) at \(position)"
-    }
-  }
-
-  /// Returns accessibility hint for a cell
-  func accessibilityHint(for coordinate: (Int, Int)) -> String {
-    "Double tap and drag to select letters and form words"
-  }
 }

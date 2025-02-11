@@ -1,158 +1,85 @@
 import Foundation
 
+enum GridGeneratorError: String, Error {
+  case wordTooLong = "Word is too long for the grid"
+}
+
 /// Service responsible for generating the letter grid and placing words
-@Observable class GridGenerator {
+class GridGenerator: GridFactory {
   private let vowels = "AEIOU"
   private let consonants = "BCDFGHJKLMNPQRSTVWXYZ"
-  private let directions: [(dx: Int, dy: Int)] = [
-    (0, 1),  // right
-    (1, 0),  // down
-    (1, 1),  // diagonal right down
-    (-1, 1),  // diagonal left down
-    (0, -1),  // left
-    (-1, 0),  // up
-    (-1, -1),  // diagonal left up
-    (1, -1),  // diagonal right up
-  ]
 
-  /// Generates a grid with the given words placed and filled with random letters
-  func generateGrid(size: Int, words: [String]) -> [[Character]] {
-    var grid = Array(repeating: Array(repeating: Character(" "), count: size), count: size)
-    var placedWords = Set<String>()
+  private let words: [String]
+  private let size: Int
+  private let directions: [(Int, Int)] = [
+    (1, 0),
+    (0, 1),
+    // (1, 1),
+    // (-1, 1),
+  ]  // Down, Right, Diagonal Down-Right, Diagonal Up-Right
 
-    // Sort words by length (longest first) to ensure better placement
-    let sortedWords = words.sorted { $0.count > $1.count }
-
-    // Try to place each word
-    for word in sortedWords {
-      if tryPlaceWord(word.uppercased(), in: &grid) {
-        placedWords.insert(word)
-      }
-    }
-
-    // Fill remaining spaces with random letters
-    fillEmptySpaces(&grid)
-
-    return grid
+  init(words: [String], size: Int) {
+    self.words = words
+    self.size = size
   }
 
-  /// Attempts to place a word in the grid
-  private func tryPlaceWord(_ word: String, in grid: inout [[Character]]) -> Bool {
-    let size = grid.count
-    let attempts = 100  // Maximum attempts to place the word
-
-    for _ in 0..<attempts {
-      // Random starting position
-      let startX = Int.random(in: 0..<size)
-      let startY = Int.random(in: 0..<size)
-
-      // Random direction
-      let direction = directions.randomElement()!
-
-      // Check if word fits in this direction
-      if canPlaceWord(word, at: (startX, startY), in: direction, grid: grid) {
-        placeWord(word, at: (startX, startY), in: direction, grid: &grid)
-        return true
-      }
-    }
-
-    return false
+  func getGrid() -> ([[String]], [String]) {
+    let (grid, placedWords) = generateWordSearch(gridSize: size, words: words)
+    return (grid, placedWords)
   }
 
-  /// Checks if a word can be placed at the given position and direction
-  private func canPlaceWord(
-    _ word: String, at start: (x: Int, y: Int), in direction: (dx: Int, dy: Int),
-    grid: [[Character]]
-  ) -> Bool {
-    let size = grid.count
-    let wordChars = Array(word)
-
-    for i in 0..<word.count {
-      let x = start.x + (direction.dx * i)
-      let y = start.y + (direction.dy * i)
-
-      // Check bounds
-      guard x >= 0 && x < size && y >= 0 && y < size else {
-        return false
-      }
-
-      // Check if space is empty or has matching letter
-      let currentChar = grid[x][y]
-      if currentChar != " " && currentChar != wordChars[i] {
+  func canPlaceWord(_ word: String, row: Int, col: Int, direction: (Int, Int), grid: [[String]])
+    -> Bool
+  {
+    let (directionRow, directionCol) = direction
+    for (index, char) in word.enumerated() {
+      let row = row + index * directionRow
+      let col = col + index * directionCol
+      if row < 0
+        || row >= size
+        || col < 0
+        || col >= size
+        || (grid[row][col] != " " && grid[row][col] != String(char))
+      {
         return false
       }
     }
-
     return true
   }
 
-  /// Places a word in the grid at the specified position and direction
-  private func placeWord(
-    _ word: String, at start: (x: Int, y: Int), in direction: (dx: Int, dy: Int),
-    grid: inout [[Character]]
-  ) {
-    let wordChars = Array(word)
+  func placeWord(_ word: String, grid: inout [[String]]) -> Bool {
+    let shuffledDirections = directions.shuffled()
 
-    for i in 0..<word.count {
-      let x = start.x + (direction.dx * i)
-      let y = start.y + (direction.dy * i)
-      grid[x][y] = wordChars[i]
-    }
-  }
+    for _ in 0..<100 {  // Try multiple times to find a position
+      let row = Int.random(in: 0..<size)
+      let col = Int.random(in: 0..<size)
 
-  /// Fills empty spaces in the grid with random letters
-  private func fillEmptySpaces(_ grid: inout [[Character]]) {
-    let size = grid.count
-
-    for i in 0..<size {
-      for j in 0..<size {
-        if grid[i][j] == " " {
-          // 70% chance for consonant, 30% for vowel
-          grid[i][j] =
-            Bool.random()
-            ? consonants.randomElement()!
-            : (Double.random(in: 0...1) < 0.3
-              ? vowels.randomElement()! : consonants.randomElement()!)
+      for direction in shuffledDirections
+      where canPlaceWord(word, row: row, col: col, direction: direction, grid: grid) {
+        let (directionRow, directionCol) = direction
+        for (index, char) in word.enumerated() {
+          grid[row + index * directionRow][col + index * directionCol] = String(char)
         }
+        return true
       }
     }
+    return false
   }
 
-  /// Returns the coordinates of all cells that form a word in the grid
-  func findWordCoordinates(_ word: String, in grid: [[Character]]) -> [(Int, Int)]? {
-    let size = grid.count
-    let wordChars = Array(word.uppercased())
+  func generateWordSearch(gridSize: Int, words: [String]) -> ([[String]], [String]) {
+    var grid = Array(repeating: Array(repeating: " ", count: gridSize), count: gridSize)
+    var placedWords: [String] = []
 
-    for x in 0..<size {
-      for y in 0..<size {
-        for direction in directions {
-          var coordinates = [(Int, Int)]()
-          var isValid = true
+    for word in words where placeWord(word.uppercased(), grid: &grid) {
+      placedWords.append(word)
 
-          for i in 0..<wordChars.count {
-            let newX = x + (direction.dx * i)
-            let newY = y + (direction.dy * i)
-
-            guard newX >= 0 && newX < size && newY >= 0 && newY < size else {
-              isValid = false
-              break
-            }
-
-            if grid[newX][newY] != wordChars[i] {
-              isValid = false
-              break
-            }
-
-            coordinates.append((newX, newY))
-          }
-
-          if isValid {
-            return coordinates
-          }
-        }
-      }
     }
 
-    return nil
+    for row in 0..<gridSize {
+      for col in 0..<gridSize where grid[row][col] == " " {
+        grid[row][col] = String(UnicodeScalar(Int.random(in: 65...90))!)  // Random uppercase letter
+      }
+    }
+    return (grid, placedWords)
   }
 }

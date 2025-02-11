@@ -1,199 +1,238 @@
 import Foundation
 
-/// Represents the current state of the game
-enum GameState {
-  case loading
-  case playing
-  case paused
-  case completed
+/// Represents possible game state transitions
+enum GameEvent {
+  case start
+  case pause
+  case resume
+  case complete
+  case nextLevel
 }
 
-/// Service responsible for managing the overall game state
+/// Protocol defining behavior for each game state
+protocol GameStateProtocol {
+  /// Handles state transitions based on events
+  func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState?
+
+  /// Called when entering this state
+  func enter()
+
+  /// Called when exiting this state
+  func exit()
+}
+
+/// Represents the current state of the game
+enum GameState: Equatable {
+  static func == (lhs: GameState, rhs: GameState) -> Bool {
+    switch (lhs, rhs) {
+    case (.loading, .loading): return true
+    case (.playing, .playing): return true
+    case (.paused, .paused): return true
+    case (.completed, .completed): return true
+    default: return false
+    }
+  }
+  case loading(LoadingState)
+  case playing(PlayingState)
+  case paused(PausedState)
+  case completed(CompletedState)
+
+  /// Returns the underlying state object
+  var state: GameStateProtocol {
+    switch self {
+    case .loading(let state): return state
+    case .playing(let state): return state
+    case .paused(let state): return state
+    case .completed(let state): return state
+    }
+  }
+}
+
+/// Service responsible for managing the overall game state and coordinating game logic
 @Observable class GameStateManager {
+  // MARK: - Public Properties
+
   /// The current state of the game
-  private(set) var state: GameState = .loading
+  private(set) var currentState: GameState
 
-  /// The current score
-  private(set) var score: Int = 0
-
-  /// The current level
-  private(set) var currentLevel: Int = 1
-
-  /// The current word list
-  private let wordList: WordList
-
-  /// The grid generator service
-  private let gridGenerator: GridGenerator
-
-  /// The word validator service
-  private let wordValidator: WordValidator
-
-  /// The user input handler service
-  private let inputHandler: UserInputHandler
-
-  /// The storage service
-  private let storage: any StorageProtocol
-
-  /// The current grid
-  private(set) var grid: [[Character]]
+  /// The current grid of letters
+  private(set) var grid: [[String]]
 
   /// Time elapsed in seconds
   private(set) var timeElapsed: TimeInterval = 0
 
-  /// Timer for tracking game duration
+  // MARK: - Game Statistics
+
+  /// Returns the current completion percentage (0-100)
+  var completionPercentage: Double { wordValidator.completionPercentage }
+
+  /// Returns the list of found words sorted alphabetically
+  var foundWords: [String] { wordValidator.foundWordsList }
+
+  /// Returns the total number of words to find
+  var totalWords: Int { wordValidator.totalWords }
+
+  /// Returns the number of words found
+  var foundWordCount: Int { wordValidator.foundWordCount }
+
+  // MARK: - Private Properties
+
+  private let wordList: WordList
+  private let gridGenerator: GridGenerator
+  private let wordValidator: WordValidator
+  private let storage: any StorageProtocol
   private var timer: Timer?
+
+  // MARK: - Initialization
 
   init(wordList: WordList, storage: any StorageProtocol) {
     self.wordList = wordList
     self.storage = storage
 
     // Initialize game services
-    self.gridGenerator = GridGenerator()
-    let grid = gridGenerator.generateGrid(
-      size: wordList.difficulty.gridSize, words: wordList.words)
-    self.grid = grid
-    self.wordValidator = WordValidator(
-      words: wordList.words, minWordLength: wordList.difficulty.minWordLength)
-    self.inputHandler = UserInputHandler(gridSize: wordList.difficulty.gridSize, grid: grid)
+    self.gridGenerator = GridGenerator(words: wordList.words, size: wordList.difficulty.gridSize)
+    let (generatedGrid, placedWords) = gridGenerator.getGrid()
+    self.grid = generatedGrid
+    self.wordValidator = WordValidator(words: placedWords)
 
-    // Load saved progress
-    Task {
-      await loadProgress()
+    // Initialize with loading state
+    self.currentState = .loading(LoadingState())
+    self.currentState.state.enter()
+  }
+
+  // MARK: - Game Control Methods
+
+  /// Handles game state transitions based on events
+  func handleEvent(_ event: GameEvent) {
+    if let newState = currentState.state.handleEvent(event, manager: self) {
+      transition(to: newState)
     }
   }
 
   /// Starts a new game
   func startGame() {
-    state = .playing
-    startTimer()
+    handleEvent(.start)
   }
 
-  /// Pauses the game
+  /// Pauses the current game
   func pauseGame() {
-    state = .paused
-    stopTimer()
+    handleEvent(.pause)
   }
 
-  /// Resumes the game
+  /// Resumes the paused game
   func resumeGame() {
-    state = .playing
-    startTimer()
+    handleEvent(.resume)
   }
 
-  /// Handles word submission
-  func submitWord(_ word: String) async {
-    let (isValid, points) = wordValidator.validateWord(word)
-
-    if isValid {
-      score += points
-      await saveProgress()
-
-      if wordValidator.isComplete {
-        completeGame()
-      }
-    }
-  }
-
-  /// Completes the current game
-  private func completeGame() {
-    state = .completed
-    stopTimer()
-    currentLevel += 1
-
-    Task {
-      await saveProgress()
-    }
-  }
-
-  /// Starts a new level
+  /// Starts the next level with a new grid and words
   func startNextLevel() {
-    grid = gridGenerator.generateGrid(size: wordList.difficulty.gridSize, words: wordList.words)
-    wordValidator.reset()
-    timeElapsed = 0
-    startGame()
+    handleEvent(.nextLevel)
   }
 
-  /// Returns whether a word has been found
-  func isWordFound(_ word: String) -> Bool {
-    wordValidator.isWordFound(word)
-  }
+  /// Validates a word based on selected grid positions
+  /// - Parameter positions: Array of (row, column) positions in the grid
+  /// - Returns: The valid word if found, nil otherwise
+  func checkIfIsWord(in positions: [(Int, Int)]) -> String? {
+    guard case .playing = currentState else { return nil }
 
-  /// Returns a hint for an unfound word
-  func getHint() -> String? {
-    wordValidator.getHint()
-  }
+    let word = grid.getWord(in: positions)
+    guard wordValidator.validateWord(word) else { return nil }
 
-  /// Returns the coordinates for a word in the grid
-  func findWordCoordinates(_ word: String) -> [(Int, Int)]? {
-    gridGenerator.findWordCoordinates(word, in: grid)
-  }
-
-  /// Returns the current completion percentage
-  var completionPercentage: Double {
-    wordValidator.completionPercentage
-  }
-
-  /// Returns the list of found words
-  var foundWords: [String] {
-    wordValidator.foundWordsList
-  }
-
-  /// Returns the total number of words to find
-  var totalWords: Int {
-    wordValidator.totalWords
-  }
-
-  /// Returns the number of words found
-  var foundWordCount: Int {
-    wordValidator.foundWordCount
-  }
-
-  /// Loads saved progress from storage
-  private func loadProgress() async {
-    do {
-      let progress = try await storage.fetchGameProgress()
-      if progress.wordListId == wordList.id {
-        self.score = progress.score
-        self.currentLevel = progress.currentLevel
-        // Don't restore time elapsed to give a fresh start
-      }
-    } catch {
-      print("Failed to load progress: \(error)")
-      // Start fresh if no progress is found
+    if wordValidator.isComplete {
+      handleEvent(.complete)
     }
+
+    return word
   }
 
-  /// Saves current progress to storage
-  private func saveProgress() async {
-    do {
-      let progress = GameProgress(
-        score: score,
-        foundWords: Set(wordValidator.foundWordsList),
-        currentLevel: currentLevel,
-        lastPlayedDate: Date(),
-        wordListId: wordList.id
-      )
-      try await storage.saveGameProgress(progress)
-    } catch {
-      print("Failed to save progress: \(error)")
-    }
-  }
+  // MARK: - Timer Methods
 
-  /// Starts the game timer
-  private func startTimer() {
+  func startTimer() {
     timer?.invalidate()
     timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
       self?.timeElapsed += 1
     }
   }
 
-  /// Stops the game timer
-  private func stopTimer() {
+  func stopTimer() {
     timer?.invalidate()
     timer = nil
+  }
+
+  // MARK: - Private Methods
+
+  private func transition(to newState: GameState) {
+    currentState.state.exit()
+    currentState = newState
+    currentState.state.enter()
   }
 
   deinit {
     stopTimer()
   }
+}
+
+// MARK: - State Implementations
+
+final class LoadingState: GameStateProtocol {
+  func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState? {
+    switch event {
+    case .start: return .playing(PlayingState(manager: manager))
+    default: return nil
+    }
+  }
+
+  func enter() {}
+  func exit() {}
+}
+
+final class PlayingState: GameStateProtocol {
+  private weak var manager: GameStateManager?
+
+  init(manager: GameStateManager?) {
+    self.manager = manager
+  }
+
+  func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState? {
+    switch event {
+    case .pause: return .paused(PausedState())
+    case .complete: return .completed(CompletedState())
+    default: return nil
+    }
+  }
+
+  func enter() {
+    manager?.startTimer()
+  }
+
+  func exit() {
+    manager?.stopTimer()
+  }
+}
+
+final class PausedState: GameStateProtocol {
+
+  func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState? {
+    switch event {
+    case .resume: return .playing(PlayingState(manager: manager))
+    default: return nil
+    }
+  }
+
+  func enter() {}
+  func exit() {}
+}
+
+final class CompletedState: GameStateProtocol {
+  func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState? {
+    switch event {
+    case .nextLevel:
+      manager.startNextLevel()
+      return .playing(PlayingState(manager: manager))
+    default: return nil
+    }
+  }
+
+  func enter() {}
+  func exit() {}
 }

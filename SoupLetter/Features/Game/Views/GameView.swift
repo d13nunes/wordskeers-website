@@ -7,7 +7,6 @@ struct GameView: View {
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @GestureState private var dragLocation: CGPoint?
   @State private var selectedCells: [(Int, Int)] = []
-  @State private var currentWord: String = ""
   @State private var showingPauseMenu = false
   @State private var showingCompletionView = false
   @State private var lastValidWord: String?
@@ -50,7 +49,7 @@ struct GameView: View {
         }
       }
       .onChange(of: viewModel.gameState) { _, newState in
-        if newState == .completed {
+        if newState == .completed(CompletedState()) {
           withAnimation {
             showingCompletionView = true
           }
@@ -66,15 +65,6 @@ struct GameView: View {
 
   private var gameHeader: some View {
     HStack {
-      VStack(alignment: .leading) {
-        Text("Level \(viewModel.level)")
-          .font(.headline)
-        Text("Score: \(viewModel.score)")
-          .font(.subheadline)
-      }
-
-      Spacer()
-
       Text(viewModel.formattedTime)
         .font(.headline)
         .monospacedDigit()
@@ -135,11 +125,7 @@ struct GameView: View {
           .fill(viewModel.cellColor(for: coordinate, isSelected: isSelected))
       }
       .scaleEffect(viewModel.cellScale(for: coordinate, isSelected: isSelected))
-      .rotationEffect(viewModel.cellRotation(for: coordinate))
       .animation(.spring(response: 0.3), value: isSelected)
-      .accessibilityElement(children: .ignore)
-      .accessibilityLabel(viewModel.accessibilityLabel(for: coordinate))
-      .accessibilityHint(viewModel.accessibilityHint(for: coordinate))
   }
 
   // MARK: - Found Words List
@@ -192,13 +178,6 @@ struct GameView: View {
         }
         .buttonStyle(.borderedProminent)
 
-        Button("Get Hint") {
-          if let hint = viewModel.getHint() {
-            showToast("Hint: Try finding '\(hint)'")
-          }
-        }
-        .buttonStyle(.bordered)
-
         Button("Quit", role: .destructive) {
           // Handle quit action
         }
@@ -226,8 +205,6 @@ struct GameView: View {
           .bold()
 
         VStack(spacing: 8) {
-          Text("Score: \(viewModel.score)")
-            .font(.headline)
           Text("Time: \(viewModel.formattedTime)")
             .font(.subheadline)
         }
@@ -304,31 +281,21 @@ struct GameView: View {
         selectedCells.append(coordinate)
       }
     }
-
-    currentWord =
-      selectedCells
-      .map { String(viewModel.grid[$0.0][$0.1]) }
-      .joined()
   }
 
   private func handleDragEnd() {
-    guard !currentWord.isEmpty else { return }
+    guard !selectedCells.isEmpty else { return }
+    let selectedPositions = selectedCells
 
     Task {
-      await viewModel.submitWord(currentWord)
-
-      if viewModel.isWordFound(currentWord) {
-        lastValidWord = currentWord
-        showToast("Found: \(currentWord)")
-
+      if viewModel.checkIfIsWord(in: selectedPositions) {
+        // TODO run animation
         // Trigger haptic feedback
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
       }
     }
-
     selectedCells = []
-    currentWord = ""
   }
 
   private func showToast(_ message: String) {

@@ -76,9 +76,9 @@ enum GameDifficulty: String, Codable, CaseIterable {
 
   var gridSize: Int {
     switch self {
-    case .easy: return 4
-    case .medium: return 5
-    case .hard: return 6
+    case .easy: return 6
+    case .medium: return 10
+    case .hard: return 20
     }
   }
 }
