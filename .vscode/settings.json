@@ -2,6 +2,7 @@
   "[swift]": {
     "editor.defaultFormatter": "sweetpad.sweetpad",
     "editor.formatOnSave": true,
+    "swiftlint.enable": true
   },
   "sweetpad.tuist.autogenerate": true
 }
