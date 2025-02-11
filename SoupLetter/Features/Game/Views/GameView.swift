@@ -311,3 +311,6 @@ struct GameView: View {
     }
   }
 }
+#Preview {
+  GameView(viewModel: GameViewModel(gameManager: GameStateManager(wordList: ["Cenas"])))
+}

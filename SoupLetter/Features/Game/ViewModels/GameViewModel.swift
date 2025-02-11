@@ -91,7 +91,7 @@ import SwiftUI
       return position == coordinate
     }
     if isSelected {
-      return .blue
+      return .blue.opacity(0.4)
     } else if foundCells.contains(where: isSamePosition) {
       return .green.opacity(0.3)
     } else {
