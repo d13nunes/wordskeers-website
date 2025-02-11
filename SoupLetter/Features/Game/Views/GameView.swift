@@ -49,7 +49,7 @@ struct GameView: View {
         }
       }
       .onChange(of: viewModel.gameState) { _, newState in
-        if newState == .completed(CompletedState()) {
+        if newState == .complete {
           withAnimation {
             showingCompletionView = true
           }

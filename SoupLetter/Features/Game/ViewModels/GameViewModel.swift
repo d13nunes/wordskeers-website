@@ -69,15 +69,15 @@ import SwiftUI
 
   /// Starts the next level
   func startNextLevel() {
-    gameManager.startNextLevel()
+    gameManager.showAd()
   }
 
   /// Submits postions for validation
   func checkIfIsWord(in positions: [(Int, Int)]) -> Bool {
-    guard let word = gameManager.checkIfIsWord(in: positions) else {
+    guard gameManager.checkIfIsWord(in: positions) != nil else {
       return false
     }
-    
+
     if foundWords.count == totalWords {
       print("You won!")
 

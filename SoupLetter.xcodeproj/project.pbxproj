@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E8482DF22D5BAACF00B3E0C6 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = E8482DF12D5BAACF00B3E0C6 /* GoogleMobileAds */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E8D5793E2D5A27E300A892C2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +33,22 @@
 		E8D579472D5A27E300A892C2 /* SoupLetterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoupLetterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E8482DF42D5BABCF00B3E0C6 /* Exceptions for "SoupLetter" folder in "SoupLetter" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E8D5792B2D5A27E100A892C2 /* SoupLetter */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E8D5792E2D5A27E200A892C2 /* SoupLetter */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E8482DF42D5BABCF00B3E0C6 /* Exceptions for "SoupLetter" folder in "SoupLetter" target */,
+			);
 			path = SoupLetter;
 			sourceTree = "<group>";
 		};
@@ -52,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E8482DF22D5BAACF00B3E0C6 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +130,7 @@
 			);
 			name = SoupLetter;
 			packageProductDependencies = (
+				E8482DF12D5BAACF00B3E0C6 /* GoogleMobileAds */,
 			);
 			productName = SoupLetter;
 			productReference = E8D5792C2D5A27E200A892C2 /* SoupLetter.app */;
@@ -195,6 +214,9 @@
 			);
 			mainGroup = E8D579232D5A27E100A892C2;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E8482DF02D5BAACF00B3E0C6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E8D5792D2D5A27E200A892C2 /* Products */;
 			projectDirPath = "";
@@ -396,6 +418,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoupLetter/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -435,6 +458,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoupLetter/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -591,6 +615,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E8482DF02D5BAACF00B3E0C6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E8482DF12D5BAACF00B3E0C6 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E8482DF02D5BAACF00B3E0C6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E8D579242D5A27E100A892C2 /* Project object */;
 }
