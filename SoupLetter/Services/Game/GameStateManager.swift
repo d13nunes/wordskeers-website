@@ -29,20 +29,17 @@ import Foundation
 
   // MARK: - Private Properties
 
-  private let wordList: WordList
+  private let wordList: [String]
   private let gridGenerator: GridGenerator
   private let wordValidator: WordValidator
-  private let storage: any StorageProtocol
   private var timer: Timer?
 
   // MARK: - Initialization
 
-  init(wordList: WordList, storage: any StorageProtocol) {
+  init(wordList: [String]) {
     self.wordList = wordList
-    self.storage = storage
-
     // Initialize game services
-    self.gridGenerator = GridGenerator(words: wordList.words, size: wordList.difficulty.gridSize)
+    self.gridGenerator = GridGenerator(words: wordList, size: 10)
     let (generatedGrid, placedWords) = gridGenerator.getGrid()
     self.grid = generatedGrid
     self.wordValidator = WordValidator(words: placedWords)

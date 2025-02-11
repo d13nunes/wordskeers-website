@@ -17,9 +17,6 @@ import SwiftUI
   /// The game state manager
   private let gameManager: GameStateManager
 
-  /// The word list service
-  private let wordListService: WordListService
-
   private var foundCells: [(Int, Int)] = []
 
   /// Time elapsed in the current game
@@ -45,9 +42,9 @@ import SwiftUI
   }
 
   // MARK: - Initialization
-  init(wordList: WordList, storage: any StorageProtocol, gameManager: GameStateManager) {
+  init(gameManager: GameStateManager) {
     self.gameManager = gameManager
-    self.wordListService = WordListService(storage: storage)
+    // self.wordListService = WordListService(storage: storage)
   }
 
   // MARK: - Game Control Methods

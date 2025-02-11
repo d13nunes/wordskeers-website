@@ -9,24 +9,15 @@ import SwiftUI
 
 @main
 struct SoupLetterApp: App {
-  let storage: any StorageProtocol
-  let wordList: WordList
+  let wordList = ["Hello", "World"]
   let gameManager: GameStateManager
-  
   init() {
-    do {
-      self.storage = try SwiftDataRepository()
-    } catch {
-      fatalError("Failed to initialize storage: \(error)")
-    }
-    self.wordList = WordList(
-      id: UUID(), name: "Default", words: ["Hello", "World"], difficulty: .easy)
-    self.gameManager = GameStateManager(wordList: wordList, storage: storage)
-  }  
+    self.gameManager = GameStateManager(wordList: wordList)
+  }
 
   var body: some Scene {
     WindowGroup {
-      GameView(viewModel: GameViewModel(wordList: wordList, storage: storage, gameManager: gameManager  ))
+      GameView(viewModel: GameViewModel(gameManager: gameManager))
     }
   }
 }
