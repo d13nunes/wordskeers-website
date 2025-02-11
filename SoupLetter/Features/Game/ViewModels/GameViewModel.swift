@@ -4,7 +4,9 @@ import SwiftUI
 /// ViewModel responsible for coordinating game logic and UI updates
 @Observable class GameViewModel {
   // MARK: - Properties
-  private(set) var foundWords: [String] = []
+  var foundWords: [String] {
+    gameManager.foundWords
+  }
 
   /// The current game state
   var gameState: GameState {
@@ -17,7 +19,9 @@ import SwiftUI
   /// The game state manager
   private let gameManager: GameStateManager
 
-  private var foundCells: [(Int, Int)] = []
+  private var foundCells: [(Int, Int)] {
+    gameManager.selectedCells
+  }
 
   /// Time elapsed in the current game
   var timeElapsed: TimeInterval {
@@ -44,7 +48,6 @@ import SwiftUI
   // MARK: - Initialization
   init(gameManager: GameStateManager) {
     self.gameManager = gameManager
-    // self.wordListService = WordListService(storage: storage)
   }
 
   // MARK: - Game Control Methods
@@ -74,8 +77,7 @@ import SwiftUI
     guard let word = gameManager.checkIfIsWord(in: positions) else {
       return false
     }
-    foundCells += positions
-    foundWords.append(word)
+    
     if foundWords.count == totalWords {
       print("You won!")
 

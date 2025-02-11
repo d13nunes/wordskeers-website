@@ -6,7 +6,6 @@ enum GameEvent {
   case pause
   case resume
   case complete
-  case nextLevel
 }
 
 /// Represents the current state of the game

@@ -4,10 +4,9 @@ import Foundation
 final class CompletedState: SoupLetter.GameStateProtocol {
   func handleEvent(_ event: GameEvent, manager: GameStateManager) -> GameState? {
     switch event {
-    case .nextLevel:
-      manager.startNextLevel()
+    default:
+      manager.resetGameState()
       return .playing(PlayingState(manager: manager))
-    default: return nil
     }
   }
 

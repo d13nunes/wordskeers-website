@@ -6,7 +6,7 @@ import Foundation
 
   /// The current state of the game
   private(set) var currentState: GameState
-
+  private(set) var selectedCells: [(Int, Int)] = []
   /// The current grid of letters
   private(set) var grid: [[String]]
 
@@ -31,7 +31,7 @@ import Foundation
 
   private let wordList: [String]
   private let gridGenerator: GridGenerator
-  private let wordValidator: WordValidator
+  private var wordValidator: WordValidator
   private var timer: Timer?
 
   // MARK: - Initialization
@@ -39,7 +39,7 @@ import Foundation
   init(wordList: [String]) {
     self.wordList = wordList
     // Initialize game services
-    self.gridGenerator = GridGenerator(words: wordList, size: 10)
+    self.gridGenerator = GridGenerator(words: wordList, size: 5)
     let (generatedGrid, placedWords) = gridGenerator.getGrid()
     self.grid = generatedGrid
     self.wordValidator = WordValidator(words: placedWords)
@@ -75,10 +75,7 @@ import Foundation
 
   /// Starts the next level with a new grid and words
   func startNextLevel() {
-    let (newGrid, placedWords) = gridGenerator.getGrid()
-    grid = newGrid
-    wordValidator.reset()
-    timeElapsed = 0
+    handleEvent(.start)
   }
 
   /// Validates a word based on selected grid positions
@@ -86,10 +83,12 @@ import Foundation
   /// - Returns: The valid word if found, nil otherwise
   func checkIfIsWord(in positions: [(Int, Int)]) -> String? {
     guard case .playing = currentState else { return nil }
-
+  
     let word = grid.getWord(in: positions)
     guard wordValidator.validateWord(word) else { return nil }
-
+    
+    selectedCells += positions
+  
     if wordValidator.isComplete {
       handleEvent(.complete)
     }
@@ -117,6 +116,22 @@ import Foundation
     currentState.state.exit()
     currentState = newState
     currentState.state.enter()
+  }
+
+  /// Resets the game state for a new level
+  func resetGameState() {
+    // Reset timer
+    stopTimer()
+    timeElapsed = 0
+
+    // Generate new grid
+    let (newGrid, placedWords) = gridGenerator.getGrid()
+    grid = newGrid
+
+    // Reset word validator with new words
+    wordValidator = WordValidator(words: placedWords)
+    selectedCells = []
+  
   }
 
   deinit {
