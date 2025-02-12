@@ -3,6 +3,7 @@ import SwiftUI
 struct PauseMenuView: View {
   @Binding var showingPauseMenu: Bool
   let onResume: () -> Void
+  let onQuit: () -> Void
 
   var body: some View {
     ZStack {
@@ -23,7 +24,7 @@ struct PauseMenuView: View {
         .buttonStyle(.borderedProminent)
 
         Button("Quit", role: .destructive) {
-          // Handle quit action
+          onQuit()
         }
         .buttonStyle(.bordered)
       }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct GameConfiguration {
+struct GameConfiguration: Hashable {
   // MARK: - Properties
 
   /// Size of the game grid (width and height)

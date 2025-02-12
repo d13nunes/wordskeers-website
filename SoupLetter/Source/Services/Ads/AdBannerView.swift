@@ -4,7 +4,7 @@ import SwiftUI
 struct AdBannerView: UIViewRepresentable {
   let adUnitID: String
   let width: CGFloat
-  
+
   func makeUIView(context: Context) -> BannerView {
     let adView = BannerView(adSize: AdSizeBanner)
     adView.adUnitID = adUnitID

@@ -12,9 +12,11 @@ struct GameView: View {
   @State private var lastValidWord: String?
   @State private var showingToast = false
   @State private var toastMessage = ""
+  @Binding private var navigationPath: [GameConfiguration]
 
-  init(viewModel: GameViewModel) {
+  init(viewModel: GameViewModel, path: Binding<[GameConfiguration]>) {
     self.viewModel = viewModel
+    self._navigationPath = path
   }
 
   var body: some View {
@@ -42,7 +44,11 @@ struct GameView: View {
       }
       .overlay {
         if showingPauseMenu {
-          PauseMenuView(showingPauseMenu: $showingPauseMenu, onResume: viewModel.resumeGame)
+          PauseMenuView(
+            showingPauseMenu: $showingPauseMenu, onResume: viewModel.resumeGame,
+            onQuit: {
+              navigationPath = []
+            })
         }
         if showingCompletionView {
           CompletionView(
@@ -252,5 +258,5 @@ struct GameView: View {
 #Preview {
   let configuration = GameConfiguration(gridSize: 10, words: ["Hello", "World"])
   let gameManager = GameStateManager(configuration: configuration)
-  GameView(viewModel: GameViewModel(gameManager: gameManager))
+  GameView(viewModel: GameViewModel(gameManager: gameManager), path: .constant([]))
 }
