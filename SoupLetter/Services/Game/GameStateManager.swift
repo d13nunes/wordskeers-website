@@ -37,11 +37,11 @@ import Foundation
 
   // MARK: - Initialization
 
-  init(wordList: [String], adManager: AdManager = AdManager.shared) {
-    self.wordList = wordList
+  init(configuration: GameConfiguration, adManager: AdManager = AdManager.shared) {
+    self.wordList = configuration.words
     self.adManager = adManager
     // Initialize game services
-    self.gridGenerator = GridGenerator(words: wordList, size: 5)
+    self.gridGenerator = GridGenerator(words: wordList, size: configuration.gridSize)
     let (generatedGrid, placedWords) = gridGenerator.getGrid()
     self.grid = generatedGrid
     self.wordValidator = WordValidator(words: placedWords)

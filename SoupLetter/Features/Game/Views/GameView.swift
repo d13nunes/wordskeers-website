@@ -250,5 +250,7 @@ struct GameView: View {
   }
 }
 #Preview {
-  GameView(viewModel: GameViewModel(gameManager: GameStateManager(wordList: ["Cenas"])))
+  let configuration = GameConfiguration(gridSize: 10, words: ["Hello", "World"])
+  let gameManager = GameStateManager(configuration: configuration)
+  GameView(viewModel: GameViewModel(gameManager: gameManager))
 }

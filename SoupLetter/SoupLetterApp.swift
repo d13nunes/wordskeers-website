@@ -24,11 +24,17 @@ struct SoupLetterApp: App {
 
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-  let wordList = ["Hello", "World"]
+  let configuration = GameConfiguration(
+    gridSize: 10,
+    words: [
+      "Knife", "Spice", "Grill", "Whisk", "Oven", "Stir", "Boil", "Sauté", "Baste", "Steam", "Chop",
+      "Bake", "Dough", "Pantry", "Broil", "Spoon", "Zest", "Simmer", "Peel", "Roast",
+    ])
+
   let gameManager: GameStateManager
   let adManager = AdManager.shared
   init() {
-    self.gameManager = GameStateManager(wordList: wordList)
+    self.gameManager = GameStateManager(configuration: configuration)
   }
 
   var body: some Scene {
