@@ -2,33 +2,43 @@ import SwiftUI
 
 struct PauseMenuView: View {
   @Binding var showingPauseMenu: Bool
-  let onResume: () -> Void
-  let onQuit: () -> Void
-
+  let onResumeClicked: () -> Void
+  let onNewGameClicked: () -> Void
+  private let buttonWidth: CGFloat = .infinity
   var body: some View {
     ZStack {
-      Color.black.opacity(0.5)
+      Color.black.opacity(1)
         .ignoresSafeArea()
-
-      VStack(spacing: 20) {
+      VStack(spacing: 36) {
         Text("Game Paused")
           .font(.title)
           .bold()
 
-        Button("Resume") {
-          withAnimation {
-            showingPauseMenu = false
-            onResume()
-          }
-        }
-        .buttonStyle(.borderedProminent)
+        HStack(alignment: .center, spacing: 12) {
+          MyButton(
+            title: "Resume",
+            style: .passive,
+            action: {
+              withAnimation {
+                showingPauseMenu = false
+                onResumeClicked()
+              }
+            }
+          )
 
-        Button("Quit", role: .destructive) {
-          onQuit()
+          MyButton(
+            title: "New Game",
+            style: .destructive,
+            action: {
+              showingPauseMenu = false
+              onNewGameClicked()
+            }
+          )
         }
-        .buttonStyle(.bordered)
       }
+      .frame(width: buttonWidth)
       .padding(40)
+      .frame(width: .infinity)
       .background {
         RoundedRectangle(cornerRadius: 20)
           .fill(Color(.systemBackground))
@@ -36,4 +46,16 @@ struct PauseMenuView: View {
       }
     }
   }
+}
+
+#Preview {
+  PauseMenuView(
+    showingPauseMenu: .constant(true),
+    onResumeClicked: {
+      print("resume clicked")
+    },
+    onNewGameClicked: {
+      print("new game clicked")
+    }
+  )
 }

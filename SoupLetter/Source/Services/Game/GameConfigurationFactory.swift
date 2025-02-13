@@ -1,0 +1,87 @@
+import Foundation
+
+protocol GameConfigurationFactoryProtocol {
+  func createRandomConfiguration() -> GameConfiguration
+  func createConfiguration(category: String, subCategory: String) -> GameConfiguration
+}
+
+struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
+  private let wordStore: WordListStore
+
+  init(wordStore: WordListStore = WordListStore()) {
+    self.wordStore = wordStore
+  }
+
+  func createRandomConfiguration() -> GameConfiguration {
+    guard let category = wordStore.getRandomCategory() else {
+      assert(false, "No category found")
+    }
+
+    guard let subCategory = wordStore.getRandomSubCategory(for: category) else {
+      assert(false, "No subCategory found")
+    }
+
+    return createConfiguration(category: category, subCategory: subCategory)
+  }
+
+  func createConfiguration(category: String, subCategory: String) -> GameConfiguration {
+    let words = wordStore.getWords(category: category, subCategory: subCategory)
+    guard !words.isEmpty else {
+      assert(false, "No words found for category: \(category) and subCategory: \(subCategory)")
+    }
+
+    let gridSize = 18
+    let wordCount = 10
+    let filteredWords = words.filter { $0.count < gridSize }.prefix(wordCount).map {
+      $0.lowercased()
+    }
+    print("filteredWords: \(filteredWords)")
+    return GameConfiguration(
+      gridSize: gridSize,
+      words: filteredWords,
+      category: category,
+      subCategory: subCategory
+    )
+  }
+}
+
+#if DEBUG
+
+  struct GameConfigurationFactoryPreview: GameConfigurationFactoryProtocol {
+    let gridSize: Int
+    let words: [String]
+    let category: String
+    let subCategory: String
+
+    init(
+      gridSize: Int = 5,
+      words: [String] = ["Hello", "World"],
+      category: String = "Test",
+      subCategory: String = "Test"
+    ) {
+      self.gridSize = gridSize
+      self.words = words
+      self.category = category
+      self.subCategory = subCategory
+    }
+
+    func createRandomConfiguration() -> GameConfiguration {
+      return GameConfiguration(
+        gridSize: gridSize,
+        words: words,
+        category: category,
+        subCategory: subCategory
+      )
+    }
+
+    func createConfiguration(category: String, subCategory: String) -> GameConfiguration {
+      return GameConfiguration(
+        gridSize: gridSize,
+        words: words,
+        category: category,
+        subCategory: subCategory
+      )
+    }
+  }
+
+#endif

@@ -79,7 +79,7 @@ final class GameStateManagerTests: XCTestCase {
     let coordinates = sut.grid.findWordCoordinates("CAT")!
 
     // When
-    let result = sut.checkIfIsWord(in: coordinates)
+    let result = sut.validateWord(in: coordinates)
 
     // Then
     XCTAssertEqual(result, "CAT")
@@ -93,7 +93,7 @@ final class GameStateManagerTests: XCTestCase {
     let invalidCoordinates = [(0, 0), (0, 1)]
 
     // When
-    let result = sut.checkIfIsWord(in: invalidCoordinates)
+    let result = sut.validateWord(in: invalidCoordinates)
 
     // Then
     XCTAssertNil(result)
@@ -107,8 +107,8 @@ final class GameStateManagerTests: XCTestCase {
     let coordinates = sut.grid.findWordCoordinates("CAT")!
 
     // When
-    let firstResult = sut.checkIfIsWord(in: coordinates)
-    let secondResult = sut.checkIfIsWord(in: coordinates)
+    let firstResult = sut.validateWord(in: coordinates)
+    let secondResult = sut.validateWord(in: coordinates)
 
     // Then
     XCTAssertEqual(firstResult, "CAT")
@@ -159,7 +159,7 @@ final class GameStateManagerTests: XCTestCase {
     sut.startGame()
     let initialGrid = sut.grid
     let coordinates = sut.grid.findWordCoordinates("CAT")!
-    _ = sut.checkIfIsWord(in: coordinates)
+    _ = sut.validateWord(in: coordinates)
 
     // When
     sut.startNextLevel()
@@ -175,7 +175,7 @@ final class GameStateManagerTests: XCTestCase {
     // Given
     sut.startGame()
     let coordinates = sut.grid.findWordCoordinates("CAT")!
-    _ = sut.checkIfIsWord(in: coordinates)
+    _ = sut.validateWord(in: coordinates)
 
     // When
     sut.handleEvent(.complete)

@@ -14,11 +14,11 @@ enum Difficulty: Int, Codable, CaseIterable {
   func getGridSize() -> Int {
     switch self {
     case .easy:
-      return 10
+      return 6
     case .medium:
-      return 20
+      return 12
     case .hard:
-      return 40
+      return 18
     }
   }
 

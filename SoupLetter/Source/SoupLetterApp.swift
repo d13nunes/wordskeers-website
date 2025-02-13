@@ -20,32 +20,62 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 }
 @main
-struct SoupLetterApp: App {
+struct MainApp: App {
 
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   let adManager = AdManager.shared
   var configuration: GameConfiguration?
   init() {
+    self.wordStore = WordListStore()
+    self.gameConfigurationFactory = GameConfigurationFactory(wordStore: wordStore)
+    let configuration = gameConfigurationFactory.createRandomConfiguration()
+    self.gameViewModel = GameViewModel(
+      gameManager: GameManager(configuration: configuration),
+      gameConfigurationFactory: gameConfigurationFactory,
+      adManager: adManager
+    )
+
   }
 
-  @State var path: [GameConfiguration] = []
-
+  @State private var showSplash = true
+  static let gridSize = 18
+  static let words = [
+    "hello", "world", "foo", "barbaz", "qux", "quux", "corge", "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
+    "grault", "garply", "waldo",
+    "fred", "plugh", "xyzzythud",
+  ]
+  private let wordStore: WordListStore
+  private let gameConfigurationFactory: GameConfigurationFactory
+  private let gameViewModel: GameViewModel
   var body: some Scene {
     WindowGroup {
-      NavigationStack(path: $path) {
-        CategorySelectionView { configuration in
-          path.append(configuration)
-
-        }
-        .navigationDestination(for: GameConfiguration.self) { configuration in
-          GameView(
-            viewModel: GameViewModel(
-              gameManager: GameStateManager(configuration: configuration)
-            ),
-            path: $path
-          )
-        }
+      if showSplash {
+        SplashView()
+          .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+              withAnimation {
+                showSplash = false
+              }
+            }
+          }
+      } else {
+        GameView(viewModel: gameViewModel)
       }
     }
   }

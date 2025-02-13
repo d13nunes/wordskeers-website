@@ -1,40 +1,43 @@
 import Foundation
 
 /// Service responsible for validating words and managing the word list
-@Observable class WordValidator {
+@Observable
+class WordValidator {
   /// The list of valid words for the current game
-  private var wordList: Set<String>
+  private(set) var words: [WordData]
 
   /// Words that have been found so far
-  private(set) var foundWords: Set<String> = []
+  var foundWords: [String] {
+    words.filter { $0.isFound }.map { $0.word }
+  }
 
-  init(words: [String]) {
-    self.wordList = Set(words.map { $0.uppercased() })
+  init(words: [WordData]) {
+    self.words = words
   }
 
   /// Validates a word and updates the found words list if valid
   func validateWord(_ word: String) -> Bool {
     let upperWord = word.uppercased()
-    if !wordList.contains(upperWord) {
+    // Check if the word is in the list and if not found
+    guard let wordIndex = words.firstIndex(where: { $0.word.uppercased() == upperWord })
+    else {
       return false
     }
-
-    if foundWords.contains(upperWord) {
+    guard !words[wordIndex].isFound else {
       return false
     }
-
-    foundWords.insert(upperWord)
+    words[wordIndex] = WordData(word: word, isFound: true)
     return true
   }
 
   /// Returns the total number of words in the word list
   var totalWords: Int {
-    wordList.count
+    words.count
   }
 
   /// Returns the number of words found so far
   var foundWordCount: Int {
-    foundWords.count
+    words.filter { $0.isFound }.count
   }
 
   /// Returns the completion percentage (0-100)
@@ -45,16 +48,16 @@ import Foundation
 
   /// Returns all found words sorted alphabetically
   var foundWordsList: [String] {
-    Array(foundWords).sorted()
+    words.filter { $0.isFound }.map { $0.word }.sorted()
   }
 
   /// Returns whether all words have been found
   var isComplete: Bool {
-    foundWords.count == wordList.count
+    foundWords.count == words.count
   }
 
   /// Resets the found words list
   func reset() {
-    foundWords.removeAll()
+    words = words.map { WordData(word: $0.word, isFound: false) }
   }
 }

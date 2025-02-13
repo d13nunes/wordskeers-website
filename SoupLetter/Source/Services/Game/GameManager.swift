@@ -1,7 +1,14 @@
 import Foundation
 
+protocol GameStateOptions {
+}
+
+struct NewGameOptions: GameStateOptions {
+  let configuration: GameConfiguration
+}
+
 // /// Service responsible for managing the overall game state and coordinating game logic
-@Observable class GameStateManager {
+@Observable class GameManager {
   // MARK: - Public Properties
 
   /// The current state of the game
@@ -13,38 +20,27 @@ import Foundation
   /// Time elapsed in seconds
   private(set) var timeElapsed: TimeInterval = 0
 
-  // MARK: - Game Statistics
-
-  /// Returns the current completion percentage (0-100)
   var completionPercentage: Double { wordValidator.completionPercentage }
-
-  /// Returns the list of found words sorted alphabetically
-  var foundWords: [String] { wordValidator.foundWordsList }
-
-  /// Returns the total number of words to find
   var totalWords: Int { wordValidator.totalWords }
-
-  /// Returns the number of words found
   var foundWordCount: Int { wordValidator.foundWordCount }
+  var words: [WordData] { wordValidator.words }
 
   // MARK: - Private Properties
 
-  private let wordList: [String]
   private let gridGenerator: GridGenerator
   private var wordValidator: WordValidator
   private var timer: Timer?
-  private let adManager: AdManager
 
   // MARK: - Initialization
 
-  init(configuration: GameConfiguration, adManager: AdManager = AdManager.shared) {
-    self.wordList = configuration.words
-    self.adManager = adManager
+  init(configuration: GameConfiguration) {
+    let wordsList = configuration.words
+    let words = configuration.words.map { WordData(word: $0, isFound: false) }
     // Initialize game services
-    self.gridGenerator = GridGenerator(words: wordList, size: configuration.gridSize)
-    let (generatedGrid, placedWords) = gridGenerator.getGrid()
+    self.gridGenerator = GridGenerator(words: wordsList, size: configuration.gridSize)
+    let (generatedGrid, _) = gridGenerator.getGrid()
     self.grid = generatedGrid
-    self.wordValidator = WordValidator(words: placedWords)
+    self.wordValidator = WordValidator(words: words)
 
     // Initialize with loading state
     self.currentState = .load
@@ -53,59 +49,40 @@ import Foundation
   // MARK: - Game Control Methods
 
   /// Handles game state transitions based on events
-  private func handleEvent(_ event: GameState) {
-    switch event {
+  func tryTransitioningTo(
+    state: GameState,
+    options: GameStateOptions? = nil,
+    onCompletion: (() -> Void)? = nil
+  ) {
+    guard currentState != state else { return }
+    switch state {
     case .resume:
       startTimer()
       currentState = .start
+      onCompletion?()
     case .start:
       resetGameState()
       startTimer()
       currentState = .start
+      onCompletion?()
     case .pause:
       stopTimer()
       currentState = .pause
-    case .presentAd:
-      adManager.onGameComplete { [weak self] in
-        guard let self = self else { return }
-        startGame()
-      }
-      currentState = .presentAd
+      onCompletion?()
     case .complete:
       currentState = .complete
+      stopTimer()
+      onCompletion?()
     case .load:
       currentState = .load
+      onCompletion?()
     }
-  }
-
-  func showAd() {
-    handleEvent(.presentAd)
-  }
-
-  /// Starts a new game
-  func startGame() {
-    handleEvent(.start)
-  }
-
-  /// Pauses the current game
-  func pauseGame() {
-    handleEvent(.pause)
-  }
-
-  /// Resumes the paused game
-  func resumeGame() {
-    handleEvent(.resume)
-  }
-
-  /// Starts the next level with a new grid and words
-  func startNextLevel() {
-    handleEvent(.start)
   }
 
   /// Validates a word based on selected grid positions
   /// - Parameter positions: Array of (row, column) positions in the grid
   /// - Returns: The valid word if found, nil otherwise
-  func checkIfIsWord(in positions: [(Int, Int)]) -> String? {
+  func validateWord(in positions: [(Int, Int)]) -> String? {
     guard case .start = currentState else { return nil }
 
     let word = grid.getWord(in: positions)
@@ -114,7 +91,7 @@ import Foundation
     selectedCells += positions
 
     if wordValidator.isComplete {
-      handleEvent(.complete)
+      tryTransitioningTo(state: .complete)
     }
 
     return word
@@ -143,11 +120,11 @@ import Foundation
     timeElapsed = 0
 
     // Generate new grid
-    let (newGrid, placedWords) = gridGenerator.getGrid()
+    let (newGrid, _) = gridGenerator.getGrid()
     grid = newGrid
 
     // Reset word validator with new words
-    wordValidator = WordValidator(words: placedWords)
+    wordValidator = WordValidator(words: words)
     selectedCells = []
 
   }

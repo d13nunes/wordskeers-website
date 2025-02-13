@@ -7,4 +7,7 @@ struct GameConfiguration: Hashable {
   let gridSize: Int
   let words: [String]
 
+  let category: String
+  let subCategory: String
+
 }

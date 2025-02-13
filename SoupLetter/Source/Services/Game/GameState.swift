@@ -7,5 +7,4 @@ enum GameState {
   case pause
   case resume
   case complete
-  case presentAd
 }

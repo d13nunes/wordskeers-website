@@ -3,22 +3,27 @@ import SwiftUI
 
 /// ViewModel responsible for coordinating game logic and UI updates
 @Observable class GameViewModel {
-  // MARK: - Properties
-  var foundWords: [String] {
-    gameManager.foundWords
+
+  let gameConfigurationFactory: GameConfigurationFactoryProtocol
+  private let adManager: AdManager
+
+  var words: [WordData] {
+    gameManager.words
   }
 
   /// The current game state
   var gameState: GameState {
     gameManager.currentState
   }
+
   /// The game grid
   var grid: [[String]] {
     gameManager.grid
   }
   /// The game state manager
-  private let gameManager: GameStateManager
-  private let wordStore: WordListStore
+  private(set) var gameManager: GameManager
+  var showingPauseMenu = false
+  var showingCompletionView = false
 
   private var foundCells: [(Int, Int)] {
     gameManager.selectedCells
@@ -46,49 +51,67 @@ import SwiftUI
     gameManager.foundWordCount
   }
 
-  // MARK: - Initialization
-  init(gameManager: GameStateManager) {
+  init(
+    gameManager: GameManager,
+    gameConfigurationFactory: GameConfigurationFactoryProtocol,
+    adManager: AdManager
+  ) {
     self.gameManager = gameManager
-    self.wordStore = WordListStore()
+    self.gameConfigurationFactory = gameConfigurationFactory
+    self.adManager = adManager
+    startNewGame()
   }
 
   // MARK: - Game Control Methods
-
-  /// Starts a new game with the selected category and difficulty
+  private var firstGame = true
   func startNewGame() {
-    startGame()
+    showingCompletionView = false
+    let configuration = gameConfigurationFactory.createRandomConfiguration()
+    let gameManager = GameManager(configuration: configuration)
+    self.gameManager = gameManager
+    gameManager.tryTransitioningTo(state: .start)
+    if !firstGame {
+      Task {
+        await adManager.onGameComplete()
+      }
+    }
+    firstGame = false
   }
 
-  /// Starts the game
-  func startGame() {
-    gameManager.startGame()
+  func onViewAppear() {
+    gameManager.tryTransitioningTo(state: .resume)
+  }
+
+  func onViewDisappear() {
+    gameManager.tryTransitioningTo(state: .pause)
   }
 
   /// Pauses the game
   func pauseGame() {
-    gameManager.pauseGame()
+    gameManager.tryTransitioningTo(state: .pause)
+  }
+
+  func onShowPauseMenu() {
+    showingPauseMenu = true
+    pauseGame()
+  }
+
+  func hidePauseMenu() {
+    showingPauseMenu = false
   }
 
   /// Resumes the game
   func resumeGame() {
-    gameManager.resumeGame()
-  }
-
-  /// Starts the next level
-  func startNextLevel() {
-    gameManager.showAd()
+    gameManager.tryTransitioningTo(state: .resume)
   }
 
   /// Submits positions for validation
   func checkIfIsWord(in positions: [(Int, Int)]) -> Bool {
-    guard gameManager.checkIfIsWord(in: positions) != nil else {
-      return false
+    let word = gameManager.validateWord(in: positions)
+    if gameManager.currentState == .complete {
+      showingCompletionView = true
     }
-
-    if foundWords.count == totalWords {
-      print("You won!")
-    }
-    return true
+    return word != nil
   }
 
   /// Returns the color for a cell based on its state
@@ -102,11 +125,6 @@ import SwiftUI
     }
   }
 
-  /// Returns the scale transform for a cell
-  func cellScale(for coordinate: (Int, Int), isSelected: Bool) -> CGFloat {
-    isSelected ? 1.1 : 1.0
-  }
-
   // MARK: - Private Methods
 
   private func getGridSize(for difficulty: Difficulty) -> Int {
@@ -116,10 +134,4 @@ import SwiftUI
     case .hard: return 10
     }
   }
-}
-
-#Preview {
-  let configuration = GameConfiguration(gridSize: 10, words: ["Hello", "World"])
-  let gameManager = GameStateManager(configuration: configuration)
-  GameView(viewModel: GameViewModel(gameManager: gameManager), path: .constant([]))
 }

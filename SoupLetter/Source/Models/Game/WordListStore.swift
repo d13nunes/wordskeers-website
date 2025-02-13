@@ -5,8 +5,8 @@ struct WordListStore {
   // MARK: - Types
 
   typealias WordList = [String]
-  typealias DifficultyMap = [Difficulty: WordList]
-  typealias CategoryMap = [String: DifficultyMap]
+  typealias SubCategoryMap = [String: WordList]
+  typealias CategoryMap = [String: SubCategoryMap]
 
   // MARK: - Properties
 
@@ -26,44 +26,16 @@ struct WordListStore {
   ///   - category: The word category (e.g., "animals")
   ///   - difficulty: The difficulty level
   /// - Returns: Array of words matching the criteria, or empty array if none found
-  func getWords(category: String, difficulty: Difficulty) -> WordList {
-    guard let categoryWords = categories[category],
-      categoryWords[difficulty] != nil
-    else {
+  func getWords(category: String, subCategory: String) -> WordList {
+    guard let categoryWords = categories[category] else {
       return []
     }
-    switch difficulty {
-    case .easy:
-      return categoryWords[.easy]!
-    case .medium:
-      var words: [String] = []
-      if let easyWords = categoryWords[.easy] {
-        words.append(contentsOf: easyWords)
-      }
-      if let mediumWords = categoryWords[.medium] {
-        words.append(contentsOf: mediumWords)
-      }
-      return words
-    case .hard:
-      var words: [String] = []
-      if let easyWords = categoryWords[.easy] {
-        words.append(contentsOf: easyWords)
-      }
-      if let mediumWords = categoryWords[.medium] {
-        words.append(contentsOf: mediumWords)
-      }
-      return words
-    }
-  }
 
-  /// Gets a random word for a specific category and difficulty
-  /// - Parameters:
-  ///   - category: The word category (e.g., "animals")
-  ///   - difficulty: The difficulty level
-  /// - Returns: A random word matching the criteria, or nil if none found
-  func getRandomWord(category: String, difficulty: Difficulty) -> String? {
-    let words = getWords(category: category, difficulty: difficulty)
-    return words.randomElement()
+    guard let subCategoryWords = categoryWords[subCategory] else {
+      return []
+    }
+
+    return subCategoryWords
   }
 
   // MARK: - Private Methods
@@ -72,19 +44,29 @@ struct WordListStore {
   private static func loadJSON() -> CategoryMap {
     guard let url = Bundle.main.url(forResource: "word_lists", withExtension: "json"),
       let data = try? Data(contentsOf: url),
-      let rawData = try? JSONDecoder().decode([String: [Int: [String]]].self, from: data)
+      let rawData = try? JSONDecoder().decode(
+        [String: [String: [String: [String]]]].self, from: data)
     else {
       print("Error: Could not load or decode word_lists.json")
       return [:]
     }
 
-    return rawData.mapValues { difficultyDict in
-      Dictionary(
-        uniqueKeysWithValues: difficultyDict.compactMap { key, words in
-          Difficulty(rawValue: key).map { ($0, words) }
-        })
-    }
+    print("rawData: \(rawData)")
+    return rawData["categories"]?.mapValues { subCategoryDict in
+      subCategoryDict.mapValues { wordList in
+        wordList.map { $0 }
+      }
+    } ?? [:]
   }
+
+  func getRandomCategory() -> String? {
+    categories.keys.randomElement()
+  }
+
+  func getRandomSubCategory(for category: String) -> String? {
+    categories[category]?.keys.randomElement()
+  }
+
 }
 
 // MARK: - Preview Helper
@@ -95,9 +77,9 @@ struct WordListStore {
       WordListStore()
     }
 
-    /// Preview helper to check if words exist for a category and difficulty
-    func hasWords(category: String, difficulty: Difficulty) -> Bool {
-      !getWords(category: category, difficulty: difficulty).isEmpty
+    /// Preview helper to check if words exist for a category and subCategory
+    func hasWords(category: String, subCategory: String) -> Bool {
+      !getWords(category: category, subCategory: subCategory).isEmpty
     }
   }
 #endif
