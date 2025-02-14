@@ -6,6 +6,8 @@ protocol GameConfigurationFactoryProtocol {
 }
 
 struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
+  let emptyConfiguration = GameConfiguration(gridSize: 0, words: [], category: "", subCategory: "")
+  
   private let wordStore: WordListStore
 
   init(wordStore: WordListStore = WordListStore()) {
@@ -15,10 +17,12 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
   func createRandomConfiguration() -> GameConfiguration {
     guard let category = wordStore.getRandomCategory() else {
       assert(false, "No category found")
+      return emptyConfiguration
     }
 
     guard let subCategory = wordStore.getRandomSubCategory(for: category) else {
       assert(false, "No subCategory found")
+      return emptyConfiguration
     }
 
     return createConfiguration(category: category, subCategory: subCategory)
@@ -28,6 +32,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
     let words = wordStore.getWords(category: category, subCategory: subCategory)
     guard !words.isEmpty else {
       assert(false, "No words found for category: \(category) and subCategory: \(subCategory)")
+      return emptyConfiguration
     }
 
     let gridSize = 18

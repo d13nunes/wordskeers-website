@@ -35,10 +35,11 @@ struct CompletionView: View {
     }
   }
 }
-
-#Preview {
-  CompletionView(
-    formattedTime: "01:23",
-    onNextLevel: {}
-  )
-}
+#if DEBUG
+  #Preview {
+    CompletionView(
+      formattedTime: "01:23",
+      onNextLevel: {}
+    )
+  }
+#endif

@@ -48,7 +48,8 @@ struct WordListView: View {
     return word1.word.count < word2.word.count
   }
 }
-
-#Preview {
-  WordListView(viewModel: getViewModel(gridSize: 16, wordCount: 15))
-}
+#if DEBUG
+  #Preview {
+    WordListView(viewModel: getViewModel(gridSize: 16, wordCount: 15))
+  }
+#endif

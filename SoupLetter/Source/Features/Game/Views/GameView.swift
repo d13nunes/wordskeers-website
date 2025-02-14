@@ -114,6 +114,9 @@ struct GameView: View {
     }
   }
 }
-#Preview {
-  GameView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
-}
+
+#if DEBUG
+  #Preview {
+    GameView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
+  }
+#endif

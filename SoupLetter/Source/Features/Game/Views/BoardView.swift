@@ -112,39 +112,40 @@ struct BoardView: View {
     }
   }
 }
+#if DEBUG
+  #Preview {
 
-#Preview {
+    struct PreviewWrapper: View {
+      @State private var selectedCells: [(Int, Int)] = []
+      let grid = [
+        ["A", "B", "C", "D", "E", "F", "F", "F"],
+        ["G", "H", "I", "J", "K", "L", "L", "L"],
+        ["M", "N", "O", "P", "Q", "R", "R", "R"],
+        ["S", "T", "U", "V", "W", "X", "X", "X"],
+        ["Y", "Z", "A", "B", "C", "D", "D", "D"],
+        ["E", "F", "G", "H", "I", "J", "J", "J"],
+        ["Y", "Z", "A", "B", "C", "D", "D", "D"],
+        ["E", "F", "G", "H", "I", "J", "J", "J"],
+      ]
 
-  struct PreviewWrapper: View {
-    @State private var selectedCells: [(Int, Int)] = []
-    let grid = [
-      ["A", "B", "C", "D", "E", "F", "F", "F"],
-      ["G", "H", "I", "J", "K", "L", "L", "L"],
-      ["M", "N", "O", "P", "Q", "R", "R", "R"],
-      ["S", "T", "U", "V", "W", "X", "X", "X"],
-      ["Y", "Z", "A", "B", "C", "D", "D", "D"],
-      ["E", "F", "G", "H", "I", "J", "J", "J"],
-      ["Y", "Z", "A", "B", "C", "D", "D", "D"],
-      ["E", "F", "G", "H", "I", "J", "J", "J"],
-    ]
-
-    func cellColor(at coordinate: (Int, Int), isSelected: Bool) -> Color {
-      isSelected ? Color.blue : Color.clear
-    }
-
-    var body: some View {
-      GeometryReader { geometry in
-        BoardView(
-          grid: grid,
-          selectedCells: $selectedCells,
-          geometry: geometry,
-          cellColor: cellColor,
-          onDragEnd: { _ in }
-        )
+      func cellColor(at coordinate: (Int, Int), isSelected: Bool) -> Color {
+        isSelected ? Color.blue : Color.clear
       }
-      .padding(.horizontal)
-    }
-  }
 
-  return PreviewWrapper()
-}
+      var body: some View {
+        GeometryReader { geometry in
+          BoardView(
+            grid: grid,
+            selectedCells: $selectedCells,
+            geometry: geometry,
+            cellColor: cellColor,
+            onDragEnd: { _ in }
+          )
+        }
+        .padding(.horizontal)
+      }
+    }
+
+    return PreviewWrapper()
+  }
+#endif

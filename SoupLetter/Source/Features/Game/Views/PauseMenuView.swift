@@ -47,15 +47,16 @@ struct PauseMenuView: View {
     }
   }
 }
-
-#Preview {
-  PauseMenuView(
-    showingPauseMenu: .constant(true),
-    onResumeClicked: {
-      print("resume clicked")
-    },
-    onNewGameClicked: {
-      print("new game clicked")
-    }
-  )
-}
+#if DEBUG
+  #Preview {
+    PauseMenuView(
+      showingPauseMenu: .constant(true),
+      onResumeClicked: {
+        print("resume clicked")
+      },
+      onNewGameClicked: {
+        print("new game clicked")
+      }
+    )
+  }
+#endif

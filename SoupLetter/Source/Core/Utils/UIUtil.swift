@@ -84,6 +84,8 @@ struct MyButton: View {
   }
 }
 
-#Preview {
-  MyButton(title: "Hello World", style: .destructive, action: {})
-}
+#if DEBUG
+  #Preview {
+    MyButton(title: "Hello World", style: .destructive, action: {})
+  }
+#endif

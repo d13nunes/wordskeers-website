@@ -31,7 +31,8 @@ struct ScoreView: View {
     .padding(.all)
   }
 }
-
-#Preview {
-  ScoreView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
-}
+#if DEBUG
+  #Preview {
+    ScoreView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
+  }
+#endif

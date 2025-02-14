@@ -15,6 +15,8 @@ struct SplashView: View {
   }
 }
 
-#Preview {
-  SplashView()
-}
+#if DEBUG
+  #Preview {
+    SplashView()
+  }
+#endif
