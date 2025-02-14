@@ -9,7 +9,7 @@ enum AdConstants {
       static let interstitial = "ca-app-pub-3940256099942544/4411468910"
     #else
       /// Production interstitial ad unit ID
-      static let interstitial = "YOUR_PRODUCTION_AD_UNIT_ID"
+      static let interstitial = "ca-app-pub-2232295072431002/3832920916"
     #endif
   }
 
