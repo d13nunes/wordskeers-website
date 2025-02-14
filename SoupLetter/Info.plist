@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-2232295072431002~4951633296</string>
 	<key>SKAdNetworkItems</key>
