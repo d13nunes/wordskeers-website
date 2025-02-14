@@ -45,10 +45,10 @@ struct BoardView: View {
           .fill(cellColor(coordinate, isSelected))
           .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
       }
-      .overlay {
-        RoundedRectangle(cornerRadius: cornerRadius)
-          .stroke(Color.accentColor, lineWidth: 2)
-      }
+      // .overlay {
+      //   RoundedRectangle(cornerRadius: cornerRadius)
+      //     .stroke(Color.accentColor, lineWidth: 2)
+      // }
       .scaleEffect(isSelected ? 1.05 : 1)
       .animation(.spring(response: 0.3), value: isSelected)
   }
