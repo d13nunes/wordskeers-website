@@ -15,9 +15,9 @@
         "geography_places": {
             "Countries of the World": ["France", "Germany", "Brazil", "Japan", "Canada", "Italy", "Spain", "India", "China", "Mexico", "Australia", "Russia", "Sweden", "Egypt", "Argentina"],
             "Capital Cities": ["Paris", "London", "Rome", "Berlin", "Ottawa", "Madrid", "Tokyo", "Beijing", "Moscow", "Washington", "Brasilia", "Canberra", "Seoul", "Jakarta", "Bangkok"],
-            "Mountains & Volcanoes": ["Everest", "Kilimanjaro", "Fuji", "Etna", "Denali", "Matterhorn", "Vesuvius", "MontBlanc", "Aconcagua", "MaunaLoa", "Lhotse", "Makalu", "K2", "Popocatepetl", "St. Helens"],
+            "Mountains & Volcanoes": ["Everest", "Kilimanjaro", "Fuji", "Etna", "Denali", "Matterhorn", "Vesuvius", "MontBlanc", "Aconcagua", "MaunaLoa", "Lhotse", "Makalu", "K2", "Popocatepetl", "StHelens"],
             "Rivers & Oceans": ["Amazon", "Nile", "Mississippi", "Yangtze", "Ganges", "Danube", "Pacific", "Atlantic", "Indian", "Arctic", "Volga", "Tigris", "Euphrates", "Hudson", "Thames"],
-            "Continents & Regions": ["Africa", "Asia", "Europe", "Antarctica", "Australia", "North America", "South America", "Scandinavia", "Balkans", "Siberia", "Middle East", "Polynesia", "Himalayas", "Caribbean", "Caucasus"]
+            "Continents & Regions": ["Africa", "Asia", "Europe", "Antarctica", "Australia", "NorthAmerica", "SouthAmerica", "Scandinavia", "Balkans", "Siberia", "MiddleEast", "Polynesia", "Himalayas", "Caribbean", "Caucasus"]
         },
         "food_drinks": {
             "Dairy Products": ["Milk", "Cheese", "Butter", "Yogurt", "Cream", "Curd", "Mozzarella", "Parmesan", "Feta", "Ghee", "Ricotta", "Brie", "Gorgonzola", "Camembert", "Paneer"],
