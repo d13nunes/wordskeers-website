@@ -20,6 +20,14 @@ import SwiftUI
   var grid: [[String]] {
     gameManager.grid
   }
+
+  var hintPosition: Position? {
+    hintManager.hintPosition
+  }
+  var canRequestHint: Bool {
+    hintManager.canRequestHint
+  }
+
   /// The game state manager
   private(set) var gameManager: GameManager
   var showingPauseMenu = false
@@ -51,25 +59,28 @@ import SwiftUI
     gameManager.foundWordCount
   }
 
+  private var hintManager: HintManager
+  private var firstGame = true
   init(
     gameManager: GameManager,
     gameConfigurationFactory: GameConfigurationFactoryProtocol,
-    adManager: AdManager
+    adManager: AdManager,
+    hintManager: HintManager = HintManager()
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
-    startNewGame()
+    self.hintManager = hintManager
+    startNewGame(gameManager: gameManager)
   }
 
   // MARK: - Game Control Methods
-  private var firstGame = true
-  func startNewGame() {
+
+  func startNewGame(gameManager: GameManager? = nil) {
     showingCompletionView = false
     let configuration = gameConfigurationFactory.createRandomConfiguration()
-    let gameManager = GameManager(configuration: configuration)
-    self.gameManager = gameManager
-    gameManager.tryTransitioningTo(state: .start)
+    self.gameManager = gameManager ?? GameManager(configuration: configuration)
+    self.gameManager.tryTransitioningTo(state: .start)
     if !firstGame {
       Task {
         await adManager.onGameComplete()
@@ -120,9 +131,19 @@ import SwiftUI
       return .blue.opacity(0.4)
     } else if foundCells.contains(where: { $0 == coordinate }) {
       return .green.opacity(0.3)
+    } else if hintPosition == Position(row: coordinate.0, col: coordinate.1) {
+      return .yellow.opacity(0.3)
     } else {
       return .clear
     }
+  }
+
+  func showHint() {
+    _ = hintManager.requestHint(words: words)
+  }
+
+  func clearHint() {
+    hintManager.clearHint()
   }
 
   // MARK: - Private Methods

@@ -1,3 +1,3 @@
 protocol GridFactory {
-  func getGrid() -> ([[String]], [String])
+  func getGrid() -> ([[String]], [WordData])
 }

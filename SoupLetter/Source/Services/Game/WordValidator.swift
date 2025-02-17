@@ -26,7 +26,7 @@ class WordValidator {
     guard !words[wordIndex].isFound else {
       return false
     }
-    words[wordIndex] = WordData(word: word, isFound: true)
+    words[wordIndex] = words[wordIndex].copy(isFound: true)
     return true
   }
 
@@ -58,6 +58,6 @@ class WordValidator {
 
   /// Resets the found words list
   func reset() {
-    words = words.map { WordData(word: $0.word, isFound: false) }
+    words = words.map { $0.copy(isFound: false) }
   }
 }

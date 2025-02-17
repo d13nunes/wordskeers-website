@@ -24,11 +24,6 @@ struct BoardView: View {
       }
     }
     .gesture(dragGesture(in: geometry))
-    .onAppear {
-      print("selectedCells: \(selectedCells)")
-      print("grid: \(geometry.size)")
-      print("grid: \(geometry.frame(in: .local))")
-    }
 
   }
 

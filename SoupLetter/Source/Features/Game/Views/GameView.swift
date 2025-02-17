@@ -32,6 +32,7 @@ struct GameView: View {
                 generator.notificationOccurred(.success)
               }
             }
+            viewModel.clearHint()
           }
         )
       }
@@ -50,12 +51,10 @@ struct GameView: View {
         PauseMenuView(
           showingPauseMenu: $viewModel.showingPauseMenu,
           onResumeClicked: {
-            print("resume clicked")
             viewModel.hidePauseMenu()
             viewModel.resumeGame()
           },
           onNewGameClicked: {
-            print("new game clicked")
             viewModel.hidePauseMenu()
             viewModel.startNewGame()
           }
@@ -84,6 +83,7 @@ struct GameView: View {
         viewModel.onViewDisappear()
       }
     }
+
   }
 
   // MARK: - Toast View

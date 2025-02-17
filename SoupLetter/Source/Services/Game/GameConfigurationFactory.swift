@@ -7,7 +7,7 @@ protocol GameConfigurationFactoryProtocol {
 
 struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
   let emptyConfiguration = GameConfiguration(gridSize: 0, words: [], category: "", subCategory: "")
-  
+
   private let wordStore: WordListStore
 
   init(wordStore: WordListStore = WordListStore()) {
@@ -40,7 +40,6 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
     let filteredWords = words.filter { $0.count < gridSize }.prefix(wordCount).map {
       $0.lowercased()
     }
-    print("filteredWords: \(filteredWords)")
     return GameConfiguration(
       gridSize: gridSize,
       words: filteredWords,

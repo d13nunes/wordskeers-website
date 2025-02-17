@@ -20,6 +20,14 @@ struct ScoreView: View {
         .font(.headline)
         Text(viewModel.formattedTime)
         Spacer()
+        Button(action: {
+          viewModel.showHint()
+        }) {
+          Image(systemName: "lightbulb.fill")
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(viewModel.canRequestHint == false)
+
         Button(action: viewModel.onShowPauseMenu) {
           Image(systemName: "pause.circle.fill")
         }

@@ -35,12 +35,12 @@ struct NewGameOptions: GameStateOptions {
 
   init(configuration: GameConfiguration) {
     let wordsList = configuration.words
-    let words = configuration.words.map { WordData(word: $0, isFound: false) }
     // Initialize game services
     self.gridGenerator = GridGenerator(words: wordsList, size: configuration.gridSize)
-    let (generatedGrid, _) = gridGenerator.getGrid()
+
+    let (generatedGrid, wordsData) = gridGenerator.getGrid()
     self.grid = generatedGrid
-    self.wordValidator = WordValidator(words: words)
+    self.wordValidator = WordValidator(words: wordsData)
 
     // Initialize with loading state
     self.currentState = .load
@@ -120,11 +120,11 @@ struct NewGameOptions: GameStateOptions {
     timeElapsed = 0
 
     // Generate new grid
-    let (newGrid, _) = gridGenerator.getGrid()
+    let (newGrid, wordsData) = gridGenerator.getGrid()
     grid = newGrid
 
     // Reset word validator with new words
-    wordValidator = WordValidator(words: words)
+    wordValidator = WordValidator(words: wordsData)
     selectedCells = []
 
   }

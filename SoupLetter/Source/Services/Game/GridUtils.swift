@@ -1,6 +1,9 @@
 import Foundation
 
-typealias Direction = (dx: Int, dy: Int)
+struct Direction: Hashable {
+  let dx: Int
+  let dy: Int
+}
 
 struct Directions {
 
