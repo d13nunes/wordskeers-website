@@ -13,7 +13,7 @@ struct NewGameOptions: GameStateOptions {
 
   /// The current state of the game
   private(set) var currentState: GameState
-  private(set) var selectedCells: [(Int, Int)] = []
+  private(set) var discoveredCells: [Position] = []
   /// The current grid of letters
   private(set) var grid: [[String]]
 
@@ -82,13 +82,13 @@ struct NewGameOptions: GameStateOptions {
   /// Validates a word based on selected grid positions
   /// - Parameter positions: Array of (row, column) positions in the grid
   /// - Returns: The valid word if found, nil otherwise
-  func validateWord(in positions: [(Int, Int)]) -> String? {
+  func validateWord(in positions: [Position]) -> String? {
     guard case .start = currentState else { return nil }
 
     let word = grid.getWord(in: positions)
     guard wordValidator.validateWord(word) else { return nil }
 
-    selectedCells += positions
+    discoveredCells += positions
 
     if wordValidator.isComplete {
       tryTransitioningTo(state: .complete)
@@ -125,7 +125,7 @@ struct NewGameOptions: GameStateOptions {
 
     // Reset word validator with new words
     wordValidator = WordValidator(words: wordsData)
-    selectedCells = []
+    discoveredCells = []
 
   }
 

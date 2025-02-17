@@ -74,7 +74,7 @@ extension [[String]] {
     return nil
   }
 
-  func getWord(in positions: [(Int, Int)]) -> String {
-    positions.map { self[$0.0][$0.1] }.joined()
+  func getWord(in positions: [Position]) -> String {
+    positions.map { self[$0.row][$0.col] }.joined()
   }
 }

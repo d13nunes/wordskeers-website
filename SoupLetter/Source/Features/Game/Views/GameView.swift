@@ -5,7 +5,7 @@ struct GameView: View {
   @Bindable private var viewModel: GameViewModel
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-  @State private var selectedCells: [(Int, Int)] = []
+  @State private var discoveredCells: [Position] = []
   @State private var showingToast = false
   @State private var toastMessage = ""
   @Environment(\.scenePhase) private var scenePhase
@@ -18,11 +18,10 @@ struct GameView: View {
     VStack(alignment: .trailing, spacing: 12) {
       ScoreView(viewModel: viewModel)
         .padding(.horizontal)
-
       GeometryReader { geometry in
         BoardView(
           grid: viewModel.grid,
-          selectedCells: $selectedCells,
+          discoveredCells: $discoveredCells,
           geometry: geometry,
           cellColor: viewModel.cellColor,
           onDragEnd: { selectedPositions in
@@ -47,7 +46,7 @@ struct GameView: View {
       }
     }
     .overlay {
-      if viewModel.showingPauseMenu {
+      if viewModel.isShowingPauseMenu {
         PauseMenuView(
           onResumeClicked: {
             viewModel.hidePauseMenu()
@@ -64,7 +63,7 @@ struct GameView: View {
           }
         )
       }
-      if viewModel.showingCompletionView {
+      if viewModel.isShowingCompletionView {
         CompletionView(
           formattedTime: viewModel.formattedTime,
           onNextLevel: {
@@ -77,7 +76,7 @@ struct GameView: View {
           }
         )
       }
-      if viewModel.showingHintPopup {
+      if viewModel.isShowingHintPopup {
         HintPopupView(
           onDismissedClicked: {
             viewModel.hideHintPopup()

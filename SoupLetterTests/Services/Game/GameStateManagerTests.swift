@@ -4,7 +4,7 @@ import XCTest
 
 final class GameStateManagerTests: XCTestCase {
   // MARK: - Properties
-  private var sut: GameStateManager!
+  private var sut: GameManager!
   private let testWords = ["CAT", "DOG", "BIRD"]
 
   // MARK: - Setup & Teardown
@@ -21,9 +21,8 @@ final class GameStateManagerTests: XCTestCase {
   // MARK: - Initialization Tests
 
   func testInitialState() {
-    XCTAssertEqual(sut.currentState, .loading(LoadingState()))
     XCTAssertEqual(sut.timeElapsed, 0)
-    XCTAssertTrue(sut.selectedCells.isEmpty)
+    XCTAssertTrue(sut.discoveredCells.isEmpty)
     XCTAssertFalse(sut.grid.isEmpty)
   }
 

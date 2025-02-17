@@ -2,10 +2,10 @@ import SwiftUI
 
 struct BoardView: View {
   let grid: [[String]]
-  @Binding var selectedCells: [(Int, Int)]
+  @Binding var discoveredCells: [Position]
   let geometry: GeometryProxy
-  let cellColor: ((Int, Int), Bool) -> Color
-  let onDragEnd: ([(Int, Int)]) -> Void
+  let cellColor: (Position, Bool) -> Color
+  let onDragEnd: ([Position]) -> Void
 
   @GestureState private var dragLocation: CGPoint?
 
@@ -18,7 +18,7 @@ struct BoardView: View {
       ForEach(0..<gridSize, id: \.self) { row in
         GridRow {
           ForEach(0..<gridSize, id: \.self) { col in
-            letterCell(at: (row, col), size: cellSize)
+            letterCell(at: Position(row: row, col: col), size: cellSize)
           }
         }
       }
@@ -27,9 +27,9 @@ struct BoardView: View {
 
   }
 
-  private func letterCell(at coordinate: (Int, Int), size: CGFloat) -> some View {
-    let isSelected = selectedCells.contains(where: { $0 == coordinate })
-    let letter = String(grid[coordinate.0][coordinate.1])
+  private func letterCell(at coordinate: Position, size: CGFloat) -> some View {
+    let isSelected = discoveredCells.contains(where: { $0 == coordinate })
+    let letter = String(grid[coordinate.row][coordinate.col])
     let cornerRadius = size * 0.15
 
     return Text(letter)
@@ -40,12 +40,10 @@ struct BoardView: View {
           .fill(cellColor(coordinate, isSelected))
           .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
       }
-      // .overlay {
-      //   RoundedRectangle(cornerRadius: cornerRadius)
-      //     .stroke(Color.accentColor, lineWidth: 2)
-      // }
       .scaleEffect(isSelected ? 1.05 : 1)
       .animation(.spring(response: 0.3), value: isSelected)
+    // .scaleEffect(isDiscovered ? 1.05 : 1)
+    // .rotationEffect(isDiscovered ? .degrees(360) : .zero)
   }
 
   private func dragGesture(in geometry: GeometryProxy) -> some Gesture {
@@ -73,26 +71,26 @@ struct BoardView: View {
 
     guard row >= 0 && row < gridSize && col >= 0 && col < gridSize else { return }
 
-    let coordinate = (row, col)
-    if selectedCells.isEmpty {
-      selectedCells = [coordinate]
-    } else if let lastCell = selectedCells.last,
+    let coordinate = Position(row: row, col: col)
+    if discoveredCells.isEmpty {
+      discoveredCells = [coordinate]
+    } else if let lastCell = discoveredCells.last,
       coordinate != lastCell,
-      abs(coordinate.0 - lastCell.0) <= 1 && abs(coordinate.1 - lastCell.1) <= 1
+      abs(coordinate.row - lastCell.row) <= 1 && abs(coordinate.col - lastCell.col) <= 1
     {
-      if selectedCells.count > 1 && coordinate == selectedCells[selectedCells.count - 2] {
-        selectedCells.removeLast()
-      } else if !selectedCells.contains(where: { $0 == coordinate }) {
-        selectedCells.append(coordinate)
+      if discoveredCells.count > 1 && coordinate == discoveredCells[discoveredCells.count - 2] {
+        discoveredCells.removeLast()
+      } else if !discoveredCells.contains(where: { $0 == coordinate }) {
+        discoveredCells.append(coordinate)
       }
     }
   }
 
   private func handleDragEnd() {
-    guard !selectedCells.isEmpty else { return }
-    let selectedPositions = selectedCells
+    guard !discoveredCells.isEmpty else { return }
+    let selectedPositions = discoveredCells
     onDragEnd(selectedPositions)
-    selectedCells = []
+    discoveredCells = []
   }
 
   private func getSpacing(for gridSize: Int) -> Int {
@@ -111,7 +109,7 @@ struct BoardView: View {
   #Preview {
 
     struct PreviewWrapper: View {
-      @State private var selectedCells: [(Int, Int)] = []
+      @State private var discoveredCells: [Position] = []
       let grid = [
         ["A", "B", "C", "D", "E", "F", "F", "F"],
         ["G", "H", "I", "J", "K", "L", "L", "L"],
@@ -123,7 +121,7 @@ struct BoardView: View {
         ["E", "F", "G", "H", "I", "J", "J", "J"],
       ]
 
-      func cellColor(at coordinate: (Int, Int), isSelected: Bool) -> Color {
+      func cellColor(at coordinate: Position, isSelected: Bool) -> Color {
         isSelected ? Color.blue : Color.clear
       }
 
@@ -131,7 +129,7 @@ struct BoardView: View {
         GeometryReader { geometry in
           BoardView(
             grid: grid,
-            selectedCells: $selectedCells,
+            discoveredCells: $discoveredCells,
             geometry: geometry,
             cellColor: cellColor,
             onDragEnd: { _ in }

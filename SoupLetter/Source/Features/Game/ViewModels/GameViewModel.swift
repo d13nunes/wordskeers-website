@@ -30,12 +30,12 @@ import SwiftUI
 
   /// The game state manager
   private(set) var gameManager: GameManager
-  var showingPauseMenu = false
-  var showingCompletionView = false
-  var showingHintPopup = false
+  var isShowingPauseMenu = false
+  var isShowingCompletionView = false
+  var isShowingHintPopup = false
 
-  private var foundCells: [(Int, Int)] {
-    gameManager.selectedCells
+  private var foundCells: [Position] {
+    gameManager.discoveredCells
   }
 
   /// Time elapsed in the current game
@@ -75,7 +75,7 @@ import SwiftUI
   }
 
   private func createNewGame(gameManager: GameManager? = nil) {
-    showingCompletionView = false
+    isShowingCompletionView = false
     let configuration = gameConfigurationFactory.createRandomConfiguration()
     self.gameManager = gameManager ?? GameManager(configuration: configuration)
     self.gameManager.tryTransitioningTo(state: .start)
@@ -103,12 +103,12 @@ import SwiftUI
   }
 
   func onShowPauseMenu() {
-    showingPauseMenu = true
+    isShowingPauseMenu = true
     pauseGame()
   }
 
   func hidePauseMenu() {
-    showingPauseMenu = false
+    isShowingPauseMenu = false
   }
 
   /// Resumes the game
@@ -117,21 +117,21 @@ import SwiftUI
   }
 
   /// Submits positions for validation
-  func checkIfIsWord(in positions: [(Int, Int)]) -> Bool {
+  func checkIfIsWord(in positions: [Position]) -> Bool {
     let word = gameManager.validateWord(in: positions)
     if gameManager.currentState == .complete {
-      showingCompletionView = true
+      isShowingCompletionView = true
     }
     return word != nil
   }
 
   /// Returns the color for a cell based on its state
-  func cellColor(for coordinate: (Int, Int), isSelected: Bool) -> Color {
+  func cellColor(for coordinate: Position, isSelected: Bool) -> Color {
     if isSelected {
       return .blue.opacity(0.4)
     } else if foundCells.contains(where: { $0 == coordinate }) {
       return .green.opacity(0.3)
-    } else if hintPosition == Position(row: coordinate.0, col: coordinate.1) {
+    } else if hintPosition == Position(row: coordinate.row, col: coordinate.col) {
       return .yellow.opacity(0.3)
     } else {
       return .clear
@@ -139,15 +139,15 @@ import SwiftUI
   }
 
   func showHintPopup() {
-    showingHintPopup = true
+    isShowingHintPopup = true
   }
 
   func hideHintPopup() {
-    showingHintPopup = false
+    isShowingHintPopup = false
   }
 
   func requestHint(on viewController: UIViewController) async {
-    showingHintPopup = false
+    isShowingHintPopup = false
     _ = await hintManager.requestHint(words: self.words, on: viewController)
   }
 

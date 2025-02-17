@@ -45,6 +45,7 @@ struct ScoreView: View {
         }
       }
     }
+    .padding(.horizontal)
   }
 
   private func onHintClicked() {
