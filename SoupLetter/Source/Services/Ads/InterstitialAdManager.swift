@@ -5,11 +5,10 @@ import SwiftUI
 /// Service responsible for loading and presenting interstitial ads
 final class InterstitialAdManager: NSObject {
   // MARK: - Properties
-
   /// The current state of the ad
-  private(set) var state: AdState = .notLoaded {
+  @Published private(set) var state: AdState = .notLoaded {
     didSet {
-      print("📢 [AdManager] State changed: \(oldValue) -> \(state)")
+      print("📢 [Interstitial] State changed: \(oldValue) -> \(state)")
     }
   }
 
@@ -33,39 +32,19 @@ final class InterstitialAdManager: NSObject {
 
   /// Presents the interstitial ad if one is loaded
   /// - Parameter completion: Called when the ad is dismissed or if it fails to present
-  func showAd(on rootViewController: UIViewController, completion: @escaping () -> Void) {
+  func showAd(on rootViewController: UIViewController) async -> Bool {
     guard let interstitial else {
-      print("Ad not loaded")
-      completion()
-      return
-    }
-
-    state = .presenting
-    interstitial.present(from: rootViewController)
-  }
-
-  // MARK: - Private Methods
-
-  private var shouldShowAd: Bool {
-    // Check if enough time has passed since last ad
-    if let lastShown = lastAdShownDate {
-      let timeSinceLastAd = Date().timeIntervalSince(lastShown)
-      if timeSinceLastAd < AdConstants.Frequency.minimumInterval {
-        return false
-      }
-    }
-
-    // Check if enough games have been completed
-    if gameCompletionsCount < AdConstants.Frequency.gameCompletionsBeforeAd {
+      print("📢 [Interstitial] Ad not loaded")
       return false
     }
 
-    // Check if an ad is loaded
-    return state == .loaded
+    state = .presenting
+    await interstitial.present(from: rootViewController)
+    return true
   }
 
   private func loadAd() {
-    print("📢 [AdManager] Attempting to load new ad")
+    print("📢 [Interstitial] Attempting to load new ad")
     state = .loading
 
     let request = Request()
@@ -74,12 +53,12 @@ final class InterstitialAdManager: NSObject {
       request: request
     ) { [weak self] ad, error in
       if let error = error {
-        print("📢 [AdManager] Failed to load ad with error: \(error.localizedDescription)")
+        print("📢 [Interstitial] Failed to load ad with error: \(error.localizedDescription)")
         self?.state = .error(error)
         return
       }
 
-      print("📢 [AdManager] Successfully loaded new ad")
+      print("📢 [Interstitial] Successfully loaded new ad")
       self?.interstitial = ad
       self?.interstitial?.fullScreenContentDelegate = self
       self?.state = .loaded
@@ -91,38 +70,14 @@ final class InterstitialAdManager: NSObject {
 
 extension InterstitialAdManager: FullScreenContentDelegate {
   func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-    print("📢 [AdManager] Ad was dismissed")
+    print("📢 [Interstitial] Ad was dismissed")
     state = .notLoaded
     loadAd()
   }
 
   func ad(_ ad: FullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
-    print("📢 [AdManager] Ad failed to present with error: \(error.localizedDescription)")
+    print("📢 [Interstitial] Ad failed to present with error: \(error.localizedDescription)")
     state = .error(error)
     loadAd()
-  }
-}
-
-// MARK: - AdState
-
-extension InterstitialAdManager {
-  /// Represents the current state of the ad
-  enum AdState: Equatable {
-    case notLoaded
-    case loading
-    case loaded
-    case presenting
-    case error(Error)
-
-    static func == (lhs: AdState, rhs: AdState) -> Bool {
-      switch (lhs, rhs) {
-      case (.notLoaded, .notLoaded): return true
-      case (.loading, .loading): return true
-      case (.loaded, .loaded): return true
-      case (.presenting, .presenting): return true
-      case (.error, .error): return true
-      default: return false
-      }
-    }
   }
 }

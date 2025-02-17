@@ -32,6 +32,7 @@ import SwiftUI
   private(set) var gameManager: GameManager
   var showingPauseMenu = false
   var showingCompletionView = false
+  var showingHintPopup = false
 
   private var foundCells: [(Int, Int)] {
     gameManager.selectedCells
@@ -64,29 +65,28 @@ import SwiftUI
   init(
     gameManager: GameManager,
     gameConfigurationFactory: GameConfigurationFactoryProtocol,
-    adManager: AdManager,
-    hintManager: HintManager = HintManager()
+    adManager: AdManager
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
-    self.hintManager = hintManager
-    startNewGame(gameManager: gameManager)
+    self.hintManager = HintManager(adManager: adManager)
+    createNewGame(gameManager: gameManager)
   }
 
-  // MARK: - Game Control Methods
-
-  func startNewGame(gameManager: GameManager? = nil) {
+  private func createNewGame(gameManager: GameManager? = nil) {
     showingCompletionView = false
     let configuration = gameConfigurationFactory.createRandomConfiguration()
     self.gameManager = gameManager ?? GameManager(configuration: configuration)
     self.gameManager.tryTransitioningTo(state: .start)
-    if !firstGame {
-      Task {
-        await adManager.onGameComplete()
-      }
-    }
-    firstGame = false
+    hintManager.clearHint()
+  }
+
+  // MARK: - Game Control Methods
+  @MainActor
+  func startNewGame(gameManager: GameManager? = nil, on viewController: UIViewController) async {
+    createNewGame(gameManager: gameManager)
+    _ = await adManager.onGameComplete(on: viewController)
   }
 
   func onViewAppear() {
@@ -138,8 +138,17 @@ import SwiftUI
     }
   }
 
-  func showHint() {
-    _ = hintManager.requestHint(words: words)
+  func showHintPopup() {
+    showingHintPopup = true
+  }
+
+  func hideHintPopup() {
+    showingHintPopup = false
+  }
+
+  func requestHint(on viewController: UIViewController) async {
+    showingHintPopup = false
+    _ = await hintManager.requestHint(words: self.words, on: viewController)
   }
 
   func clearHint() {

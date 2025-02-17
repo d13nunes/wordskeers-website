@@ -1,25 +1,39 @@
+import Combine
 import Foundation
+import UIKit
 
 /// Manages the hint system for the word search game
 @Observable class HintManager {
   // MARK: - Properties
 
   private(set) var hintPosition: Position?
+
   var canRequestHint: Bool {
-    hintPosition == nil
+    adManager.isRewardedReady && hintPosition == nil
   }
 
-  // MARK: - Public Methods
+  private let adManager: AdManager
 
-  /// Provides a hint by finding the first letter position of a random unfound word
-  /// Returns true if a hint was successfully provided
-  func requestHint(words: [WordData]) -> Bool {
-    let unfoundWords = words.filter { !$0.isFound }
-    if let word = unfoundWords.randomElement() {
-      self.hintPosition = word.position
-      return true
+  // MARK: - Initialization
+
+  init(adManager: AdManager) {
+    self.adManager = adManager
+
+  }
+  // MARK: - Public Methods
+  func requestHint(words: [WordData], on viewController: UIViewController) async -> Bool {
+    guard canRequestHint else {
+      return false
     }
-    return false
+    let wasRewarded = await adManager.showRewardedAd(on: viewController)
+    guard wasRewarded else {
+      return false
+    }
+    guard let word = words.filter({ !$0.isFound }).randomElement() else {
+      return false
+    }
+    hintPosition = word.position
+    return true
   }
 
   func clearHint() {

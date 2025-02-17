@@ -3,6 +3,10 @@ import SwiftUI
 struct ScoreView: View {
   @State var viewModel: GameViewModel
 
+  var canRequestHint: Bool {
+    viewModel.canRequestHint
+  }
+
   var foundWordsCount: Int {
     viewModel.foundWordCount
   }
@@ -12,31 +16,48 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading) {
-      HStack {
+    HStack(alignment: .top) {
+      VStack(alignment: .leading) {
         Text(
-          "Found Words (\(foundWordsCount)/\(totalWordsCount))"
+          "Words (\(foundWordsCount)/\(totalWordsCount))"
         )
-        .font(.headline)
-        Text(viewModel.formattedTime)
-        Spacer()
-        Button(action: {
-          viewModel.showHint()
-        }) {
-          Image(systemName: "lightbulb.fill")
-        }
-        .buttonStyle(.borderedProminent)
-        .disabled(viewModel.canRequestHint == false)
-
-        Button(action: viewModel.onShowPauseMenu) {
-          Image(systemName: "pause.circle.fill")
-        }
-        .buttonStyle(.borderedProminent)
+        .bold()
+        .font(.title)
+        WordListView(viewModel: viewModel)
       }
-      WordListView(viewModel: viewModel)
+      Spacer()
+      HStack {
+        VStack(alignment: .trailing) {
+          HStack(alignment: .lastTextBaseline) {
+            Text("Time:")
+              .bold()
+              .font(.system(size: 22))
+            Text(viewModel.formattedTime)
+              .monospacedDigit()
+              .bold()
+              .font(.system(size: 42))
+          }
+          HStack(alignment: .top, spacing: 16) {
+            Spacer()
+            HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
+            PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+          }
+        }
+      }
     }
+  }
 
-    .padding(.all)
+  private func onHintClicked() {
+    viewModel.showHintPopup()
+  }
+  func onHintRequested() {
+    viewModel.hideHintPopup()
+    guard let viewController = UIApplication.shared.rootViewController() else {
+      return
+    }
+    Task.detached {
+      await viewModel.requestHint(on: viewController)
+    }
   }
 }
 #if DEBUG

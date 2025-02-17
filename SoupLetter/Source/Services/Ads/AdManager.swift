@@ -1,22 +1,29 @@
+import Combine
 import Foundation
 import UIKit
 
-@MainActor
+@Observable
 final class AdManager {
   static let shared = AdManager()
 
-  private let interstitialAdManager = InterstitialAdManager()
+  // MARK: - Publishers
+  var isInterstitialReady: Bool {
+    interstitialAdManager.state == .loaded
+  }
+  var isRewardedReady: Bool {
+    rewardedAdManager.adState == .loaded
+  }
 
-  func onGameComplete() async {
-    return await withCheckedContinuation { continuation in
-      let viewController = UIApplication.shared.rootViewController()
-      guard let viewController else {
-        print("No root view controller found")
-        return
-      }
-      interstitialAdManager.showAd(on: viewController) {
-        continuation.resume()
-      }
-    }
+  private let interstitialAdManager = InterstitialAdManager()
+  private let rewardedAdManager = RewardedAdManager()
+
+  @MainActor
+  func onGameComplete(on viewController: UIViewController) async -> Bool {
+    return await interstitialAdManager.showAd(on: viewController)
+  }
+
+  @MainActor
+  func showRewardedAd(on viewController: UIViewController) async -> Bool {
+    return await rewardedAdManager.showAd(on: viewController)
   }
 }

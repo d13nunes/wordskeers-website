@@ -1,34 +1,38 @@
 import SwiftUI
 
-struct PauseMenuView: View {
-  let onResumeClicked: () -> Void
-  let onNewGameClicked: () -> Void
+struct HintPopupView: View {
+  let onDismissedClicked: () -> Void
+  let onShowHintClicked: () -> Void
   private let buttonWidth: CGFloat = .infinity
   var body: some View {
     ZStack {
-      Color.black.opacity(1)
+      Color.black.opacity(0.3)
         .ignoresSafeArea()
       VStack(spacing: 36) {
-        Text("Game Paused")
-          .font(.title)
-          .bold()
-
+        VStack(alignment: .center, spacing: 8) {
+          Text("Hint")
+            .font(.headline)
+            .bold()
+          Text("You can get a hint by watching an ad")
+            .font(.subheadline)
+            .foregroundColor(.gray)
+        }
         HStack(alignment: .center, spacing: 12) {
           MyButton(
-            title: "Resume",
+            title: "Dismiss",
             style: .passive,
             action: {
               withAnimation {
-                onResumeClicked()
+                onDismissedClicked()
               }
             }
           )
 
           MyButton(
-            title: "New Game",
-            style: .destructive,
+            title: "Get hint",
+            style: .reward,
             action: {
-              onNewGameClicked()
+              onShowHintClicked()
             }
           )
         }
@@ -46,12 +50,12 @@ struct PauseMenuView: View {
 }
 #if DEBUG
   #Preview {
-    PauseMenuView(
-      onResumeClicked: {
-        print("resume clicked")
+    HintPopupView(
+      onDismissedClicked: {
+        print("dismiss clicked")
       },
-      onNewGameClicked: {
-        print("new game clicked")
+      onShowHintClicked: {
+        print("show hint clicked")
       }
     )
   }

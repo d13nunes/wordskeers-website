@@ -49,14 +49,18 @@ struct GameView: View {
     .overlay {
       if viewModel.showingPauseMenu {
         PauseMenuView(
-          showingPauseMenu: $viewModel.showingPauseMenu,
           onResumeClicked: {
             viewModel.hidePauseMenu()
             viewModel.resumeGame()
           },
           onNewGameClicked: {
             viewModel.hidePauseMenu()
-            viewModel.startNewGame()
+            guard let viewController = UIApplication.shared.rootViewController() else {
+              return
+            }
+            Task.detached {
+              await viewModel.startNewGame(on: viewController)
+            }
           }
         )
       }
@@ -64,7 +68,27 @@ struct GameView: View {
         CompletionView(
           formattedTime: viewModel.formattedTime,
           onNextLevel: {
-            viewModel.startNewGame()
+            guard let viewController = UIApplication.shared.rootViewController() else {
+              return
+            }
+            Task.detached {
+              await viewModel.startNewGame(on: viewController)
+            }
+          }
+        )
+      }
+      if viewModel.showingHintPopup {
+        HintPopupView(
+          onDismissedClicked: {
+            viewModel.hideHintPopup()
+          },
+          onShowHintClicked: {
+            guard let viewController = UIApplication.shared.rootViewController() else {
+              return
+            }
+            Task.detached {
+              await viewModel.requestHint(on: viewController)
+            }
           }
         )
       }

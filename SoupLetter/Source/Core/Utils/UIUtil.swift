@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 extension UIApplication {
+  @MainActor
   func rootViewController() -> UIViewController? {
     guard let windowScene = connectedScenes.first as? UIWindowScene,
       let window = windowScene.windows.first
@@ -15,6 +16,7 @@ extension UIApplication {
 enum ButtonStyleType {
   case passive
   case destructive
+  case reward
 }
 
 private struct ButtonStyleConstants {
@@ -27,6 +29,21 @@ private struct ButtonStyle {
   let foregroundColor: Color
   let cornerRadius: CGFloat
   let padding: EdgeInsets
+  let image: Image?
+
+  init(
+    backgroundColor: Color,
+    foregroundColor: Color,
+    cornerRadius: CGFloat,
+    padding: EdgeInsets,
+    image: Image? = nil
+  ) {
+    self.backgroundColor = backgroundColor
+    self.foregroundColor = foregroundColor
+    self.cornerRadius = cornerRadius
+    self.padding = padding
+    self.image = image
+  }
 }
 
 private struct ButtonStyleFactory {
@@ -45,6 +62,14 @@ private struct ButtonStyleFactory {
         foregroundColor: .white,
         cornerRadius: constants.cornerRadius,
         padding: constants.padding
+      )
+    case .reward:
+      return ButtonStyle(
+        backgroundColor: .green,
+        foregroundColor: .white,
+        cornerRadius: constants.cornerRadius,
+        padding: constants.padding,
+        image: Image("ad-label")
       )
     }
   }
@@ -72,11 +97,20 @@ struct MyButton: View {
   }
   var body: some View {
     Button(action: action) {
-      Text(title)
-        .padding(style.padding)
-        .foregroundColor(style.foregroundColor)
-        .font(.title2)
-        .fontWeight(.bold)
+      HStack(alignment: .center, spacing: 2) {
+        if let image = style.image {
+          image
+            .resizable()
+            .colorMultiply(.white)
+            .aspectRatio(contentMode: .fit)
+            .frame(height: 24)
+        }
+        Text(title)
+          .padding(style.padding)
+          .foregroundColor(style.foregroundColor)
+          .font(.title2)
+          .fontWeight(.bold)
+      }
     }
     .frame(width: 200, height: 64)
     .background(style.backgroundColor)
