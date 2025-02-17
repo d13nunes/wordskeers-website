@@ -9,3 +9,5 @@ identifier_name:
   excluded:
     - ad
     - up
+    - dx
+    - dy
