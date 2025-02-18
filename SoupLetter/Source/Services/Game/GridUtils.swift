@@ -1,33 +1,5 @@
 import Foundation
 
-struct Direction: Hashable {
-  let dx: Int
-  let dy: Int
-}
-
-struct Directions {
-
-  static let all: [Direction] = [
-    right,
-    down,
-    diagonalRightDown,
-    diagonalLeftDown,
-    left,
-    up,
-    diagonalLeftUp,
-    diagonalRightUp,
-  ]
-
-  static let right = Direction(dx: 0, dy: 1)
-  static let down = Direction(dx: 1, dy: 0)
-  static let diagonalRightDown = Direction(dx: 1, dy: 1)
-  static let diagonalLeftDown = Direction(dx: -1, dy: 1)
-  static let left = Direction(dx: 0, dy: -1)
-  static let up = Direction(dx: -1, dy: 0)
-  static let diagonalLeftUp = Direction(dx: -1, dy: -1)
-  static let diagonalRightUp = Direction(dx: 1, dy: -1)
-}
-
 extension [[String]] {
   func printGrid() {
     let output = self.map { $0.joined() }.joined(separator: "\n")
@@ -35,7 +7,7 @@ extension [[String]] {
   }
 
   /// Returns the coordinates of all cells that form a word in the grid
-  func findWordCoordinates(_ word: String, directions: [Direction] = Directions.all) -> [(
+  func findWordCoordinates(_ word: String, directions: Set<Direction> = Directions.all) -> [(
     Int, Int
   )]? {
     let size = self.count

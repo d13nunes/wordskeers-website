@@ -34,7 +34,8 @@ struct GameView: View {
               }
             }
             viewModel.clearHint()
-          }
+          },
+          allowedDirections: Directions.all
         )
       }
       .padding(.horizontal)
