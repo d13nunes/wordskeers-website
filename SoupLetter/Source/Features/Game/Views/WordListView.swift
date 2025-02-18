@@ -14,29 +14,33 @@ struct WordListView: View {
   }
 
   var body: some View {
-    HStack(alignment: .top, spacing: 4) {
-      ForEach(gridItems, id: \.self) { collumn in
-        VStack(alignment: .leading) {
-          ForEach(collumn, id: \.word) { word in
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-              Image(
-                systemName: word.isFound ? "checkmark.square.fill" : "square"
-              )
-              .foregroundColor(word.isFound ? .green : .gray)
 
-              Text(word.word.capitalized)
-                .font(.subheadline)
-                .foregroundColor(word.isFound ? .primary : .secondary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background {
-              RoundedRectangle(cornerRadius: 8)
-                .fill(word.isFound ? Color.green.opacity(0.1) : Color.clear)
+    ScrollView(.horizontal) {
+      HStack(alignment: .top, spacing: 4) {
+        ForEach(gridItems, id: \.self) { collumn in
+          VStack(alignment: .leading) {
+            ForEach(collumn, id: \.word) { word in
+              HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Image(
+                  systemName: word.isFound ? "checkmark.square.fill" : "square"
+                )
+                .foregroundColor(word.isFound ? .green : .gray)
+
+                Text(word.word.capitalized)
+                  .font(.subheadline)
+                  .foregroundColor(word.isFound ? .primary : .secondary)
+              }
+              .padding(.horizontal, 12)
+              .padding(.vertical, 6)
+              .background {
+                RoundedRectangle(cornerRadius: 8)
+                  .fill(word.isFound ? Color.green.opacity(0.1) : Color.clear)
+              }
             }
           }
         }
       }
+      .scrollIndicators(.automatic, axes: .vertical)
     }
     .onAppear {
       print(gridItems[0])
@@ -50,6 +54,6 @@ struct WordListView: View {
 }
 #if DEBUG
   #Preview {
-    WordListView(viewModel: getViewModel(gridSize: 16, wordCount: 15))
+    WordListView(viewModel: getViewModel(gridSize: 16, wordCount: 65))
   }
 #endif

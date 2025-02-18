@@ -24,7 +24,7 @@ struct MainApp: App {
 
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-  let adManager = AdManager.shared
+  let adManager: AdManaging = AdManagerProvider.shared
   var configuration: GameConfiguration?
   init() {
     self.wordStore = WordListStore()

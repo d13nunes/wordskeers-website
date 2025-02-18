@@ -2,8 +2,47 @@ import Combine
 import Foundation
 import UIKit
 
+protocol AdManaging {
+  var isInterstitialReady: Bool { get }
+  var isRewardedReady: Bool { get }
+
+  @MainActor
+  func onGameComplete(on viewController: UIViewController) async -> Bool
+
+  @MainActor
+  func showRewardedAd(on viewController: UIViewController) async -> Bool
+}
+
+#if DEBUG
+
+  private final class MockAdManager: AdManaging {
+    var isInterstitialReady: Bool {
+      return true
+    }
+    var isRewardedReady: Bool {
+      return true
+    }
+
+    func onGameComplete(on viewController: UIViewController) async -> Bool {
+      return true
+    }
+
+    func showRewardedAd(on viewController: UIViewController) async -> Bool {
+      return true
+    }
+  }
+#endif
+
+final class AdManagerProvider {
+  #if DEBUG
+    static let shared: AdManaging = MockAdManager()
+  #else
+    static let shared: AdManaging = AdManager()
+  #endif
+}
+
 @Observable
-final class AdManager {
+private final class AdManager: AdManaging {
   static let shared = AdManager()
 
   // MARK: - Publishers

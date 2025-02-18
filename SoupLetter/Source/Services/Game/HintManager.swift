@@ -6,17 +6,17 @@ import UIKit
 @Observable class HintManager {
   // MARK: - Properties
 
-  private(set) var hintPosition: Position?
+  private(set) var positions: [Position] = []
 
   var canRequestHint: Bool {
-    adManager.isRewardedReady && hintPosition == nil
+    adManager.isRewardedReady && positions.isEmpty
   }
 
-  private let adManager: AdManager
+  private let adManager: AdManaging
 
   // MARK: - Initialization
 
-  init(adManager: AdManager) {
+  init(adManager: AdManaging) {
     self.adManager = adManager
 
   }
@@ -32,11 +32,11 @@ import UIKit
     guard let word = words.filter({ !$0.isFound }).randomElement() else {
       return false
     }
-    hintPosition = word.position
+    positions.append(word.position)
     return true
   }
 
   func clearHint() {
-    hintPosition = nil
+    positions.removeAll()
   }
 }

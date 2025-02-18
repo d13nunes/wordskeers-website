@@ -5,7 +5,8 @@ struct GameView: View {
   @Bindable private var viewModel: GameViewModel
   @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-  @State private var discoveredCells: [Position] = []
+  @State private var selectedCells: [Position] = []
+  @State private var hintCell: Position?
   @State private var showingToast = false
   @State private var toastMessage = ""
   @Environment(\.scenePhase) private var scenePhase
@@ -21,9 +22,10 @@ struct GameView: View {
       GeometryReader { geometry in
         BoardView(
           grid: viewModel.grid,
-          discoveredCells: $discoveredCells,
+          selectedCells: $selectedCells,
+          hintPositions: viewModel.hintPositions,
           geometry: geometry,
-          cellColor: viewModel.cellColor,
+          getCellColor: viewModel.cellColor,
           onDragEnd: { selectedPositions in
             Task {
               if viewModel.checkIfIsWord(in: selectedPositions) {
@@ -140,6 +142,6 @@ struct GameView: View {
 
 #if DEBUG
   #Preview {
-    GameView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
+    GameView(viewModel: getViewModel(gridSize: 15, wordCount: 15))
   }
 #endif

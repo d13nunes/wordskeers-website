@@ -71,7 +71,7 @@
     return GameViewModel(
       gameManager: gameManager,
       gameConfigurationFactory: gameConfigurationFactory,
-      adManager: AdManager.shared
+      adManager: AdManagerProvider.shared
     )
   }
 

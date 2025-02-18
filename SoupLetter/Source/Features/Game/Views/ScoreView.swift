@@ -16,7 +16,8 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    HStack(alignment: .top) {
+    HStack(alignment: .top, spacing: 16) {
+
       VStack(alignment: .leading) {
         Text(
           "Words (\(foundWordsCount)/\(totalWordsCount))"
@@ -25,9 +26,8 @@ struct ScoreView: View {
         .font(.title)
         WordListView(viewModel: viewModel)
       }
-      Spacer()
-      HStack {
-        VStack(alignment: .trailing) {
+      HStack(alignment: .top) {
+        VStack(alignment: .leading) {
           HStack(alignment: .lastTextBaseline) {
             Text("Time:")
               .bold()
@@ -38,13 +38,13 @@ struct ScoreView: View {
               .font(.system(size: 42))
           }
           HStack(alignment: .top, spacing: 16) {
-            Spacer()
             HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
             PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
           }
         }
       }
     }
+
     .padding(.horizontal)
   }
 
@@ -63,6 +63,6 @@ struct ScoreView: View {
 }
 #if DEBUG
   #Preview {
-    ScoreView(viewModel: getViewModel(gridSize: 5, wordCount: 5))
+    ScoreView(viewModel: getViewModel(gridSize: 15, wordCount: 25))
   }
 #endif

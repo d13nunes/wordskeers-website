@@ -5,7 +5,7 @@ import SwiftUI
 @Observable class GameViewModel {
 
   let gameConfigurationFactory: GameConfigurationFactoryProtocol
-  private let adManager: AdManager
+  private let adManager: AdManaging
 
   var words: [WordData] {
     gameManager.words
@@ -21,9 +21,10 @@ import SwiftUI
     gameManager.grid
   }
 
-  var hintPosition: Position? {
-    hintManager.hintPosition
+  var hintPositions: [Position] {
+    hintManager.positions
   }
+
   var canRequestHint: Bool {
     hintManager.canRequestHint
   }
@@ -34,7 +35,7 @@ import SwiftUI
   var isShowingCompletionView = false
   var isShowingHintPopup = false
 
-  private var foundCells: [Position] {
+  private var discoveredCells: [Position] {
     gameManager.discoveredCells
   }
 
@@ -65,12 +66,13 @@ import SwiftUI
   init(
     gameManager: GameManager,
     gameConfigurationFactory: GameConfigurationFactoryProtocol,
-    adManager: AdManager
+    adManager: AdManaging
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
     self.hintManager = HintManager(adManager: adManager)
+
     createNewGame(gameManager: gameManager)
   }
 
@@ -126,12 +128,12 @@ import SwiftUI
   }
 
   /// Returns the color for a cell based on its state
-  func cellColor(for coordinate: Position, isSelected: Bool) -> Color {
+  func cellColor(for position: Position, isSelected: Bool) -> Color {
     if isSelected {
       return .blue.opacity(0.4)
-    } else if foundCells.contains(where: { $0 == coordinate }) {
+    } else if discoveredCells.contains(position) {
       return .green.opacity(0.3)
-    } else if hintPosition == Position(row: coordinate.row, col: coordinate.col) {
+    } else if hintPositions.contains(position) {
       return .yellow.opacity(0.3)
     } else {
       return .clear
