@@ -4,5 +4,6 @@
     "editor.formatOnSave": true,
     "swiftlint.enable": true
   },
-  "sweetpad.tuist.autogenerate": true
+  "sweetpad.tuist.autogenerate": true,
+  "files.autoSave": "onFocusChange"
 }
