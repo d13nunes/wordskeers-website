@@ -35,7 +35,7 @@ struct CompletionCompactView: View {
           .bold()
 
         VStack(spacing: 2) {
-          Text("It took you only")
+          Text("You found all the words in")
             .font(.subheadline)
           Text("\(formattedTime)")
             .font(.largeTitle)
