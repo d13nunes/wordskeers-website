@@ -15,7 +15,6 @@ enum LetterCellState: Equatable, Hashable {
 
 struct LetterCell: View {
   let size: CGFloat
-  let state: LetterCellState
   let cornerRadius: CGFloat
   let color: Color
   let letter: String
@@ -29,9 +28,6 @@ struct LetterCell: View {
           .fill(color)
           .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 2)
       }
-      .scaleEffect(state != .none ? 1.05 : 1)
-      .animation(.spring(response: 0.3), value: state != .none)
-      .wiggle(trigger: state == .hint)
   }
 }
 
@@ -48,10 +44,8 @@ struct LetterCell: View {
           }
         }
         .pickerStyle(WheelPickerStyle())
-
         LetterCell(
           size: 100,
-          state: selectedState,
           cornerRadius: 10,
           color: .blue,
           letter: "P")

@@ -7,10 +7,13 @@ import SwiftUI
   let gameConfigurationFactory: GameConfigurationFactoryProtocol
   private let adManager: AdManaging
 
+  let selectionHandler: SelectionHandler
+
   var words: [WordData] {
     gameManager.words
   }
 
+  private(set) var pathValidator: PathValidator
   /// The current game state
   var gameState: GameState {
     gameManager.currentState
@@ -72,7 +75,15 @@ import SwiftUI
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
     self.hintManager = HintManager(adManager: adManager)
-
+    self.pathValidator = PathValidator(
+      allowedDirections: Directions.all,
+      gridSize: gameManager.grid.count
+    )
+    self.selectionHandler = SelectionHandler(
+      allowedDirections: Directions.all,
+      gridSize: gameManager.grid.count
+    )
+    self.selectionHandler.onDragEnd = onDragEnd
     createNewGame(gameManager: gameManager)
   }
 
@@ -81,6 +92,10 @@ import SwiftUI
     let configuration = gameConfigurationFactory.createRandomConfiguration()
     self.gameManager = gameManager ?? GameManager(configuration: configuration)
     self.gameManager.tryTransitioningTo(state: .start)
+    self.pathValidator = PathValidator(
+      allowedDirections: Directions.all,
+      gridSize: self.gameManager.grid.count
+    )
     hintManager.clearHint()
   }
 
@@ -118,6 +133,12 @@ import SwiftUI
     gameManager.tryTransitioningTo(state: .resume)
   }
 
+  func onDragEnd(positions: [Position]) {
+    if checkIfIsWord(in: positions) {
+    }
+    clearHint()
+  }
+
   /// Submits positions for validation
   func checkIfIsWord(in positions: [Position]) -> Bool {
     let word = gameManager.validateWord(in: positions)
@@ -128,7 +149,7 @@ import SwiftUI
   }
 
   /// Returns the color for a cell based on its state
-  func cellColor(for position: Position, isSelected: Bool) -> Color {
+  func cellColor(at position: Position, isSelected: Bool) -> Color {
     if isSelected {
       return .blue.opacity(0.4)
     } else if discoveredCells.contains(position) {

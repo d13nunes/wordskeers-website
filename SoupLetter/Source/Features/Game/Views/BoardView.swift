@@ -1,14 +1,14 @@
 import SwiftUI
 
 struct BoardView: View {
-  let grid: [[String]]
-  @Binding var selectedCells: [Position]
-  @State var hintPositions: [Position] = []
   typealias GetCellColor = (_ position: Position, _ isSelected: Bool) -> Color
+
+  let grid: [[String]]
+  @State var hintPositions: [Position] = []
+  @State var selectionHandler: SelectionHandler
 
   let geometry: GeometryProxy
   let getCellColor: GetCellColor
-  let onDragEnd: ([Position]) -> Void
 
   @GestureState private var dragLocation: CGPoint?
 
@@ -30,35 +30,25 @@ struct BoardView: View {
   }
 
   private func createLetterView(row: Int, col: Int, size: CGFloat) -> some View {
-
     let position = Position(row: row, col: col)
-    let isSelected = selectedCells.contains(position)
-    let state = getState(row: row, col: col)
+    let isHint = hintPositions.contains(position)
+    let isSelected = !isHint && selectionHandler.selectedCells.contains(position)
     let color = getCellColor(position, isSelected)
     let letter = grid[row][col]
     return LetterCell(
       size: size,
-      state: state,
       cornerRadius: 0,
       color: color,
       letter: letter
     )
-  }
-
-  private func getState(row: Int, col: Int) -> LetterCellState {
-    let position = Position(row: row, col: col)
-    if hintPositions.contains(position) {
-      return .hint
-    } else if selectedCells.contains(position) {
-      return .selected
-    }
-    return .none
+    .scaleEffect(isSelected ? 1.05 : 1)
+    .animation(.spring(response: 0.3), value: isSelected)
+    .wiggle(active: isHint)
   }
 
   private func dragGesture(in geometry: GeometryProxy) -> some Gesture {
     DragGesture(minimumDistance: 0)
       .updating($dragLocation) { value, state, _ in
-
         state = value.location
       }
       .onChanged { value in
@@ -70,36 +60,12 @@ struct BoardView: View {
   }
 
   private func handleDrag(at point: CGPoint, in geometry: GeometryProxy) {
-    let gridSize = grid.count
-    let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
-    let availableWidth = min(geometry.size.width, geometry.size.height)
-    let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
-
-    let row = Int((point.y) / (cellSize + spacing))
-    let col = Int((point.x) / (cellSize + spacing))
-
-    guard row >= 0 && row < gridSize && col >= 0 && col < gridSize else { return }
-
-    let coordinate = Position(row: row, col: col)
-    if selectedCells.isEmpty {
-      selectedCells = [coordinate]
-    } else if let lastCell = selectedCells.last,
-      coordinate != lastCell,
-      abs(coordinate.row - lastCell.row) <= 1 && abs(coordinate.col - lastCell.col) <= 1
-    {
-      if selectedCells.count > 1 && coordinate == selectedCells[selectedCells.count - 2] {
-        selectedCells.removeLast()
-      } else if !selectedCells.contains(where: { $0 == coordinate }) {
-        selectedCells.append(coordinate)
-      }
-    }
+    guard let position = convertPointToPosition(point, in: geometry) else { return }
+    _ = selectionHandler.handleDrag(at: position)
   }
 
   private func handleDragEnd() {
-    guard !selectedCells.isEmpty else { return }
-    let selectedPositions = selectedCells
-    onDragEnd(selectedPositions)
-    selectedCells = []
+    selectionHandler.endDrag()
   }
 
   private func getSpacing(for gridSize: Int) -> Int {
@@ -113,12 +79,25 @@ struct BoardView: View {
       return 8 - ((gridSize - minGridSize) / (maxGridSize - minGridSize)) * (8 - 4)
     }
   }
+
+  private func convertPointToPosition(_ point: CGPoint, in geometry: GeometryProxy) -> Position? {
+    let gridSize = grid.count
+    let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
+    let availableWidth = min(geometry.size.width, geometry.size.height)
+    let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
+
+    let row = Int((point.y) / (cellSize + spacing))
+    let col = Int((point.x) / (cellSize + spacing))
+
+    guard row >= 0 && row < gridSize && col >= 0 && col < gridSize else { return nil }
+
+    return Position(row: row, col: col)
+  }
 }
 #if DEBUG
   #Preview {
 
     struct PreviewWrapper: View {
-      @State private var discoveredCells: [Position] = []
       let grid = [
         ["A", "B", "C", "D", "E", "F", "F", "F"],
         ["G", "H", "I", "J", "K", "L", "L", "L"],
@@ -158,14 +137,17 @@ struct BoardView: View {
             col += 1
             col %= grid[0].count
           }
+          let selectionHandler = SelectionHandler(
+            allowedDirections: Directions.all,
+            gridSize: grid.count
+          )
           GeometryReader { geometry in
             BoardView(
               grid: grid,
-              selectedCells: $discoveredCells,
               hintPositions: hintPositions,
+              selectionHandler: selectionHandler,
               geometry: geometry,
-              getCellColor: getCellColor,
-              onDragEnd: { _ in }
+              getCellColor: getCellColor
             )
           }
 
@@ -177,34 +159,3 @@ struct BoardView: View {
     return PreviewWrapper()
   }
 #endif
-
-extension View {
-  typealias WiggleProperties = (angleDegree: CGFloat, scale: CGFloat)
-
-  func wiggle(trigger: Bool) -> some View {
-    let totalDuration = 1.0
-    return self.keyframeAnimator(
-      initialValue: WiggleProperties(0, 1),
-      repeating: trigger
-    ) { content, value in
-      content
-        .rotationEffect(.degrees(value.angleDegree))
-        .scaleEffect(.init(width: 1, height: value.scale), anchor: .bottom)
-    } keyframes: { _ in
-      KeyframeTrack(\.angleDegree) {
-        SpringKeyframe(0, duration: 0.2 * totalDuration)
-        CubicKeyframe(10, duration: 0.2 * totalDuration)
-        CubicKeyframe(-10, duration: 0.6 * totalDuration)
-        CubicKeyframe(10, duration: 0.25 * totalDuration)
-        SpringKeyframe(0, duration: 0.25 * totalDuration)
-      }
-
-      KeyframeTrack(\.scale) {
-        CubicKeyframe(0.9, duration: 0.2 * totalDuration)
-        CubicKeyframe(1.2, duration: 0.4 * totalDuration)
-        CubicKeyframe(0.95, duration: 0.4 * totalDuration)
-        CubicKeyframe(1, duration: 0.5 * totalDuration)
-      }
-    }
-  }
-}
