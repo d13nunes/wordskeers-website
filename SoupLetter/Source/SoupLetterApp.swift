@@ -39,27 +39,6 @@ struct MainApp: App {
   }
 
   @State private var showSplash = true
-  static let gridSize = 18
-  static let words = [
-    "hello", "world", "foo", "barbaz", "qux", "quux", "corge", "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzy", "thud", "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge",
-    "grault", "garply", "waldo",
-    "fred", "plugh", "xyzzythud",
-  ]
   private let wordStore: WordListStore
   private let gameConfigurationFactory: GameConfigurationFactory
   private let gameViewModel: GameViewModel

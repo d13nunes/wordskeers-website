@@ -30,6 +30,11 @@ class WordValidator {
     return true
   }
 
+  func findRandomWord() -> String? {
+    let randomWord = words.filter { !$0.isFound }.randomElement()
+    return randomWord?.word
+  }
+
   /// Returns the total number of words in the word list
   var totalWords: Int {
     words.count

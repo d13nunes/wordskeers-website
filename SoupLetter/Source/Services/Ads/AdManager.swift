@@ -34,11 +34,11 @@ protocol AdManaging {
 #endif
 
 final class AdManagerProvider {
-  #if DEBUG
-    static let shared: AdManaging = MockAdManager()
-  #else
-    static let shared: AdManaging = AdManager()
-  #endif
+  static let shared: AdManaging = AdManager()
+  // #if DEBUG
+  //   static let shared: AdManaging = MockAdManager()
+  // #else
+  // #endif
 }
 
 @Observable

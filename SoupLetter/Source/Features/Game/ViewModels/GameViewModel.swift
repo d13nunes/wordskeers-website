@@ -24,8 +24,8 @@ import SwiftUI
     gameManager.grid
   }
 
-  var hintPositions: [Position] {
-    hintManager.positions
+  var wordValidator: WordValidator {
+    gameManager.wordValidator
   }
 
   var canRequestHint: Bool {
@@ -38,7 +38,7 @@ import SwiftUI
   var isShowingCompletionView = false
   var isShowingHintPopup = false
 
-  private var discoveredCells: [Position] {
+  var discoveredCells: [Position] {
     gameManager.discoveredCells
   }
 
@@ -64,7 +64,7 @@ import SwiftUI
     gameManager.foundWordCount
   }
 
-  private var hintManager: HintManager
+  private(set) var hintManager: HintManager
   private var firstGame = true
   init(
     gameManager: GameManager,
@@ -83,10 +83,14 @@ import SwiftUI
       allowedDirections: Directions.all,
       gridSize: gameManager.grid.count
     )
+    self.selectionHandler.onDragStarted = onDragStarted
     self.selectionHandler.onDragEnd = onDragEnd
-    createNewGame(gameManager: gameManager)
+    Task { @MainActor in
+      createNewGame(gameManager: gameManager)
+    }
   }
 
+  @MainActor
   private func createNewGame(gameManager: GameManager? = nil) {
     isShowingCompletionView = false
     let configuration = gameConfigurationFactory.createRandomConfiguration()
@@ -133,6 +137,12 @@ import SwiftUI
     gameManager.tryTransitioningTo(state: .resume)
   }
 
+  @MainActor
+  func onDragStarted() {
+    hintManager.clearHint()
+  }
+
+  @MainActor
   func onDragEnd(positions: [Position]) {
     if checkIfIsWord(in: positions) {
     }
@@ -154,7 +164,7 @@ import SwiftUI
       return .blue.opacity(0.4)
     } else if discoveredCells.contains(position) {
       return .green.opacity(0.3)
-    } else if hintPositions.contains(position) {
+    } else if hintManager.positions.contains(position) {
       return .yellow.opacity(0.3)
     } else {
       return .clear
@@ -174,6 +184,7 @@ import SwiftUI
     _ = await hintManager.requestHint(words: self.words, on: viewController)
   }
 
+  @MainActor
   func clearHint() {
     hintManager.clearHint()
   }

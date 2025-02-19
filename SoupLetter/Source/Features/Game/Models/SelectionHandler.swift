@@ -10,7 +10,8 @@ import SwiftUI
 final class SelectionHandler {
   // MARK: - Selection State
 
-  var onDragEnd: (([Position]) -> Void)?
+  var onDragStarted: (@MainActor () -> Void)?
+  var onDragEnd: (@MainActor ([Position]) -> Void)?
 
   /// Represents the current state of the selection process
   private enum SelectionState {
@@ -47,6 +48,7 @@ final class SelectionHandler {
   /// - Parameters:
   ///   - validDirections: New set of allowed directions for path validation
   ///   - gridSize: New size of the grid
+  @MainActor
   func update(validDirections: Set<Direction>, gridSize: Int) {
     pathValidator = PathValidator(allowedDirections: validDirections, gridSize: gridSize)
     reset()
@@ -55,12 +57,14 @@ final class SelectionHandler {
   /// Handles drag selection at the given position
   /// - Parameter position: The current position in the grid
   /// - Returns: `true` if the selection is valid, `false` otherwise
+  @MainActor
   func handleDrag(at position: Position) -> Bool {
     switch state {
     case .idle:
       // Start new drag
       selectedCells = [position]
       state = .dragging(from: position)
+      onDragStarted?()
       return true
 
     case .dragging(let start):
@@ -74,12 +78,14 @@ final class SelectionHandler {
   }
 
   /// Ends the current drag selection
+  @MainActor
   func endDrag() {
     onDragEnd?(selectedCells)
     reset()
   }
 
   /// Resets the selection state, clearing all selected cells
+  @MainActor
   func reset() {
     state = .idle
     selectedCells = []

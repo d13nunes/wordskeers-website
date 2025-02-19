@@ -66,5 +66,53 @@ struct ImperativeAnimationView: View {
 }
 
 #Preview {
-  ImperativeAnimationView()
+  FlippingGridView()
+}
+enum GridState {
+  case compact, expanded, highlighted
+}
+struct GridItemModel: Identifiable {
+  let id = UUID()
+  var isFlipped: Bool = false
+}
+
+struct FlippingGridView: View {
+  @State private var gridItems: [GridItemModel] = Array(repeating: GridItemModel(), count: 9)
+  let columns = [GridItem(.adaptive(minimum: 80))]
+
+  var body: some View {
+    LazyVGrid(columns: columns, spacing: 10) {
+      ForEach(gridItems.indices, id: \.self) { index in
+        FlipView(isFlipped: $gridItems[index].isFlipped)
+          .frame(width: 80, height: 80)
+          .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.6)) {
+              gridItems[index].isFlipped.toggle()
+            }
+          }
+      }
+    }
+    .padding()
+  }
+}
+struct FlipView: View {
+  @Binding var isFlipped: Bool
+
+  var body: some View {
+    ZStack {
+      if isFlipped {
+        RoundedRectangle(cornerRadius: 10)
+          .fill(Color.red)
+          .overlay(Text("Back").foregroundColor(.white).bold())
+          .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+      } else {
+        RoundedRectangle(cornerRadius: 10)
+          .fill(Color.blue)
+          .overlay(Text("Front").foregroundColor(.white).bold())
+          .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+      }
+    }
+    .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+    .animation(.easeInOut(duration: 0.6), value: isFlipped)
+  }
 }

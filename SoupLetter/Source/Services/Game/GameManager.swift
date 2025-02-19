@@ -28,7 +28,7 @@ struct NewGameOptions: GameStateOptions {
   // MARK: - Private Properties
 
   private let gridGenerator: GridGenerator
-  private var wordValidator: WordValidator
+  private(set) var wordValidator: WordValidator
   private var timer: Timer?
 
   // MARK: - Initialization

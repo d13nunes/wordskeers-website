@@ -1,43 +1,43 @@
 #if DEBUG
 
+  let wordsByLength =
+    [
+      // 3-4 letters
+      [
+        "cat", "dog", "rat", "pig", "owl", "bat", "fox", "ant", "bee", "cow", "elk", "emu", "fly",
+        "hog", "jay",
+      ],
+      // 5-6 letters
+      [
+        "horse", "sheep", "mouse", "koala", "panda", "zebra", "tiger", "camel", "lemur", "bison",
+        "eagle", "gecko", "llama", "otter", "whale",
+      ],
+      // 7-8 letters
+      [
+        "dolphin", "penguin", "gorilla", "giraffe", "octopus", "hamster", "leopard", "ostrich",
+        "raccoon", "squirrel", "tortoise", "wombat", "gazelle", "macaque", "meerkat",
+      ],
+      // 9-10 letters
+      [
+        "butterfly", "crocodile", "hedgehog", "kangaroo", "porcupine", "seahorse", "chipmunk",
+        "flamingo", "jellyfish", "mongoose", "scorpion", "tarantula", "wallaby", "antelope",
+        "armadillo",
+      ],
+      // 11-12 letters
+      [
+        "hippopotamus", "rhinoceros", "chimpanzee", "orangutan", "woodpecker", "hummingbird",
+        "pomeranian", "salamander", "sugarglider", "waterbuffalo", "cheetah", "komododragon",
+        "mountaingoat", "polarbear", "sealion",
+      ],
+      // 13-15 letters
+      [
+        "humpbackwhale", "mountainlion", "bottlenosedolphin", "elephantseal", "emperorpenguin",
+        "greatdane", "kingcobra", "komododragon", "mountaingorilla", "orangebellied", "platypus",
+        "redpanda", "snowleopard", "tasmaniandevil", "tigersalamander",
+      ],
+    ]
   @MainActor
   func getViewModel(gridSize: Int, wordCount: Int) -> GameViewModel {
-    let wordsByLength =
-      [
-        // 3-4 letters
-        [
-          "cat", "dog", "rat", "pig", "owl", "bat", "fox", "ant", "bee", "cow", "elk", "emu", "fly",
-          "hog", "jay",
-        ],
-        // 5-6 letters
-        [
-          "horse", "sheep", "mouse", "koala", "panda", "zebra", "tiger", "camel", "lemur", "bison",
-          "eagle", "gecko", "llama", "otter", "whale",
-        ],
-        // 7-8 letters
-        [
-          "dolphin", "penguin", "gorilla", "giraffe", "octopus", "hamster", "leopard", "ostrich",
-          "raccoon", "squirrel", "tortoise", "wombat", "gazelle", "macaque", "meerkat",
-        ],
-        // 9-10 letters
-        [
-          "butterfly", "crocodile", "hedgehog", "kangaroo", "porcupine", "seahorse", "chipmunk",
-          "flamingo", "jellyfish", "mongoose", "scorpion", "tarantula", "wallaby", "antelope",
-          "armadillo",
-        ],
-        // 11-12 letters
-        [
-          "hippopotamus", "rhinoceros", "chimpanzee", "orangutan", "woodpecker", "hummingbird",
-          "pomeranian", "salamander", "sugarglider", "waterbuffalo", "cheetah", "komododragon",
-          "mountaingoat", "polarbear", "sealion",
-        ],
-        // 13-15 letters
-        [
-          "humpbackwhale", "mountainlion", "bottlenosedolphin", "elephantseal", "emperorpenguin",
-          "greatdane", "kingcobra", "komododragon", "mountaingorilla", "orangebellied", "platypus",
-          "redpanda", "snowleopard", "tasmaniandevil", "tigersalamander",
-        ],
-      ]
 
     print("!!! wordsByLength")
     let wordsByLenghtSize = wordsByLength[0].count

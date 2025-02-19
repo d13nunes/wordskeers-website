@@ -3,20 +3,19 @@ import SwiftUI
 struct BoardView: View {
   typealias GetCellColor = (_ position: Position, _ isSelected: Bool) -> Color
 
-  let grid: [[String]]
-  @State var hintPositions: [Position] = []
-  @State var selectionHandler: SelectionHandler
+  @State var viewModel: GameViewModel
 
   let geometry: GeometryProxy
-  let getCellColor: GetCellColor
 
   @GestureState private var dragLocation: CGPoint?
+  @State private var newlySelectedCells: Set<Position> = []
 
   var body: some View {
-    let gridSize = grid.count
+    let gridSize = viewModel.grid.count
     let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
     let availableWidth = min(geometry.size.width, geometry.size.height)
     let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
+
     Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
       ForEach(0..<gridSize, id: \.self) { row in
         GridRow {
@@ -31,18 +30,22 @@ struct BoardView: View {
 
   private func createLetterView(row: Int, col: Int, size: CGFloat) -> some View {
     let position = Position(row: row, col: col)
-    let isHint = hintPositions.contains(position)
-    let isSelected = !isHint && selectionHandler.selectedCells.contains(position)
-    let color = getCellColor(position, isSelected)
-    let letter = grid[row][col]
+    let isHint = viewModel.hintManager.positions.contains(position)
+    let isSelected = !isHint && viewModel.selectionHandler.selectedCells.contains(position)
+    let isDiscovered = viewModel.discoveredCells.contains(position)
+    let color = viewModel.cellColor(at: position, isSelected: isSelected)
+    let letter = viewModel.grid[row][col]
+    let cornerRadius = size * 0.1
+
     return LetterCell(
       size: size,
-      cornerRadius: 0,
+      cornerRadius: cornerRadius,
       color: color,
-      letter: letter
+      letter: letter,
+      isDiscovered: isDiscovered
     )
-    .scaleEffect(isSelected ? 1.05 : 1)
-    .animation(.spring(response: 0.3), value: isSelected)
+    .scaleEffect(isSelected ? 1.1 : 1.0)
+    .animation(.spring(response: 0.3, dampingFraction: 0.6, blendDuration: 0.2), value: isSelected)
     .wiggle(active: isHint)
   }
 
@@ -61,11 +64,11 @@ struct BoardView: View {
 
   private func handleDrag(at point: CGPoint, in geometry: GeometryProxy) {
     guard let position = convertPointToPosition(point, in: geometry) else { return }
-    _ = selectionHandler.handleDrag(at: position)
+    _ = viewModel.selectionHandler.handleDrag(at: position)
   }
 
   private func handleDragEnd() {
-    selectionHandler.endDrag()
+    viewModel.selectionHandler.endDrag()
   }
 
   private func getSpacing(for gridSize: Int) -> Int {
@@ -81,7 +84,7 @@ struct BoardView: View {
   }
 
   private func convertPointToPosition(_ point: CGPoint, in geometry: GeometryProxy) -> Position? {
-    let gridSize = grid.count
+    let gridSize = viewModel.grid.count
     let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
     let availableWidth = min(geometry.size.width, geometry.size.height)
     let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
@@ -95,67 +98,34 @@ struct BoardView: View {
   }
 }
 #if DEBUG
-  #Preview {
+  struct PreviewWrapper: View {
 
-    struct PreviewWrapper: View {
-      let grid = [
-        ["A", "B", "C", "D", "E", "F", "F", "F"],
-        ["G", "H", "I", "J", "K", "L", "L", "L"],
-        ["M", "N", "O", "P", "Q", "R", "R", "R"],
-        ["S", "T", "U", "V", "W", "X", "X", "X"],
-        ["Y", "Z", "A", "B", "C", "D", "D", "D"],
-        ["E", "F", "G", "H", "I", "J", "J", "J"],
-        ["Y", "Z", "A", "B", "C", "D", "D", "D"],
-        ["E", "F", "G", "H", "I", "J", "J", "J"],
-      ]
+    @State var viewModel = getViewModel(gridSize: 10, wordCount: 10)
+    @State var row = 0
+    @State var col = 0
+    @State private var hintManager: HintManager = HintManager(adManager: AdManagerProvider.shared)
 
-      func getCellColor(at coordinate: Position, isSelected: Bool) -> Color {
-        if isSelected {
-          return .blue
-        } else if hintPositions.contains(coordinate) {
-          return .yellow
-        }
-        return Color.clear
-      }
-
-      @State var clean = false
-      @State var row = 0
-      @State var col = 0
-      @State private var hintPositions: [Position] = []
-      var body: some View {
-        VStack {
-          Button("Hint") {
-            clean.toggle()
-            if clean {
-              hintPositions.append(
-                Position(row: row, col: col))
-            } else {
-              hintPositions.removeAll()
-            }
-            row += 1
-            row %= grid.count
-            col += 1
-            col %= grid[0].count
-          }
-          let selectionHandler = SelectionHandler(
-            allowedDirections: Directions.all,
-            gridSize: grid.count
-          )
-          GeometryReader { geometry in
-            BoardView(
-              grid: grid,
-              hintPositions: hintPositions,
-              selectionHandler: selectionHandler,
-              geometry: geometry,
-              getCellColor: getCellColor
+    var body: some View {
+      VStack {
+        Button("Hint") {
+          Task { @MainActor in
+            let success = await viewModel.hintManager.requestHint(
+              words: viewModel.words, on: UIApplication.shared.rootViewController()!
             )
+            print("Hint requested: \(success)")
           }
-
-          .padding(.horizontal)
         }
+        GeometryReader { geometry in
+          BoardView(
+            viewModel: viewModel,
+            geometry: geometry
+          )
+        }
+        .padding(.horizontal)
       }
     }
-
-    return PreviewWrapper()
+  }
+  #Preview {
+    PreviewWrapper()
   }
 #endif

@@ -1,3 +1,4 @@
+import ConfettiSwiftUI
 import SwiftUI
 
 struct CompletionView: View {
@@ -26,6 +27,7 @@ struct CompletionView: View {
         }
         .buttonStyle(.borderedProminent)
       }
+
       .padding(40)
       .background {
         RoundedRectangle(cornerRadius: 20)
@@ -33,6 +35,7 @@ struct CompletionView: View {
           .shadow(radius: 20)
       }
     }
+
   }
 }
 #if DEBUG
