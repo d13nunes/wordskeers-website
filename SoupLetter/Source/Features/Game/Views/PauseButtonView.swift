@@ -8,7 +8,7 @@ struct PauseButtonView: View {
       Image(systemName: "pause.circle.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(height: 44)
+        .frame(width: 64, height: 44)
         .padding(.all, 8)
     }
     .buttonStyle(.borderedProminent)

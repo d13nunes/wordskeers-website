@@ -16,8 +16,7 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    HStack(alignment: .top, spacing: 16) {
-
+    HStack(alignment: .top, spacing: 24) {
       VStack(alignment: .leading) {
         Text(
           "Words (\(foundWordsCount)/\(totalWordsCount))"
@@ -26,21 +25,16 @@ struct ScoreView: View {
         .font(.title)
         WordListView(viewModel: viewModel)
       }
-      HStack(alignment: .top) {
-        VStack(alignment: .leading) {
-          HStack(alignment: .lastTextBaseline) {
-            Text("Time:")
-              .bold()
-              .font(.system(size: 22))
-            Text(viewModel.formattedTime)
-              .monospacedDigit()
-              .bold()
-              .font(.system(size: 42))
-          }
-          HStack(alignment: .top, spacing: 16) {
-            HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
-            PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
-          }
+      VStack(alignment: .trailing) {
+        HStack(alignment: .lastTextBaseline) {
+          Text(viewModel.formattedTime)
+            .monospacedDigit()
+            .bold()
+            .font(.system(size: 42))
+        }
+        HStack(alignment: .top, spacing: 16) {
+          HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
+          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
         }
       }
     }
