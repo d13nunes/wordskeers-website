@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct WordListView: View {
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  @Namespace private var wordTransition
+
   @State var viewModel: GameViewModel
   @State private var recentlyFoundWord: String?
-  @Namespace private var wordTransition
+
+  private var isCompact: Bool {
+    horizontalSizeClass == .compact
+  }
 
   let maxRowCount = 3
   var collumns: Int {
@@ -45,8 +51,8 @@ struct WordListView: View {
                   .font(.subheadline)
                   .foregroundColor(word.isFound ? .primary : .secondary)
               }
-              .padding(.horizontal, 12)
-              .padding(.vertical, 6)
+              .padding(.horizontal, isCompact ? 1 : 12)
+              .padding(.vertical, isCompact ? 0.25 : 6.0)
               .background {
                 RoundedRectangle(cornerRadius: 8)
                   .fill(word.isFound ? Color.green.opacity(0.1) : Color.clear)

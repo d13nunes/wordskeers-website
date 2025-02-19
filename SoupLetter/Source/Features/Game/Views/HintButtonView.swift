@@ -13,7 +13,7 @@ struct HintButtonView: View {
       Image(systemName: "lightbulb.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(height: 44)
+        .frame(width: 44, height: 44)
         .padding(.all, 8)
     }
     .buttonStyle(.borderedProminent)

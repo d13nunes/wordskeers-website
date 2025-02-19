@@ -35,8 +35,8 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       return emptyConfiguration
     }
 
-    let gridSize = 18
-    let wordCount = 20
+    let gridSize = 10
+    let wordCount = 12
     let filteredWords = words.filter { $0.count < gridSize }.prefix(wordCount).map {
       $0.lowercased()
     }

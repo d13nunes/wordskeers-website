@@ -86,9 +86,18 @@ extension Button {
 }
 
 struct MyButton: View {
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
   private let title: String
   private let style: ButtonStyle
   private let action: () -> Void
+  private var width: CGFloat {
+    if horizontalSizeClass == .compact {
+      return 300
+    } else {
+      return 200
+    }
+  }
 
   init(title: String, style: ButtonStyleType, action: @escaping () -> Void) {
     self.title = title
@@ -112,7 +121,7 @@ struct MyButton: View {
           .fontWeight(.bold)
       }
     }
-    .frame(width: 200, height: 64)
+    .frame(width: width, height: 64)
     .background(style.backgroundColor)
     .cornerRadius(style.cornerRadius)
   }

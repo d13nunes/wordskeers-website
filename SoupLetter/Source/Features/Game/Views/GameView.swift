@@ -10,16 +10,19 @@ struct GameView: View {
   }
 
   var body: some View {
-    VStack(alignment: .trailing, spacing: 12) {
-      ScoreView(viewModel: viewModel)
-        .padding(.horizontal)
-      GeometryReader { geometry in
-        BoardView(
-          viewModel: viewModel,
-          geometry: geometry
-        )
-      }
-      .padding(.horizontal)
+
+    GeometryReader { geometry in
+      VStack(alignment: .trailing, spacing: 12) {
+        Spacer()
+        ScoreView(viewModel: viewModel)
+        GeometryReader { geometry in
+          BoardView(
+            viewModel: viewModel,
+            geometry: geometry
+          )
+        }
+        // AdBannerView(adUnitID: AdConstants.UnitID.banner, width: geometry.size.width)
+      }.padding(.horizontal)
     }
     .padding(.vertical)
     .background(Color(.systemBackground))
@@ -43,7 +46,7 @@ struct GameView: View {
       }
       if viewModel.isShowingCompletionView {
         CompletionView(
-          formattedTime: viewModel.formattedTime,
+          formattedTime: viewModel.getGameOverViewFormattedTime(),
           onNextLevel: {
             guard let viewController = UIApplication.shared.rootViewController() else {
               return
@@ -86,11 +89,15 @@ struct GameView: View {
     }
 
   }
+
 }
 // MARK: - Toast View
 
 #if DEBUG
   #Preview {
-    GameView(viewModel: getViewModel(gridSize: 5, wordCount: 2))
+    GameView(
+      viewModel: getViewModel(
+        gridSize: 5, wordCount: 2
+      ))
   }
 #endif
