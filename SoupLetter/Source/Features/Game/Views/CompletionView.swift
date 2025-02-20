@@ -93,29 +93,12 @@ struct CompletionLargeView: View {
 
   }
 }
+
 #if DEBUG
-
   let timeElapsed: TimeInterval = 11223.45
-  var formattedTime: String {
-    var string = ""
-    let hours = Int(timeElapsed) / 3600
-    if hours > 0 {
-      string += "\(hours)h "
-    }
-    let minutes = (Int(timeElapsed) % 3600) / 60
-    if minutes > 0 {
-      string += "\(minutes)m "
-    }
-    let seconds = Int(timeElapsed) % 60
-    if seconds > 0 {
-      string += "\(seconds)s"
-    }
-    return string.isEmpty ? "0s" : string
-  }
-
   #Preview {
     CompletionView(
-      formattedTime: formattedTime,
+      formattedTime: timeElapsed.formattedTime(),
       onNextLevel: {}
     )
   }

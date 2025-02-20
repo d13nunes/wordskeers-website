@@ -204,22 +204,25 @@ import SwiftUI
   }
 
   func gameOverViewFormattedTime(_ timeElapsed: TimeInterval) -> String {
-    var formattedTime: String {
-      var string = ""
-      let hours = Int(timeElapsed) / 3600
-      if hours > 0 {
-        string += "\(hours)h "
-      }
-      let minutes = (Int(timeElapsed) % 3600) / 60
-      if minutes > 0 {
-        string += "\(minutes)m "
-      }
-      let seconds = Int(timeElapsed) % 60
-      if seconds > 0 {
-        string += "\(seconds)s"
-      }
-      return string.isEmpty ? "0s" : string
+    return timeElapsed.formattedTime()
+  }
+}
+
+extension TimeInterval {
+  func formattedTime() -> String {
+    var string = ""
+    let hours = Int(self) / 3600
+    if hours > 0 {
+      string += "\(hours)h "
     }
-    return formattedTime
+    let minutes = (Int(self) % 3600) / 60
+    if minutes > 0 {
+      string += "\(minutes)m "
+    }
+    let seconds = Int(self) % 60
+    if seconds > 0 {
+      string += "\(seconds)s"
+    }
+    return string.isEmpty ? "0s" : string
   }
 }
