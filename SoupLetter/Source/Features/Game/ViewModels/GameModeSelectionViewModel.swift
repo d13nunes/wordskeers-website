@@ -13,6 +13,12 @@ import SwiftUI
   let maxGridSize = 20
   let minWordCount = 2
 
+  private let _onStartGame: (GameConfigurationSetting) -> Void
+
+  init(onStartGame: @escaping (GameConfigurationSetting) -> Void) {
+    self._onStartGame = onStartGame
+  }
+
   var maxWordCount: Int {
     // Simple heuristic: grid size squared divided by 10
     // This can be adjusted based on actual game requirements
@@ -21,7 +27,12 @@ import SwiftUI
 
   // MARK: - Actions
   func startGame() {
-    // TODO: Implement game start logic
+    _onStartGame(
+      GameConfigurationSetting(
+        gridSize: gridSize,
+        wordsCount: wordCount,
+        validDirections: allowedDirections
+      ))
   }
 
   func toggleDirection(_ directionGroup: Direction) {

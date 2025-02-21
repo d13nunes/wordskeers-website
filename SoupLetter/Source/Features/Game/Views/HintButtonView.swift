@@ -9,16 +9,25 @@ struct HintButtonView: View {
   }
 
   var body: some View {
-    Button(action: onHintClicked) {
-      Image(systemName: "lightbulb.fill")
+    ZStack {
+      Button(action: onHintClicked) {
+        Image(systemName: "lightbulb.fill")
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 44, height: 44)
+          .padding(.all, 8)
+      }
+      .buttonStyle(.borderedProminent)
+      .disabled(isDisabled)
+      .animation(.easeIn(duration: 0.34), value: isDisabled)
+      Image(systemName: "play.circle.fill")
         .resizable()
         .aspectRatio(contentMode: .fit)
-        .frame(width: 44, height: 44)
-        .padding(.all, 8)
+        .frame(width: 24, height: 24)
+        .foregroundColor(.green)
+        .cornerRadius(4)
+        .offset(x: 24, y: 18)
     }
-    .buttonStyle(.borderedProminent)
-    .disabled(isDisabled)
-    .animation(.easeIn(duration: 0.34), value: isDisabled)
   }
 }
 

@@ -115,7 +115,3 @@ struct GameModeSelectionView: View {
     .padding(.top)
   }
 }
-
-#Preview {
-  GameModeSelectionView(viewModel: GameModeSelectionViewModel())
-}

@@ -39,4 +39,10 @@ struct Directions {
     default: return ""
     }
   }
+  static let veryEasy: Set<Direction> = [right]
+  static let easy: Set<Direction> = [right, down]
+  static let medium: Set<Direction> = [right, down, diagonalRightDown, diagonalLeftDown]
+  static let hard: Set<Direction> = [right, down, diagonalRightDown, diagonalLeftDown, left, up]
+  static let veryHard: Set<Direction> = all
+
 }

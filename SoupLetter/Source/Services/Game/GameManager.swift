@@ -10,7 +10,7 @@ struct NewGameOptions: GameStateOptions {
 // /// Service responsible for managing the overall game state and coordinating game logic
 @Observable class GameManager {
   // MARK: - Public Properties
-
+  let configuration: GameConfiguration
   /// The current state of the game
   private(set) var currentState: GameState
   private(set) var discoveredCells: [Position] = []
@@ -34,9 +34,14 @@ struct NewGameOptions: GameStateOptions {
   // MARK: - Initialization
 
   init(configuration: GameConfiguration) {
+    self.configuration = configuration
     let wordsList = configuration.words
     // Initialize game services
-    self.gridGenerator = GridGenerator(words: wordsList, size: configuration.gridSize)
+    self.gridGenerator = GridGenerator(
+      words: wordsList,
+      size: configuration.gridSize,
+      validDirections: configuration.validDirections
+    )
 
     let (generatedGrid, wordsData) = gridGenerator.getGrid()
     self.grid = generatedGrid

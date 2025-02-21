@@ -11,10 +11,12 @@ class GridGenerator: GridFactory {
 
   private let words: [String]
   private let size: Int
+  private let validDirections: [Direction]
 
-  init(words: [String], size: Int) {
+  init(words: [String], size: Int, validDirections: Set<Direction>) {
     self.words = words
     self.size = size
+    self.validDirections = Array(validDirections)
   }
 
   func getGrid() -> ([[String]], [WordData]) {
@@ -41,7 +43,7 @@ class GridGenerator: GridFactory {
   }
 
   func placeWord(_ word: String, grid: inout [[String]]) -> (Position, Direction)? {
-    let shuffledDirections = [Directions.right, Directions.down].shuffled()
+    let shuffledDirections = validDirections.shuffled()
     for _ in 0..<100 {  // Try multiple times to find a position
       let row = Int.random(in: 0..<size)
       let col = Int.random(in: 0..<size)

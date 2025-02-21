@@ -9,6 +9,10 @@ import SwiftUI
 
   let selectionHandler: SelectionHandler
 
+  var gameConfiguration: GameConfiguration {
+    gameManager.configuration
+  }
+
   var words: [WordData] {
     gameManager.words
   }
@@ -36,7 +40,7 @@ import SwiftUI
   private(set) var gameManager: GameManager
   var isShowingPauseMenu = false
   var isShowingCompletionView = false
-  var isShowingHintPopup = false
+  var newGameSelectionViewModel: NewGameSelectionViewModel?
 
   var discoveredCells: [Position] {
     gameManager.discoveredCells
@@ -91,10 +95,8 @@ import SwiftUI
   }
 
   @MainActor
-  private func createNewGame(gameManager: GameManager? = nil) {
-    isShowingCompletionView = false
-    let configuration = gameConfigurationFactory.createRandomConfiguration()
-    self.gameManager = gameManager ?? GameManager(configuration: configuration)
+  func createNewGame(gameManager: GameManager) {
+    self.gameManager = gameManager
     self.gameManager.tryTransitioningTo(state: .start)
     self.pathValidator = PathValidator(
       allowedDirections: Directions.all,
@@ -105,9 +107,9 @@ import SwiftUI
 
   // MARK: - Game Control Methods
   @MainActor
-  func startNewGame(gameManager: GameManager? = nil, on viewController: UIViewController) async {
-    createNewGame(gameManager: gameManager)
+  func startNewGame(on viewController: UIViewController) async {
     _ = await adManager.onGameComplete(on: viewController)
+    onShowGameSelection()
   }
 
   func onViewAppear() {
@@ -126,6 +128,22 @@ import SwiftUI
   func onShowPauseMenu() {
     isShowingPauseMenu = true
     pauseGame()
+  }
+
+  @MainActor
+  func onShowGameSelection() {
+    isShowingCompletionView = false
+    isShowingPauseMenu = false
+    newGameSelectionViewModel = NewGameSelectionViewModel(onStartGame: { setting in
+      let configuration = self.gameConfigurationFactory.createRandomConfiguration(setting: setting)
+      let gameManager = GameManager(configuration: configuration)
+      self.createNewGame(gameManager: gameManager)
+      self.onHideGameSelection()
+    })
+  }
+
+  func onHideGameSelection() {
+    newGameSelectionViewModel = nil
   }
 
   func hidePauseMenu() {
@@ -171,16 +189,7 @@ import SwiftUI
     }
   }
 
-  func showHintPopup() {
-    isShowingHintPopup = true
-  }
-
-  func hideHintPopup() {
-    isShowingHintPopup = false
-  }
-
   func requestHint(on viewController: UIViewController) async {
-    isShowingHintPopup = false
     _ = await hintManager.requestHint(words: self.words, on: viewController)
   }
 

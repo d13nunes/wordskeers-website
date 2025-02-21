@@ -36,9 +36,7 @@ struct LetterCell: View {
       .scaleEffect(scale)  // Apply scale effect
       .onChange(of: isDiscovered) { oldValue, newValue in
         if !oldValue && newValue {
-          isAnimating = true
-
-          // slamAnimation()
+          isAnimating.toggle()
         }
       }
 

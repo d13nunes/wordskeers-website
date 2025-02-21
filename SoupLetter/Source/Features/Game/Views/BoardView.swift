@@ -5,38 +5,41 @@ struct BoardView: View {
 
   @State var viewModel: GameViewModel
 
-  let geometry: GeometryProxy
-
   @GestureState private var dragLocation: CGPoint?
   @State private var newlySelectedCells: Set<Position> = []
 
   var body: some View {
-    let gridSize = viewModel.grid.count
-    let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
-    let availableWidth = min(geometry.size.width, geometry.size.height)
-    let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
+    GeometryReader { geometry in
 
-    Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-      ForEach(0..<gridSize, id: \.self) { row in
-        GridRow {
-          ForEach(0..<gridSize, id: \.self) { col in
-            createLetterView(row: row, col: col, size: cellSize)
+      let gridSize = viewModel.grid.count
+      let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
+      let availableWidth = min(geometry.size.width, geometry.size.height)
+      let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
+      let grid = viewModel.grid
+      Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
+        ForEach(0..<gridSize, id: \.self) { row in
+          GridRow {
+            ForEach(0..<gridSize, id: \.self) { col in
+              createLetterView(grid: grid, row: row, col: col, size: cellSize)
+            }
           }
         }
       }
+      .gesture(dragGesture(in: geometry))
+      .frame(width: geometry.size.width, height: geometry.size.width)
     }
-    .gesture(dragGesture(in: geometry))
+    .aspectRatio(1, contentMode: .fit)
   }
 
-  private func createLetterView(row: Int, col: Int, size: CGFloat) -> some View {
+  private func createLetterView(grid: [[String]], row: Int, col: Int, size: CGFloat) -> some View {
+    print("!!! geometry: \(grid[0].count)")
     let position = Position(row: row, col: col)
     let isHint = viewModel.hintManager.positions.contains(position)
     let isSelected = !isHint && viewModel.selectionHandler.selectedCells.contains(position)
     let isDiscovered = viewModel.discoveredCells.contains(position)
     let color = viewModel.cellColor(at: position, isSelected: isSelected)
-    let letter = viewModel.grid[row][col]
+    let letter = grid[row][col]
     let cornerRadius = size * 0.1
-
     return LetterCell(
       size: size,
       cornerRadius: cornerRadius,
@@ -101,28 +104,42 @@ struct BoardView: View {
   struct PreviewWrapper: View {
 
     @State var viewModel = getViewModel(gridSize: 10, wordCount: 10)
-    @State var row = 0
-    @State var col = 0
     @State private var hintManager: HintManager = HintManager(adManager: AdManagerProvider.shared)
+    @State var boardSize = 10
 
     var body: some View {
       VStack {
-        Button("Hint") {
-          Task { @MainActor in
-            let success = await viewModel.hintManager.requestHint(
-              words: viewModel.words, on: UIApplication.shared.rootViewController()!
-            )
-            print("Hint requested: \(success)")
+        HStack {
+          Button("Hint") {
+            Task { @MainActor in
+              let success = await viewModel.hintManager.requestHint(
+                words: viewModel.words, on: UIApplication.shared.rootViewController()!
+              )
+              print("Hint requested: \(success)")
+            }
+          }
+          Button("Increase Board Size") {
+            boardSize += 1
+            createNewGame()
+          }
+          Button("Decrease Board Size") {
+            boardSize -= 1
+            createNewGame()
           }
         }
-        GeometryReader { geometry in
-          BoardView(
-            viewModel: viewModel,
-            geometry: geometry
-          )
-        }
-        .padding(.horizontal)
+
+        BoardView(viewModel: viewModel)
+          .padding(.horizontal)
       }
+    }
+
+    func createNewGame() {
+      let configuration = viewModel.gameConfigurationFactory.createRandomConfiguration(
+        setting: GameConfigurationSetting(
+          gridSize: boardSize, wordsCount: boardSize, validDirections: Directions.all)
+      )
+      let gameManager = GameManager(configuration: configuration)
+      viewModel.createNewGame(gameManager: gameManager)
     }
   }
   #Preview {

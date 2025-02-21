@@ -38,7 +38,7 @@ struct MainApp: App {
 
   }
 
-  @State private var showSplash = true
+  @State private var showSplash = false
   private let wordStore: WordListStore
   private let gameConfigurationFactory: GameConfigurationFactory
   private let gameViewModel: GameViewModel

@@ -27,7 +27,3 @@ struct DirectionToggleView: View {
 
   }
 }
-
-#Preview {
-  DirectionToggleView(viewModel: GameModeSelectionViewModel())
-}

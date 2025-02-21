@@ -84,6 +84,11 @@
   ) -> GameManager {
     return GameManager(
       configuration: gameConfigurationFactory.createConfiguration(
+        setting: GameConfigurationSetting(
+          gridSize: gridSize,
+          wordsCount: wordCount,
+          validDirections: Directions.easy
+        ),
         category: "animals",
         subCategory: "mammals"
       )
@@ -98,7 +103,8 @@
       ].prefix(wordCount))
 
     return GameConfiguration(
-      gridSize: gridSize, words: words, category: "animals", subCategory: "mammals"
+      gridSize: gridSize, words: words, validDirections: Directions.easy, category: "animals",
+      subCategory: "mammals"
     )
   }
 

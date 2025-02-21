@@ -10,23 +10,20 @@ struct GameView: View {
   }
 
   var body: some View {
-
-    GeometryReader { geometry in
+    HStack(alignment: .bottom) {
       VStack(alignment: .trailing, spacing: 12) {
         Spacer()
         ScoreView(viewModel: viewModel)
-        GeometryReader { geometry in
-          BoardView(
-            viewModel: viewModel,
-            geometry: geometry
-          )
-        }
-        // AdBannerView(adUnitID: AdConstants.UnitID.banner, width: geometry.size.width)
-      }.padding(.horizontal)
+        BoardView(viewModel: viewModel)
+      }
     }
+    .padding(.horizontal)
     .padding(.vertical)
     .background(Color(.systemBackground))
     .overlay {
+      if let newGameViewModel = viewModel.newGameSelectionViewModel {
+        NewGameSelectionView(viewModel: newGameViewModel)
+      }
       if viewModel.isShowingPauseMenu {
         PauseMenuView(
           onResumeClicked: {
@@ -57,21 +54,6 @@ struct GameView: View {
           }
         )
       }
-      if viewModel.isShowingHintPopup {
-        HintPopupView(
-          onDismissedClicked: {
-            viewModel.hideHintPopup()
-          },
-          onShowHintClicked: {
-            guard let viewController = UIApplication.shared.rootViewController() else {
-              return
-            }
-            Task.detached {
-              await viewModel.requestHint(on: viewController)
-            }
-          }
-        )
-      }
     }
     .onAppear {
       viewModel.onViewAppear()
@@ -97,7 +79,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 5, wordCount: 2
+        gridSize: 20, wordCount: 2
       ))
   }
 #endif

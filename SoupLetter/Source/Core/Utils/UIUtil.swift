@@ -91,12 +91,8 @@ struct MyButton: View {
   private let title: String
   private let style: ButtonStyle
   private let action: () -> Void
-  private var width: CGFloat {
-    if horizontalSizeClass == .compact {
-      return 300
-    } else {
-      return 200
-    }
+  private var isCompact: Bool {
+    return horizontalSizeClass == .compact
   }
 
   init(title: String, style: ButtonStyleType, action: @escaping () -> Void) {
@@ -105,7 +101,26 @@ struct MyButton: View {
     self.action = action
   }
   var body: some View {
-    Button(action: action) {
+    if isCompact {
+      compactView
+    } else {
+      largeView
+    }
+  }
+
+  private var largeView: some View {
+    return internalButtonView(width: 200)
+  }
+
+  private var compactView: some View {
+    GeometryReader { geometry in
+      internalButtonView(width: geometry.size.width)
+    }
+    .frame(height: 64)
+  }
+
+  private func internalButtonView(width: CGFloat) -> some View {
+    return Button(action: action) {
       HStack(alignment: .center, spacing: 2) {
         if let image = style.image {
           image
