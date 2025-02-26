@@ -7,7 +7,6 @@
 
 import GoogleMobileAds
 import SwiftUI
-import UIKit
 
 @main
 struct MainApp: App {
@@ -20,10 +19,11 @@ struct MainApp: App {
   @State private var firstTime = true
 
   private var analyticsManager = AnalyticsManager(service: FirebaseAnalyticsManager())
-  private let adManager: AdManaging = AdManagerProvider.shared
+  private let adManager: AdManaging
   private var configuration: GameConfiguration?
 
   init() {
+    self.adManager = AdManager(analyticsManager: analyticsManager)
     self.wordStore = WordListStore()
     self.gameConfigurationFactory = GameConfigurationFactory(wordStore: wordStore)
     let configuration = gameConfigurationFactory.createRandomConfiguration()

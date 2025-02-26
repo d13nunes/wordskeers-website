@@ -71,7 +71,7 @@
     return GameViewModel(
       gameManager: gameManager,
       gameConfigurationFactory: gameConfigurationFactory,
-      adManager: AdManagerProvider.shared,
+      adManager: MockAdManager(),
       analytics: ConsoleAnalyticsManager()
     )
   }

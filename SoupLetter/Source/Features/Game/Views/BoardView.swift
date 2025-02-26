@@ -103,7 +103,7 @@ struct BoardView: View {
   struct PreviewWrapper: View {
 
     @State var viewModel = getViewModel(gridSize: 10, wordCount: 10)
-    @State private var hintManager: HintManager = HintManager(adManager: AdManagerProvider.shared)
+    @State private var hintManager: HintManager = HintManager(adManager: MockAdManager())
     @State var boardSize = 10
 
     var body: some View {
