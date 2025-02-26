@@ -39,7 +39,6 @@ struct NewGameSelectionView: View {
               .joined(separator: " ")
           )
           .bold()
-          + Text(" directions")
       }
     }
   }
