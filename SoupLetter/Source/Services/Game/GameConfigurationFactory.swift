@@ -57,9 +57,11 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       return emptyConfiguration
     }
 
+    let wordsThatFitGrid = words.filter { $0.count <= setting.gridSize }
+    let filteredWords: [String] = wordsThatFitGrid.shuffled().prefix(setting.wordsCount).map { $0 }
     return GameConfiguration(
       gridSize: setting.gridSize,
-      words: words,
+      words: filteredWords,
       validDirections: setting.validDirections,
       category: category,
       subCategory: subCategory
