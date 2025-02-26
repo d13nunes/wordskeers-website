@@ -7,25 +7,22 @@
 
 import GoogleMobileAds
 import SwiftUI
+import UIKit
 
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-
-    MobileAds.shared.start()
-    return true
-  }
-}
 @main
 struct MainApp: App {
 
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-  let adManager: AdManaging = AdManagerProvider.shared
-  var configuration: GameConfiguration?
+  @Environment(\.scenePhase) private var scenePhase
+
+  @State private var showSplash = false
+  @State private var firstTime = true
+
+  private var analyticsManager = AnalyticsManager(service: FirebaseAnalyticsManager())
+  private let adManager: AdManaging = AdManagerProvider.shared
+  private var configuration: GameConfiguration?
+
   init() {
     self.wordStore = WordListStore()
     self.gameConfigurationFactory = GameConfigurationFactory(wordStore: wordStore)
@@ -33,12 +30,12 @@ struct MainApp: App {
     self.gameViewModel = GameViewModel(
       gameManager: GameManager(configuration: configuration),
       gameConfigurationFactory: gameConfigurationFactory,
-      adManager: adManager
+      adManager: adManager,
+      analytics: analyticsManager
     )
 
   }
 
-  @State private var showSplash = false
   private let wordStore: WordListStore
   private let gameConfigurationFactory: GameConfigurationFactory
   private let gameViewModel: GameViewModel
@@ -56,6 +53,30 @@ struct MainApp: App {
       } else {
         GameView(viewModel: gameViewModel)
       }
+    }
+    .onChange(of: scenePhase) { _, newPhase in
+      trackAppState(scenePhase: newPhase, firstTime: firstTime)
+      firstTime = false
+    }
+  }
+}
+
+extension MainApp {
+  func trackAppState(scenePhase: ScenePhase, firstTime: Bool) {
+    switch scenePhase {
+    case .active:
+      if firstTime {
+        analyticsManager.trackEvent(.appStarted)
+
+      } else {
+        analyticsManager.trackEvent(.appActive)
+      }
+    case .inactive:
+      analyticsManager.trackEvent(.appInactive)
+    case .background:
+      analyticsManager.trackEvent(.appBackgrounded)
+    @unknown default:
+      analyticsManager.trackEvent(.appUnknown)
     }
   }
 }

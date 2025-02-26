@@ -68,17 +68,21 @@ import SwiftUI
     gameManager.foundWordCount
   }
 
+  private let analytics: AnalyticsService
   private(set) var hintManager: HintManager
   private var firstGame = true
+
   init(
     gameManager: GameManager,
     gameConfigurationFactory: GameConfigurationFactoryProtocol,
-    adManager: AdManaging
+    adManager: AdManaging,
+    analytics: AnalyticsService
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
     self.hintManager = HintManager(adManager: adManager)
+    self.analytics = analytics
     self.pathValidator = PathValidator(
       allowedDirections: Directions.all,
       gridSize: gameManager.grid.count
@@ -109,6 +113,9 @@ import SwiftUI
   @MainActor
   func startNewGame(on viewController: UIViewController) async {
     _ = await adManager.onGameComplete(on: viewController)
+    if !firstGame {
+      track(event: .gameQuit)
+    }
     onShowGameSelection()
   }
 
@@ -128,6 +135,7 @@ import SwiftUI
 
   /// Pauses the game
   func pauseGame() {
+    track(event: .gamePaused)
     gameManager.tryTransitioningTo(state: .pause)
   }
 
@@ -144,6 +152,7 @@ import SwiftUI
       let configuration = self.gameConfigurationFactory.createRandomConfiguration(setting: setting)
       let gameManager = GameManager(configuration: configuration)
       self.createNewGame(gameManager: gameManager)
+      self.track(event: .gameStarted)
       self.onHideGameSelection()
     })
   }
@@ -158,6 +167,7 @@ import SwiftUI
 
   /// Resumes the game
   func resumeGame() {
+    track(event: .gameResumed)
     gameManager.tryTransitioningTo(state: .resume)
   }
 
@@ -176,10 +186,15 @@ import SwiftUI
   /// Submits positions for validation
   func checkIfIsWord(in positions: [Position]) -> Bool {
     let word = gameManager.validateWord(in: positions)
+    let foundWord = word != nil
+    if foundWord {
+      track(event: .gameWordFound)
+    }
     if gameManager.currentState == .complete {
+      track(event: .gameCompleted)
       isShowingCompletionView = true
     }
-    return word != nil
+    return foundWord
   }
 
   /// Returns the color for a cell based on its state
@@ -239,5 +254,30 @@ extension TimeInterval {
       string += "\(seconds)s"
     }
     return string.isEmpty ? "0s" : string
+  }
+}
+
+extension GameViewModel {
+  func trackWordFound(word: String) {
+    analytics.trackEvent(
+      .gameWordFound,
+      parameters: AnalyticsParamsCreator.wordFound(
+        config: gameManager.configuration,
+        word: word,
+        wordsLeft: gameManager.totalWords,
+        timeElapsed: timeElapsed
+      )
+    )
+  }
+
+  func track(event: AnalyticsEvent) {
+    analytics.trackEvent(
+      event,
+      parameters: AnalyticsParamsCreator.gameState(
+        config: gameManager.configuration,
+        wordsLeft: gameManager.totalWords,
+        timeElapsed: timeElapsed
+      )
+    )
   }
 }
