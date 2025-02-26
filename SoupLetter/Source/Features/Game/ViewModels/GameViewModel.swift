@@ -112,8 +112,14 @@ import SwiftUI
     onShowGameSelection()
   }
 
+  @MainActor
   func onViewAppear() {
-    gameManager.tryTransitioningTo(state: .resume)
+    if firstGame {
+      onShowGameSelection()
+      firstGame = false
+    } else {
+      gameManager.tryTransitioningTo(state: .resume)
+    }
   }
 
   func onViewDisappear() {

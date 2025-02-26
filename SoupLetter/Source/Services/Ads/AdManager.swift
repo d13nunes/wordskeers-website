@@ -49,12 +49,13 @@ private final class AdManager: AdManaging {
   var isInterstitialReady: Bool {
     interstitialAdManager.state == .loaded
   }
-  var isRewardedReady: Bool {
-    rewardedAdManager.adState == .loaded
-  }
+  var isRewardedReady: Bool = false
+  // var isRewardedReady: Bool {
+  //   rewardedAdManager.adState == .loaded
+  // }
 
   private let interstitialAdManager = InterstitialAdManager()
-  private let rewardedAdManager = RewardedAdManager()
+  // private let rewardedAdManager = RewardedAdManager()
 
   @MainActor
   func onGameComplete(on viewController: UIViewController) async -> Bool {
@@ -63,6 +64,7 @@ private final class AdManager: AdManaging {
 
   @MainActor
   func showRewardedAd(on viewController: UIViewController) async -> Bool {
-    return await rewardedAdManager.showAd(on: viewController)
+    return false
+    // return await rewardedAdManager.showAd(on: viewController)
   }
 }

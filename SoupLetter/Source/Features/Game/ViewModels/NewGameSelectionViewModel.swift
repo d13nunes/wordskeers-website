@@ -14,7 +14,7 @@ struct GameConfigurationSetting {
     case hard = "Hard"
     case veryHard = "Very Hard"
   }
-  var selectedDifficulty: Difficulty = .medium
+  var selectedDifficulty: Difficulty = .easy
   let availableDifficulties: [Difficulty] = [.easy, .medium, .hard]
   private let onStartGameCallback: (GameConfigurationSetting) -> Void
 

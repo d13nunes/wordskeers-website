@@ -135,15 +135,19 @@ struct MyButton: View {
           .font(.title2)
           .fontWeight(.bold)
       }
+      .frame(width: width, height: 64)
+      .background(style.backgroundColor)
+      .cornerRadius(style.cornerRadius)
     }
-    .frame(width: width, height: 64)
-    .background(style.backgroundColor)
-    .cornerRadius(style.cornerRadius)
   }
 }
 
 #if DEBUG
   #Preview {
-    MyButton(title: "Hello World", style: .destructive, action: {})
+    MyButton(
+      title: "Hello World", style: .destructive,
+      action: {
+        print("clicked")
+      })
   }
 #endif

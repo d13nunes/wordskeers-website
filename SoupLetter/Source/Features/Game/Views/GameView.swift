@@ -11,8 +11,7 @@ struct GameView: View {
 
   var body: some View {
     HStack(alignment: .bottom) {
-      VStack(alignment: .trailing, spacing: 12) {
-        Spacer()
+      VStack(alignment: .leading, spacing: 12) {
         ScoreView(viewModel: viewModel)
         BoardView(viewModel: viewModel)
       }
@@ -79,7 +78,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 20, wordCount: 2
+        gridSize: 20, wordCount: 20
       ))
   }
 #endif

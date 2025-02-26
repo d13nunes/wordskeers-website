@@ -32,7 +32,6 @@ struct BoardView: View {
   }
 
   private func createLetterView(grid: [[String]], row: Int, col: Int, size: CGFloat) -> some View {
-    print("!!! geometry: \(grid[0].count)")
     let position = Position(row: row, col: col)
     let isHint = viewModel.hintManager.positions.contains(position)
     let isSelected = !isHint && viewModel.selectionHandler.selectedCells.contains(position)

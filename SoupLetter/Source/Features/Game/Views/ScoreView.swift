@@ -18,7 +18,7 @@ struct ScoreView: View {
 
   var body: some View {
     if horizontalSizeClass == .compact {
-      VStack(alignment: .trailing) {
+      VStack(alignment: .leading, spacing: 24) {
         createWordsListView(isCompact: true)
         HStack(alignment: .bottom) {
           Text(viewModel.formattedTime)
@@ -30,15 +30,15 @@ struct ScoreView: View {
         }
       }
     } else {
-      HStack(alignment: .top, spacing: 24) {
+      VStack(alignment: .leading, spacing: 24) {
         createWordsListView(isCompact: false)
-        VStack(alignment: .trailing) {
-          HStack(alignment: .lastTextBaseline) {
-            Text(viewModel.formattedTime)
-              .monospacedDigit()
-              .bold()
-              .font(.system(size: 42))
-          }
+        HStack(alignment: .bottom) {
+          Text(viewModel.formattedTime)
+            .monospacedDigit()
+            .bold()
+            .foregroundStyle(.primary.opacity(0.8))
+            .font(.system(size: 64))
+          Spacer()
           createButtons()
         }
       }
@@ -50,6 +50,7 @@ struct ScoreView: View {
   private func createButtons() -> some View {
     HStack(alignment: .top, spacing: 16) {
       HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
+        .hidden()
       PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
     }
   }
@@ -82,7 +83,7 @@ struct ScoreView: View {
 #if DEBUG
   #Preview {
     ScoreView(
-      viewModel: getViewModel(gridSize: 15, wordCount: 25)
+      viewModel: getViewModel(gridSize: 15, wordCount: 10)
     )
     .padding(.horizontal)
 
