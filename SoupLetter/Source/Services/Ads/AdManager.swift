@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import GoogleMobileAds
 import UIKit
 
 @Observable
@@ -14,14 +15,47 @@ final class AdManager: AdManaging {
   //   rewardedAdManager.adState == .loaded
   // }
 
+  private var isAdMobInitialized = false
+
   private let interstitialAdManager = InterstitialAdManager()
   // private let rewardedAdManager = RewardedAdManager()
   private let analyticsManager: AnalyticsService
 
-  init(analyticsManager: AnalyticsService) {
+  private let consentService: AdvertisingConsentService
+
+  init(analyticsManager: AnalyticsService, consentService: AdvertisingConsentService) {
     self.analyticsManager = analyticsManager
+    self.consentService = consentService
   }
 
+  @MainActor
+  func onAppActive() async {
+    await consentService.initialize()
+    initializeAdMob()
+  }
+
+  private func initializeAdMob() {
+    // For testing
+    #if DEBUG
+      MobileAds.shared.requestConfiguration.testDeviceIdentifiers = ["GADSimulatorID"]
+    #endif
+
+    analyticsManager.trackEvent(.adMobInitializing)
+    // Initialize the Google Mobile Ads SDK
+    MobileAds.shared.start { [weak self] status in
+
+      // Handle initialization status
+      if status.adapterStatusesByClassName.count > 0 {
+        debugPrint("AdMob: Successfully initialized")
+        self?.analyticsManager.trackEvent(.adMobInitializedSuccessfully)
+        self?.isAdMobInitialized = true
+      } else {
+        debugPrint("AdMob: Initialization incomplete")
+        self?.analyticsManager.trackEvent(.adMobInitializationFailed)
+        self?.isAdMobInitialized = false
+      }
+    }
+  }
   @MainActor
   func onGameComplete(on viewController: UIViewController) async -> Bool {
     // Track ad requested event

@@ -3,6 +3,7 @@ import OSLog
 
 /// Protocol defining analytics tracking capabilities
 protocol AnalyticsService {
+  func trackEvent(_ eventName: AnalyticsEvent)
   /// Tracks a custom event with optional parameters
   /// - Parameters:
   ///   - eventName: Name of the event to track

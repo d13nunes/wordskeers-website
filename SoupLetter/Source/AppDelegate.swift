@@ -10,8 +10,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   ) -> Bool {
     // Configure Firebase
     FirebaseApp.configure()
-
-    MobileAds.shared.start()
     return true
   }
 }

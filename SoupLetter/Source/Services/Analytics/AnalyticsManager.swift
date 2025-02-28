@@ -2,16 +2,20 @@ import Foundation
 
 /// Main analytics manager that forwards events to the underlying implementation
 @Observable class AnalyticsManager: AnalyticsService {
-  private let service: AnalyticsService
+  private let provider: AnalyticsService
 
   /// Initialize with a specific analytics service implementation
   /// - Parameter service: The underlying analytics service to use
-  init(service: AnalyticsService) {
-    self.service = service
+  init(provider: AnalyticsService) {
+    self.provider = provider
+  }
+
+  func trackEvent(_ eventName: AnalyticsEvent) {
+    provider.trackEvent(eventName)
   }
 
   func trackEvent(_ eventName: AnalyticsEvent, parameters: [String: Any]? = nil) {
-    service.trackEvent(eventName, parameters: parameters)
+    provider.trackEvent(eventName, parameters: parameters)
   }
 
 }

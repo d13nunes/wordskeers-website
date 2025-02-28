@@ -5,6 +5,9 @@ protocol AdManaging {
   var isRewardedReady: Bool { get }
 
   @MainActor
+  func onAppActive() async
+
+  @MainActor
   func onGameComplete(on viewController: UIViewController) async -> Bool
 
   @MainActor

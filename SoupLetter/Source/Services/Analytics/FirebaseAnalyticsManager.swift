@@ -8,6 +8,10 @@ import OSLog
   private let logger = Logger(subsystem: "com.soupletter.analytics", category: "FirebaseAnalytics")
   private let limitParametersCount = 25
 
+  func trackEvent(_ eventName: AnalyticsEvent) {
+    trackEvent(eventName, parameters: nil)
+  }
+
   func trackEvent(_ eventName: AnalyticsEvent, parameters: [String: Any]? = nil) {
 
     var sanitizedParams: [String: Any]?

@@ -18,12 +18,17 @@ struct MainApp: App {
   @State private var showSplash = false
   @State private var firstTime = true
 
-  private var analyticsManager = AnalyticsManager(service: FirebaseAnalyticsManager())
+  private var analyticsManager: AnalyticsManager
   private let adManager: AdManaging
   private var configuration: GameConfiguration?
 
   init() {
-    self.adManager = AdManager(analyticsManager: analyticsManager)
+    let analyticsProvider = FirebaseAnalyticsManager()
+    self.analyticsManager = AnalyticsManager(provider: analyticsProvider)
+    self.adManager = AdManager(
+      analyticsManager: analyticsManager,
+      consentService: AdvertisingConsentService()
+    )
     self.wordStore = WordListStore()
     self.gameConfigurationFactory = GameConfigurationFactory(wordStore: wordStore)
     let configuration = gameConfigurationFactory.createRandomConfiguration()
@@ -56,11 +61,15 @@ struct MainApp: App {
     }
     .onChange(of: scenePhase) { _, newPhase in
       trackAppState(scenePhase: newPhase, firstTime: firstTime)
+      if firstTime, case .active = newPhase {
+        Task {
+          await adManager.onAppActive()
+        }
+      }
       firstTime = false
     }
   }
 }
-
 extension MainApp {
   func trackAppState(scenePhase: ScenePhase, firstTime: Bool) {
     switch scenePhase {

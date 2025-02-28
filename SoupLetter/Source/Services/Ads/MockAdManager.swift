@@ -5,6 +5,11 @@
     var isRewardedReady: Bool
 
     init() {
+      isInterstitialReady = false
+      isRewardedReady = false
+    }
+
+    func onAppActive() async {
       isInterstitialReady = true
       isRewardedReady = true
     }
