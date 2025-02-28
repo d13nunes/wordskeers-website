@@ -1,0 +1,39 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Change this if your default branch is different
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Prepare website files
+        run: |
+          mkdir public
+          cp index.html public/index.html
+          cp index.html public/download.html
+          cp privacy.html public/privacy.html
+          cp support.html public/support.html
+          cp -r assets public/assets  # Copy the assets folder
+          cp CNAME public/CNAME  # Copy the CNAME file
+
+      - name: Upload artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./public  # Directory containing all files
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
