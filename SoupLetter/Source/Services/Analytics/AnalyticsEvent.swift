@@ -12,10 +12,9 @@ public enum AnalyticsEvent: String {
   case gameHintUsed = "game_hint_used"
 
   // MARK: - Ad Events
-
-  case adMobInitializing
-  case adMobInitializedSuccessfully
-  case adMobInitializationFailed
+  case adMobInitializing = "ad_init_started"
+  case adMobInitializedSuccessfully = "ad_init_succeeded"
+  case adMobInitializationFailed = "ad_init_failed"
 
   case adInterstitialRequested = "ad_interstitial_requested"
   case adInterstitialImpression = "ad_interstitial_impression"
@@ -29,11 +28,11 @@ public enum AnalyticsEvent: String {
   case adRewardedClosed = "ad_rewarded_closed"
 
   // MARK: - App Events
-  case appStarted
-  case appActive
-  case appInactive
-  case appBackgrounded
-  case appUnknown
+  case appStarted = "app_started"
+  case appActive = "app_active"
+  case appInactive = "app_inactive"
+  case appBackgrounded = "app_backgrounded"
+  case appUnknown = "app_unknown"
 }
 
 enum AnalyticsParams: String {
