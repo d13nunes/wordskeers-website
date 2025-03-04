@@ -10,15 +10,15 @@ final class AdManager: AdManaging {
   var isInterstitialReady: Bool {
     interstitialAdManager.state == .loaded
   }
-  var isRewardedReady: Bool = false
-  // var isRewardedReady: Bool {
-  //   rewardedAdManager.adState == .loaded
-  // }
+
+  var isRewardedReady: Bool {
+    rewardedAdManager.adState == .loaded
+  }
 
   private var isAdMobInitialized = false
 
   private let interstitialAdManager = InterstitialAdManager()
-  // private let rewardedAdManager = RewardedAdManager()
+  private let rewardedAdManager = RewardedAdManager()
   private let analyticsManager: AnalyticsService
 
   private let consentService: AdvertisingConsentService

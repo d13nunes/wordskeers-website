@@ -50,7 +50,6 @@ struct ScoreView: View {
   private func createButtons() -> some View {
     HStack(alignment: .top, spacing: 16) {
       HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
-        .hidden()
       PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
     }
   }
