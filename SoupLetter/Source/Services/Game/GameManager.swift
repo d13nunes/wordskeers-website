@@ -27,23 +27,17 @@ struct NewGameOptions: GameStateOptions {
 
   // MARK: - Private Properties
 
-  private let gridGenerator: GridGenerator
+  private let gridGenerator: GridGenerating
   private(set) var wordValidator: WordValidator
   private var timer: Timer?
 
   // MARK: - Initialization
 
-  init(configuration: GameConfiguration) {
-    self.configuration = configuration
-    let wordsList = configuration.words
+  init(gridGenerator: GridGenerating) {
+    self.configuration = gridGenerator.configuration
+    self.gridGenerator = gridGenerator
     // Initialize game services
-    self.gridGenerator = GridGenerator(
-      words: wordsList,
-      size: configuration.gridSize,
-      validDirections: configuration.validDirections
-    )
-
-    let (generatedGrid, wordsData) = gridGenerator.getGrid()
+    let (generatedGrid, wordsData) = gridGenerator.generate()
     self.grid = generatedGrid
     self.wordValidator = WordValidator(words: wordsData)
 
@@ -125,7 +119,7 @@ struct NewGameOptions: GameStateOptions {
     timeElapsed = 0
 
     // Generate new grid
-    let (newGrid, wordsData) = gridGenerator.getGrid()
+    let (newGrid, wordsData) = gridGenerator.generate()
     grid = newGrid
 
     // Reset word validator with new words

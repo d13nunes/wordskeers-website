@@ -90,14 +90,14 @@ final class AdManager: AdManaging {
 
   @MainActor
   func showRewardedAd(on viewController: UIViewController) async -> Bool {
-    // Track ad requested event
+    // Track ad requested event                                                                                                                                     
     analyticsManager.trackEvent(
       .adRewardedRequested,
       parameters:
         AnalyticsParamsCreator.adEvent(adType: "rewarded", location: "in_game"))
 
     // Currently returns false as rewarded ads are not implemented
-    let result = false  // await rewardedAdManager.showAd(on: viewController)
+    let result = await rewardedAdManager.showAd(on: viewController)
 
     // Track failure for now since rewarded ads are not implemented
     analyticsManager.trackEvent(

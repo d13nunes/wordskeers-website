@@ -133,11 +133,9 @@ struct BoardView: View {
     }
 
     func createNewGame() {
-      let configuration = viewModel.gameConfigurationFactory.createRandomConfiguration(
-        setting: GameConfigurationSetting(
-          gridSize: boardSize, wordsCount: boardSize, validDirections: Directions.all)
-      )
-      let gameManager = GameManager(configuration: configuration)
+      let factory = GameConfigurationFactoryV2()
+      let configuration = factory.createConfiguration(difficulty: .easy)
+      let gameManager = GameManager(gridGenerator: configuration)
       viewModel.createNewGame(gameManager: gameManager)
     }
   }

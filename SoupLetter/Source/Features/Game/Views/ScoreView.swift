@@ -55,7 +55,7 @@ struct ScoreView: View {
   }
 
   private var scoreTitle: String {
-    "\(viewModel.gameConfiguration.subCategory)".capitalized
+    "\(viewModel.gameConfiguration.category)".capitalized
   }
   private var progress: Double {
     Double(foundWordsCount) / Double(totalWordsCount)

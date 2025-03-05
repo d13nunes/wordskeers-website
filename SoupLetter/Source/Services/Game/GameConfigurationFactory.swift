@@ -12,8 +12,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
     gridSize: 0,
     words: [],
     validDirections: Directions.easy,
-    category: "",
-    subCategory: ""
+    category: ""
   )
 
   private let wordStore: WordListStore
@@ -40,7 +39,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       assert(false, "No subCategory found")
       return emptyConfiguration
     }
-    let setting = setting ?? defaultSetting
+
     return createConfiguration(
       setting: setting,
       category: category,
@@ -63,15 +62,15 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       gridSize: setting.gridSize,
       words: filteredWords,
       validDirections: setting.validDirections,
-      category: category,
-      subCategory: subCategory
+      category: category
     )
   }
 }
 
 #if DEBUG
 
-  struct GameConfigurationFactoryPreview: GameConfigurationFactoryProtocol {
+  struct GameConfigurationFactoryPreview: GameConfigurationFactoring {
+
     let gridSize: Int
     let words: [String]
     let validDirections: Set<Direction>
@@ -92,39 +91,15 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       self.subCategory = subCategory
     }
 
-    func createRandomConfiguration() -> GameConfiguration {
-      return createRandomConfiguration(
-        setting: GameConfigurationSetting(
-          gridSize: gridSize,
-          wordsCount: words.count,
-          validDirections: validDirections
-        )
-      )
-    }
-
-    func createRandomConfiguration(setting: GameConfigurationSetting) -> GameConfiguration {
-      return GameConfiguration(
-        gridSize: setting.gridSize,
+    func createConfiguration(difficulty: Difficulty) -> any GridGenerating {
+      let configuration = GameConfiguration(
+        gridSize: gridSize,
         words: words,
-        validDirections: setting.validDirections,
-        category: category,
-        subCategory: subCategory
+        validDirections: validDirections,
+        category: category
       )
-    }
+      return GridGenerator(configuration: configuration)
 
-    func createConfiguration(
-      setting: GameConfigurationSetting, category: String, subCategory: String
-    )
-      -> GameConfiguration
-    {
-      return GameConfiguration(
-        gridSize: setting.gridSize,
-        words: words,
-        validDirections: setting.validDirections,
-        category: category,
-        subCategory: subCategory
-      )
     }
   }
-
 #endif

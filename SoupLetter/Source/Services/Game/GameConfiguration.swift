@@ -9,6 +9,4 @@ struct GameConfiguration: Hashable {
   let validDirections: Set<Direction>
 
   let category: String
-  let subCategory: String
-
 }

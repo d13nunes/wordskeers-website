@@ -5,7 +5,7 @@ enum GridGeneratorError: String, Error {
 }
 
 /// Service responsible for generating the letter grid and placing words
-class GridGenerator: GridFactory {
+class GridGenerator: GridGenerating {
   private let vowels = "AEIOU"
   private let consonants = "BCDFGHJKLMNPQRSTVWXYZ"
 
@@ -13,13 +13,29 @@ class GridGenerator: GridFactory {
   private let size: Int
   private let validDirections: [Direction]
 
+  var configuration: GameConfiguration
+
+  convenience init(configuration: GameConfiguration) {
+    self.init(
+      words: configuration.words,
+      size: configuration.gridSize,
+      validDirections: configuration.validDirections
+    )
+  }
+
   init(words: [String], size: Int, validDirections: Set<Direction>) {
     self.words = words
     self.size = size
     self.validDirections = Array(validDirections)
+    self.configuration = GameConfiguration(
+      gridSize: size,
+      words: words,
+      validDirections: validDirections,
+      category: "Placeholder"
+    )
   }
 
-  func getGrid() -> ([[String]], [WordData]) {
+  func generate() -> ([[String]], [WordData]) {
     let (grid, wordData) = generateWordSearch(gridSize: size, words: words)
     return (grid, wordData)
   }
@@ -60,7 +76,8 @@ class GridGenerator: GridFactory {
   }
 
   func generateWordSearch(gridSize: Int, words: [String]) -> ([[String]], [WordData]) {
-    var grid = Array(repeating: Array(repeating: " ", count: gridSize), count: gridSize)
+    let emptyLetter = " "
+    var grid = Array(repeating: Array(repeating: emptyLetter, count: gridSize), count: gridSize)
     var wordData: [WordData] = []
     for word in words {
       if let (position, direction) = placeWord(word.uppercased(), grid: &grid) {
@@ -75,10 +92,12 @@ class GridGenerator: GridFactory {
     }
 
     for row in 0..<gridSize {
-      for col in 0..<gridSize where grid[row][col] == " " {
+      for col in 0..<gridSize where grid[row][col] == emptyLetter {
+        
         grid[row][col] = String(UnicodeScalar(Int.random(in: 65...90))!)  // Random uppercase letter
       }
     }
     return (grid, wordData)
   }
 }
+

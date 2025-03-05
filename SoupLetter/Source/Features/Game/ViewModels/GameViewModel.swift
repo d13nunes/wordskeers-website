@@ -4,7 +4,7 @@ import SwiftUI
 /// ViewModel responsible for coordinating game logic and UI updates
 @Observable class GameViewModel {
 
-  let gameConfigurationFactory: GameConfigurationFactoryProtocol
+  let gameConfigurationFactory: GameConfigurationFactoring
   private let adManager: AdManaging
 
   let selectionHandler: SelectionHandler
@@ -74,7 +74,7 @@ import SwiftUI
 
   init(
     gameManager: GameManager,
-    gameConfigurationFactory: GameConfigurationFactoryProtocol,
+    gameConfigurationFactory: GameConfigurationFactoring,
     adManager: AdManaging,
     analytics: AnalyticsService
   ) {
@@ -148,9 +148,9 @@ import SwiftUI
   func onShowGameSelection() {
     isShowingCompletionView = false
     isShowingPauseMenu = false
-    newGameSelectionViewModel = NewGameSelectionViewModel(onStartGame: { setting in
-      let configuration = self.gameConfigurationFactory.createRandomConfiguration(setting: setting)
-      let gameManager = GameManager(configuration: configuration)
+    newGameSelectionViewModel = NewGameSelectionViewModel(onStartGame: { difficulty in
+      let gridGenerator = self.gameConfigurationFactory.createConfiguration(difficulty: difficulty)
+      let gameManager = GameManager(gridGenerator: gridGenerator)
       self.createNewGame(gameManager: gameManager)
       self.track(event: .gameStarted)
       self.onHideGameSelection()
@@ -220,14 +220,6 @@ import SwiftUI
   }
 
   // MARK: - Private Methods
-
-  private func getGridSize(for difficulty: Difficulty) -> Int {
-    switch difficulty {
-    case .easy: return 6
-    case .medium: return 8
-    case .hard: return 10
-    }
-  }
 
   func getGameOverViewFormattedTime() -> String {
     return gameOverViewFormattedTime(timeElapsed)

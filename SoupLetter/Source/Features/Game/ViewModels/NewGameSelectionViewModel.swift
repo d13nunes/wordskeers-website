@@ -6,19 +6,19 @@ struct GameConfigurationSetting {
   let validDirections: Set<Direction>
 }
 
+enum Difficulty: String {
+  case veryEasy = "Very Easy"
+  case easy = "Easy"
+  case medium = "Medium"
+  case hard = "Hard"
+  case veryHard = "Very Hard"
+}
 @Observable final class NewGameSelectionViewModel {
-  enum Difficulty: String {
-    case veryEasy = "Very Easy"
-    case easy = "Easy"
-    case medium = "Medium"
-    case hard = "Hard"
-    case veryHard = "Very Hard"
-  }
   var selectedDifficulty: Difficulty = .easy
-  let availableDifficulties: [Difficulty] = [.easy, .medium, .hard]
-  private let onStartGameCallback: (GameConfigurationSetting) -> Void
+  let availableDifficulties: [Difficulty] = [.veryEasy, .easy, .medium, .hard]
+  private let onStartGameCallback: (Difficulty) -> Void
 
-  init(onStartGame: @escaping (GameConfigurationSetting) -> Void) {
+  init(onStartGame: @escaping (Difficulty) -> Void) {
     self.onStartGameCallback = onStartGame
   }
 
@@ -41,12 +41,12 @@ struct GameConfigurationSetting {
   private let difficultyGameConfig: [Difficulty: GameConfigurationSetting] = [
     .veryEasy: GameConfigurationSetting(
       gridSize: 6,
-      wordsCount: 3,
+      wordsCount: 6,
       validDirections: Directions.veryEasy
     ),
     .easy: GameConfigurationSetting(
       gridSize: 6,
-      wordsCount: 4,
+      wordsCount: 8,
       validDirections: Directions.easy
     ),
     .medium: GameConfigurationSetting(
@@ -55,18 +55,18 @@ struct GameConfigurationSetting {
       validDirections: Directions.medium
     ),
     .hard: GameConfigurationSetting(
-      gridSize: 12,
+      gridSize: 16,
       wordsCount: 20,
       validDirections: Directions.hard
     ),
     .veryHard: GameConfigurationSetting(
-      gridSize: 16,
-      wordsCount: 30,
+      gridSize: 20,
+      wordsCount: 25,
       validDirections: Directions.veryHard
     ),
   ]
 
   func startGame() {
-    onStartGameCallback(selectedDifficultyGameConfig)
+    onStartGameCallback(selectedDifficulty)
   }
 }

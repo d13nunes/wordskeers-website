@@ -10,12 +10,12 @@ struct Directions {
     diagonalRightUp,
   ]
 
-  static let right = Direction(dx: 0, dy: 1)
-  static let down = Direction(dx: 1, dy: 0)
+  static let right = Direction(dx: 1, dy: 0)
+  static let down = Direction(dx: 0, dy: 1)
   static let diagonalRightDown = Direction(dx: 1, dy: 1)
   static let diagonalLeftDown = Direction(dx: -1, dy: 1)
-  static let left = Direction(dx: 0, dy: -1)
-  static let up = Direction(dx: -1, dy: 0)
+  static let left = Direction(dx: -1, dy: 0)
+  static let up = Direction(dx: 0, dy: -1)
   static let diagonalLeftUp = Direction(dx: -1, dy: -1)
   static let diagonalRightUp = Direction(dx: 1, dy: -1)
 
@@ -41,8 +41,8 @@ struct Directions {
   }
   static let veryEasy: Set<Direction> = [right]
   static let easy: Set<Direction> = [right, down]
-  static let medium: Set<Direction> = [right, down, diagonalRightDown, diagonalLeftDown]
-  static let hard: Set<Direction> = [right, down, diagonalRightDown, diagonalLeftDown, left, up]
+  static let medium: Set<Direction> = [right, down, diagonalRightDown, diagonalRightDown]
+  static let hard: Set<Direction> = [right, down, diagonalRightDown, diagonalRightDown, left, up]
   static let veryHard: Set<Direction> = all
 
 }

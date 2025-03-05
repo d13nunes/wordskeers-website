@@ -12,8 +12,8 @@
 	"argv": [
 		"/opt/homebrew/bin/xcode-build-server"
 	],
-	"workspace": "/Users/diogonunes/Documents/code/soupletter/SoupLetter/SoupLetter.xcodeproj/project.xcworkspace",
-	"build_root": "/Users/diogonunes/Library/Developer/Xcode/DerivedData/SoupLetter-aspwnbrwxughwjgzojpspktocdhn",
+	"workspace": "/Users/diogonunes/Documents/code/wordseekr/wordseekr-game/SoupLetter.xcodeproj/project.xcworkspace",
+	"build_root": "/Users/diogonunes/Library/Developer/Xcode/DerivedData/SoupLetter-cpnylycqnmdygofctqdeqobavjzj",
 	"scheme": "SoupLetter",
 	"kind": "xcode"
 }

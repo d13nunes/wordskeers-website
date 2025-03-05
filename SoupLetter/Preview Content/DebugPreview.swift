@@ -76,23 +76,15 @@
     )
   }
 
-  func getGameConfigFactory() -> GameConfigurationFactoryProtocol {
+  func getGameConfigFactory() -> GameConfigurationFactoring {
     GameConfigurationFactoryPreview()
   }
 
   func getGameManager(
-    gridSize: Int, wordCount: Int, gameConfigurationFactory: GameConfigurationFactoryProtocol
+    gridSize: Int, wordCount: Int, gameConfigurationFactory: GameConfigurationFactoring
   ) -> GameManager {
     return GameManager(
-      configuration: gameConfigurationFactory.createConfiguration(
-        setting: GameConfigurationSetting(
-          gridSize: gridSize,
-          wordsCount: wordCount,
-          validDirections: Directions.easy
-        ),
-        category: "animals",
-        subCategory: "mammals"
-      )
+      gridGenerator: gameConfigurationFactory.createConfiguration(difficulty: .easy)
     )
   }
 
@@ -104,8 +96,10 @@
       ].prefix(wordCount))
 
     return GameConfiguration(
-      gridSize: gridSize, words: words, validDirections: Directions.easy, category: "animals",
-      subCategory: "mammals"
+      gridSize: gridSize,
+      words: words,
+      validDirections: Directions.easy,
+      category: "animals"
     )
   }
 

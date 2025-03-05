@@ -20,7 +20,6 @@ struct MainApp: App {
 
   private var analyticsManager: AnalyticsManager
   private let adManager: AdManaging
-  private var configuration: GameConfiguration?
 
   init() {
     let analyticsProvider = FirebaseAnalyticsManager()
@@ -30,10 +29,11 @@ struct MainApp: App {
       consentService: AdvertisingConsentService()
     )
     self.wordStore = WordListStore()
-    self.gameConfigurationFactory = GameConfigurationFactory(wordStore: wordStore)
-    let configuration = gameConfigurationFactory.createRandomConfiguration()
+
+    self.gameConfigurationFactory = GameConfigurationFactoryV2()
+    let configuration = gameConfigurationFactory.createConfiguration(difficulty: .easy)
     self.gameViewModel = GameViewModel(
-      gameManager: GameManager(configuration: configuration),
+      gameManager: GameManager(gridGenerator: configuration),
       gameConfigurationFactory: gameConfigurationFactory,
       adManager: adManager,
       analytics: analyticsManager
@@ -42,7 +42,7 @@ struct MainApp: App {
   }
 
   private let wordStore: WordListStore
-  private let gameConfigurationFactory: GameConfigurationFactory
+  private let gameConfigurationFactory: GameConfigurationFactoring
   private let gameViewModel: GameViewModel
   var body: some Scene {
     WindowGroup {
