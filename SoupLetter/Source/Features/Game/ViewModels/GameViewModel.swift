@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 /// ViewModel responsible for coordinating game logic and UI updates
-@Observable class GameViewModel {
+@Observable class GameViewModel: WordSelectionVisualizing {
 
   let gameConfigurationFactory: GameConfigurationFactoring
   private let adManager: AdManaging
@@ -15,6 +15,10 @@ import SwiftUI
 
   var words: [WordData] {
     gameManager.words
+  }
+
+  var selectedLetters: [String] {
+    selectionHandler.selectedCells.map { grid[$0.row][$0.col] }
   }
 
   private(set) var pathValidator: PathValidator
@@ -84,11 +88,11 @@ import SwiftUI
     self.hintManager = HintManager(adManager: adManager)
     self.analytics = analytics
     self.pathValidator = PathValidator(
-      allowedDirections: Directions.all,
+      allowedDirections: Direction.all,
       gridSize: gameManager.grid.count
     )
     self.selectionHandler = SelectionHandler(
-      allowedDirections: Directions.all,
+      allowedDirections: Direction.all,
       gridSize: gameManager.grid.count
     )
     self.selectionHandler.onDragStarted = onDragStarted
@@ -103,7 +107,7 @@ import SwiftUI
     self.gameManager = gameManager
     self.gameManager.tryTransitioningTo(state: .start)
     self.pathValidator = PathValidator(
-      allowedDirections: Directions.all,
+      allowedDirections: Direction.all,
       gridSize: self.gameManager.grid.count
     )
     hintManager.clearHint()
@@ -149,7 +153,8 @@ import SwiftUI
     isShowingCompletionView = false
     isShowingPauseMenu = false
     newGameSelectionViewModel = NewGameSelectionViewModel(onStartGame: { difficulty in
-      let gridGenerator = self.gameConfigurationFactory.createConfiguration(difficulty: difficulty)
+      let gridGenerator = self.gameConfigurationFactory.createConfiguration(
+        configuration: DifficultyConfigMap.config(for: difficulty))
       let gameManager = GameManager(gridGenerator: gridGenerator)
       self.createNewGame(gameManager: gameManager)
       self.track(event: .gameStarted)

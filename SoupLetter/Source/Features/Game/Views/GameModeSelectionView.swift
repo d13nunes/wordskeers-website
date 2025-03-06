@@ -98,7 +98,7 @@ struct GameModeSelectionView: View {
       Text("Directions")
         .font(.headline)
 
-      DirectionToggleView(viewModel: viewModel)
+      //DirectionToggleView(viewModel: viewModel)
     }
   }
 

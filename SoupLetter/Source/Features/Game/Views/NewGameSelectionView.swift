@@ -35,7 +35,7 @@ struct NewGameSelectionView: View {
         Text("Words can be found in ")
           + Text(
             viewModel.selectedValidDirections
-              .map { Directions.getSymbol(for: $0) }
+              .map { $0.symbol }
               .joined(separator: " ")
           )
           .bold()
@@ -79,7 +79,7 @@ struct NewGameSelectionView: View {
             .frame(width: geometry.size.width / 2, alignment: .trailing)
           HStack(spacing: 2) {
             ForEach(viewModel.selectedValidDirections, id: \.self) { direction in
-              Text(Directions.getSymbol(for: direction))
+              Text(direction.symbol)
                 .font(.headline)
                 .padding(4)
                 .background(.gray.opacity(0.1))

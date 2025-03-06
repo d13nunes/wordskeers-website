@@ -15,10 +15,7 @@ struct PathValidator {
     let magnitude = max(abs(dx), abs(dy))
     guard magnitude > 0 else { return false }
 
-    let direction = Direction(
-      dx: dx / magnitude,
-      dy: dy / magnitude
-    )
+    let direction = Direction.direction(from: dx, dy: dy)
 
     return allowedDirections.contains(direction)
   }

@@ -1,26 +1,18 @@
 import Foundation
 
 struct GameConfigurationFactoryV2: GameConfigurationFactoring {
-  private let dictionary: [Difficulty: GridModel]
-  init() {
-    let categoriesModel = CategoriesModelParser.fromBundle() ?? []
 
-    dictionary = categoriesModel.map { (Self.getDifficulty(from: $0.mode), $0) }.reduce(
-      into: [Difficulty: GridModel]()
-    ) {
-      $0[$1.0] = $1.1
-    }
+  private let gridFetcher: GridFetching
+
+  init(gridFetcher: GridFetching) {
+    self.gridFetcher = gridFetcher
   }
 
-  private func getGridRandom(difficulty: Difficulty) -> GridDataDTO {
-    return dictionary[difficulty]!.grids.randomElement()!
-  }
-
-  func createConfiguration(difficulty: Difficulty) -> GridGenerating {
-    let gridModel = getGridRandom(difficulty: difficulty)
+  func createConfiguration(configuration: GameConfigurationSetting) -> any GridGenerating {
+    let gridModel = gridFetcher.getGridRandom(config: configuration)
     let gridSize = gridModel.size
     let words = gridModel.placedWords.map { $0.word }
-    let validDirections = Directions.all
+    let validDirections = Direction.all
     let category = gridModel.category
     let gameConfiguration = GameConfiguration(
       gridSize: gridSize, words: words, validDirections: validDirections, category: category
@@ -28,16 +20,6 @@ struct GameConfigurationFactoryV2: GameConfigurationFactoring {
     let placedWords = gridModel.placedWords
     return GridGeneratorV2(
       gameConfiguration: gameConfiguration, placedWords: placedWords)
-  }
-  static func getDifficulty(from mode: String) -> Difficulty {
-    switch mode {
-    case "veryEasy": return .veryEasy
-    case "easy": return .easy
-    case "medium": return .medium
-    case "hard": return .hard
-    case "veryHard": return .veryHard
-    default: return .easy
-    }
   }
 
 }
@@ -60,7 +42,7 @@ struct GridGeneratorV2: GridGenerating {
     for word in placedWords {
       print("!grid \(word)")
       for (index, letter) in word.word.uppercased().enumerated() {
-        let direction = word.direction.toDirection()
+        let direction = word.direction
         let x = word.col + index * direction.dx
         let y = word.row + index * direction.dy
         grid[y][x] = String(letter)
@@ -78,7 +60,7 @@ struct GridGeneratorV2: GridGenerating {
           word: $0.word,
           isFound: false,
           position: Position(row: $0.row, col: $0.col),
-          direction: $0.direction.toDirection()
+          direction: $0.direction
         )
       }
     )

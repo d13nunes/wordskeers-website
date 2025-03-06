@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E81145B62D79F7B20052225A /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = E81145B52D79F7B20052225A /* GRDB */; };
+		E81145B82D79F7CE0052225A /* GRDBSQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E81145B72D79F7CE0052225A /* GRDBSQLite */; };
 		E8482DF22D5BAACF00B3E0C6 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = E8482DF12D5BAACF00B3E0C6 /* GoogleMobileAds */; };
 		E880F8402D66553000669839 /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = E880F83F2D66553000669839 /* ConfettiSwiftUI */; };
 		E88AE5342D720AC0002D5C44 /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = E88AE5332D720AC0002D5C44 /* GoogleUserMessagingPlatform */; };
@@ -78,11 +80,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				E880F8402D66553000669839 /* ConfettiSwiftUI in Frameworks */,
+				E81145B62D79F7B20052225A /* GRDB in Frameworks */,
 				E898F4F52D6F8EBC00C29070 /* FirebaseCore in Frameworks */,
 				E8482DF22D5BAACF00B3E0C6 /* GoogleMobileAds in Frameworks */,
 				E898F4F12D6F8E9200C29070 /* FirebaseAnalytics in Frameworks */,
 				E88AE5372D72187C002D5C44 /* GoogleAppMeasurement in Frameworks */,
 				E88AE5392D72187C002D5C44 /* GoogleAppMeasurementOnDeviceConversion in Frameworks */,
+				E81145B82D79F7CE0052225A /* GRDBSQLite in Frameworks */,
 				E88AE5342D720AC0002D5C44 /* GoogleUserMessagingPlatform in Frameworks */,
 				E898F4F32D6F8E9200C29070 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				E88AE53B2D72187C002D5C44 /* GoogleAppMeasurementWithoutAdIdSupport in Frameworks */,
@@ -164,6 +168,8 @@
 				E88AE5362D72187C002D5C44 /* GoogleAppMeasurement */,
 				E88AE5382D72187C002D5C44 /* GoogleAppMeasurementOnDeviceConversion */,
 				E88AE53A2D72187C002D5C44 /* GoogleAppMeasurementWithoutAdIdSupport */,
+				E81145B52D79F7B20052225A /* GRDB */,
+				E81145B72D79F7CE0052225A /* GRDBSQLite */,
 			);
 			productName = SoupLetter;
 			productReference = E8D5792C2D5A27E200A892C2 /* SoupLetter.app */;
@@ -253,6 +259,7 @@
 				E898F4EF2D6F8E6200C29070 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				E88AE5322D720AC0002D5C44 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */,
 				E88AE5352D72187C002D5C44 /* XCRemoteSwiftPackageReference "GoogleAppMeasurement" */,
+				E81145A22D79F0E20052225A /* XCRemoteSwiftPackageReference "GRDB" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E8D5792D2D5A27E200A892C2 /* Products */;
@@ -690,6 +697,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E81145A22D79F0E20052225A /* XCRemoteSwiftPackageReference "GRDB" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		E8482DF02D5BAACF00B3E0C6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
@@ -733,6 +748,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E81145B52D79F7B20052225A /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E81145A22D79F0E20052225A /* XCRemoteSwiftPackageReference "GRDB" */;
+			productName = GRDB;
+		};
+		E81145B72D79F7CE0052225A /* GRDBSQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E81145A22D79F0E20052225A /* XCRemoteSwiftPackageReference "GRDB" */;
+			productName = GRDBSQLite;
+		};
 		E8482DF12D5BAACF00B3E0C6 /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E8482DF02D5BAACF00B3E0C6 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;

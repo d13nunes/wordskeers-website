@@ -84,22 +84,13 @@
     gridSize: Int, wordCount: Int, gameConfigurationFactory: GameConfigurationFactoring
   ) -> GameManager {
     return GameManager(
-      gridGenerator: gameConfigurationFactory.createConfiguration(difficulty: .easy)
-    )
-  }
-
-  func getConfiguration(gridSize: Int, wordCount: Int) -> GameConfiguration {
-    let words = Array(
-      [
-        "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge", "grault", "garply", "waldo",
-        "fred", "plugh", "xyzzy", "thud",
-      ].prefix(wordCount))
-
-    return GameConfiguration(
-      gridSize: gridSize,
-      words: words,
-      validDirections: Directions.easy,
-      category: "animals"
+      gridGenerator: gameConfigurationFactory.createConfiguration(
+        configuration: GameConfigurationSetting(
+          gridSize: gridSize,
+          wordsCount: wordCount,
+          validDirections: Direction.medium
+        )
+      )
     )
   }
 

@@ -11,7 +11,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
   let emptyConfiguration = GameConfiguration(
     gridSize: 0,
     words: [],
-    validDirections: Directions.easy,
+    validDirections: Direction.easy,
     category: ""
   )
 
@@ -19,7 +19,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
   private let defaultSetting = GameConfigurationSetting(
     gridSize: 10,
     wordsCount: 12,
-    validDirections: Directions.veryHard
+    validDirections: Direction.veryHard
   )
 
   init(wordStore: WordListStore = WordListStore()) {
@@ -80,7 +80,7 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
     init(
       gridSize: Int = 5,
       words: [String] = ["Hello", "World"],
-      validDirections: Set<Direction> = Directions.medium,
+      validDirections: Set<Direction> = Direction.medium,
       category: String = "Test",
       subCategory: String = "Test"
     ) {
@@ -91,15 +91,27 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
       self.subCategory = subCategory
     }
 
-    func createConfiguration(difficulty: Difficulty) -> any GridGenerating {
-      let configuration = GameConfiguration(
-        gridSize: gridSize,
-        words: words,
-        validDirections: validDirections,
-        category: category
-      )
+    func createConfiguration(configuration: GameConfigurationSetting) -> GridGenerating {
+      let configuration = getConfiguration(gridSize: gridSize, wordCount: words.count)
       return GridGenerator(configuration: configuration)
 
     }
+
+    func getConfiguration(gridSize: Int, wordCount: Int) -> GameConfiguration {
+      let words = Array(
+        [
+          "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge", "grault", "garply",
+          "waldo",
+          "fred", "plugh", "xyzzy", "thud",
+        ].prefix(wordCount))
+
+      return GameConfiguration(
+        gridSize: gridSize,
+        words: words,
+        validDirections: Direction.medium,
+        category: "animals"
+      )
+    }
+
   }
 #endif

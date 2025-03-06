@@ -133,8 +133,9 @@ struct BoardView: View {
     }
 
     func createNewGame() {
-      let factory = GameConfigurationFactoryV2()
-      let configuration = factory.createConfiguration(difficulty: .easy)
+      let factory = GameConfigurationFactoryV2(gridFetcher: MockGridFetcher())
+      let configuration = factory.createConfiguration(
+        configuration: DifficultyConfigMap.config(for: .easy))
       let gameManager = GameManager(gridGenerator: configuration)
       viewModel.createNewGame(gameManager: gameManager)
     }

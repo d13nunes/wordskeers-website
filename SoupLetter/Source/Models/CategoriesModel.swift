@@ -16,23 +16,7 @@ struct WordPlacementDTO: Codable {
   let word: String
   let row: Int
   let col: Int
-  let direction: String
-}
-
-extension String {
-  func toDirection() -> Direction {
-    switch self {
-    case "horizontal": return Directions.right
-    case "vertical": return Directions.down
-    case "diagonal-ur": return Directions.diagonalRightUp
-    case "diagonal-ul": return Directions.diagonalLeftUp
-    case "diagonal-dr": return Directions.diagonalRightDown
-    case "diagonal-dl": return Directions.diagonalLeftDown
-    case "horizontal-r": return Directions.left
-    case "vertical-r": return Directions.up
-    default: return Directions.right
-    }
-  }
+  let direction: Direction
 }
 
 struct CategoriesModelParser: Codable {

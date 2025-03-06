@@ -6,7 +6,7 @@ import SwiftUI
   var availableCategories: [String] = ["Random", "Animals", "Food", "Sports", "Cities", "Flowers"]
   var gridSize: Int = 15
   var wordCount: Int = 5
-  var allowedDirections: Set<Direction> = Set(Directions.all)
+  var allowedDirections: Set<Direction> = Set(Direction.all)
 
   // MARK: - Constants
   let minGridSize = 5

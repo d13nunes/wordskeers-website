@@ -78,7 +78,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 20, wordCount: 20
+        gridSize: 10, wordCount: 20
       ))
   }
 #endif

@@ -23,48 +23,20 @@ enum Difficulty: String {
   }
 
   var selectedValidDirections: [Direction] {
-    Array(difficultyGameConfig[selectedDifficulty]!.validDirections)
+    Array(DifficultyConfigMap.config(for: selectedDifficulty).validDirections)
   }
 
   var selectedGridSize: Int {
-    difficultyGameConfig[selectedDifficulty]!.gridSize
+    DifficultyConfigMap.config(for: selectedDifficulty).gridSize
   }
 
   var selectedWordsCount: Int {
-    difficultyGameConfig[selectedDifficulty]!.wordsCount
+    DifficultyConfigMap.config(for: selectedDifficulty).wordsCount
   }
 
   var selectedDifficultyGameConfig: GameConfigurationSetting {
-    difficultyGameConfig[selectedDifficulty]!
+    DifficultyConfigMap.config(for: selectedDifficulty)
   }
-
-  private let difficultyGameConfig: [Difficulty: GameConfigurationSetting] = [
-    .veryEasy: GameConfigurationSetting(
-      gridSize: 6,
-      wordsCount: 6,
-      validDirections: Directions.veryEasy
-    ),
-    .easy: GameConfigurationSetting(
-      gridSize: 6,
-      wordsCount: 8,
-      validDirections: Directions.easy
-    ),
-    .medium: GameConfigurationSetting(
-      gridSize: 10,
-      wordsCount: 15,
-      validDirections: Directions.medium
-    ),
-    .hard: GameConfigurationSetting(
-      gridSize: 16,
-      wordsCount: 20,
-      validDirections: Directions.hard
-    ),
-    .veryHard: GameConfigurationSetting(
-      gridSize: 20,
-      wordsCount: 25,
-      validDirections: Directions.veryHard
-    ),
-  ]
 
   func startGame() {
     onStartGameCallback(selectedDifficulty)

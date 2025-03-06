@@ -20,6 +20,7 @@ struct MainApp: App {
 
   private var analyticsManager: AnalyticsManager
   private let adManager: AdManaging
+  private let databaseService: DatabaseService
 
   init() {
     let analyticsProvider = FirebaseAnalyticsManager()
@@ -29,9 +30,10 @@ struct MainApp: App {
       consentService: AdvertisingConsentService()
     )
     self.wordStore = WordListStore()
-
-    self.gameConfigurationFactory = GameConfigurationFactoryV2()
-    let configuration = gameConfigurationFactory.createConfiguration(difficulty: .easy)
+    self.databaseService = try! DatabaseService()
+    self.gameConfigurationFactory = GameConfigurationFactoryV2(gridFetcher: databaseService)
+    let configuration = gameConfigurationFactory.createConfiguration(
+      configuration: DifficultyConfigMap.config(for: .easy))
     self.gameViewModel = GameViewModel(
       gameManager: GameManager(gridGenerator: configuration),
       gameConfigurationFactory: gameConfigurationFactory,

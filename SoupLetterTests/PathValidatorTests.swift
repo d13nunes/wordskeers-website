@@ -75,7 +75,7 @@ final class PathValidatorTests: XCTestCase {
       name: "Invalid direction",
       start: Position(row: 1, col: 1),
       end: Position(row: 3, col: 3),
-      allowedDirections: [Directions.right],
+      allowedDirections: [Direction.horizontal],
       expectedValid: false,
       expectedPositions: []
     ),

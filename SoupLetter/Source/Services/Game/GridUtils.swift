@@ -7,7 +7,7 @@ extension [[String]] {
   }
 
   /// Returns the coordinates of all cells that form a word in the grid
-  func findWordCoordinates(_ word: String, directions: Set<Direction> = Directions.all) -> [(
+  func findWordCoordinates(_ word: String, directions: Set<Direction> = Direction.all) -> [(
     Int, Int
   )]? {
     let size = self.count

@@ -1,5 +1,5 @@
 protocol GameConfigurationFactoring {
-  func createConfiguration(difficulty: Difficulty) -> GridGenerating
+  func createConfiguration(configuration: GameConfigurationSetting) -> GridGenerating
 }
 
 protocol GridGenerating {
