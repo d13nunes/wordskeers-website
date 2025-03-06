@@ -10,15 +10,15 @@ struct GameView: View {
   }
 
   var body: some View {
-    HStack(alignment: .bottom) {
-      VStack(alignment: .leading, spacing: 12) {
-        ScoreView(viewModel: viewModel)
-        BoardView(viewModel: viewModel)
-      }
+
+    VStack(alignment: .leading, spacing: 12) {
+      ScoreView(viewModel: viewModel)
+      BoardView(viewModel: viewModel)
+
     }
+    .frame(maxHeight: .infinity, alignment: .bottom)  // Forces alignment at bottom
     .padding(.horizontal)
     .padding(.vertical)
-    .background(Color(.systemBackground))
     .overlay {
       if let newGameViewModel = viewModel.newGameSelectionViewModel {
         NewGameSelectionView(viewModel: newGameViewModel)
@@ -78,7 +78,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 10, wordCount: 20
+        gridSize: 6, wordCount: 20
       ))
   }
 #endif
