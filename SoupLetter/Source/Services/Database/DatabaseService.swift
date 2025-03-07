@@ -3,7 +3,7 @@ import GRDB
 import OSLog
 
 /// Service for managing SQLite database operations
-@Observable
+
 final class DatabaseService: GridFetching {
   private static let logger = Logger(
     subsystem: Bundle.main.bundleIdentifier ?? "", category: "grids.sqlite")
@@ -15,6 +15,7 @@ final class DatabaseService: GridFetching {
     guard let dbPath = Bundle.main.path(forResource: "grids", ofType: "sqlite") else {
       do {
         self.dbQueue = try DatabaseQueue(configuration: DatabaseService.configuration)
+
       } catch {
         throw error
       }
@@ -162,6 +163,7 @@ final class DatabaseService: GridFetching {
     print("✅✅ Grid:random \(String(describing: grid.id))")
     let placements = try getPlacements(gridId: grid.id!)
     return GridDataDTO(
+      id: grid.id!,
       category: grid.name,
       size: grid.size,
       placedWordsCount: grid.wordsCount,
@@ -181,6 +183,7 @@ final class DatabaseService: GridFetching {
     } catch {
       print("✅✅Error getting random grid: \(error)")
       return GridDataDTO(
+        id: -1,
         category: "animals",
         size: 10,
         placedWordsCount: 10,

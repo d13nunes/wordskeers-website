@@ -1,9 +1,36 @@
 import Foundation
 
+enum GameModeCode: Int {
+  case undefined = -1
+  case classicVeryEasy = 0
+  case classicEasy = 1
+  case classicMedium = 2
+  case classicHard = 3
+  case classicVeryHard = 4
+
+  static func getCode(for mode: GameMode, difficulty: Difficulty) -> GameModeCode {
+    switch mode {
+    case .classic:
+      switch difficulty {
+      case .veryEasy: return .classicVeryEasy
+      case .easy: return .classicEasy
+      case .medium: return .classicMedium
+      case .hard: return .classicHard
+      case .veryHard: return .classicVeryHard
+      }
+    }
+  }
+}
+
+enum GameMode: String {
+  case classic
+}
+
 struct GameConfigurationSetting {
   let gridSize: Int
   let wordsCount: Int
   let validDirections: Set<Direction>
+  let gameMode: GameModeCode
 }
 
 enum Difficulty: String {

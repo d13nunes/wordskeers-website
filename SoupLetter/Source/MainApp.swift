@@ -21,7 +21,7 @@ struct MainApp: App {
   private var analyticsManager: AnalyticsManager
   private let adManager: AdManaging
   private let databaseService: DatabaseService
-
+  private let gameHistoryService: GameHistoryServicing
   init() {
     let analyticsProvider = FirebaseAnalyticsManager()
     self.analyticsManager = AnalyticsManager(provider: analyticsProvider)
@@ -31,6 +31,7 @@ struct MainApp: App {
     )
     self.wordStore = WordListStore()
     self.databaseService = try! DatabaseService()
+    self.gameHistoryService = try! GameHistoryService()
     self.gameConfigurationFactory = GameConfigurationFactoryV2(gridFetcher: databaseService)
     let configuration = gameConfigurationFactory.createConfiguration(
       configuration: DifficultyConfigMap.config(for: .easy))
@@ -38,7 +39,8 @@ struct MainApp: App {
       gameManager: GameManager(gridGenerator: configuration),
       gameConfigurationFactory: gameConfigurationFactory,
       adManager: adManager,
-      analytics: analyticsManager
+      analytics: analyticsManager,
+      gameHistoryService: gameHistoryService
     )
 
   }

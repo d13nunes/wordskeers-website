@@ -10,27 +10,32 @@ struct DifficultyConfigMap {
     .veryEasy: GameConfigurationSetting(
       gridSize: 6,
       wordsCount: 6,
-      validDirections: Direction.veryEasy
+      validDirections: Direction.veryEasy,
+      gameMode: .classicVeryEasy
     ),
     .easy: GameConfigurationSetting(
       gridSize: 6,
       wordsCount: 8,
-      validDirections: Direction.easy
+      validDirections: Direction.easy,
+      gameMode: .classicEasy
     ),
     .medium: GameConfigurationSetting(
       gridSize: 10,
       wordsCount: 15,
-      validDirections: Direction.medium
+      validDirections: Direction.medium,
+      gameMode: .classicMedium
     ),
     .hard: GameConfigurationSetting(
       gridSize: 16,
       wordsCount: 20,
-      validDirections: Direction.hard
+      validDirections: Direction.hard,
+      gameMode: .classicHard
     ),
     .veryHard: GameConfigurationSetting(
       gridSize: 20,
       wordsCount: 25,
-      validDirections: Direction.veryHard
+      validDirections: Direction.veryHard,
+      gameMode: .classicVeryHard
     ),
   ]
 }

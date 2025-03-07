@@ -15,7 +15,12 @@ struct GameConfigurationFactoryV2: GameConfigurationFactoring {
     let validDirections = Direction.all
     let category = gridModel.category
     let gameConfiguration = GameConfiguration(
-      gridSize: gridSize, words: words, validDirections: validDirections, category: category
+      gridId: gridModel.id,
+      gridSize: gridSize,
+      words: words,
+      validDirections: validDirections,
+      category: category,
+      gameMode: configuration.gameMode
     )
     let placedWords = gridModel.placedWords
     return GridGeneratorV2(

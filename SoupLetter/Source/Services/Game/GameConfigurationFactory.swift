@@ -9,17 +9,20 @@ protocol GameConfigurationFactoryProtocol {
 
 struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
   let emptyConfiguration = GameConfiguration(
+    gridId: -1,
     gridSize: 0,
     words: [],
     validDirections: Direction.easy,
-    category: ""
+    category: "",
+    gameMode: .undefined
   )
 
   private let wordStore: WordListStore
   private let defaultSetting = GameConfigurationSetting(
     gridSize: 10,
     wordsCount: 12,
-    validDirections: Direction.veryHard
+    validDirections: Direction.all,
+    gameMode: .undefined
   )
 
   init(wordStore: WordListStore = WordListStore()) {
@@ -59,10 +62,12 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
     let wordsThatFitGrid = words.filter { $0.count <= setting.gridSize }
     let filteredWords: [String] = wordsThatFitGrid.shuffled().prefix(setting.wordsCount).map { $0 }
     return GameConfiguration(
+      gridId: -1,
       gridSize: setting.gridSize,
       words: filteredWords,
       validDirections: setting.validDirections,
-      category: category
+      category: category,
+      gameMode: .undefined
     )
   }
 }
@@ -106,10 +111,12 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
         ].prefix(wordCount))
 
       return GameConfiguration(
+        gridId: -1,
         gridSize: gridSize,
         words: words,
         validDirections: Direction.medium,
-        category: "animals"
+        category: "animals",
+        gameMode: .undefined
       )
     }
 

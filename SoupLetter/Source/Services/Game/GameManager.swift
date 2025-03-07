@@ -19,6 +19,9 @@ struct NewGameOptions: GameStateOptions {
 
   /// Time elapsed in seconds
   private(set) var timeElapsed: TimeInterval = 0
+  var score: Int { Int(timeElapsed) }
+  var mode: GameModeCode { configuration.gameMode }
+  var gridId: Int64 { configuration.gridId }
 
   var completionPercentage: Double { wordValidator.completionPercentage }
   var totalWords: Int { wordValidator.totalWords }

@@ -28,10 +28,12 @@ class GridGenerator: GridGenerating {
     self.size = size
     self.validDirections = Array(validDirections)
     self.configuration = GameConfiguration(
+      gridId: -1,
       gridSize: size,
       words: words,
       validDirections: validDirections,
-      category: "Placeholder"
+      category: "Placeholder",
+      gameMode: .undefined
     )
   }
 
@@ -93,11 +95,10 @@ class GridGenerator: GridGenerating {
 
     for row in 0..<gridSize {
       for col in 0..<gridSize where grid[row][col] == emptyLetter {
-        
+
         grid[row][col] = String(UnicodeScalar(Int.random(in: 65...90))!)  // Random uppercase letter
       }
     }
     return (grid, wordData)
   }
 }
-

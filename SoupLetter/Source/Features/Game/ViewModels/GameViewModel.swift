@@ -3,7 +3,7 @@ import SwiftUI
 
 /// ViewModel responsible for coordinating game logic and UI updates
 @Observable class GameViewModel: WordSelectionVisualizing {
-
+  let gameHistoryService: GameHistoryServicing
   let gameConfigurationFactory: GameConfigurationFactoring
   private let adManager: AdManaging
 
@@ -55,6 +55,7 @@ import SwiftUI
     gameManager.timeElapsed
   }
 
+  private var hintUseCount: Int = 0
   /// Formatted time string (MM:SS)
   var formattedTime: String {
     let minutes = Int(timeElapsed) / 60
@@ -80,13 +81,15 @@ import SwiftUI
     gameManager: GameManager,
     gameConfigurationFactory: GameConfigurationFactoring,
     adManager: AdManaging,
-    analytics: AnalyticsService
+    analytics: AnalyticsService,
+    gameHistoryService: GameHistoryServicing
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
     self.hintManager = HintManager(adManager: adManager)
     self.analytics = analytics
+    self.gameHistoryService = gameHistoryService
     self.pathValidator = PathValidator(
       allowedDirections: Direction.all,
       gridSize: gameManager.grid.count
@@ -111,6 +114,7 @@ import SwiftUI
       gridSize: self.gameManager.grid.count
     )
     hintManager.clearHint()
+    hintUseCount = 0
   }
 
   // MARK: - Game Control Methods
@@ -197,6 +201,17 @@ import SwiftUI
     }
     if gameManager.currentState == .complete {
       track(event: .gameCompleted)
+      Task {
+        await gameHistoryService.save(
+          record: GameHistoryRecord(
+            gridId: gameManager.gridId,
+            gameMode: gameManager.mode.rawValue,
+            score: gameManager.score,
+            timeTaken: gameManager.timeElapsed,
+            playedAt: .now,
+            powerUpsUsed: [.hint: hintUseCount]
+          ))
+      }
       isShowingCompletionView = true
     }
     return foundWord
@@ -216,7 +231,10 @@ import SwiftUI
   }
 
   func requestHint(on viewController: UIViewController) async {
-    _ = await hintManager.requestHint(words: self.words, on: viewController)
+    let success = await hintManager.requestHint(words: self.words, on: viewController)
+    if success {
+      hintUseCount += 1
+    }
   }
 
   @MainActor
@@ -259,6 +277,7 @@ extension GameViewModel {
     analytics.trackEvent(
       .gameWordFound,
       parameters: AnalyticsParamsCreator.wordFound(
+        gridId: gameManager.gridId,
         config: gameManager.configuration,
         word: word,
         wordsLeft: gameManager.totalWords,
@@ -268,13 +287,15 @@ extension GameViewModel {
   }
 
   func track(event: AnalyticsEvent) {
+    let parameters = AnalyticsParamsCreator.gameState(
+      gridId: gameManager.gridId,
+      config: gameManager.configuration,
+      wordsLeft: gameManager.totalWords,
+      timeElapsed: timeElapsed
+    )
     analytics.trackEvent(
       event,
-      parameters: AnalyticsParamsCreator.gameState(
-        config: gameManager.configuration,
-        wordsLeft: gameManager.totalWords,
-        timeElapsed: timeElapsed
-      )
+      parameters: parameters
     )
   }
 }

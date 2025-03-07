@@ -72,7 +72,8 @@
       gameManager: gameManager,
       gameConfigurationFactory: gameConfigurationFactory,
       adManager: MockAdManager(),
-      analytics: ConsoleAnalyticsManager()
+      analytics: ConsoleAnalyticsManager(),
+      gameHistoryService: MockGameHistoryService()
     )
   }
 
@@ -88,10 +89,17 @@
         configuration: GameConfigurationSetting(
           gridSize: gridSize,
           wordsCount: wordCount,
-          validDirections: Direction.medium
+          validDirections: Direction.medium,
+          gameMode: .undefined
         )
       )
     )
+  }
+
+  class MockGameHistoryService: GameHistoryServicing {
+    func save(record: GameHistoryRecord) async -> GameHistory? {
+      return nil
+    }
   }
 
 #endif

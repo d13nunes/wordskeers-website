@@ -6,6 +6,7 @@ struct GridModel: Codable {
 }
 
 struct GridDataDTO: Codable {
+  let id: Int64
   let category: String
   let size: Int
   let placedWordsCount: Int

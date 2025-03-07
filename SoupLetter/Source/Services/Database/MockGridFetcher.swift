@@ -3,6 +3,7 @@ import Foundation
 struct MockGridFetcher: GridFetching {
   func getGridRandom(config: GameConfigurationSetting) -> GridDataDTO {
     return GridDataDTO(
+      id: -1,
       category: "animals",
       size: 10,
       placedWordsCount: 10,

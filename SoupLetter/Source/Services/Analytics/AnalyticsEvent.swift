@@ -43,6 +43,7 @@ enum AnalyticsParams: String {
   case wordsLeft = "words_left"
 
   // MARK: - Ad Parameters
+  case gridId = "grid_id"
   case adType = "ad_type"
   case adLocation = "ad_location"
   case errorReason = "error_reason"
@@ -51,11 +52,13 @@ enum AnalyticsParams: String {
 
 struct AnalyticsParamsCreator {
   static func gameState(
+    gridId: Int64,
     config: GameConfiguration,
     wordsLeft: Int,
     timeElapsed: TimeInterval
   ) -> [String: Any] {
     return [
+      AnalyticsParams.gridId.rawValue: gridId,
       AnalyticsParams.gridSize.rawValue: config.gridSize,
       AnalyticsParams.wordCount.rawValue: config.words.count,
       AnalyticsParams.timeSpent.rawValue: timeElapsed,
@@ -64,12 +67,14 @@ struct AnalyticsParamsCreator {
   }
 
   static func wordFound(
+    gridId: Int64,
     config: GameConfiguration,
     word: String,
     wordsLeft: Int,
     timeElapsed: TimeInterval
   ) -> [String: Any] {
     return [
+      AnalyticsParams.gridId.rawValue: gridId,
       AnalyticsParams.gridSize.rawValue: config.gridSize,
       AnalyticsParams.wordCount.rawValue: config.words.count,
       AnalyticsParams.timeSpent.rawValue: timeElapsed,

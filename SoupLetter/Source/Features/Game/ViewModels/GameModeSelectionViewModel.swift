@@ -7,6 +7,7 @@ import SwiftUI
   var gridSize: Int = 15
   var wordCount: Int = 5
   var allowedDirections: Set<Direction> = Set(Direction.all)
+  var gameMode: GameModeCode = .undefined
 
   // MARK: - Constants
   let minGridSize = 5
@@ -31,7 +32,9 @@ import SwiftUI
       GameConfigurationSetting(
         gridSize: gridSize,
         wordsCount: wordCount,
-        validDirections: allowedDirections
+        validDirections: allowedDirections,
+        gameMode: gameMode
+        
       ))
   }
 
