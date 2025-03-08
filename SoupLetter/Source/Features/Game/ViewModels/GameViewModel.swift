@@ -164,6 +164,9 @@ import SwiftUI
       self.track(event: .gameStarted)
       self.onHideGameSelection()
     })
+    if firstGame {
+      newGameSelectionViewModel = nil
+    }
   }
 
   func onHideGameSelection() {
@@ -280,7 +283,7 @@ extension GameViewModel {
         gridId: gameManager.gridId,
         config: gameManager.configuration,
         word: word,
-        wordsLeft: gameManager.totalWords,
+        wordsLeft: gameManager.totalWords - gameManager.foundWordCount,
         timeElapsed: timeElapsed
       )
     )
@@ -290,7 +293,7 @@ extension GameViewModel {
     let parameters = AnalyticsParamsCreator.gameState(
       gridId: gameManager.gridId,
       config: gameManager.configuration,
-      wordsLeft: gameManager.totalWords,
+      wordsLeft: gameManager.totalWords - gameManager.foundWordCount,
       timeElapsed: timeElapsed
     )
     analytics.trackEvent(
