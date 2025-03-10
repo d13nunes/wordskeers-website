@@ -1,0 +1,114 @@
+import Combine
+import Foundation
+import UIKit
+
+/// Manages the power-ups for the word search game
+@Observable class PowerUpManager {
+  // MARK: - Properties
+
+  /// Currently active power-up type
+  private(set) var activePowerUpType: PowerUpType = .none
+
+  /// For word power-up: the positions that should be revealed
+  private(set) var hintedPositions: [Position] = []
+  private(set) var hintedWord: WordData?
+
+  /// For rotate board power-up: the rotation angle degrees
+  private(set) var boardRotation: Int = 0
+
+  private(set) var powerUpsActivated: [PowerUpType: Int] = [:]
+  var powerUpsActivatedCount: Int {
+    powerUpsActivated.reduce(0) { $0 + $1.value }
+  }
+
+  /// Ad manager for showing rewarded ads when using power-ups
+  private let adManager: AdManaging
+  private let analytics: AnalyticsService
+  private var enabledPowerUps: [PowerUpType]
+  private var words: [WordData]
+  private(set) var powerUps: [PowerUp] = []
+
+  init(adManager: AdManaging, analytics: AnalyticsService) {
+    self.analytics = analytics
+    self.adManager = adManager
+
+    self.enabledPowerUps = []
+    self.words = []
+    self.powerUpsActivated = [:]
+    self.powerUps = []
+  }
+
+  @MainActor
+  func setupPowerUps(enabledPowerUps: [PowerUpType], words: [WordData]) {
+    hintedPositions = []
+    boardRotation = 0
+    activePowerUpType = .none
+    self.enabledPowerUps = enabledPowerUps
+    self.words = words
+    powerUpsActivated = enabledPowerUps.reduce(into: [PowerUpType: Int]()) {
+      $0[$1] = 0
+    }
+    powerUps = enabledPowerUps.map { createPowerUp(type: $0) }
+  }
+
+  private func createPowerUp(type: PowerUpType) -> PowerUp {
+    switch type {
+    case .hint:
+      return HintPowerUp(setHintedPositions: setHinted)
+    case .directional:
+      return DirectionPowerUp(setHintedWord: setHinted)
+    case .fullWord:
+      return FullWordPowerUp(setHintedPositions: setHinted)
+    case .rotateBoard:
+      return RotateBoardPowerUp(doRotation: doRotation)
+    case .none:
+      fatalError("PowerUpManager: PowerUpType.none is not a valid power-up type")
+    }
+  }
+
+  // MARK: - Public Methods
+  /// Request to use a power-up
+  /// - Parameters:
+  ///   - type: The type of power-up to use
+  ///   - words: Array of word data for the current game
+  ///   - viewController: The view controller to present the ad on
+  /// - Returns: Whether the power-up was successfully activated
+  @MainActor
+  func requestPowerUp(
+    type: PowerUpType,
+    undiscoveredWords: [WordData],
+    on viewController: UIViewController
+  ) async -> Bool {
+    // Check if power-up is available
+    guard let powerUp = powerUps.first(where: { $0.type == type }), powerUp.isAvailable else {
+      return false
+    }
+    let wasUsed = await powerUp.use(undiscoveredWords: words)
+    if wasUsed {
+      activePowerUpType = powerUp.type
+      powerUpsActivated[type] = (powerUpsActivated[type] ?? 0) + 1
+      analytics.trackEvent(type.analyticsEvent, parameters: [:])
+    }
+    return wasUsed
+  }
+
+  /// Clears the currently active power-up
+  @MainActor
+  func clearActivePowerUp() {
+    activePowerUpType = .none
+    hintedPositions = []
+    hintedWord = nil
+  }
+
+  private func setHinted(_ positions: [Position]) {
+    hintedPositions = positions
+  }
+
+  private func setHinted(_ word: WordData) {
+    hintedWord = word
+  }
+
+  private func doRotation(of degrees: Int) {
+    boardRotation = (boardRotation + degrees) % 360
+  }
+}

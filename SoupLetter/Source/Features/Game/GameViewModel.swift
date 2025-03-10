@@ -5,6 +5,7 @@ import SwiftUI
 @Observable class GameViewModel: WordSelectionVisualizing {
   let gameHistoryService: GameHistoryServicing
   let gameConfigurationFactory: GameConfigurationFactoring
+
   private let adManager: AdManaging
 
   let selectionHandler: SelectionHandler
@@ -36,10 +37,6 @@ import SwiftUI
     gameManager.wordValidator
   }
 
-  var canRequestHint: Bool {
-    hintManager.canRequestHint
-  }
-
   /// The game state manager
   private(set) var gameManager: GameManager
   var isShowingPauseMenu = false
@@ -55,7 +52,6 @@ import SwiftUI
     gameManager.timeElapsed
   }
 
-  private var hintUseCount: Int = 0
   /// Formatted time string (MM:SS)
   var formattedTime: String {
     let minutes = Int(timeElapsed) / 60
@@ -74,7 +70,7 @@ import SwiftUI
   }
 
   private let analytics: AnalyticsService
-  private(set) var hintManager: HintManager
+  private(set) var powerUpManager: PowerUpManager
   private var firstGame = true
 
   init(
@@ -87,7 +83,10 @@ import SwiftUI
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
-    self.hintManager = HintManager(adManager: adManager)
+    self.powerUpManager = PowerUpManager(
+      adManager: adManager,
+      analytics: analytics
+    )
     self.analytics = analytics
     self.gameHistoryService = gameHistoryService
     self.pathValidator = PathValidator(
@@ -113,8 +112,10 @@ import SwiftUI
       allowedDirections: Direction.all,
       gridSize: self.gameManager.grid.count
     )
-    hintManager.clearHint()
-    hintUseCount = 0
+    powerUpManager.setupPowerUps(
+      enabledPowerUps: [.hint, .directional, .fullWord, .rotateBoard],
+      words: gameManager.words
+    )
   }
 
   // MARK: - Game Control Methods
@@ -185,13 +186,12 @@ import SwiftUI
 
   @MainActor
   func onDragStarted() {
-    hintManager.clearHint()
+    clearHint()
   }
 
   @MainActor
   func onDragEnd(positions: [Position]) {
-    if checkIfIsWord(in: positions) {
-    }
+    _ = checkIfIsWord(in: positions)
     clearHint()
   }
 
@@ -212,7 +212,7 @@ import SwiftUI
             score: gameManager.score,
             timeTaken: gameManager.timeElapsed,
             playedAt: .now,
-            powerUpsUsed: [.hint: hintUseCount]
+            powerUpsUsed: powerUpManager.powerUpsActivated
           ))
       }
       isShowingCompletionView = true
@@ -226,23 +226,16 @@ import SwiftUI
       return .blue.opacity(0.4)
     } else if discoveredCells.contains(position) {
       return .green.opacity(0.3)
-    } else if hintManager.positions.contains(position) {
+    } else if powerUpManager.hintedPositions.contains(position) {
       return .yellow.opacity(0.3)
     } else {
       return .clear
     }
   }
 
-  func requestHint(on viewController: UIViewController) async {
-    let success = await hintManager.requestHint(words: self.words, on: viewController)
-    if success {
-      hintUseCount += 1
-    }
-  }
-
   @MainActor
   func clearHint() {
-    hintManager.clearHint()
+    powerUpManager.clearActivePowerUp()
   }
 
   // MARK: - Private Methods

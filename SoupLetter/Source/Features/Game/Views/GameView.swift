@@ -14,6 +14,10 @@ struct GameView: View {
     VStack(alignment: .leading, spacing: 12) {
       ScoreView(viewModel: viewModel)
       BoardView(viewModel: viewModel)
+      HStack {
+        Spacer()
+        PowerUpsStackView(viewModel: viewModel)
+      }
 
     }
     .frame(maxHeight: .infinity, alignment: .bottom)  // Forces alignment at bottom

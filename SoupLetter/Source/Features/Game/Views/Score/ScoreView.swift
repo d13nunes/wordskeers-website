@@ -4,8 +4,8 @@ struct ScoreView: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @State var viewModel: GameViewModel
 
-  var canRequestHint: Bool {
-    viewModel.canRequestHint
+  var powerUps: [PowerUp] {
+    viewModel.powerUpManager.powerUps
   }
 
   var foundWordsCount: Int {
@@ -19,38 +19,31 @@ struct ScoreView: View {
   var body: some View {
     if horizontalSizeClass == .compact {
       VStack(alignment: .leading, spacing: 24) {
-        createWordsListView(isCompact: true)
-        HStack(alignment: .bottom) {
+        HStack(alignment: .center, spacing: 12) {
+          Spacer()
           Text(viewModel.formattedTime)
             .monospacedDigit()
             .bold()
-            .font(.system(size: 54))
-          Spacer()
-          createButtons()
+            .font(.system(size: 32))
+          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
         }
+        createWordsListView(isCompact: true)
       }
     } else {
       VStack(alignment: .leading, spacing: 24) {
         createWordsListView(isCompact: false)
-        HStack(alignment: .bottom) {
-          Text(viewModel.formattedTime)
-            .monospacedDigit()
-            .bold()
-            .foregroundStyle(.primary.opacity(0.8))
-            .font(.system(size: 64))
-          Spacer()
-          createButtons()
+        VStack(alignment: .trailing, spacing: 6) {
+          HStack(alignment: .center, spacing: 12) {
+            Text(viewModel.formattedTime)
+              .monospacedDigit()
+              .bold()
+              .font(.system(size: 54))
+            PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+          }
+          PowerUpsStackView(viewModel: viewModel)
         }
       }
       .padding(.horizontal)
-    }
-
-  }
-
-  private func createButtons() -> some View {
-    HStack(alignment: .top, spacing: 16) {
-      HintButtonView(enabled: canRequestHint, onHintClicked: onHintClicked)
-      PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
     }
   }
 
@@ -69,16 +62,8 @@ struct ScoreView: View {
       WordListView(viewModel: viewModel)
     }
   }
-
-  private func onHintClicked() {
-    guard let viewController = UIApplication.shared.rootViewController() else {
-      return
-    }
-    Task.detached {
-      await viewModel.requestHint(on: viewController)
-    }
-  }
 }
+
 #if DEBUG
   #Preview {
     ScoreView(

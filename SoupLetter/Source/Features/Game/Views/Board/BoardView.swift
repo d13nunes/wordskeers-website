@@ -8,6 +8,11 @@ struct BoardView: View {
   @GestureState private var dragLocation: CGPoint?
   @State private var newlySelectedCells: Set<Position> = []
 
+  var rotated: Bool {
+    let rotation = viewModel.powerUpManager.boardRotation
+    return rotation != 0
+  }
+
   var body: some View {
     GeometryReader { geometry in
 
@@ -29,15 +34,20 @@ struct BoardView: View {
       .frame(width: geometry.size.width, height: geometry.size.width)
     }
     .aspectRatio(1, contentMode: .fit)
+
   }
 
   private func createLetterView(grid: [[String]], row: Int, col: Int, size: CGFloat) -> some View {
-    let position = Position(row: row, col: col)
-    let isHint = viewModel.hintManager.positions.contains(position)
+    // Rotate grid 180 degrees if needed
+    let adjustedRow = rotated ? (grid.count - 1 - row) : row
+    let adjustedCol = rotated ? (grid.count - 1 - col) : col
+
+    let position = Position(row: adjustedRow, col: adjustedCol)
+    let isHint = viewModel.powerUpManager.hintedPositions.contains(position)
     let isSelected = !isHint && viewModel.selectionHandler.selectedCells.contains(position)
     let isDiscovered = viewModel.discoveredCells.contains(position)
     let color = viewModel.cellColor(at: position, isSelected: isSelected)
-    let letter = grid[row][col]
+    let letter = grid[adjustedRow][adjustedCol]
     let cornerRadius = size * 0.1
     return LetterCell(
       size: size,
@@ -86,6 +96,7 @@ struct BoardView: View {
   }
 
   private func convertPointToPosition(_ point: CGPoint, in geometry: GeometryProxy) -> Position? {
+
     let gridSize = viewModel.grid.count
     let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
     let availableWidth = min(geometry.size.width, geometry.size.height)
@@ -94,25 +105,43 @@ struct BoardView: View {
     let row = Int((point.y) / (cellSize + spacing))
     let col = Int((point.x) / (cellSize + spacing))
 
-    guard row >= 0 && row < gridSize && col >= 0 && col < gridSize else { return nil }
+    let adjustedRow = rotated ? (gridSize - 1 - row) : row
+    let adjustedCol = rotated ? (gridSize - 1 - col) : col
 
-    return Position(row: row, col: col)
+    guard adjustedRow >= 0 && adjustedRow < gridSize && adjustedCol >= 0 && adjustedCol < gridSize
+    else { return nil }
+
+    return Position(row: adjustedRow, col: adjustedCol)
   }
 }
+
 #if DEBUG
+  let initialBoardSize = 3
   struct PreviewWrapper: View {
 
-    @State var viewModel = getViewModel(gridSize: 10, wordCount: 10)
-    @State private var hintManager: HintManager = HintManager(adManager: MockAdManager())
-    @State var boardSize = 10
+    @State var boardSize = initialBoardSize
+    @State var viewModel = getViewModel(gridSize: initialBoardSize, wordCount: initialBoardSize)
+    @State var rotated: Bool = false
 
     var body: some View {
       VStack {
         HStack {
+          Button("Rotate") {
+            Task { @MainActor in
+              let success = await viewModel.powerUpManager.requestPowerUp(
+                type: .rotateBoard,
+                undiscoveredWords: viewModel.words,
+                on: UIApplication.shared.rootViewController()!
+              )
+              print("Rotate requested: \(success)")
+            }
+          }
           Button("Hint") {
             Task { @MainActor in
-              let success = await viewModel.hintManager.requestHint(
-                words: viewModel.words, on: UIApplication.shared.rootViewController()!
+              let success = await viewModel.powerUpManager.requestPowerUp(
+                type: .hint,
+                undiscoveredWords: viewModel.words,
+                on: UIApplication.shared.rootViewController()!
               )
               print("Hint requested: \(success)")
             }
@@ -126,17 +155,26 @@ struct BoardView: View {
             createNewGame()
           }
         }
-
         BoardView(viewModel: viewModel)
+
           .padding(.horizontal)
       }
     }
 
     func createNewGame() {
-      let factory = GameConfigurationFactoryV2(gridFetcher: MockGridFetcher())
-      let configuration = factory.createConfiguration(
-        configuration: DifficultyConfigMap.config(for: .easy))
-      let gameManager = GameManager(gridGenerator: configuration)
+      let gridGenerator = MockGridGenerator(
+        configuration: GameConfiguration(
+          gridId: 0,
+          gridSize: boardSize,
+          words: [],
+          validDirections: Direction.all,
+          category: "test",
+          gameMode: .undefined
+        )
+      )
+      let gameManager = GameManager(gridGenerator: gridGenerator)
+
+      print("Creating new game with board size: \(boardSize)")
       viewModel.createNewGame(gameManager: gameManager)
     }
   }

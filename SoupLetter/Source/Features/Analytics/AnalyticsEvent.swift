@@ -9,7 +9,10 @@ public enum AnalyticsEvent: String {
   case gameQuit = "game_quit"
   case gameCompleted = "game_completed"
   case gameWordFound = "game_word_found"
-  case gameHintUsed = "game_hint_used"
+  case gameHintPowerUpUsed = "game_hint_power_up_used"
+  case gameDirectionalPowerUpUsed = "game_directional_power_up_used"
+  case gameFullWordPowerUpUsed = "game_full_word_power_up_used"
+  case gameRotateBoardPowerUpUsed = "game_rotate_board_power_up_used"
 
   // MARK: - Ad Events
   case adMobInitializing = "ad_init_started"

@@ -102,4 +102,29 @@
     }
   }
 
+  class MockGridGenerator: GridGenerating {
+    var configuration: GameConfiguration
+
+    init(configuration: GameConfiguration) {
+      self.configuration = configuration
+    }
+
+    func generate() -> ([[String]], [WordData]) {
+      return (
+        [["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"]],
+        [
+          WordData(
+            word: "abc", isFound: false, position: Position(row: 0, col: 0), direction: .horizontal
+          ),
+          WordData(
+            word: "def", isFound: false, position: Position(row: 0, col: 1), direction: .horizontal
+          ),
+          WordData(
+            word: "ghi", isFound: false, position: Position(row: 0, col: 2), direction: .horizontal
+          ),
+        ]
+      )
+    }
+  }
+
 #endif
