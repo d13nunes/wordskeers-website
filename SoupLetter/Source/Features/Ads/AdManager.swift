@@ -15,6 +15,10 @@ final class AdManager: AdManaging {
     rewardedAdManager.adState == .loaded
   }
 
+  var canShowAds: Bool {
+    return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
+  }
+
   private var isAdMobInitialized = false
 
   private let interstitialAdManager = InterstitialAdManager()
@@ -26,6 +30,10 @@ final class AdManager: AdManaging {
   init(analyticsManager: AnalyticsService, consentService: AdvertisingConsentService) {
     self.analyticsManager = analyticsManager
     self.consentService = consentService
+  }
+
+  private func getCanShowAds() -> Bool {
+    return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
   }
 
   @MainActor
@@ -58,7 +66,7 @@ final class AdManager: AdManaging {
   }
   @MainActor
   func onGameComplete(on viewController: UIViewController) async -> Bool {
-    guard shouldShowAds() else { return false }
+    guard canShowAds else { return false }
     // Track ad requested event
     analyticsManager.trackEvent(
       .adInterstitialRequested,
@@ -127,8 +135,4 @@ final class AdManager: AdManaging {
     return result
   }
 
-  private func shouldShowAds() -> Bool {
-    // Check UserDefaults for remove ads purchased state
-    return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
-  }
 }

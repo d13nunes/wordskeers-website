@@ -4,6 +4,8 @@
     var isInterstitialReady: Bool
     var isRewardedReady: Bool
 
+    var canShowAds: Bool = true
+
     init() {
       isInterstitialReady = true
       isRewardedReady = true

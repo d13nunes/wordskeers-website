@@ -7,9 +7,14 @@ import SwiftUI
   let gameConfigurationFactory: GameConfigurationFactoring
   let wallet: Wallet
 
-  private let adManager: AdManaging
+  /// The ad manager for displaying ads
+  let adManager: AdManaging
 
   let selectionHandler: SelectionHandler
+
+  var canShowBannerAd: Bool {
+    adManager.canShowAds
+  }
 
   var gameConfiguration: GameConfiguration {
     gameManager.configuration

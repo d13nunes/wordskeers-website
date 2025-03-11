@@ -1,18 +1,21 @@
 import GoogleMobileAds
 import SwiftUI
 
-struct AdBannerView: UIViewRepresentable {
-  let adUnitID: String
-  let width: CGFloat
-
+/// A standard 320x50 banner ad view
+struct StandardBannerView: UIViewRepresentable {
   func makeUIView(context: Context) -> BannerView {
-    let adView = BannerView(adSize: AdSizeBanner)
-    adView.adUnitID = adUnitID
-    adView.adSize = currentOrientationAnchoredAdaptiveBanner(width: width)
-    adView.rootViewController = UIApplication.shared.rootViewController()
-    adView.load(Request())
-    return adView
+    let bannerView = BannerView(adSize: AdSizeBanner)
+    bannerView.adUnitID = AdConstants.UnitID.banner
+
+    if let rootViewController = UIApplication.shared.rootViewController() {
+      bannerView.rootViewController = rootViewController
+    }
+
+    bannerView.load(Request())
+    return bannerView
   }
 
-  func updateUIView(_ uiView: BannerView, context: Context) {}
+  func updateUIView(_ uiView: BannerView, context: Context) {
+    // No updates needed
+  }
 }

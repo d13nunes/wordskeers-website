@@ -3,6 +3,7 @@ import UIKit
 protocol AdManaging {
   var isInterstitialReady: Bool { get }
   var isRewardedReady: Bool { get }
+  var canShowAds: Bool { get }
 
   @MainActor
   func onAppActive() async

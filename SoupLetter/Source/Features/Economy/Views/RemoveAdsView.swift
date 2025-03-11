@@ -116,7 +116,9 @@ struct RemoveAdsView: View {
       }
     }
     .alert("Remove Ads", isPresented: $showAlert) {
-      Button("OK") {}
+      Button("OK") {
+        dismiss()
+      }
     } message: {
       if let message = alertMessage {
         Text(message)
