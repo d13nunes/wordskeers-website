@@ -3,16 +3,13 @@ struct HintPowerUp: PowerUp {
   let icon: String = "lightbulb"
   let description: String = "Get a hint for a word"
   var isAvailable: Bool = true
-  var price: String = "100"
+  var price: Int = 100
   private let setHintedPositions: ([Position]) -> Void
+  private let wallet: Wallet
 
-  init(setHintedPositions: @escaping ([Position]) -> Void) {
+  init(setHintedPositions: @escaping ([Position]) -> Void, wallet: Wallet) {
     self.setHintedPositions = setHintedPositions
-  }
-
-  @MainActor
-  func canUse() -> Bool {
-    return true
+    self.wallet = wallet
   }
 
   @MainActor

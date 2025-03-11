@@ -1,7 +1,15 @@
 import SwiftUI
 import UIKit
 
+extension View {
+  @MainActor
+  func rootViewController() -> UIViewController? {
+    return UIApplication.shared.rootViewController()
+  }
+}
+
 extension UIApplication {
+
   @MainActor
   func rootViewController() -> UIViewController? {
     guard let windowScene = connectedScenes.first as? UIWindowScene,

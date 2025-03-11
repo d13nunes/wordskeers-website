@@ -35,14 +35,21 @@ struct MainApp: App {
     self.gameConfigurationFactory = GameConfigurationFactoryV2(gridFetcher: databaseService)
     let configuration = gameConfigurationFactory.createConfiguration(
       configuration: DifficultyConfigMap.config(for: .easy))
+
+    #if DEBUG
+      let wallet = Wallet.forTesting()
+    #else
+      let wallet = Wallet.loadWallet()
+    #endif
+
     self.gameViewModel = GameViewModel(
       gameManager: GameManager(gridGenerator: configuration),
       gameConfigurationFactory: gameConfigurationFactory,
       adManager: adManager,
       analytics: analyticsManager,
-      gameHistoryService: gameHistoryService
+      gameHistoryService: gameHistoryService,
+      wallet: wallet
     )
-
   }
 
   private let wordStore: WordListStore

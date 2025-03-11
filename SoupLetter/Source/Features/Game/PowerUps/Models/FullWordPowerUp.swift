@@ -3,12 +3,14 @@ struct FullWordPowerUp: PowerUp {
   let icon: String = "text.book.closed"
   let description: String = "Get a full word hint"
   var isAvailable: Bool = true
-  var price: String = "100"
+  var price: Int = 100
 
   private let setHintedPositions: ([Position]) -> Void
+  private let wallet: Wallet
 
-  init(setHintedPositions: @escaping ([Position]) -> Void) {
+  init(setHintedPositions: @escaping ([Position]) -> Void, wallet: Wallet) {
     self.setHintedPositions = setHintedPositions
+    self.wallet = wallet
   }
 
   @MainActor

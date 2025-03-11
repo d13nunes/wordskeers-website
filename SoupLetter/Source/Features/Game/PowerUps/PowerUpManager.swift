@@ -27,10 +27,12 @@ import UIKit
   private var enabledPowerUps: [PowerUpType]
   private var words: [WordData]
   private(set) var powerUps: [PowerUp] = []
+  private let wallet: Wallet
 
-  init(adManager: AdManaging, analytics: AnalyticsService) {
+  init(adManager: AdManaging, analytics: AnalyticsService, wallet: Wallet) {
     self.analytics = analytics
     self.adManager = adManager
+    self.wallet = wallet
 
     self.enabledPowerUps = []
     self.words = []
@@ -54,16 +56,30 @@ import UIKit
   private func createPowerUp(type: PowerUpType) -> PowerUp {
     switch type {
     case .hint:
-      return HintPowerUp(setHintedPositions: setHinted)
+      return HintPowerUp(setHintedPositions: setHinted, wallet: wallet)
     case .directional:
-      return DirectionPowerUp(setHintedWord: setHinted)
+      return DirectionPowerUp(setHintedWord: setHinted, wallet: wallet)
     case .fullWord:
-      return FullWordPowerUp(setHintedPositions: setHinted)
+      return FullWordPowerUp(setHintedPositions: setHinted, wallet: wallet)
     case .rotateBoard:
-      return RotateBoardPowerUp(doRotation: doRotation)
+      return RotateBoardPowerUp(doRotation: doRotation, wallet: wallet)
     case .none:
       fatalError("PowerUpManager: PowerUpType.none is not a valid power-up type")
     }
+  }
+
+  @MainActor
+  func requestPowerUp(
+    type: PowerUpType,
+    undiscoveredWords: [WordData],
+    on viewController: UIViewController
+  ) async -> Bool {
+    let powerUp = powerUps.first(where: { $0.type == type })!
+    return await requestPowerUp(
+      powerUp: powerUp,
+      undiscoveredWords: undiscoveredWords,
+      on: viewController
+    )
   }
 
   // MARK: - Public Methods
@@ -75,19 +91,23 @@ import UIKit
   /// - Returns: Whether the power-up was successfully activated
   @MainActor
   func requestPowerUp(
-    type: PowerUpType,
+    powerUp: PowerUp,
     undiscoveredWords: [WordData],
     on viewController: UIViewController
   ) async -> Bool {
     // Check if power-up is available
-    guard let powerUp = powerUps.first(where: { $0.type == type }), powerUp.isAvailable else {
+    guard powerUp.isAvailable else {
       return false
     }
+    guard wallet.coins >= powerUp.price else {
+      return false
+    }
+    wallet.removeCoins(powerUp.price)
     let wasUsed = await powerUp.use(undiscoveredWords: words)
     if wasUsed {
       activePowerUpType = powerUp.type
-      powerUpsActivated[type] = (powerUpsActivated[type] ?? 0) + 1
-      analytics.trackEvent(type.analyticsEvent, parameters: [:])
+      powerUpsActivated[powerUp.type] = (powerUpsActivated[powerUp.type] ?? 0) + 1
+      analytics.trackEvent(powerUp.type.analyticsEvent, parameters: [:])
     }
     return wasUsed
   }

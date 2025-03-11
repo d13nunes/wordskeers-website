@@ -36,6 +36,17 @@ public enum AnalyticsEvent: String {
   case appInactive = "app_inactive"
   case appBackgrounded = "app_backgrounded"
   case appUnknown = "app_unknown"
+
+  // Economy Events
+  case removeAdsPurchased = "remove_ads_purchased"
+  case removeAdsRestored = "remove_ads_restored"
+
+  case coinsPurchased = "coins_purchased"
+  case coinsRestored = "coins_restored"
+  case coinsSpentOnPowerUp = "coins_spent_on_powerup"
+
+  case storeOpened = "store_opened"
+  case storeItemViewed = "store_item_viewed"
 }
 
 enum AnalyticsParams: String {

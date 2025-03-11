@@ -73,7 +73,8 @@
       gameConfigurationFactory: gameConfigurationFactory,
       adManager: MockAdManager(),
       analytics: ConsoleAnalyticsManager(),
-      gameHistoryService: MockGameHistoryService()
+      gameHistoryService: MockGameHistoryService(),
+      wallet: Wallet.forTesting()
     )
   }
 

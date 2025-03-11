@@ -5,6 +5,7 @@ import SwiftUI
 @Observable class GameViewModel: WordSelectionVisualizing {
   let gameHistoryService: GameHistoryServicing
   let gameConfigurationFactory: GameConfigurationFactoring
+  let wallet: Wallet
 
   private let adManager: AdManaging
 
@@ -69,7 +70,12 @@ import SwiftUI
     gameManager.foundWordCount
   }
 
-  private let analytics: AnalyticsService
+  var isShowingStoreView = false
+  var showNotEnoughCoinsAlert = false
+
+  let storeService: StoreService
+
+  let analytics: AnalyticsService
   private(set) var powerUpManager: PowerUpManager
   private var firstGame = true
 
@@ -78,16 +84,24 @@ import SwiftUI
     gameConfigurationFactory: GameConfigurationFactoring,
     adManager: AdManaging,
     analytics: AnalyticsService,
-    gameHistoryService: GameHistoryServicing
+    gameHistoryService: GameHistoryServicing,
+    wallet: Wallet
   ) {
     self.gameManager = gameManager
     self.gameConfigurationFactory = gameConfigurationFactory
     self.adManager = adManager
     self.powerUpManager = PowerUpManager(
       adManager: adManager,
-      analytics: analytics
+      analytics: analytics,
+      wallet: wallet
     )
+    self.wallet = wallet
     self.analytics = analytics
+    self.storeService = StoreService(
+      wallet: wallet,
+      analytics: analytics,
+      adManager: adManager
+    )
     self.gameHistoryService = gameHistoryService
     self.pathValidator = PathValidator(
       allowedDirections: Direction.all,
@@ -165,9 +179,6 @@ import SwiftUI
       self.track(event: .gameStarted)
       self.onHideGameSelection()
     })
-    if firstGame {
-      newGameSelectionViewModel = nil
-    }
   }
 
   func onHideGameSelection() {
@@ -246,6 +257,17 @@ import SwiftUI
 
   func gameOverViewFormattedTime(_ timeElapsed: TimeInterval) -> String {
     return timeElapsed.formattedTime()
+  }
+
+  @MainActor
+  func showStoreView() {
+    isShowingStoreView = true
+  }
+
+  @MainActor
+  func hideStoreView() {
+    isShowingStoreView = false
+    showNotEnoughCoinsAlert = false
   }
 }
 

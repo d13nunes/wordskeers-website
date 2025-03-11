@@ -10,7 +10,9 @@ struct PowerUpsStackView: View {
   var body: some View {
     HStack(alignment: .bottom, spacing: 2) {
       ForEach(powerUpManager.powerUps, id: \.type) { powerUp in
-        PowerUpButtonView(enabled: powerUp.isAvailable, icon: powerUp.icon, price: powerUp.price) {
+        PowerUpButtonView(
+          enabled: powerUp.isAvailable, icon: powerUp.icon, price: "\(powerUp.price)"
+        ) {
           print("clicked")
           onPowerUpClicked(powerUp)
 
@@ -24,11 +26,15 @@ struct PowerUpsStackView: View {
       return
     }
     Task {
-      _ = await powerUpManager.requestPowerUp(
+      let success = await powerUpManager.requestPowerUp(
         type: powerUp.type,
         undiscoveredWords: viewModel.words,
         on: viewController
       )
+      if !success {
+        viewModel.showNotEnoughCoinsAlert = true
+        viewModel.isShowingStoreView = true
+      }
     }
   }
 

@@ -10,15 +10,19 @@ struct GameView: View {
   }
 
   var body: some View {
-
-    VStack(alignment: .leading, spacing: 12) {
-      ScoreView(viewModel: viewModel)
-      BoardView(viewModel: viewModel)
-      HStack {
-        Spacer()
-        PowerUpsStackView(viewModel: viewModel)
+    ZStack {
+      VStack(alignment: .leading, spacing: 12) {
+        HStack {
+          Spacer()
+          CoinBalanceView(wallet: viewModel.wallet, onBuyPressed: viewModel.showStoreView)
+        }
+        ScoreView(viewModel: viewModel)
+        BoardView(viewModel: viewModel)
+        HStack {
+          Spacer()
+          PowerUpsStackView(viewModel: viewModel)
+        }
       }
-
     }
     .frame(maxHeight: .infinity, alignment: .bottom)  // Forces alignment at bottom
     .padding(.horizontal)
@@ -51,12 +55,22 @@ struct GameView: View {
             guard let viewController = UIApplication.shared.rootViewController() else {
               return
             }
+
             Task.detached {
               await viewModel.startNewGame(on: viewController)
             }
           }
         )
       }
+    }.sheet(isPresented: $viewModel.isShowingStoreView) {
+      let showNotEnoughCoinsMessage = viewModel.showNotEnoughCoinsAlert
+      viewModel.showNotEnoughCoinsAlert = false
+      return CoinStoreView(
+        showNotEnoughCoinsMessage: showNotEnoughCoinsMessage,
+        storeService: viewModel.storeService,
+        wallet: viewModel.wallet,
+        analytics: viewModel.analytics
+      )
     }
     .onAppear {
       viewModel.onViewAppear()

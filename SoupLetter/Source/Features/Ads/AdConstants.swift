@@ -25,4 +25,9 @@ enum AdConstants {
     /// Number of game completions before showing an ad
     static let gameCompletionsBeforeAd = 3
   }
+
+  enum RewardedVideoLocation {
+    case store
+    case dailyReward
+  }
 }

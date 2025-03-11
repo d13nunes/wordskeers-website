@@ -5,11 +5,13 @@ struct DirectionPowerUp: PowerUp {
   let icon: String = "arrow.up.and.down.and.arrow.left.and.right"
   let description: String = "Get a directional hint for a word"
   var isAvailable: Bool = true
-  var price: String = "100"
+  var price: Int = 100
   private let setHintedWord: (WordData) -> Void
+  private let wallet: Wallet
 
-  init(setHintedWord: @escaping (WordData) -> Void) {
+  init(setHintedWord: @escaping (WordData) -> Void, wallet: Wallet) {
     self.setHintedWord = setHintedWord
+    self.wallet = wallet
   }
 
   @MainActor

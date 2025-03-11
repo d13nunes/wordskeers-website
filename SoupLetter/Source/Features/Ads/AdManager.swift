@@ -58,6 +58,7 @@ final class AdManager: AdManaging {
   }
   @MainActor
   func onGameComplete(on viewController: UIViewController) async -> Bool {
+    guard shouldShowAds() else { return false }
     // Track ad requested event
     analyticsManager.trackEvent(
       .adInterstitialRequested,
@@ -90,7 +91,6 @@ final class AdManager: AdManaging {
 
   @MainActor
   func showRewardedAd(on viewController: UIViewController) async -> Bool {
-    // Track ad requested event                                                                                                                                     
     analyticsManager.trackEvent(
       .adRewardedRequested,
       parameters:
@@ -125,5 +125,10 @@ final class AdManager: AdManaging {
         AnalyticsParamsCreator.adEvent(adType: "rewarded", location: "in_game"))
 
     return result
+  }
+
+  private func shouldShowAds() -> Bool {
+    // Check UserDefaults for remove ads purchased state
+    return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
   }
 }
