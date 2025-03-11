@@ -15,6 +15,12 @@ import SwiftUI
   /// Whether to show the ad error message
   var showAdError = false
 
+  /// Whether to show notification permission success message
+  var showNotificationSuccess = false
+
+  /// Whether to show notification permission error message
+  var showNotificationError = false
+
   /// Timer for updating the countdown
   private var timer: Timer?
 
@@ -102,7 +108,24 @@ import SwiftUI
     } else {
       showAdError = true
     }
+  }
 
+  /// Schedule a notification for when the next reward is available
+  /// - Returns: Whether the notification was scheduled successfully
+  @MainActor
+  func scheduleNextRewardNotification() async {
+    let success = await rewardsService.scheduleNextRewardNotification()
+
+    if success {
+      showNotificationSuccess = true
+    } else {
+      showNotificationError = true
+    }
+  }
+
+  /// Get the calculated next reward date
+  var nextRewardDate: Date {
+    rewardsService.calculateNextRewardDate()
   }
 
   // MARK: - Helpers

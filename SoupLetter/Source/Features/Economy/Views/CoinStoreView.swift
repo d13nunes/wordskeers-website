@@ -338,6 +338,7 @@ struct CoinPackageRow: View {
   }
 }
 
+#if DEBUG
 #Preview {
   let wallet = Wallet.forTesting()
   return CoinStoreView(
@@ -351,3 +352,4 @@ struct CoinPackageRow: View {
     analytics: ConsoleAnalyticsManager()
   )
 }
+#endif  

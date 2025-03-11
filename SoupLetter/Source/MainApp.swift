@@ -17,6 +17,7 @@ struct MainApp: App {
 
   @State private var showSplash = false
   @State private var firstTime = true
+  @State private var showDailyRewards = false
 
   private var analyticsManager: AnalyticsManager
   private let adManager: AdManaging
@@ -30,8 +31,13 @@ struct MainApp: App {
       consentService: AdvertisingConsentService()
     )
     self.wordStore = WordListStore()
+
+    // Initialize services
+    // Use try? to handle errors gracefully by providing nil if initialization fails
+    // Then use nil-coalescing to provide default values or empty implementations
     self.databaseService = try! DatabaseService()
     self.gameHistoryService = try! GameHistoryService()
+
     self.gameConfigurationFactory = GameConfigurationFactoryV2(gridFetcher: databaseService)
     let configuration = gameConfigurationFactory.createConfiguration(
       configuration: DifficultyConfigMap.config(for: .easy))
@@ -50,6 +56,20 @@ struct MainApp: App {
       gameHistoryService: gameHistoryService,
       wallet: wallet
     )
+
+    // Listen for notification tap events
+    setupNotificationObservers()
+  }
+
+  /// Set up observers for notification events
+  private func setupNotificationObservers() {
+    NotificationCenter.default.addObserver(
+      forName: .dailyRewardNotificationTapped,
+      object: nil,
+      queue: .main
+    ) { [self] _ in
+      showDailyRewards = true
+    }
   }
 
   private let wordStore: WordListStore
@@ -71,6 +91,13 @@ struct MainApp: App {
           .onAppear {
             // Refresh daily rewards state when app launches
             gameViewModel.dailyRewardsService.refreshDailyRewards()
+
+            // Handle auto-show of daily rewards from notification if needed
+            if showDailyRewards {
+              // Will need to be handled by the GameView
+              gameViewModel.showDailyRewardsFromNotification = true
+              showDailyRewards = false
+            }
           }
       }
     }
@@ -82,6 +109,11 @@ struct MainApp: App {
         }
       }
       firstTime = false
+
+      // Refresh the daily rewards when returning to active state
+      if case .active = newPhase, !firstTime {
+        gameViewModel.dailyRewardsService.refreshDailyRewards()
+      }
     }
   }
 }

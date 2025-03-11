@@ -61,6 +61,16 @@ struct DailyRewardsView: View {
     } message: {
       Text("Please try again later.")
     }
+    .alert("Notification Scheduled!", isPresented: $viewModel.showNotificationSuccess) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text("We'll notify you when your next reward is ready.")
+    }
+    .alert("Notification Error", isPresented: $viewModel.showNotificationError) {
+      Button("OK", role: .cancel) {}
+    } message: {
+      Text("Please make sure notifications are allowed for this app in your device settings.")
+    }
   }
 
   /// View displaying available rewards to claim
@@ -193,6 +203,28 @@ struct DailyRewardsView: View {
       .padding(.top, 8)
       .accessibilityElement(children: .combine)
       .accessibilityLabel("Next reward available in \(viewModel.timeUntilNextReward)")
+
+      // Notification reminder button
+      Button {
+        Task {
+          await viewModel.scheduleNextRewardNotification()
+        }
+      } label: {
+        HStack {
+          Image(systemName: "bell.fill")
+          Text("Remind Me When Ready")
+        }
+        .frame(minWidth: 200)
+        .padding()
+        .background(
+          Capsule()
+            .fill(Color.blue.opacity(0.2))
+        )
+        .foregroundColor(.blue)
+        .fontWeight(.medium)
+      }
+      .padding(.top, 8)
+      .accessibilityLabel("Schedule a notification for when your next reward is ready")
     }
   }
 
@@ -222,6 +254,28 @@ struct DailyRewardsView: View {
       .font(.callout)
       .foregroundColor(.secondary)
       .padding(.top, 8)
+
+      // Notification reminder button
+      Button {
+        Task {
+          await viewModel.scheduleNextRewardNotification()
+        }
+      } label: {
+        HStack {
+          Image(systemName: "bell.fill")
+          Text("Remind Me When Ready")
+        }
+        .frame(minWidth: 220)
+        .padding()
+        .background(
+          Capsule()
+            .fill(Color.blue.opacity(0.2))
+        )
+        .foregroundColor(.blue)
+        .fontWeight(.medium)
+      }
+      .padding(.top, 16)
+      .accessibilityLabel("Schedule a notification for when your next reward is ready")
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 40)

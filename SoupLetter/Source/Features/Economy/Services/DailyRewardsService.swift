@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UserNotifications
 
 /// Service responsible for managing daily rewards
 @Observable class DailyRewardsService {
@@ -15,18 +16,43 @@ import SwiftUI
   /// The ad manager for rewarded videos
   private let adManager: AdManaging
 
+  /// The notification service for scheduling notifications
+  private let notificationService: NotificationService
+
   /// The analytics service for tracking events
   let analytics: AnalyticsService
+
+  /// The UserDefaults store
+  private let userDefaults: UserDefaults
+
+  /// Key for last claimed reward timestamp
+  private let lastClaimTimestampKey = "lastClaimTimestamp"
+
+  /// Key for selected reward ID
+  private let selectedRewardIDKey = "selectedRewardID"
+
+  /// Key for if the reward has been doubled
+  private let doubledWithAdKey = "doubledWithAd"
 
   /// Initialize the daily rewards service
   /// - Parameters:
   ///   - wallet: The player's wallet
   ///   - adManager: The ad manager for rewarded videos
   ///   - analytics: The analytics service
-  init(wallet: Wallet, adManager: AdManaging, analytics: AnalyticsService) {
+  ///   - notificationService: The notification service for scheduling notifications
+  ///   - userDefaults: The UserDefaults store
+  init(
+    wallet: Wallet,
+    adManager: AdManaging,
+    analytics: AnalyticsService,
+    notificationService: NotificationService = NotificationService(),
+    userDefaults: UserDefaults = .standard
+  ) {
     self.wallet = wallet
     self.adManager = adManager
     self.analytics = analytics
+    self.notificationService = notificationService
+    self.userDefaults = userDefaults
 
     // Initialize the rewards state after other properties
     let loadedState = Self.loadRewardsState(from: dailyRewardsStateKey)
@@ -71,6 +97,39 @@ import SwiftUI
     }
   }
 
+  /// Calculate the date when the next reward will be available
+  /// - Returns: The date when the next reward will be available
+  func calculateNextRewardDate() -> Date {
+    let calendar = Calendar.current
+
+    // If no claim date yet, the reward is available now
+    guard let lastClaimDate = rewardsState.lastClaimDate else {
+      return Date()
+    }
+
+    // Calculate the start of the next day (midnight)
+    guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: lastClaimDate) else {
+      return Date()
+    }
+
+    return calendar.startOfDay(for: tomorrow)
+  }
+
+  /// Schedule a notification for when the next reward will be available
+  /// - Returns: Whether the notification was scheduled successfully
+  @discardableResult
+  func scheduleNextRewardNotification() async -> Bool {
+    let nextRewardDate = calculateNextRewardDate()
+
+    // Don't schedule if the date is in the past or too soon
+    let now = Date()
+    if nextRewardDate.timeIntervalSince(now) < 60 {  // less than a minute
+      return false
+    }
+
+    return await notificationService.scheduleNextRewardNotification(at: nextRewardDate)
+  }
+
   /// Claim a specific reward
   /// - Parameter id: The ID of the reward to claim
   /// - Returns: Whether the claim was successful
@@ -97,6 +156,11 @@ import SwiftUI
 
     // Track analytics
     analytics.trackEvent(.dailyRewardClaimed(coins: reward.coins))
+
+    // Schedule notification for next reward
+    Task {
+      await scheduleNextRewardNotification()
+    }
 
     return true
   }

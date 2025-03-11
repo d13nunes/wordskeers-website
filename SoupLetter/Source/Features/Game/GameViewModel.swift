@@ -78,6 +78,15 @@ import SwiftUI
   var isShowingStoreView = false
   var showNotEnoughCoinsAlert = false
   var isShowingDailyRewardsView = false
+  /// Whether to show daily rewards screen from a notification tap
+  var showDailyRewardsFromNotification = false {
+    didSet {
+      if showDailyRewardsFromNotification {
+        isShowingDailyRewardsView = true
+        showDailyRewardsFromNotification = false
+      }
+    }
+  }
 
   let storeService: StoreService
   let dailyRewardsService: DailyRewardsService
