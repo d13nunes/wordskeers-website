@@ -64,16 +64,10 @@ struct CoinStoreView: View {
                 isPurchasing: storeService.isLoadingRewardedVideo,
                 isLoadingRewardedVideo: storeService.isLoadingRewardedVideo,
                 onPurchase: {
-                  if let presentedVC = rootViewController()?.presentedViewController {
-                    print("Already presenting: \(presentedVC)")
-                    presentedVC.dismiss(animated: false) {
-                      Task {
-                        await storeService.showRewardedVideo(on: rootViewController()!)
-                      }
-                    }
-                  } else {
-                    await storeService.showRewardedVideo(on: rootViewController()!)
+                  guard let viewController = rootViewController() else {
+                    return
                   }
+                  await storeService.showRewardedVideo(on: viewController)
                 }
               )
               .disabled(isPurchasing || isRestoring)

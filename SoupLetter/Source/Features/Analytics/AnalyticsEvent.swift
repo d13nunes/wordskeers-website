@@ -47,6 +47,21 @@ public enum AnalyticsEvent: String {
 
   case storeOpened = "store_opened"
   case storeItemViewed = "store_item_viewed"
+
+  // MARK: - Daily Rewards Events
+  case dailyRewardsOpened = "daily_rewards_opened"
+  case dailyRewardClaimed = "daily_reward_claimed"
+  case dailyRewardDoubled = "daily_reward_doubled"
+
+  // MARK: - Daily Rewards With Parameters
+
+  static func dailyRewardClaimed(coins: Int) -> AnalyticsEvent {
+    .dailyRewardClaimed
+  }
+
+  static func dailyRewardDoubled(coins: Int) -> AnalyticsEvent {
+    .dailyRewardDoubled
+  }
 }
 
 enum AnalyticsParams: String {
@@ -62,6 +77,9 @@ enum AnalyticsParams: String {
   case adLocation = "ad_location"
   case errorReason = "error_reason"
   case rewardGranted = "reward_granted"
+
+  // MARK: - Daily Rewards Parameters
+  case coinAmount = "coin_amount"
 }
 
 struct AnalyticsParamsCreator {

@@ -68,6 +68,10 @@ struct MainApp: App {
           }
       } else {
         GameView(viewModel: gameViewModel)
+          .onAppear {
+            // Refresh daily rewards state when app launches
+            gameViewModel.dailyRewardsService.refreshDailyRewards()
+          }
       }
     }
     .onChange(of: scenePhase) { _, newPhase in

@@ -13,7 +13,22 @@ struct GameView: View {
     ZStack {
       VStack(alignment: .leading, spacing: 12) {
         HStack {
+
           Spacer()
+          Button {
+            viewModel.showDailyRewardsView()
+          } label: {
+            Image(systemName: "gift.fill")
+              .font(.title2)
+              .foregroundColor(.yellow)
+              .padding(8)
+              .background(
+                Circle()
+                  .fill(Color.blue.opacity(0.2))
+              )
+          }
+          .accessibilityLabel("Daily Rewards")
+
           CoinBalanceView(wallet: viewModel.wallet, onBuyPressed: viewModel.showStoreView)
         }
         ScoreView(viewModel: viewModel)
@@ -71,6 +86,15 @@ struct GameView: View {
         wallet: viewModel.wallet,
         analytics: viewModel.analytics
       )
+    }
+    .sheet(isPresented: $viewModel.isShowingDailyRewardsView) {
+      NavigationStack {
+        DailyRewardsView(
+          viewModel: DailyRewardsViewModel(
+            rewardsService: viewModel.dailyRewardsService
+          )
+        )
+      }
     }
     .onAppear {
       viewModel.onViewAppear()

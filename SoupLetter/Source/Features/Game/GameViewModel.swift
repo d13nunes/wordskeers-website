@@ -72,9 +72,10 @@ import SwiftUI
 
   var isShowingStoreView = false
   var showNotEnoughCoinsAlert = false
+  var isShowingDailyRewardsView = false
 
   let storeService: StoreService
-
+  let dailyRewardsService: DailyRewardsService
   let analytics: AnalyticsService
   private(set) var powerUpManager: PowerUpManager
   private var firstGame = true
@@ -102,6 +103,8 @@ import SwiftUI
       analytics: analytics,
       adManager: adManager
     )
+    self.dailyRewardsService = DailyRewardsService(
+      wallet: wallet, adManager: adManager, analytics: analytics)
     self.gameHistoryService = gameHistoryService
     self.pathValidator = PathValidator(
       allowedDirections: Direction.all,
@@ -268,6 +271,14 @@ import SwiftUI
   func hideStoreView() {
     isShowingStoreView = false
     showNotEnoughCoinsAlert = false
+  }
+
+  func showDailyRewardsView() {
+    isShowingDailyRewardsView = true
+  }
+
+  func closeDailyRewardsView() {
+    isShowingDailyRewardsView = false
   }
 }
 
