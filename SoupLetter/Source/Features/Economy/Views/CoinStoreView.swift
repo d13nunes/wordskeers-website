@@ -40,7 +40,9 @@ struct CoinStoreView: View {
               .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
 
               // Remove Ads Banner
-              if !storeService.removeAdsProduct.isPurchased {
+              if !storeService.removeAdsProduct.isPurchased
+                && storeService.removeAdsProduct.product != nil
+              {
                 removeAdsBanner
               }
 
@@ -50,15 +52,62 @@ struct CoinStoreView: View {
                 .fontWeight(.bold)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-              ForEach(storeService.coinPackages) { package in
-                CoinPackageRow(
-                  package: package,
-                  isPurchasing: isPurchasing,
-                  isLoadingRewardedVideo: storeService.isLoadingRewardedVideo,
-                  onPurchase: { await purchasePackage(package) }
-                )
-                .disabled(isPurchasing || isRestoring)
+              if storeService.isLoadingProducts {
+                // Loading state
+                VStack(spacing: 16) {
+                  ProgressView()
+                    .scaleEffect(1.5)
+
+                  Text("Loading store products...")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+              } else if storeService.coinPackages.allSatisfy({ $0.product == nil }) {
+                // Failed to load products
+                VStack(spacing: 16) {
+                  Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.orange)
+
+                  Text("Could not load store products")
+                    .font(.headline)
+
+                  Text("Please check your internet connection and try again.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+
+                  Button("Retry") {
+                    Task {
+                      await storeService.loadProducts()
+                    }
+                  }
+                  .padding(.horizontal, 24)
+                  .padding(.vertical, 12)
+                  .background(Color.blue)
+                  .foregroundStyle(.white)
+                  .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+              } else {
+                // Successfully loaded products
+                let validPackages = storeService.coinPackages.filter { $0.product != nil }
+                ForEach(validPackages) { package in
+                  CoinPackageRow(
+                    package: package,
+                    isPurchasing: isPurchasing,
+                    isLoadingRewardedVideo: storeService.isLoadingRewardedVideo,
+                    onPurchase: { await purchasePackage(package) }
+                  )
+                  .disabled(isPurchasing || isRestoring)
+                }
+
               }
+              // Only show rewarded video product if it's available from ad manager
+
               CoinPackageRow(
                 package: storeService.rewardedVideoProduct,
                 isPurchasing: storeService.isLoadingRewardedVideo,
@@ -111,6 +160,10 @@ struct CoinStoreView: View {
               proxy.scrollTo(bottomID, anchor: .bottom)
             }
           }
+          // Refresh products when view appears
+          Task {
+            await storeService.loadProducts()
+          }
         }
         .navigationTitle("Store")
         .navigationBarTitleDisplayMode(.inline)
@@ -120,6 +173,18 @@ struct CoinStoreView: View {
             Button("Close") {
               dismiss()
             }
+          }
+
+          ToolbarItem(placement: .topBarTrailing) {
+            Button {
+              Task {
+                await restorePurchases()
+              }
+            } label: {
+              Text("Restore")
+                .font(.subheadline)
+            }
+            .disabled(isPurchasing || isRestoring)
           }
         }
       }

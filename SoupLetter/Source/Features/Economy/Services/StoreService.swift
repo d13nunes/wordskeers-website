@@ -45,7 +45,7 @@ import StoreKit
     self.coinPackages = CoinPackage.defaultPackages()
     self.removeAdsProduct = RemoveAdsProduct()
     self.rewardedVideoProduct = RewardedVideoProduct(
-      name: "Rewarded Video",
+      name: "Get Free Coins",
       coinAmount: 25
     )
 
