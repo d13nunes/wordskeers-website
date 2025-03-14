@@ -53,6 +53,9 @@ public enum AnalyticsEvent: String {
   case dailyRewardClaimed = "daily_reward_claimed"
   case dailyRewardDoubled = "daily_reward_doubled"
 
+  case gameCoinsCollected = "game_coins_collected"
+  case gameCoinsCollectedDouble = "game_coins_collected_double"
+
   // MARK: - Daily Rewards With Parameters
 
   static func dailyRewardClaimed(coins: Int) -> AnalyticsEvent {

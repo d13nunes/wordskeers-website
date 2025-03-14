@@ -5,7 +5,7 @@ struct DirectionPowerUp: PowerUp {
   let icon: String = "arrow.up.and.down.and.arrow.left.and.right"
   let description: String = "Get a directional hint for a word"
   var isAvailable: Bool = true
-  var price: Int = 100
+  var price: Int = 60
   private let setHintedWord: (WordData) -> Void
   private let wallet: Wallet
 

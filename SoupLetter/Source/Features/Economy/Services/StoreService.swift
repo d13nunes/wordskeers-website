@@ -20,6 +20,9 @@ import StoreKit
   /// The player's wallet
   private let wallet: Wallet
 
+  var coinsToastAmount: Int = 0
+  var showCoinsToast: Bool = false
+
   /// Whether products are currently being loaded
   private(set) var isLoadingProducts = false
 
@@ -43,7 +46,7 @@ import StoreKit
     self.removeAdsProduct = RemoveAdsProduct()
     self.rewardedVideoProduct = RewardedVideoProduct(
       name: "Rewarded Video",
-      coinAmount: 100
+      coinAmount: 25
     )
 
     // Check if Remove Ads has already been purchased
@@ -140,6 +143,8 @@ import StoreKit
 
         // Add coins to the wallet
         wallet.addCoins(package.totalCoins)
+        coinsToastAmount = package.totalCoins
+        showCoinsToast = true
 
         // Track purchase in analytics
         analytics.trackEvent(
@@ -241,6 +246,8 @@ import StoreKit
         if let package = coinPackages.first(where: { $0.productId == transaction.productID }) {
           // Add coins to the wallet
           wallet.addCoins(package.totalCoins)
+          coinsToastAmount = package.totalCoins
+          showCoinsToast = true
           restoredPurchases = true
 
           // Track restoration in analytics
@@ -287,6 +294,8 @@ import StoreKit
           }) {
             // Add coins to the wallet
             await self.wallet.addCoins(package.totalCoins)
+            self.coinsToastAmount = package.totalCoins
+            self.showCoinsToast = true
 
             // Track purchase in analytics
             await self.analytics.trackEvent(
@@ -324,6 +333,8 @@ import StoreKit
     let success = await adManager.showRewardedAd(on: viewController)
     if success {
       wallet.addCoins(rewardedVideoProduct.coinAmount)
+      coinsToastAmount = rewardedVideoProduct.coinAmount
+      showCoinsToast = true
     }
   }
 }

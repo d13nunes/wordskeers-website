@@ -17,12 +17,11 @@ struct CoinBalanceView: View {
 
         // Coin amount
         Text("\(wallet.coins)")
-          .font(.headline)
+          .font(.title)
           .fontWeight(.semibold)
         Spacer()
           .frame(width: 4)
         // Buy button
-
         Image(systemName: "plus.circle.fill")
           .font(.headline)
           .foregroundStyle(.green)
@@ -46,4 +45,5 @@ struct CoinBalanceView: View {
   #Preview {
     CoinBalanceView(wallet: Wallet.forTesting(), onBuyPressed: { print("Pressed") })
   }
+
 #endif

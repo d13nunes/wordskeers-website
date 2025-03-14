@@ -66,31 +66,28 @@ struct CoinPackage: CoinStoreInfoing, Identifiable, Equatable {
       CoinPackage(
         id: "small_coin_pack",
         name: "Starter Pack",
-        coinAmount: 100,
+        coinAmount: 300,
         productId: "com.wordseekr.coinpack.100"
       ),
       CoinPackage(
         id: "medium_coin_pack",
         name: "Popular Pack",
-        coinAmount: 300,
-        bonusPercentage: 10,
-        productId: "com.wordseekr.coinpack.300",
-        isMostPopular: true
+        coinAmount: 900,
+        productId: "com.wordseekr.coinpack.300"
       ),
       CoinPackage(
         id: "large_coin_pack",
         name: "Premium Pack",
-        coinAmount: 700,
-        bonusPercentage: 20,
+        coinAmount: 2000,
         productId: "com.wordseekr.coinpack.700",
-        isBestValue: true
+        isMostPopular: true
       ),
       CoinPackage(
         id: "huge_coin_pack",
         name: "Mega Pack",
-        coinAmount: 1500,
-        bonusPercentage: 30,
-        productId: "com.wordseekr.coinpack.1500"
+        coinAmount: 4000,
+        productId: "com.wordseekr.coinpack.1500",
+        isBestValue: true
       ),
     ]
   }

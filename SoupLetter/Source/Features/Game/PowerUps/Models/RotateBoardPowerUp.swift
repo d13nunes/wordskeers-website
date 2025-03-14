@@ -3,7 +3,7 @@ struct RotateBoardPowerUp: PowerUp {
   let icon: String = "arrow.counterclockwise"
   let description: String = "Rotate the board"
   var isAvailable: Bool = true
-  var price: Int = 100
+  var price: Int = 5
 
   private let doRotation: (Int) -> Void
   private let wallet: Wallet

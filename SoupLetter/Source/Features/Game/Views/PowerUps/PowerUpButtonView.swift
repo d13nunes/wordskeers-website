@@ -24,11 +24,12 @@ struct PowerUpButtonView: View {
       .animation(.easeIn(duration: 0.34), value: isDisabled)
       Text(price)
         .font(.caption)
-        .foregroundColor(.secondary)
+        .fontWeight(.bold)
+        .foregroundColor(.white)
         .padding(.all, 4)
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(4)
-        .offset(x: 24, y: 18)
+        .background(.yellow)
+        .cornerRadius(6)
+        .offset(x: 22, y: 20)
     }
   }
 }

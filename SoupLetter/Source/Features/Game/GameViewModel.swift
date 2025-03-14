@@ -7,6 +7,9 @@ import SwiftUI
   let gameConfigurationFactory: GameConfigurationFactoring
   let wallet: Wallet
 
+  var coinsToastAmount: Int = 0
+  var showCoinsToast: Bool = false
+
   /// The ad manager for displaying ads
   let adManager: AdManaging
 
@@ -41,6 +44,10 @@ import SwiftUI
 
   var wordValidator: WordValidator {
     gameManager.wordValidator
+  }
+
+  var showDailyRewardsBadge: Bool {
+    dailyRewardsService.showDailyRewardsBadge
   }
 
   /// The game state manager
@@ -144,7 +151,7 @@ import SwiftUI
       gridSize: self.gameManager.grid.count
     )
     powerUpManager.setupPowerUps(
-      enabledPowerUps: [.hint, .directional, .fullWord, .rotateBoard],
+      enabledPowerUps: [.hint, .directional],
       words: gameManager.words
     )
   }
@@ -182,6 +189,25 @@ import SwiftUI
   func onShowPauseMenu() {
     isShowingPauseMenu = true
     pauseGame()
+  }
+
+  @MainActor
+  func completionCollectCoins(double: Bool, on viewController: UIViewController) async {
+    var amount = 5
+    let event: AnalyticsEvent = double ? .gameCoinsCollectedDouble : .gameCoinsCollected
+    if double {
+      let success = await adManager.showRewardedAd(on: viewController)
+      if success {
+        amount = 10
+      }
+    } else {
+      _ = await adManager.onGameComplete(on: viewController)
+    }
+    wallet.addCoins(amount)
+    coinsToastAmount = amount
+    showCoinsToast = true
+    track(event: event)
+    onShowGameSelection()
   }
 
   @MainActor

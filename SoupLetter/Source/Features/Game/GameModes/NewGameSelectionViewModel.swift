@@ -28,7 +28,7 @@ enum GameMode: String {
 
 struct GameConfigurationSetting {
   let gridSize: Int
-  let wordsCount: Int
+  let wordsCount: Int?
   let validDirections: Set<Direction>
   let gameMode: GameModeCode
 }
@@ -57,7 +57,7 @@ enum Difficulty: String {
     DifficultyConfigMap.config(for: selectedDifficulty).gridSize
   }
 
-  var selectedWordsCount: Int {
+  var selectedWordsCount: Int? {
     DifficultyConfigMap.config(for: selectedDifficulty).wordsCount
   }
 

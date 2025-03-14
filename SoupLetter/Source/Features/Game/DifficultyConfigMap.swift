@@ -9,33 +9,33 @@ struct DifficultyConfigMap {
   static let difficultyGameConfig: [Difficulty: GameConfigurationSetting] = [
     .veryEasy: GameConfigurationSetting(
       gridSize: 6,
-      wordsCount: 6,
+      wordsCount: nil,
       validDirections: Direction.veryEasy,
       gameMode: .classicVeryEasy
     ),
     .easy: GameConfigurationSetting(
-      gridSize: 6,
-      wordsCount: 8,
+      gridSize: 8,
+      wordsCount: nil,
       validDirections: Direction.easy,
       gameMode: .classicEasy
     ),
     .medium: GameConfigurationSetting(
       gridSize: 10,
-      wordsCount: 15,
+      wordsCount: nil,
       validDirections: Direction.medium,
       gameMode: .classicMedium
     ),
     .hard: GameConfigurationSetting(
-      gridSize: 16,
-      wordsCount: 20,
+      gridSize: 12,
+      wordsCount: nil,
       validDirections: Direction.hard,
       gameMode: .classicHard
     ),
-    .veryHard: GameConfigurationSetting(
-      gridSize: 20,
-      wordsCount: 25,
-      validDirections: Direction.veryHard,
-      gameMode: .classicVeryHard
-    ),
+    // .veryHard: GameConfigurationSetting(
+    //   gridSize: 20,
+    //   wordsCount: nil,
+    //   validDirections: Direction.veryHard,
+    //   gameMode: .classicVeryHard
+    // ),
   ]
 }

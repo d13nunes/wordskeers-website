@@ -25,10 +25,7 @@ struct NewGameSelectionView: View {
     VStack(alignment: .center, spacing: 0) {
 
       VStack(alignment: .center, spacing: 0) {
-        Text("Find ")
-          + Text("\(viewModel.selectedWordsCount) words")
-          .bold()
-          + Text(" in a ")
+        Text("Search for words in a ")
           + Text("\(viewModel.selectedGridSize)x\(viewModel.selectedGridSize)")
           .bold()
           + Text(" grid")

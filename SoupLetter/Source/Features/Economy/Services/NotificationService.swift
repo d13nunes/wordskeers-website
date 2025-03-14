@@ -1,8 +1,29 @@
 import Foundation
 import UserNotifications
 
+/// Protocol defining the notification service capabilities
+protocol NotificationServicing {
+  /// Request notification permissions if not already granted
+  /// - Returns: Whether the permission was granted
+  func requestNotificationPermission() async -> Bool
+
+  /// Check if notification permission is granted
+  /// - Returns: Whether permission is granted or denied
+  func checkNotificationPermission() async -> Bool
+
+  /// Schedule a notification for when the next daily reward is available
+  /// - Parameter date: The date when the next reward will be available
+  /// - Returns: Whether the notification was scheduled successfully
+  @discardableResult
+  func scheduleNextRewardNotification(at date: Date) async -> Bool
+
+  /// Removes any pending notifications with the specified identifier
+  /// - Parameter identifier: The identifier of the notification to remove
+  func removePendingNotifications(withIdentifier identifier: String) async
+}
+
 /// Service responsible for scheduling and managing local notifications
-class NotificationService {
+class NotificationService: NotificationServicing {
   /// The notification center
   private let notificationCenter = UNUserNotificationCenter.current()
 

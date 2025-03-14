@@ -15,7 +15,7 @@ struct CoinStoreView: View {
   @State private var showRemoveAdsView = false
 
   let showNotEnoughCoinsMessage: Bool
-  let storeService: StoreService
+  @State var storeService: StoreService
   let wallet: Wallet
   let analytics: AnalyticsService
 
@@ -99,6 +99,11 @@ struct CoinStoreView: View {
               .tint(.white)
               .scaleEffect(1.5)
           }
+
+          CoinsToastView(
+            coinAmount: storeService.coinsToastAmount,
+            isVisible: $storeService.showCoinsToast
+          )
         }
         .onAppear {
           if storeService.showNotEnoughCoinsMessage {
@@ -186,8 +191,10 @@ struct CoinStoreView: View {
 
     switch result {
     case .success:
-      alertMessage =
-        "Purchase successful! \(package.totalCoins) coins have been added to your account."
+      // alertMessage =
+      //   "Purchase successful! \(package.totalCoins) coins have been added to your account."
+      // Handled by CoinsToastView
+      break
     case .failure(let error):
       if let storeError = error as? StoreError {
         alertMessage = storeError.localizedDescription
@@ -339,17 +346,17 @@ struct CoinPackageRow: View {
 }
 
 #if DEBUG
-#Preview {
-  let wallet = Wallet.forTesting()
-  return CoinStoreView(
-    showNotEnoughCoinsMessage: false,
-    storeService: StoreService(
+  #Preview {
+    let wallet = Wallet.forTesting()
+    return CoinStoreView(
+      showNotEnoughCoinsMessage: false,
+      storeService: StoreService(
+        wallet: wallet,
+        analytics: ConsoleAnalyticsManager(),
+        adManager: MockAdManager()
+      ),
       wallet: wallet,
-      analytics: ConsoleAnalyticsManager(),
-      adManager: MockAdManager()
-    ),
-    wallet: wallet,
-    analytics: ConsoleAnalyticsManager()
-  )
-}
-#endif  
+      analytics: ConsoleAnalyticsManager()
+    )
+  }
+#endif

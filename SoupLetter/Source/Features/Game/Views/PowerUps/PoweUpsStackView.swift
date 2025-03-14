@@ -26,9 +26,10 @@ struct PowerUpsStackView: View {
       return
     }
     Task {
+      let undiscoveredWords = viewModel.words.filter { !$0.isFound }
       let success = await powerUpManager.requestPowerUp(
         type: powerUp.type,
-        undiscoveredWords: viewModel.words,
+        undiscoveredWords: undiscoveredWords,
         on: viewController
       )
       if !success {

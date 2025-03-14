@@ -19,13 +19,10 @@ struct ScoreView: View {
   var body: some View {
     if horizontalSizeClass == .compact {
       VStack(alignment: .leading, spacing: 24) {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
+
           Spacer()
-          Text(viewModel.formattedTime)
-            .monospacedDigit()
-            .bold()
-            .font(.system(size: 32))
-          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+          storeAndDailyRewardView
         }
         createWordsListView(isCompact: true)
       }
@@ -38,7 +35,6 @@ struct ScoreView: View {
               .monospacedDigit()
               .bold()
               .font(.system(size: 54))
-            PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
           }
           PowerUpsStackView(viewModel: viewModel)
         }
@@ -54,11 +50,27 @@ struct ScoreView: View {
     Double(foundWordsCount) / Double(totalWordsCount)
   }
 
+  private var storeAndDailyRewardView: some View {
+    HStack(alignment: .top) {
+      CoinBalanceView(wallet: viewModel.wallet, onBuyPressed: viewModel.showStoreView)
+      if viewModel.showDailyRewardsBadge {
+        DailyRewardBadge(animate: true, onPressed: viewModel.showDailyRewardsView)
+      }
+    }
+  }
+
   private func createWordsListView(isCompact: Bool) -> some View {
     VStack(alignment: .leading, spacing: isCompact ? 6 : 16) {
-      Text(scoreTitle)
-        .bold()
-        .font(.title)
+      HStack(alignment: .lastTextBaseline) {
+        Text(scoreTitle)
+          .bold()
+          .font(.system(size: 32))
+        Spacer()
+        Text(viewModel.formattedTime)
+          .monospacedDigit()
+          .bold()
+          .font(.system(size: 28))
+      }
       WordListView(viewModel: viewModel)
     }
   }

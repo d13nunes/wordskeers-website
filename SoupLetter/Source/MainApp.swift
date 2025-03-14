@@ -40,7 +40,7 @@ struct MainApp: App {
 
     self.gameConfigurationFactory = GameConfigurationFactoryV2(gridFetcher: databaseService)
     let configuration = gameConfigurationFactory.createConfiguration(
-      configuration: DifficultyConfigMap.config(for: .easy))
+      configuration: DifficultyConfigMap.config(for: .veryEasy))
 
     #if DEBUG
       let wallet = Wallet.forTesting()
@@ -89,10 +89,7 @@ struct MainApp: App {
       } else {
         GameView(viewModel: gameViewModel)
           .onAppear {
-            // Refresh daily rewards state when app launches
-            gameViewModel.dailyRewardsService.refreshDailyRewards()
-
-            // Handle auto-show of daily rewards from notification if needed
+                      // Handle auto-show of daily rewards from notification if needed
             if showDailyRewards {
               // Will need to be handled by the GameView
               gameViewModel.showDailyRewardsFromNotification = true

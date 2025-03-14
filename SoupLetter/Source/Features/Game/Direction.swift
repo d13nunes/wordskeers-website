@@ -44,13 +44,17 @@ enum Direction: String, Codable, CaseIterable {
   }
 
   static let veryEasy: Set<Direction> = [
-    .horizontal
+    .horizontal,
+    .vertical,
+    .diagonalDownRight,
+    .diagonalUpRight,
   ]
 
   static let easy: Set<Direction> = [
     .horizontal,
     .vertical,
-
+    .diagonalDownRight,
+    .diagonalUpRight,
   ]
 
   static let medium: Set<Direction> = [
@@ -58,16 +62,11 @@ enum Direction: String, Codable, CaseIterable {
     .vertical,
     .diagonalDownRight,
     .diagonalUpRight,
-  ]
-
-  static let hard: Set<Direction> = [
-    .horizontal,
-    .vertical,
-    .diagonalDownRight,
-    .diagonalUpRight,
     .horizontalReverse,
     .verticalReverse,
   ]
+
+  static let hard: Set<Direction> = Direction.all
 
   static let veryHard: Set<Direction> = Direction.all
 

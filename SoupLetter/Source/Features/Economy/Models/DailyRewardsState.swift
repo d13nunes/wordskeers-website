@@ -6,6 +6,9 @@ import SwiftUI
   /// The date when the player last claimed a daily reward
   var lastClaimDate: Date?
 
+  /// The date when the first reward was claimed (starting the timer for reset)
+  var firstRewardClaimDate: Date?
+
   /// The currently available rewards
   var currentRewards: [DailyReward]
 
@@ -15,31 +18,48 @@ import SwiftUI
   /// Whether the player can claim a reward today
   var canClaimToday: Bool
 
+  /// Number of rewards collected today (0-3)
+  var rewardsCollectedToday: Int = 0
+
+  var showDailyRewardsBadge: Bool {
+    return canClaimToday || rewardsCollectedToday < 3
+  }
+
   enum CodingKeys: String, CodingKey {
-    case lastClaimDate, currentRewards, selectedRewardID
+    case lastClaimDate, firstRewardClaimDate, currentRewards, selectedRewardID,
+      rewardsCollectedToday
   }
 
   /// Initialize a new daily rewards state
   /// - Parameters:
   ///   - lastClaimDate: The date when the player last claimed a reward
+  ///   - firstRewardClaimDate: The date when the first reward was claimed
   ///   - currentRewards: The currently available rewards
   ///   - selectedRewardID: The ID of the selected reward
+  ///   - rewardsCollectedToday: Number of rewards collected today
   init(
     lastClaimDate: Date? = nil,
+    firstRewardClaimDate: Date? = nil,
     currentRewards: [DailyReward] = [],
-    selectedRewardID: UUID? = nil
+    selectedRewardID: UUID? = nil,
+    rewardsCollectedToday: Int = 0
   ) {
     self.lastClaimDate = lastClaimDate
+    self.firstRewardClaimDate = firstRewardClaimDate
     self.currentRewards = currentRewards
     self.selectedRewardID = selectedRewardID
+    self.rewardsCollectedToday = rewardsCollectedToday
     self.canClaimToday = Self.checkCanClaimToday(lastClaimDate: lastClaimDate)
   }
 
   required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     lastClaimDate = try container.decodeIfPresent(Date.self, forKey: .lastClaimDate)
+    firstRewardClaimDate = try container.decodeIfPresent(Date.self, forKey: .firstRewardClaimDate)
     currentRewards = try container.decode([DailyReward].self, forKey: .currentRewards)
     selectedRewardID = try container.decodeIfPresent(UUID.self, forKey: .selectedRewardID)
+    rewardsCollectedToday =
+      try container.decodeIfPresent(Int.self, forKey: .rewardsCollectedToday) ?? 0
 
     // Initialize canClaimToday after other properties are set
     let decodedLastClaimDate = try container.decodeIfPresent(Date.self, forKey: .lastClaimDate)
@@ -49,8 +69,10 @@ import SwiftUI
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(lastClaimDate, forKey: .lastClaimDate)
+    try container.encodeIfPresent(firstRewardClaimDate, forKey: .firstRewardClaimDate)
     try container.encode(currentRewards, forKey: .currentRewards)
     try container.encodeIfPresent(selectedRewardID, forKey: .selectedRewardID)
+    try container.encode(rewardsCollectedToday, forKey: .rewardsCollectedToday)
   }
 
   /// Check if the player can claim a reward today
@@ -70,5 +92,31 @@ import SwiftUI
   /// Refresh the claim status based on the current date
   func refreshClaimStatus() {
     canClaimToday = Self.checkCanClaimToday(lastClaimDate: lastClaimDate)
+
+    // Reset rewards collected if it's a new day
+    if canClaimToday && rewardsCollectedToday > 0 {
+      rewardsCollectedToday = 0
+      firstRewardClaimDate = nil
+    }
+  }
+
+  /// Check if we need to reset the rewards collection stage based on a timer
+  /// - Returns: Whether the collection stage was reset
+  func checkResetCollectionStage() -> Bool {
+    guard let firstRewardDate = firstRewardClaimDate else { return false }
+
+    // Check if it's been more than 4 hours since the first reward was claimed
+    let now = Date()
+    let timeInterval = now.timeIntervalSince(firstRewardDate)
+    let resetTimeInterval: TimeInterval = 4 * 60 * 60  // 4 hours in seconds
+
+    if timeInterval >= resetTimeInterval {
+      // Reset collection stage
+      rewardsCollectedToday = 0
+      firstRewardClaimDate = nil
+      return true
+    }
+
+    return false
   }
 }

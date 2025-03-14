@@ -6,16 +6,20 @@ struct CompletionView: View {
 
   let formattedTime: String
   let onNextLevel: () -> Void
+  let doubleRewardWithAd: () async -> Void
+
   var body: some View {
     if horizontalSizeClass == .compact {
       CompletionCompactView(
         formattedTime: formattedTime,
-        onNextLevel: onNextLevel
+        onNextLevel: onNextLevel,
+        doubleRewardWithAd: doubleRewardWithAd
       )
     } else {
       CompletionLargeView(
         formattedTime: formattedTime,
-        onNextLevel: onNextLevel
+        onNextLevel: onNextLevel,
+        doubleRewardWithAd: doubleRewardWithAd
       )
     }
   }
@@ -23,7 +27,10 @@ struct CompletionView: View {
 struct CompletionCompactView: View {
   let formattedTime: String
   let onNextLevel: () -> Void
+  let doubleRewardWithAd: () async -> Void
 
+  @State private var showStandardRewardButton = false
+  @State private var isAnimating = false
   var body: some View {
     ZStack {
       Color.black.opacity(0.5)
@@ -35,32 +42,57 @@ struct CompletionCompactView: View {
           .bold()
 
         VStack(spacing: 2) {
-          Text("You found all the words in")
+          Text("You completed the board in")
             .font(.subheadline)
           Text("\(formattedTime)")
             .font(.largeTitle)
             .bold()
-        }
+        }.confettiCannon(
+          trigger: $isAnimating,
+          rainHeight: 100,
+          openingAngle: Angle(degrees: 0),
+          closingAngle: Angle(degrees: 360),
+          radius: 200
+        )
 
-        Button("New Game") {
-          onNextLevel()
+        DoubleRewardButton(
+          title: "Collect 10 Coins",
+          isLoading: false,
+          action: doubleRewardWithAd
+        )
+        if showStandardRewardButton {
+          DoubleRewardButton(
+            title: "Collect 5 Coins",
+            iconName: "nil",
+            isLoading: false,
+            backgroundColor: .blue,
+            action: onNextLevel
+          )
+          .transition(.opacity.combined(with: .move(edge: .bottom)))
         }
-        .buttonStyle(.borderedProminent)
       }
-
       .padding(40)
       .background {
         RoundedRectangle(cornerRadius: 20)
           .fill(Color(.systemBackground))
           .shadow(radius: 20)
       }
+      .onAppear {
+        isAnimating = true
+        // Add a delay before showing the standard reward button
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+          withAnimation(.easeInOut(duration: 0.7)) {
+            showStandardRewardButton = true
+          }
+        }
+      }
     }
-
   }
 }
 struct CompletionLargeView: View {
   let formattedTime: String
   let onNextLevel: () -> Void
+  let doubleRewardWithAd: () async -> Void
 
   var body: some View {
     ZStack {
@@ -81,6 +113,11 @@ struct CompletionLargeView: View {
           onNextLevel()
         }
         .buttonStyle(.borderedProminent)
+
+        DoubleRewardButton(
+          isLoading: false,
+          action: doubleRewardWithAd
+        )
       }
 
       .padding(40)
@@ -95,11 +132,26 @@ struct CompletionLargeView: View {
 }
 
 #if DEBUG
-  let timeElapsed: TimeInterval = 11223.45
+  struct CompletionViewPreviews: View {
+    let timeElapsed: TimeInterval = 11223.45
+    @State private var isVisible = false
+
+    var body: some View {
+      VStack {
+        Button("Show") {
+          isVisible.toggle()
+        }
+        if isVisible {
+          CompletionView(
+            formattedTime: timeElapsed.formattedTime(),
+            onNextLevel: {},
+            doubleRewardWithAd: {}
+          )
+        }
+      }
+    }
+  }
   #Preview {
-    CompletionView(
-      formattedTime: timeElapsed.formattedTime(),
-      onNextLevel: {}
-    )
+    CompletionViewPreviews()
   }
 #endif

@@ -129,13 +129,13 @@ final class DatabaseService: GridFetching {
     }
   }
 
-  func getGrids(size: Int, wordsCount: Int, directions: [Direction], except: [Int64] = [])
+  func getGrids(size: Int, wordsCount: Int?, directions: [Direction], except: [Int64] = [])
     throws -> [WordSearchGrid]
   {
     try dbQueue.read { database in
       let grids = try WordSearchGrid.filter(
         WordSearchGrid.Columns.size == size
-          && WordSearchGrid.Columns.wordsCount == wordsCount
+          && (wordsCount == nil || WordSearchGrid.Columns.wordsCount == wordsCount)
           && !except.contains(WordSearchGrid.Columns.id)
       ).fetchAll(database)
       return grids
@@ -158,7 +158,7 @@ final class DatabaseService: GridFetching {
       return grid.directions.allSatisfy { config.validDirections.contains($0) }
     }
 
-    let grid = filteredGrids.filter(sameDirections).randomElement()!
+    let grid = filteredGrids.randomElement()!
 
     print("✅✅ Grid:random \(String(describing: grid.id))")
     let placements = try getPlacements(gridId: grid.id!)

@@ -13,28 +13,19 @@ struct GameView: View {
     VStack(spacing: 0) {
       ZStack {
         VStack(alignment: .leading, spacing: 12) {
-          HStack {
-            Spacer()
-            Button {
-              viewModel.showDailyRewardsView()
-            } label: {
-              Image(systemName: "gift.fill")
-                .font(.title2)
-                .foregroundColor(.yellow)
-                .padding(8)
-                .background(
-                  Circle()
-                    .fill(Color.blue.opacity(0.2))
-                )
-            }
-            .accessibilityLabel("Daily Rewards")
-            CoinBalanceView(wallet: viewModel.wallet, onBuyPressed: viewModel.showStoreView)
-          }
           ScoreView(viewModel: viewModel)
           BoardView(viewModel: viewModel)
-          HStack {
-            Spacer()
-            PowerUpsStackView(viewModel: viewModel)
+          if viewModel.powerUpManager.powerUps.isEmpty {
+            HStack {
+              Spacer()
+              PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+            }
+          } else {
+            HStack {
+              PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+              Spacer()
+              PowerUpsStackView(viewModel: viewModel)
+            }
           }
         }
       }
@@ -42,39 +33,55 @@ struct GameView: View {
       .padding(.horizontal)
       .padding(.vertical)
       .overlay {
-        if let newGameViewModel = viewModel.newGameSelectionViewModel {
-          NewGameSelectionView(viewModel: newGameViewModel)
-        }
-        if viewModel.isShowingPauseMenu {
-          PauseMenuView(
-            onResumeClicked: {
-              viewModel.hidePauseMenu()
-              viewModel.resumeGame()
-            },
-            onNewGameClicked: {
-              viewModel.hidePauseMenu()
-              guard let viewController = UIApplication.shared.rootViewController() else {
-                return
-              }
-              Task.detached {
-                await viewModel.startNewGame(on: viewController)
-              }
-            }
-          )
-        }
-        if viewModel.isShowingCompletionView {
-          CompletionView(
-            formattedTime: viewModel.getGameOverViewFormattedTime(),
-            onNextLevel: {
-              guard let viewController = UIApplication.shared.rootViewController() else {
-                return
-              }
+        ZStack {
+          if let newGameViewModel = viewModel.newGameSelectionViewModel {
 
-              Task.detached {
-                await viewModel.startNewGame(on: viewController)
+            NewGameSelectionView(viewModel: newGameViewModel)
+          }
+          if viewModel.isShowingPauseMenu {
+            PauseMenuView(
+              onResumeClicked: {
+                viewModel.hidePauseMenu()
+                viewModel.resumeGame()
+              },
+              onNewGameClicked: {
+                viewModel.hidePauseMenu()
+                guard let viewController = UIApplication.shared.rootViewController() else {
+                  return
+                }
+                Task.detached {
+                  await viewModel.startNewGame(on: viewController)
+                }
               }
-            }
+            )
+          }
+          if viewModel.isShowingCompletionView {
+            CompletionView(
+              formattedTime: viewModel.getGameOverViewFormattedTime(),
+              onNextLevel: {
+                guard let viewController = UIApplication.shared.rootViewController() else {
+                  return
+                }
+
+                Task.detached {
+                  await viewModel.completionCollectCoins(double: false, on: viewController)
+                }
+              },
+              doubleRewardWithAd: {
+                guard let viewController = UIApplication.shared.rootViewController() else {
+                  return
+                }
+                Task.detached {
+                  await viewModel.completionCollectCoins(double: true, on: viewController)
+                }
+              }
+            )
+          }
+          CoinsToastView(
+            coinAmount: viewModel.coinsToastAmount,
+            isVisible: $viewModel.showCoinsToast
           )
+
         }
       }
 
@@ -130,7 +137,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 6, wordCount: 20
+        gridSize: 3, wordCount: 20
       ))
   }
 #endif

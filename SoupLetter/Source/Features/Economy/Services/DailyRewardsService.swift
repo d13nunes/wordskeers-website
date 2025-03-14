@@ -3,7 +3,8 @@ import SwiftUI
 import UserNotifications
 
 /// Service responsible for managing daily rewards
-@Observable class DailyRewardsService {
+@Observable
+class DailyRewardsService {
   /// Key for UserDefaults storage
   private let dailyRewardsStateKey = "daily_rewards_state"
 
@@ -17,7 +18,7 @@ import UserNotifications
   private let adManager: AdManaging
 
   /// The notification service for scheduling notifications
-  private let notificationService: NotificationService
+  private let notificationService: NotificationServicing
 
   /// The analytics service for tracking events
   let analytics: AnalyticsService
@@ -34,6 +35,11 @@ import UserNotifications
   /// Key for if the reward has been doubled
   private let doubledWithAdKey = "doubledWithAd"
 
+  /// Whether to show the daily rewards badge
+  var showDailyRewardsBadge: Bool {
+    rewardsState.showDailyRewardsBadge
+  }
+
   /// Initialize the daily rewards service
   /// - Parameters:
   ///   - wallet: The player's wallet
@@ -45,7 +51,7 @@ import UserNotifications
     wallet: Wallet,
     adManager: AdManaging,
     analytics: AnalyticsService,
-    notificationService: NotificationService = NotificationService(),
+    notificationService: NotificationServicing = NotificationService(),
     userDefaults: UserDefaults = .standard
   ) {
     self.wallet = wallet
@@ -62,28 +68,32 @@ import UserNotifications
   /// Generate random daily rewards for the player to choose from
   /// - Returns: Array of three random daily rewards
   func generateDailyRewards() -> [DailyReward] {
-    // Generate 3 mystery coin rewards with random values
+    // Generate 3 rewards with the first one being free and the others requiring ads
     return [
-      createRandomReward(),
-      createRandomReward(),
-      createRandomReward(),
+      createRandomReward(requiresAd: false),
+      createRandomReward(requiresAd: true),
+      createRandomReward(requiresAd: true),
     ]
   }
 
   /// Create a random reward with coin values in different tiers
+  /// - Parameter requiresAd: Whether this reward requires watching an ad to claim
   /// - Returns: A daily reward with random coin value
-  private func createRandomReward() -> DailyReward {
+  private func createRandomReward(requiresAd: Bool) -> DailyReward {
     // Generate random coin values in different tiers
     let tiers = [
-      50...100,  // Small reward
-      100...200,  // Medium reward
-      200...300,  // Large reward
+      10...50,  // Small reward
+      50...100,  // Medium reward
+      100...200,  // Large reward
     ]
 
     let selectedTier = tiers.randomElement() ?? (50...100)
     let coinValue = Int.random(in: selectedTier)
 
-    return DailyReward(coins: coinValue)
+    return DailyReward(
+      coins: coinValue,
+      requiresAd: requiresAd
+    )
   }
 
   /// Refresh the daily rewards state
@@ -91,7 +101,14 @@ import UserNotifications
   func refreshDailyRewards() {
     rewardsState.refreshClaimStatus()
 
+    // Check if we need to reset the collection stage based on timer
+    let resetOccurred = rewardsState.checkResetCollectionStage()
+
     if rewardsState.canClaimToday && rewardsState.currentRewards.isEmpty {
+      rewardsState.currentRewards = generateDailyRewards()
+      saveRewardsState()
+    } else if resetOccurred {
+      // If a reset occurred, we need to regenerate rewards
       rewardsState.currentRewards = generateDailyRewards()
       saveRewardsState()
     }
@@ -100,6 +117,12 @@ import UserNotifications
   /// Calculate the date when the next reward will be available
   /// - Returns: The date when the next reward will be available
   func calculateNextRewardDate() -> Date {
+    // If there's an active collection stage timer, use that instead of the daily reset
+    if let firstRewardDate = rewardsState.firstRewardClaimDate {
+      // Collection stage resets after 4 hours
+      return firstRewardDate.addingTimeInterval(4 * 60 * 60)  // 4 hours in seconds
+    }
+
     let calendar = Calendar.current
 
     // If no claim date yet, the reward is available now
@@ -130,14 +153,42 @@ import UserNotifications
     return await notificationService.scheduleNextRewardNotification(at: nextRewardDate)
   }
 
+  /// Check if notifications are enabled for the app
+  /// - Returns: Whether notifications are enabled
+  func areNotificationsEnabled() async -> Bool {
+    return await notificationService.checkNotificationPermission()
+  }
+
+  /// Request notification permissions if not already granted
+  /// - Returns: Whether the permissions were granted
+  func requestNotificationPermission() async -> Bool {
+    return await notificationService.requestNotificationPermission()
+  }
+
+  /// Open the app settings to enable notifications
+  func openAppSettings() {
+    guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+      return
+    }
+
+    UIApplication.shared.open(settingsUrl)
+  }
+
   /// Claim a specific reward
   /// - Parameter id: The ID of the reward to claim
   /// - Returns: Whether the claim was successful
   @discardableResult
   func claimReward(with id: UUID) -> Bool {
-    guard rewardsState.canClaimToday,
+    guard rewardsState.canClaimToday || rewardsState.rewardsCollectedToday > 0,
       let index = rewardsState.currentRewards.firstIndex(where: { $0.id == id })
     else {
+      return false
+    }
+
+    let reward = rewardsState.currentRewards[index]
+
+    // Cannot claim rewards that require ads using this method
+    if reward.requiresAd {
       return false
     }
 
@@ -145,24 +196,83 @@ import UserNotifications
     rewardsState.currentRewards[index].claimed = true
     rewardsState.selectedRewardID = id
     rewardsState.lastClaimDate = Date()
-    rewardsState.canClaimToday = false
+    rewardsState.rewardsCollectedToday += 1
+
+    // If this is the first reward, start the collection timer
+    if rewardsState.rewardsCollectedToday == 1 {
+      rewardsState.firstRewardClaimDate = Date()
+    }
+
+    // If all rewards have been collected, reset canClaimToday to false
+    if rewardsState.rewardsCollectedToday >= 3 {
+      rewardsState.canClaimToday = false
+    }
 
     // Save to persistence
     saveRewardsState()
 
     // Apply the reward to the player's wallet
-    let reward = rewardsState.currentRewards[index]
     wallet.addCoins(reward.coins)
 
     // Track analytics
     analytics.trackEvent(.dailyRewardClaimed(coins: reward.coins))
 
-    // Schedule notification for next reward
-    Task {
-      await scheduleNextRewardNotification()
+    return true
+  }
+
+  /// Claim a reward that requires watching an ad
+  /// - Parameters:
+  ///   - id: The ID of the reward to claim
+  ///   - viewController: The view controller to present the ad on
+  /// - Returns: Whether the reward was successfully claimed
+  @MainActor
+  func claimRewardWithAd(with id: UUID, on viewController: UIViewController) async -> Bool {
+    guard rewardsState.canClaimToday || rewardsState.rewardsCollectedToday > 0,
+      let index = rewardsState.currentRewards.firstIndex(where: { $0.id == id })
+    else {
+      return false
     }
 
-    return true
+    let reward = rewardsState.currentRewards[index]
+
+    // Ensure this reward requires an ad and isn't already claimed
+    guard reward.requiresAd && !reward.claimed else {
+      return false
+    }
+
+    // Show rewarded ad
+    let adResult = await adManager.showRewardedAd(on: viewController)
+
+    if adResult {
+      // Mark the reward as claimed
+      rewardsState.currentRewards[index].claimed = true
+      rewardsState.selectedRewardID = id
+      rewardsState.lastClaimDate = Date()
+      rewardsState.rewardsCollectedToday += 1
+
+      // If this is the first reward, start the collection timer
+      if rewardsState.rewardsCollectedToday == 1 {
+        rewardsState.firstRewardClaimDate = Date()
+      }
+
+      // If all rewards have been collected, reset canClaimToday to false
+      if rewardsState.rewardsCollectedToday >= 3 {
+        rewardsState.canClaimToday = false
+      }
+
+      // Save to persistence
+      saveRewardsState()
+
+      // Apply the reward to the player's wallet
+      wallet.addCoins(reward.coins)
+
+      // Track analytics
+      analytics.trackEvent(.dailyRewardClaimed(coins: reward.coins))
+
+      return true
+    }
+
+    return false
   }
 
   /// Double the reward by watching an ad
@@ -204,6 +314,36 @@ import UserNotifications
   /// Get the time until the next reward is available
   /// - Returns: Formatted string showing time until next reward
   func getTimeUntilNextReward() -> String {
+    // If there's an active collection stage timer, calculate time based on that
+    if let firstRewardDate = rewardsState.firstRewardClaimDate {
+      let resetTime = firstRewardDate.addingTimeInterval(4 * 60 * 60)  // 4 hours after first reward
+      let now = Date()
+
+      // If we're past the reset time, rewards should be available
+      if now >= resetTime {
+        return "Available now!"
+      }
+
+      let components = Calendar.current.dateComponents(
+        [.hour, .minute, .second], from: now, to: resetTime)
+
+      if let hours = components.hour, let minutes = components.minute,
+        let seconds = components.second
+      {
+        // Different formatting depending on time remaining
+        if hours > 0 {
+          return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        } else if minutes > 0 {
+          return String(format: "%02d:%02d", minutes, seconds)
+        } else {
+          return String(format: "%d seconds", seconds)
+        }
+      }
+
+      return "Available soon"
+    }
+
+    // Otherwise, use the standard daily reset time
     guard let lastClaimDate = rewardsState.lastClaimDate else {
       return "Available now!"
     }
@@ -272,5 +412,12 @@ import UserNotifications
   /// - Returns: The loaded rewards state, or nil if none exists
   private func loadRewardsState() -> DailyRewardsState? {
     return Self.loadRewardsState(from: dailyRewardsStateKey)
+  }
+
+  func reset() {
+    let userDefaults = UserDefaults.standard
+    userDefaults.removeObject(forKey: dailyRewardsStateKey)
+    rewardsState = DailyRewardsState()
+    saveRewardsState()
   }
 }

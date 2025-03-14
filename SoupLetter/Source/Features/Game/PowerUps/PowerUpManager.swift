@@ -103,7 +103,7 @@ import UIKit
       return false
     }
     wallet.removeCoins(powerUp.price)
-    let wasUsed = await powerUp.use(undiscoveredWords: words)
+    let wasUsed = await powerUp.use(undiscoveredWords: undiscoveredWords)
     if wasUsed {
       activePowerUpType = powerUp.type
       powerUpsActivated[powerUp.type] = (powerUpsActivated[powerUp.type] ?? 0) + 1
