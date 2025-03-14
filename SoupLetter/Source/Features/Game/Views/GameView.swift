@@ -12,7 +12,7 @@ struct GameView: View {
   var body: some View {
     VStack(spacing: 0) {
       ZStack {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .center, spacing: 12) {
           ScoreView(viewModel: viewModel)
           BoardView(viewModel: viewModel)
           if viewModel.powerUpManager.powerUps.isEmpty {
@@ -137,7 +137,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 3, wordCount: 20
+        gridSize: 12, wordCount: 20
       ))
   }
 #endif

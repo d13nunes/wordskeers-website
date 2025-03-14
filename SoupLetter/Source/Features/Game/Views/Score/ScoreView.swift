@@ -20,7 +20,6 @@ struct ScoreView: View {
     if horizontalSizeClass == .compact {
       VStack(alignment: .leading, spacing: 24) {
         HStack(alignment: .top, spacing: 12) {
-
           Spacer()
           storeAndDailyRewardView
         }
@@ -28,16 +27,11 @@ struct ScoreView: View {
       }
     } else {
       VStack(alignment: .leading, spacing: 24) {
-        createWordsListView(isCompact: false)
-        VStack(alignment: .trailing, spacing: 6) {
-          HStack(alignment: .center, spacing: 12) {
-            Text(viewModel.formattedTime)
-              .monospacedDigit()
-              .bold()
-              .font(.system(size: 54))
-          }
-          PowerUpsStackView(viewModel: viewModel)
+        HStack(alignment: .top, spacing: 12) {
+          Spacer()
+          storeAndDailyRewardView
         }
+        createWordsListView(isCompact: true)
       }
       .padding(.horizontal)
     }

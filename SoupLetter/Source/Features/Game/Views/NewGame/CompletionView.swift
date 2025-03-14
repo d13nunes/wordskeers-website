@@ -9,19 +9,20 @@ struct CompletionView: View {
   let doubleRewardWithAd: () async -> Void
 
   var body: some View {
-    if horizontalSizeClass == .compact {
-      CompletionCompactView(
-        formattedTime: formattedTime,
-        onNextLevel: onNextLevel,
-        doubleRewardWithAd: doubleRewardWithAd
-      )
-    } else {
-      CompletionLargeView(
-        formattedTime: formattedTime,
-        onNextLevel: onNextLevel,
-        doubleRewardWithAd: doubleRewardWithAd
-      )
-    }
+    CompletionCompactView(
+      formattedTime: formattedTime,
+      onNextLevel: onNextLevel,
+      doubleRewardWithAd: doubleRewardWithAd
+    )
+    // if horizontalSizeClass == .compact {
+
+    // } else {
+    //   CompletionLargeView(
+    //     formattedTime: formattedTime,
+    //     onNextLevel: onNextLevel,
+    //     doubleRewardWithAd: doubleRewardWithAd
+    //   )
+    // }
   }
 }
 struct CompletionCompactView: View {
