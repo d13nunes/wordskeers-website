@@ -20,7 +20,8 @@ struct HintPowerUp: PowerUp {
     guard let word = undiscoveredWords.filter({ !$0.isFound }).randomElement() else {
       return false
     }
-    setHintedPositions([word.position])
+    let randomPosition = word.allPositions().randomElement() ?? word.position
+    setHintedPositions([randomPosition])
     return true
   }
 }

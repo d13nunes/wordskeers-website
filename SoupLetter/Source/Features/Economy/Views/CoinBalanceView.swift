@@ -6,21 +6,21 @@ struct CoinBalanceView: View {
   var onBuyPressed: (() -> Void)
 
   var body: some View {
-    Button(action: {
-      onBuyPressed()
-    }) {
-      HStack(spacing: 8) {
+    Button(action: onBuyPressed) {
+      HStack(spacing: 0) {
         // Coin icon
-        Image(systemName: "coin.fill")
-          .font(.headline)
-          .foregroundStyle(.yellow)
-
-        // Coin amount
+        Image("Coins")
+          .renderingMode(.template)
+          .resizable()
+          .frame(width: 16, height: 16)
+          .foregroundStyle(AppColors.coinBackground)
+          .padding(.trailing, 8)
         Text("\(wallet.coins)")
-          .font(.title)
-          .fontWeight(.semibold)
-        Spacer()
-          .frame(width: 4)
+          .font(
+            Font.custom("Inter", size: 16)
+              .weight(.medium)
+          )
+          .padding(.trailing, 4)
         // Buy button
         Image(systemName: "plus.circle.fill")
           .font(.headline)
@@ -28,12 +28,11 @@ struct CoinBalanceView: View {
           .accessibilityLabel("Buy more coins")
 
       }
-      .padding(.horizontal, 12)
+      .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .background {
-        Capsule()
-          .fill(Color(.secondarySystemBackground))
-      }
+      .frame(height: 40)
+      .background(.white)
+      .roundedCornerRadius()
     }
     .buttonStyle(.plain)
     .accessibilityLabel("Coin balance: \(wallet.coins)")

@@ -65,20 +65,20 @@ private struct ButtonStyleFactory {
     switch style {
     case .passive:
       return ButtonStyle(
-        backgroundColor: .blue,
+        backgroundColor: AppColors.blue,
         foregroundColor: .white,
         cornerRadius: constants.cornerRadius,
         padding: constants.padding)
     case .destructive:
       return ButtonStyle(
-        backgroundColor: .red,
+        backgroundColor: AppColors.red,
         foregroundColor: .white,
         cornerRadius: constants.cornerRadius,
         padding: constants.padding
       )
     case .reward:
       return ButtonStyle(
-        backgroundColor: .green,
+        backgroundColor: AppColors.green,
         foregroundColor: .white,
         cornerRadius: constants.cornerRadius,
         padding: constants.padding,

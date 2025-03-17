@@ -1,6 +1,8 @@
 import Foundation
 import SwiftUI
 
+let resetTimeInterval: TimeInterval = 4 * 60 * 60  // 4 hours in seconds
+
 /// Represents the state of the daily rewards system
 @Observable class DailyRewardsState: Codable {
   /// The date when the player last claimed a daily reward
@@ -91,26 +93,23 @@ import SwiftUI
 
   /// Refresh the claim status based on the current date
   func refreshClaimStatus() {
-    canClaimToday = Self.checkCanClaimToday(lastClaimDate: lastClaimDate)
-
-    // Reset rewards collected if it's a new day
-    if canClaimToday && rewardsCollectedToday > 0 {
-      rewardsCollectedToday = 0
-      firstRewardClaimDate = nil
-    }
+    canClaimToday = checkResetCollectionStage()
+    print("can claim today: \(canClaimToday)")
   }
 
   /// Check if we need to reset the rewards collection stage based on a timer
   /// - Returns: Whether the collection stage was reset
   func checkResetCollectionStage() -> Bool {
-    guard let firstRewardDate = firstRewardClaimDate else { return false }
+    var needsReset = true
+    if let firstRewardDate = firstRewardClaimDate {
+      // Check if it's been more than 4 hours since the first reward was claimed
+      let now = Date()
+      let timeInterval = now.timeIntervalSince(firstRewardDate)
+      let resetTimeInterval: TimeInterval = resetTimeInterval
 
-    // Check if it's been more than 4 hours since the first reward was claimed
-    let now = Date()
-    let timeInterval = now.timeIntervalSince(firstRewardDate)
-    let resetTimeInterval: TimeInterval = 4 * 60 * 60  // 4 hours in seconds
-
-    if timeInterval >= resetTimeInterval {
+      needsReset = timeInterval >= resetTimeInterval
+    }
+    if needsReset {
       // Reset collection stage
       rewardsCollectedToday = 0
       firstRewardClaimDate = nil

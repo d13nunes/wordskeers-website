@@ -8,31 +8,51 @@ struct DailyRewardBadge: View {
 
   var body: some View {
     Button(action: onPressed) {
-      Image(systemName: "gift.fill")
-        .font(.system(size: 26))
-        .foregroundColor(.red)
-        .padding(8)
-        .background(
-          Circle()
-            .fill(Color(.secondarySystemBackground))
-        )
-        .scaleEffect(scale)
-        .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: scale)
-        .onAppear {
-          if animate {
-            scale = 1.15
-          }
+      HStack(alignment: .center, spacing: 8) {
+        Image("Gift")
+          .renderingMode(.template)
+          .resizable()
+          .frame(width: 16, height: 16)
+          .foregroundStyle(AppColors.red)
+          .scaleEffect(scale)
+          .animation(
+            .easeInOut(duration: 1.0)
+              .repeatForever(autoreverses: true),
+            value: scale
+          )
+        Text("Daily Rewards")
+          .font(
+            Font.custom("Inter", size: 14)
+              .weight(.medium)
+          )
+          .multilineTextAlignment(.center)
+          .foregroundColor(AppColors.red)
+      }
+      .padding(.horizontal, 16)
+      .padding(.vertical, 8)
+      .frame(height: 40)
+      .background(AppColors.red.opacity(0.2))
+      .cornerRadius(8)
+
+      .onAppear {
+        if animate {
+          scale = 1.2
         }
-        .onChange(of: animate) { _, newValue in
-          scale = newValue ? 1.15 : 1.0
-        }
+      }
+      .onChange(of: animate) { _, newValue in
+        scale = newValue ? 1.2 : 0.95
+      }
+      .accessibilityLabel("Daily Rewards")
     }
-    .accessibilityLabel("Daily Rewards")
   }
 }
 
 #if DEBUG
   #Preview {
-    DailyRewardBadge(animate: true, onPressed: { print("Pressed") })
+    ZStack {
+      AppColors.background
+        .ignoresSafeArea()
+      DailyRewardBadge(animate: true, onPressed: { print("Pressed") })
+    }
   }
 #endif

@@ -9,7 +9,7 @@ protocol AdManaging {
   func onAppActive() async
 
   @MainActor
-  func onGameComplete(on viewController: UIViewController) async -> Bool
+  func showInterstitialAd(on viewController: UIViewController) async -> Bool
 
   @MainActor
   func showRewardedAd(on viewController: UIViewController) async -> Bool

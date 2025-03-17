@@ -17,24 +17,7 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    if horizontalSizeClass == .compact {
-      VStack(alignment: .leading, spacing: 24) {
-        HStack(alignment: .top, spacing: 12) {
-          Spacer()
-          storeAndDailyRewardView
-        }
-        createWordsListView(isCompact: true)
-      }
-    } else {
-      VStack(alignment: .leading, spacing: 24) {
-        HStack(alignment: .top, spacing: 12) {
-          Spacer()
-          storeAndDailyRewardView
-        }
-        createWordsListView(isCompact: true)
-      }
-      .padding(.horizontal)
-    }
+    createWordsListView(isCompact: true)
   }
 
   private var scoreTitle: String {
@@ -44,38 +27,52 @@ struct ScoreView: View {
     Double(foundWordsCount) / Double(totalWordsCount)
   }
 
-  private var storeAndDailyRewardView: some View {
-    HStack(alignment: .top) {
-      CoinBalanceView(wallet: viewModel.wallet, onBuyPressed: viewModel.showStoreView)
-      if viewModel.showDailyRewardsBadge {
-        DailyRewardBadge(animate: true, onPressed: viewModel.showDailyRewardsView)
-      }
+  private var timerView: some View {
+    HStack(spacing: 8) {
+      Image("Clock")
+        .frame(width: 12, height: 12)
+      Text(viewModel.formattedTime)
+        .monospacedDigit()
+        .font(
+          Font.custom("Inter", size: 16)
+            .weight(.medium)
+        )
     }
+    .padding(.horizontal, 12)
+    .padding(.vertical, 8)
+    .roundedContainer()
   }
 
   private func createWordsListView(isCompact: Bool) -> some View {
-    VStack(alignment: .leading, spacing: isCompact ? 6 : 16) {
-      HStack(alignment: .lastTextBaseline) {
-        Text(scoreTitle)
-          .bold()
-          .font(.system(size: 32))
-        Spacer()
-        Text(viewModel.formattedTime)
-          .monospacedDigit()
-          .bold()
-          .font(.system(size: 28))
+    GeometryReader { geometry in
+      VStack(alignment: .leading, spacing: isCompact ? 6 : 16) {
+        HStack(alignment: .bottom) {
+          Text(scoreTitle)
+            .font(
+              Font.custom("Inter", size: 32)
+                .weight(.bold)
+            )
+            .lineLimit(2)
+            .minimumScaleFactor(0.5)
+            .frame(maxHeight: 44, alignment: .leading)
+          Spacer()
+          timerView
+          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+        }
+        WordListView(viewModel: viewModel, geometry: geometry)
       }
-      WordListView(viewModel: viewModel)
     }
   }
 }
 
 #if DEBUG
   #Preview {
-    ScoreView(
-      viewModel: getViewModel(gridSize: 15, wordCount: 10)
-    )
-    .padding(.horizontal)
-
+    ZStack {
+      AppColors.background
+      ScoreView(
+        viewModel: getViewModel(gridSize: 15, wordCount: 10)
+      )
+      .padding(.horizontal)
+    }
   }
 #endif

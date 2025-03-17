@@ -13,12 +13,13 @@ struct BoardView: View {
     return rotation != 0
   }
 
+  let spacing: CGFloat = 4
+
   var body: some View {
     GeometryReader { geometry in
 
       let gridSize = viewModel.grid.count
-      let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
-      let availableWidth = min(geometry.size.width, geometry.size.height)
+      let availableWidth = geometry.size.width  - 12
       let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
       let grid = viewModel.grid
       Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
@@ -31,7 +32,10 @@ struct BoardView: View {
         }
       }
       .gesture(dragGesture(in: geometry))
-      .frame(width: geometry.size.width, height: geometry.size.width)
+      .padding(6)
+      .roundedContainer()
+      // .frame(width: geometry.size.width, height: geometry.size.width)
+      .background(AppColors.background)
     }
     .aspectRatio(1, contentMode: .fit)
 
@@ -48,7 +52,7 @@ struct BoardView: View {
     let isDiscovered = viewModel.discoveredCells.contains(position)
     let color = viewModel.cellColor(at: position, isSelected: isSelected)
     let letter = grid[adjustedRow][adjustedCol]
-    let cornerRadius = size * 0.1
+    let cornerRadius = size * 0.2
     return LetterCell(
       size: size,
       cornerRadius: cornerRadius,
@@ -83,22 +87,9 @@ struct BoardView: View {
     viewModel.selectionHandler.endDrag()
   }
 
-  private func getSpacing(for gridSize: Int) -> Int {
-    let maxGridSize = 18
-    let minGridSize = 6
-    if gridSize <= minGridSize {
-      return 8
-    } else if gridSize >= maxGridSize {
-      return 4
-    } else {
-      return 8 - ((gridSize - minGridSize) / (maxGridSize - minGridSize)) * (8 - 4)
-    }
-  }
-
   private func convertPointToPosition(_ point: CGPoint, in geometry: GeometryProxy) -> Position? {
 
     let gridSize = viewModel.grid.count
-    let spacing: CGFloat = CGFloat(getSpacing(for: gridSize))
     let availableWidth = min(geometry.size.width, geometry.size.height)
     let cellSize = (availableWidth - (spacing * CGFloat(gridSize - 1))) / CGFloat(gridSize)
 
@@ -116,7 +107,7 @@ struct BoardView: View {
 }
 
 #if DEBUG
-  let initialBoardSize = 3
+  let initialBoardSize = 12
   struct PreviewWrapper: View {
 
     @State var boardSize = initialBoardSize

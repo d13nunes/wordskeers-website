@@ -10,86 +10,85 @@ struct GameView: View {
   }
 
   var body: some View {
-    VStack(spacing: 0) {
-      ZStack {
+    ZStack {
+      // Background for the entire view
+      AppColors.background
+        .ignoresSafeArea()
+
+      VStack(spacing: 0) {
         VStack(alignment: .center, spacing: 12) {
+          GameHeaderView(viewModel: viewModel)
           ScoreView(viewModel: viewModel)
           BoardView(viewModel: viewModel)
-          if viewModel.powerUpManager.powerUps.isEmpty {
+            .layoutPriority(100)
+
+          if !viewModel.powerUpManager.powerUps.isEmpty {
             HStack {
-              Spacer()
-              PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
-            }
-          } else {
-            HStack {
-              PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
               Spacer()
               PowerUpsStackView(viewModel: viewModel)
             }
           }
         }
-      }
-      .frame(maxHeight: .infinity, alignment: .bottom)  // Forces alignment at bottom
-      .padding(.horizontal)
-      .padding(.vertical)
-      .overlay {
-        ZStack {
-          if let newGameViewModel = viewModel.newGameSelectionViewModel {
+        .frame(alignment: .bottom)  // Forces alignment at bottom
+        .padding(.horizontal)
+        .padding(.vertical)
+        .overlay {
+          ZStack {
+            if let newGameViewModel = viewModel.newGameSelectionViewModel {
 
-            NewGameSelectionView(viewModel: newGameViewModel)
-          }
-          if viewModel.isShowingPauseMenu {
-            PauseMenuView(
-              onResumeClicked: {
-                viewModel.hidePauseMenu()
-                viewModel.resumeGame()
-              },
-              onNewGameClicked: {
-                viewModel.hidePauseMenu()
-                guard let viewController = UIApplication.shared.rootViewController() else {
-                  return
+              NewGameSelectionView(viewModel: newGameViewModel)
+            }
+            if viewModel.isShowingPauseMenu {
+              PauseMenuView(
+                onResumeClicked: {
+                  viewModel.hidePauseMenu()
+                  viewModel.resumeGame()
+                },
+                onNewGameClicked: {
+                  viewModel.hidePauseMenu()
+                  guard let viewController = UIApplication.shared.rootViewController() else {
+                    return
+                  }
+                  Task.detached {
+                    await viewModel.startNewGame(on: viewController)
+                  }
                 }
-                Task.detached {
-                  await viewModel.startNewGame(on: viewController)
+              )
+            }
+            if viewModel.isShowingCompletionView {
+              CompletionView(
+                formattedTime: viewModel.getGameOverViewFormattedTime(),
+                onNextLevel: {
+                  guard let viewController = UIApplication.shared.rootViewController() else {
+                    return
+                  }
+
+                  Task.detached {
+                    await viewModel.completionCollectCoins(double: false, on: viewController)
+                  }
+                },
+                doubleRewardWithAd: {
+                  guard let viewController = UIApplication.shared.rootViewController() else {
+                    return
+                  }
+                  Task.detached {
+                    await viewModel.completionCollectCoins(double: true, on: viewController)
+                  }
                 }
-              }
+              )
+            }
+            CoinsToastView(
+              coinAmount: viewModel.coinsToastAmount,
+              isVisible: $viewModel.showCoinsToast
             )
           }
-          if viewModel.isShowingCompletionView {
-            CompletionView(
-              formattedTime: viewModel.getGameOverViewFormattedTime(),
-              onNextLevel: {
-                guard let viewController = UIApplication.shared.rootViewController() else {
-                  return
-                }
-
-                Task.detached {
-                  await viewModel.completionCollectCoins(double: false, on: viewController)
-                }
-              },
-              doubleRewardWithAd: {
-                guard let viewController = UIApplication.shared.rootViewController() else {
-                  return
-                }
-                Task.detached {
-                  await viewModel.completionCollectCoins(double: true, on: viewController)
-                }
-              }
-            )
-          }
-          CoinsToastView(
-            coinAmount: viewModel.coinsToastAmount,
-            isVisible: $viewModel.showCoinsToast
-          )
-
         }
-      }
 
-      if viewModel.canShowBannerAd {
-        // Banner Ad at the bottom with fixed size
-        StandardBannerView()
-          .frame(height: 50)
-          .background(Color(.systemBackground))
+        if viewModel.canShowBannerAd {
+          // Banner Ad at the bottom with fixed size
+          StandardBannerView()
+            .frame(height: 50)
+        }
       }
     }
     .sheet(isPresented: $viewModel.isShowingStoreView) {
@@ -101,7 +100,7 @@ struct GameView: View {
         wallet: viewModel.wallet,
         analytics: viewModel.analytics
       )
-      .onAppear {
+      .onDisappear {
         viewModel.showNotEnoughCoinsAlert = false
       }
     }
@@ -137,7 +136,7 @@ struct GameView: View {
   #Preview {
     GameView(
       viewModel: getViewModel(
-        gridSize: 12, wordCount: 20
+        gridSize: 6, wordCount: 20
       ))
   }
 #endif

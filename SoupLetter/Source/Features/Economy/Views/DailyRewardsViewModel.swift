@@ -35,7 +35,7 @@ class DailyRewardsViewModel {
   private var timer: Timer?
 
   /// Formatted time until next reward is available
-  private(set) var timeUntilNextReward: String = ""
+  private(set) var timeUntilNextReward: TimeComponent?
 
   /// Whether notifications are currently enabled
   private(set) var areNotificationsEnabled: Bool = false
@@ -46,6 +46,11 @@ class DailyRewardsViewModel {
   /// Access to the rewards state
   var rewardsState: DailyRewardsState {
     rewardsService.rewardsState
+  }
+
+  /// Access to the wallet
+  var wallet: Wallet {
+    rewardsService.wallet
   }
 
   /// Initialize the view model
@@ -87,6 +92,7 @@ class DailyRewardsViewModel {
     // Only show the button if:
     // 1. At least one reward has been collected
     // 2. Notifications are not currently enabled
+    print("are notifications enabled: \(areNotificationsEnabled)")
     shouldShowNotificationsButton =
       rewardsState.rewardsCollectedToday > 0 && !areNotificationsEnabled
   }

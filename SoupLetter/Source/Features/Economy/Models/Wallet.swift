@@ -56,7 +56,7 @@ import SwiftUI
 
   #if DEBUG
     static func forTesting() -> Wallet {
-      return Wallet(coins: 1000)
+      return Wallet(coins: 1000230)
     }
   #endif
 }

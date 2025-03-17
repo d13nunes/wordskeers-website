@@ -11,11 +11,10 @@ struct PowerUpsStackView: View {
     HStack(alignment: .bottom, spacing: 2) {
       ForEach(powerUpManager.powerUps, id: \.type) { powerUp in
         PowerUpButtonView(
-          enabled: powerUp.isAvailable, icon: powerUp.icon, price: "\(powerUp.price)"
+          viewModel: .getViewModel(powerUp: powerUp)
         ) {
           print("clicked")
           onPowerUpClicked(powerUp)
-
         }
       }
     }
@@ -34,7 +33,7 @@ struct PowerUpsStackView: View {
       )
       if !success {
         viewModel.showNotEnoughCoinsAlert = true
-        viewModel.isShowingStoreView = true
+        viewModel.showStoreView()
       }
     }
   }
@@ -43,6 +42,6 @@ struct PowerUpsStackView: View {
 
 #if DEBUG
   #Preview {
-    PowerUpsStackView(viewModel: getViewModel(gridSize: 15, wordCount: 10))
+    PowerUpsStackView(viewModel: getViewModel(gridSize: 5, wordCount: 10))
   }
 #endif

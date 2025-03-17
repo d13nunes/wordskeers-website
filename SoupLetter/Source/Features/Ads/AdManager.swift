@@ -65,7 +65,7 @@ final class AdManager: AdManaging {
     }
   }
   @MainActor
-  func onGameComplete(on viewController: UIViewController) async -> Bool {
+  func showInterstitialAd(on viewController: UIViewController) async -> Bool {
     guard canShowAds else { return false }
     // Track ad requested event
     analyticsManager.trackEvent(

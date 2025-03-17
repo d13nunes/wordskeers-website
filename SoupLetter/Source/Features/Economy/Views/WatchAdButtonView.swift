@@ -65,8 +65,9 @@ struct AdForCoinsButtonView: View {
 
 #if DEBUG
   #Preview {
-    PowerUpButtonView(enabled: true, icon: "lightbulb.fill", price: "100") {
-      print("clicked")
-    }
+    AdForCoinsButtonView(
+      viewModel: .init(
+        coinAmount: 100, adManager: MockAdManager(), analytics: ConsoleAnalyticsManager(),
+        wallet: Wallet.forTesting()))
   }
 #endif

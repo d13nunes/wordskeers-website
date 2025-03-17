@@ -11,7 +11,7 @@ struct CompactMenuView<Content: View>: View {
       content
         .padding(.horizontal)
     }
-    .background(.white)
+    .background(AppColors.background)
   }
 
 }

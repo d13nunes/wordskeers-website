@@ -9,12 +9,35 @@ struct PauseButtonView: View {
 
   var body: some View {
     Button(action: onPauseClicked) {
-      Image(systemName: "pause.circle.fill")
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-        .frame(width: width, height: 44)
-        .padding(.all, 8)
+      HStack(alignment: .center, spacing: 0) {
+        Image("Pause")
+      }
+      .padding(.horizontal, 0)
+      .padding(.vertical, 8)
+      .frame(width: 42, height: 34)
+      .roundedContainer()
     }
-    .buttonStyle(.borderedProminent)
   }
 }
+
+#if DEBUG
+  #Preview {
+    HStack {
+      HStack(spacing: 8) {
+        Image("Clock")
+          .frame(width: 12, height: 12)
+        Text("00:00")
+          .monospacedDigit()
+          .font(
+            Font.custom("Inter", size: 16)
+              .weight(.medium)
+          )
+      }
+      .padding(.horizontal, 12)
+      .padding(.vertical, 8)
+      .roundedContainer()
+      PauseButtonView(onPauseClicked: {})
+    }
+    .background(AppColors.background)
+  }
+#endif

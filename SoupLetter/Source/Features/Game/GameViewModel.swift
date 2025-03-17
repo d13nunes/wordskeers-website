@@ -151,7 +151,7 @@ import SwiftUI
       gridSize: self.gameManager.grid.count
     )
     powerUpManager.setupPowerUps(
-      enabledPowerUps: [.hint, .directional],
+      enabledPowerUps: [.fullWord, .hint, .directional, .rotateBoard],
       words: gameManager.words
     )
   }
@@ -159,7 +159,6 @@ import SwiftUI
   // MARK: - Game Control Methods
   @MainActor
   func startNewGame(on viewController: UIViewController) async {
-    _ = await adManager.onGameComplete(on: viewController)
     if !firstGame {
       track(event: .gameQuit)
     }
@@ -200,8 +199,6 @@ import SwiftUI
       if success {
         amount = 10
       }
-    } else {
-      _ = await adManager.onGameComplete(on: viewController)
     }
     wallet.addCoins(amount)
     coinsToastAmount = amount
@@ -214,14 +211,18 @@ import SwiftUI
   func onShowGameSelection() {
     isShowingCompletionView = false
     isShowingPauseMenu = false
-    newGameSelectionViewModel = NewGameSelectionViewModel(onStartGame: { difficulty in
-      let gridGenerator = self.gameConfigurationFactory.createConfiguration(
-        configuration: DifficultyConfigMap.config(for: difficulty))
-      let gameManager = GameManager(gridGenerator: gridGenerator)
-      self.createNewGame(gameManager: gameManager)
-      self.track(event: .gameStarted)
-      self.onHideGameSelection()
-    })
+    newGameSelectionViewModel = NewGameSelectionViewModel(
+      isFirstGame: firstGame,
+      adManager: adManager,
+      onStartGame: { difficulty in
+        let gridGenerator = self.gameConfigurationFactory.createConfiguration(
+          configuration: DifficultyConfigMap.config(for: difficulty))
+        let gameManager = GameManager(gridGenerator: gridGenerator)
+        self.createNewGame(gameManager: gameManager)
+        self.track(event: .gameStarted)
+        self.onHideGameSelection()
+      }
+    )
   }
 
   func onHideGameSelection() {
@@ -276,14 +277,14 @@ import SwiftUI
 
   /// Returns the color for a cell based on its state
   func cellColor(at position: Position, isSelected: Bool) -> Color {
-    if isSelected {
+    if powerUpManager.hintedPositions.contains(position) {
+      return .yellow.opacity(0.3)
+    } else if isSelected {
       return .blue.opacity(0.4)
     } else if discoveredCells.contains(position) {
       return .green.opacity(0.3)
-    } else if powerUpManager.hintedPositions.contains(position) {
-      return .yellow.opacity(0.3)
     } else {
-      return .clear
+      return .white
     }
   }
 

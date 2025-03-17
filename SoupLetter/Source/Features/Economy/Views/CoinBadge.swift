@@ -2,12 +2,10 @@ import SwiftUI
 
 struct CoinBadge: View {
   var body: some View {
-    Image(systemName: "bitcoinsign.circle.fill")
+    Image("Coins")
+      .renderingMode(.template)
       .resizable()
-      .foregroundColor(.yellow)
-      .background(.white)
-      .clipShape(Circle())
-
+      .foregroundColor(AppColors.coinBackground)
   }
 }
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Screen for displaying and interacting with daily rewards
-struct DailyRewardsView: View {
+struct DailyRewardsScreen: View {
   /// The view model
   @Bindable private var viewModel: DailyRewardsViewModel
 
@@ -108,10 +108,10 @@ struct DailyRewardsView: View {
             Text("Collection resets in:")
               .font(.headline)
           }
-          Text(viewModel.timeUntilNextReward)
-            .font(.system(size: 24, weight: .bold, design: .monospaced))
-            .foregroundColor(.blue)
-            .frame(height: 30)
+          // Text("\(viewModel.timeUntilNextReward)")
+          //   .font(.system(size: 24, weight: .bold, design: .monospaced))
+          //   .foregroundColor(.blue)
+          //   .frame(height: 30)
         }
         .padding(.vertical, 16)
         .padding(.horizontal, 24)
@@ -256,11 +256,11 @@ struct DailyRewardsView: View {
       Text("Come back in:")
         .font(.headline)
 
-      Text(viewModel.timeUntilNextReward)
-        .font(.system(size: 40, weight: .bold, design: .monospaced))
-        .foregroundColor(.blue)
-        .minimumScaleFactor(0.5)
-        .padding(.horizontal)
+      // Text(viewModel.timeUntilNextReward)
+      //   .font(.system(size: 40, weight: .bold, design: .monospaced))
+      //   .foregroundColor(.blue)
+      //   .minimumScaleFactor(0.5)
+      //   .padding(.horizontal)
 
       HStack {
         Image(systemName: "checkmark.circle.fill")
@@ -319,11 +319,11 @@ struct DailyRewardsView: View {
       Text("Next reward available in:")
         .font(.headline)
 
-      Text(viewModel.timeUntilNextReward)
-        .font(.system(size: 40, weight: .bold, design: .monospaced))
-        .foregroundColor(.blue)
-        .minimumScaleFactor(0.5)
-        .padding(.horizontal)
+      // Text(viewModel.timeUntilNextReward)
+      //   .font(.system(size: 40, weight: .bold, design: .monospaced))
+      //   .foregroundColor(.blue)
+      //   .minimumScaleFactor(0.5)
+      //   .padding(.horizontal)
 
       HStack {
         Image(systemName: "hourglass")

@@ -15,10 +15,16 @@ struct NewGameSelectionView: View {
           }
         }.pickerStyle(.segmented)
           .frame(maxWidth: 400)
-        playButton
-          .padding(.top, 32)
+
+        MyButton(
+          title: "Play",
+          style: .destructive,
+          action: onStartGame
+        )
+
+        .padding(.top, 32)
       }
-    }
+    }.background(AppColors.background)
   }
 
   private var gameDifficultyInfoSection: some View {
@@ -90,18 +96,19 @@ struct NewGameSelectionView: View {
     .frame(height: 108)
   }
 
-  private var playButton: some View {
-    MyButton(
-      title: "Play",
-      style: .destructive,
-      action: viewModel.startGame)
+  private func onStartGame() {
+    guard let viewController = self.rootViewController() else {
+      return
+    }
+    viewModel.startGame(on: viewController)
   }
-
 }
 
 #Preview {
   NewGameSelectionView(
     viewModel: NewGameSelectionViewModel(
+      isFirstGame: true,
+      adManager: MockAdManager(),
       onStartGame: { setting in
         print("Starting game with setting: \(setting)")
       }

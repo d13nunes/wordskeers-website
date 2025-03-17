@@ -24,21 +24,9 @@ struct CoinStoreView: View {
       ScrollViewReader { proxy in
         ZStack {
           ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 12) {
               // Header
-              HStack {
-                Image(systemName: "coin.fill")
-                  .font(.largeTitle)
-                  .foregroundStyle(.yellow)
-
-                Text("\(wallet.coins)")
-                  .font(.title)
-                  .fontWeight(.bold)
-              }
-              .frame(maxWidth: .infinity, alignment: .center)
-              .padding()
-              .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 12))
-
+              BalanceBigView(wallet: wallet)
               // Remove Ads Banner
               if !storeService.removeAdsProduct.isPurchased
                 && storeService.removeAdsProduct.product != nil
@@ -209,12 +197,21 @@ struct CoinStoreView: View {
     Button {
       showRemoveAdsView = true
     } label: {
-      HStack {
+      HStack(spacing: 0) {
+        StoreItemIcon(
+          image: "RemoveAds",
+          color: AppColors.red
+        )
+        .padding(.leading, 16)
+        .padding(.trailing, 16)
         // Icon and title
         VStack(alignment: .leading, spacing: 4) {
           Text("Remove Ads")
-            .font(.headline)
-            .lineLimit(1)
+            .font(
+              Font.custom("Inter", size: 16)
+                .weight(.bold)
+            )
+            .foregroundColor(AppColors.storeText)
 
           Text("Enjoy an ad-free experience")
             .font(.subheadline)
@@ -227,13 +224,9 @@ struct CoinStoreView: View {
         Image(systemName: "chevron.right")
           .foregroundStyle(.secondary)
       }
-      .padding()
-      .background {
-        RoundedRectangle(cornerRadius: 12)
-          .fill(Color(.secondarySystemBackground))
-      }
+      .padding(17)
+      .storeStyle()
     }
-    .buttonStyle(.plain)
     .padding(.bottom, 8)
   }
 
@@ -302,19 +295,24 @@ struct CoinPackageRow: View {
       }
     } label: {
       HStack {
+        StoreItemIcon(
+          image: "Coins",
+          color: AppColors.coinBackground
+        )
+        .padding(.leading, 16)
+        .padding(.trailing, 16)
         // Icon and coins amount
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 2) {
           Text(package.name)
-            .font(.headline)
-            .lineLimit(1)
-
-          HStack(spacing: 2) {
-            Image(systemName: "coin.fill")
-              .foregroundStyle(.yellow)
-            Text("\(package.totalCoins)")
-              .fontWeight(.bold)
-          }
-
+            .font(
+              Font.custom("Inter", size: 16)
+                .weight(.bold)
+            )
+            .foregroundColor(AppColors.storeText)
+            .frame(alignment: .topLeading)
+          Text("\(package.totalCoins) coins")
+            .font(Font.custom("Inter", size: 14))
+            .foregroundColor(AppColors.storeDetailText)
           if package.bonusPercentage > 0 {
             Text("+\(package.bonusPercentage)% BONUS")
               .font(.caption)
@@ -326,52 +324,50 @@ struct CoinPackageRow: View {
         Spacer()
         if package.isRewardedVideo && isLoadingRewardedVideo || package.priceText.isEmpty {
           progressViewButton
-        } else if package.isRewardedVideo {
-          rewardedVideoButton(package)
         } else {
-          iapPackageButton(package)
+          let text = package.isRewardedVideo ? "Watch Ad" : package.priceText
+          let color = package.isRewardedVideo ? AppColors.green : AppColors.blue
+          Text(text)
+            .pillStyle(foregroundColor: .white, backgroundColor: color)
         }
-
       }
       .frame(maxWidth: .infinity, alignment: .leading)
       .padding()
       .background {
         RoundedRectangle(cornerRadius: 12)
-          .fill(Color(.secondarySystemBackground))
+          .inset(by: 0.5)
+          .fill(Color(red: 0.98, green: 0.98, blue: 0.98))
+          .stroke(Color(red: 0.95, green: 0.96, blue: 0.96), lineWidth: 1)
           .overlay {
-            if package.isMostPopular {
+            HStack {
+              Spacer()
               VStack {
-                Text("MOST POPULAR")
-                  .font(.caption)
-                  .fontWeight(.black)
-                  .foregroundStyle(.white)
-                  .padding(.horizontal, 8)
-                  .padding(.vertical, 4)
-                  .background(.blue, in: RoundedRectangle(cornerRadius: 6))
+                if package.isMostPopular {
+                  Text("MOST POPULAR")
+                    .font(Font.custom("Inter", size: 12))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(AppColors.red, in: RoundedRectangle(cornerRadius: 6))
 
+                } else if package.isBestValue {
+                  Text("BEST VALUE")
+                    .font(Font.custom("Inter", size: 12))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(AppColors.green, in: RoundedRectangle(cornerRadius: 6))
+
+                }
                 Spacer()
               }
-              .padding(.top, -12)
-              .frame(maxWidth: .infinity, alignment: .center)
-            } else if package.isBestValue {
-              VStack {
-                Text("BEST VALUE")
-                  .font(.caption)
-                  .fontWeight(.black)
-                  .foregroundStyle(.white)
-                  .padding(.horizontal, 8)
-                  .padding(.vertical, 4)
-                  .background(.green, in: RoundedRectangle(cornerRadius: 6))
-
-                Spacer()
-              }
-              .padding(.top, -12)
-              .frame(maxWidth: .infinity, alignment: .center)
+              .padding(.top, -8)
+              .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .padding(.trailing, 6)
           }
       }
     }
-    .buttonStyle(.plain)
     .contentShape(RoundedRectangle(cornerRadius: 12))
   }
 
@@ -391,21 +387,11 @@ struct CoinPackageRow: View {
       .resizable()
       .aspectRatio(contentMode: .fit)
       .frame(width: 24, height: 24)
-      .foregroundColor(.green)
+      .foregroundColor(AppColors.green)
       .cornerRadius(4)
       .padding(.horizontal, 16)
       .padding(.vertical, 12)
-      .background(.tint, in: RoundedRectangle(cornerRadius: 8))
-      .foregroundStyle(.white)
-  }
-
-  private func iapPackageButton(_ package: CoinStoreInfoing) -> some View {
-    // Price
-    return Text(package.priceText)
-      .fontWeight(.semibold)
-      .padding(.horizontal, 12)
-      .padding(.vertical, 8)
-      .background(.tint, in: RoundedRectangle(cornerRadius: 8))
+      .background(AppColors.blue, in: RoundedRectangle(cornerRadius: 8))
       .foregroundStyle(.white)
   }
 }

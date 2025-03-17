@@ -20,19 +20,28 @@ struct LetterCell: View {
   let letter: String
   let isDiscovered: Bool
 
-  @State private var scale: CGFloat = 1.0
+  @State private var scale: CGFloat = 0.90
   @State private var isAnimating: Bool = false
 
   var body: some View {
     VStack {
-      ZStack {
-        RoundedRectangle(cornerRadius: cornerRadius)
-          .fill(color)
-          .frame(width: size, height: size)
+
+      HStack(alignment: .center, spacing: 0) {
         Text(letter)
-          .font(.system(size: size * 0.7, weight: .bold, design: .rounded))
-          .frame(width: size, height: size)
+          .font(.system(size: size * 0.65))
+          .bold()
+
+          .foregroundColor(Color(red: 0.12, green: 0.16, blue: 0.23))
       }
+      .frame(width: size, height: size, alignment: .center)
+      .background(color)
+      .cornerRadius(cornerRadius)
+      //.shadow(color: .black.opacity(0.05), radius: 1, x: 0, y: 1)
+      // .overlay(
+      //   RoundedRectangle(cornerRadius: cornerRadius)
+      //     .inset(by: 0)
+      //     .stroke(Color(red: 0.9, green: 0.91, blue: 0.92), lineWidth: 0)
+      // )
       .scaleEffect(scale)  // Apply scale effect
       .onChange(of: isDiscovered) { oldValue, newValue in
         if !oldValue && newValue {
@@ -86,23 +95,30 @@ struct LetterCell: View {
 #if DEBUG
 
   struct BoardLetterViewPreview: View {
+    func cellColor(state: LetterCellState) -> Color {
+      switch state {
+      case .none:
+        return .white
+      case .selected:
+        return .blue.opacity(0.4)
+      case .hint:
+        return .green.opacity(0.3)
+      }
+    }
+
     @State private var selectedState = LetterCellState.none
     let states: [LetterCellState] = [.none, .selected, .hint]
     var body: some View {
-      VStack {
-        Picker("State", selection: $selectedState) {
-          ForEach(states, id: \.self) { state in
-            Text(String(describing: state))
-          }
+      HStack {
+        ForEach(states, id: \.self) { state in
+          LetterCell(
+            size: 100,
+            cornerRadius: 10,
+            color: cellColor(state: state),
+            letter: "P",
+            isDiscovered: false
+          )
         }
-        .pickerStyle(WheelPickerStyle())
-        LetterCell(
-          size: 100,
-          cornerRadius: 10,
-          color: .blue,
-          letter: "P",
-          isDiscovered: false
-        )
       }
     }
   }

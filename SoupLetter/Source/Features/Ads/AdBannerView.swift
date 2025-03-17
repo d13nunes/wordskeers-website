@@ -12,6 +12,7 @@ struct StandardBannerView: UIViewRepresentable {
     }
 
     bannerView.load(Request())
+    bannerView.backgroundColor = .clear
     return bannerView
   }
 

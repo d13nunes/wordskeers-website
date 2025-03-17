@@ -12,7 +12,7 @@ class DailyRewardsService {
   private(set) var rewardsState: DailyRewardsState
 
   /// The player's wallet
-  private let wallet: Wallet
+  let wallet: Wallet
 
   /// The ad manager for rewarded videos
   private let adManager: AdManaging
@@ -69,26 +69,24 @@ class DailyRewardsService {
   /// - Returns: Array of three random daily rewards
   func generateDailyRewards() -> [DailyReward] {
     // Generate 3 rewards with the first one being free and the others requiring ads
+    let tiers = [
+      10...50,  // Small reward
+      50...100,  // Medium reward
+      100...200,  // Large reward
+    ]
     return [
-      createRandomReward(requiresAd: false),
-      createRandomReward(requiresAd: true),
-      createRandomReward(requiresAd: true),
+      createRandomReward(requiresAd: false, tier: tiers[0]),
+      createRandomReward(requiresAd: true, tier: tiers[1]),
+      createRandomReward(requiresAd: true, tier: tiers[2]),
     ]
   }
 
   /// Create a random reward with coin values in different tiers
   /// - Parameter requiresAd: Whether this reward requires watching an ad to claim
   /// - Returns: A daily reward with random coin value
-  private func createRandomReward(requiresAd: Bool) -> DailyReward {
+  private func createRandomReward(requiresAd: Bool, tier: ClosedRange<Int>) -> DailyReward {
     // Generate random coin values in different tiers
-    let tiers = [
-      10...50,  // Small reward
-      50...100,  // Medium reward
-      100...200,  // Large reward
-    ]
-
-    let selectedTier = tiers.randomElement() ?? (50...100)
-    let coinValue = Int.random(in: selectedTier)
+    let coinValue = Int.random(in: tier)
 
     return DailyReward(
       coins: coinValue,
@@ -120,7 +118,7 @@ class DailyRewardsService {
     // If there's an active collection stage timer, use that instead of the daily reset
     if let firstRewardDate = rewardsState.firstRewardClaimDate {
       // Collection stage resets after 4 hours
-      return firstRewardDate.addingTimeInterval(4 * 60 * 60)  // 4 hours in seconds
+      return firstRewardDate.addingTimeInterval(resetTimeInterval)  // 4 hours in seconds
     }
 
     let calendar = Calendar.current
@@ -313,17 +311,13 @@ class DailyRewardsService {
 
   /// Get the time until the next reward is available
   /// - Returns: Formatted string showing time until next reward
-  func getTimeUntilNextReward() -> String {
+  func getTimeUntilNextReward() -> TimeComponent? {
+    print("Get Time component \(rewardsState.firstRewardClaimDate)")
     // If there's an active collection stage timer, calculate time based on that
     if let firstRewardDate = rewardsState.firstRewardClaimDate {
-      let resetTime = firstRewardDate.addingTimeInterval(4 * 60 * 60)  // 4 hours after first reward
+      let resetTime = firstRewardDate.addingTimeInterval(resetTimeInterval)  // 4 hours after first reward
       let now = Date()
-
       // If we're past the reset time, rewards should be available
-      if now >= resetTime {
-        return "Available now!"
-      }
-
       let components = Calendar.current.dateComponents(
         [.hour, .minute, .second], from: now, to: resetTime)
 
@@ -332,53 +326,23 @@ class DailyRewardsService {
       {
         // Different formatting depending on time remaining
         if hours > 0 {
-          return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-        } else if minutes > 0 {
-          return String(format: "%02d:%02d", minutes, seconds)
-        } else {
-          return String(format: "%d seconds", seconds)
+          return TimeComponent(
+            leftUnitValue: String(format: "%02d", hours),
+            leftUnitDescription: "hours",
+            rightUnitValue: String(format: "%02d", minutes),
+            rightUnitDescription: "min"
+          )
         }
-      }
-
-      return "Available soon"
-    }
-
-    // Otherwise, use the standard daily reset time
-    guard let lastClaimDate = rewardsState.lastClaimDate else {
-      return "Available now!"
-    }
-
-    let calendar = Calendar.current
-    let now = Date()
-
-    // Find the start of tomorrow
-    guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: lastClaimDate),
-      let startOfTomorrow = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: tomorrow)
-    else {
-      return "Available soon"
-    }
-
-    // If we're past the reset time (midnight), reward should be available
-    if now >= startOfTomorrow {
-      return "Available now!"
-    }
-
-    let components = calendar.dateComponents(
-      [.hour, .minute, .second], from: now, to: startOfTomorrow)
-
-    if let hours = components.hour, let minutes = components.minute, let seconds = components.second
-    {
-      // Different formatting depending on time remaining
-      if hours > 0 {
-        return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-      } else if minutes > 0 {
-        return String(format: "%02d:%02d", minutes, seconds)
-      } else {
-        return String(format: "%d seconds", seconds)
+        return TimeComponent(
+          leftUnitValue: String(format: "%02d", minutes),
+          leftUnitDescription: "min",
+          rightUnitValue: String(format: "%02d", seconds),
+          rightUnitDescription: "sec"
+        )
       }
     }
 
-    return "Available soon"
+    return nil
   }
 
   // MARK: - Persistence

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 enum GameModeCode: Int {
   case undefined = -1
@@ -44,8 +45,12 @@ enum Difficulty: String {
   var selectedDifficulty: Difficulty = .easy
   let availableDifficulties: [Difficulty] = [.veryEasy, .easy, .medium, .hard]
   private let onStartGameCallback: (Difficulty) -> Void
+  let isFirstGame: Bool
+  private let adManager: AdManaging
 
-  init(onStartGame: @escaping (Difficulty) -> Void) {
+  init(isFirstGame: Bool, adManager: AdManaging, onStartGame: @escaping (Difficulty) -> Void) {
+    self.isFirstGame = isFirstGame
+    self.adManager = adManager
     self.onStartGameCallback = onStartGame
   }
 
@@ -65,7 +70,11 @@ enum Difficulty: String {
     DifficultyConfigMap.config(for: selectedDifficulty)
   }
 
-  func startGame() {
+  @MainActor
+  func startGame(on viewController: UIViewController) {
+    Task {
+      _ = await adManager.showInterstitialAd(on: viewController)
+    }
     onStartGameCallback(selectedDifficulty)
   }
 }

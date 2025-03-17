@@ -1,81 +1,40 @@
 import SwiftUI
 
 struct WordListView: View {
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @Namespace private var wordTransition
 
   @State var viewModel: GameViewModel
   @State private var recentlyFoundWord: String?
+  let geometry: GeometryProxy
 
   var hintedWord: WordData? {
     viewModel.powerUpManager.hintedWord
   }
 
-  private var isCompact: Bool {
-    horizontalSizeClass == .compact
-  }
-  var maxCollumns: Int {
-    isCompact ? 4 : 4
-  }
+  private let fontSize: CGFloat = 14.0
 
-  var wordFont: Font {
-    isCompact ? .system(size: 18) : .system(size: 32)
-  }
-  var horizontalSpacing: CGFloat {
-    isCompact ? 10 : 22
-  }
-  var verticalSpacing: CGFloat {
-    isCompact ? 4 : 6
-  }
-
-  var gridItems: [[WordData]] {
-    return viewModel.words
-      .sorted { word1, word2 in
-        // First sort by found status (not found first)
-        if word1.isFound != word2.isFound {
-          return !word1.isFound
-        }
-        // Then sort by length
-        if word1.word.count != word2.word.count {
-          return word1.word.count < word2.word.count
-        }
-        // Finally sort alphabetically wit same length groups
-        return word1.word < word2.word
-      }
-      .chunked(into: maxCollumns)
-  }
+  @State private var words: [[WordData]] = []
 
   var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: horizontalSpacing) {
-      ForEach(gridItems, id: \.self) { collumn in
-        VStack(alignment: .leading, spacing: verticalSpacing) {
-          ForEach(collumn, id: \.word) { word in
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-              let direction: String =
-                hintedWord?.word == word.word ? hintedWord?.direction.symbol ?? "" : ""
-              Text(direction)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-                .foregroundColor(.blue)
-                .confettiCannon(
-                  trigger: .constant(direction != ""),
-                  num: 10,
-                  colors: [.red, .green, .blue, .yellow, .purple],
-                  openingAngle: Angle(degrees: 0),
-                  closingAngle: Angle(degrees: 360),
-                  radius: 200
-                )
-              Text("\(word.word.capitalized)")
-                .font(wordFont)
-                .bold(!word.isFound)
-                .foregroundColor(word.isFound ? .green.opacity(0.5) : .primary)
-                .strikethrough(word.isFound, color: .green.opacity(0.5))
-                .scaleEffect(recentlyFoundWord == word.word ? 1.2 : 1.0)
-                .animation(.spring(duration: 0.5), value: word.isFound)
-                .matchedGeometryEffect(id: word.word, in: wordTransition)
-            }
+    VStack(alignment: .leading, spacing: 8) {
+      ForEach(words, id: \.self) { word in
+        HStack(spacing: 4) {
+          ForEach(word, id: \.self) { wordData in
+            WordDataView(
+              word: wordData.word,
+              isFound: wordData.isFound,
+              direction: wordData.word == hintedWord?.word ? hintedWord?.direction.symbol : nil,
+              wordFontSize: fontSize,
+              recentlyFoundWord: recentlyFoundWord)
           }
         }
       }
+    }
+    .padding( 12)
+    
+    .roundedContainer()
+    .onAppear {
+      arrangeWordsIntoRows()
     }
     .onChange(of: viewModel.words) { oldWords, newWords in
       // Find newly discovered word
@@ -93,13 +52,53 @@ struct WordListView: View {
           }
         }
       }
+      arrangeWordsIntoRows()
+
     }
   }
+
+  /// Function to arrange words into rows dynamically based on screen width
+  private func arrangeWordsIntoRows() {
+
+    var currentRow: [WordData] = []
+    var newWords: [[WordData]] = []
+    var currentWidth: CGFloat = 0
+    let componentWidth = geometry.size.width
+    
+    let notDiscoveredWords = viewModel.words.filter { !$0.isFound }.sorted {
+      $0.word.count < $1.word.count
+    }
+    let discoveredWords = viewModel.words.filter { $0.isFound }.sorted {
+      $0.word.count < $1.word.count
+    }
+
+    let sortedWords = notDiscoveredWords + discoveredWords
+    for wordData in sortedWords {
+      let wordWidth = WordDataView.getSize(for: wordData.word, fontSize: fontSize)
+
+      if currentWidth + wordWidth > componentWidth {
+        newWords.append(currentRow)
+        currentRow = [wordData]
+        currentWidth = wordWidth
+      } else {
+        currentRow.append(wordData)
+        currentWidth += wordWidth + 10  // Include spacing
+      }
+    }
+
+    if !currentRow.isEmpty {
+      newWords.append(currentRow)
+    }
+    words = newWords
+  }
+
 }
 
 #if DEBUG
+
   #Preview {
-    let viewModel = getViewModel(gridSize: 30, wordCount: 10)
+
+    let viewModel = getViewModel(gridSize: 12, wordCount: 10)
     VStack {
       Button("Find Random Word") {
         let word = viewModel.wordValidator.findRandomWord()!
@@ -117,7 +116,12 @@ struct WordListView: View {
           print("Direction Power Up requested: \(success)")
         }
       }
-      WordListView(viewModel: viewModel)
+
+      GeometryReader { geometry in
+        WordListView(viewModel: viewModel, geometry: geometry)
+      }
     }
+    .background(AppColors.background)
+
   }
 #endif

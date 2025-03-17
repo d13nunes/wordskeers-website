@@ -19,7 +19,9 @@ class WordValidator {
   func validateWord(_ word: String) -> Bool {
     let upperWord = word.uppercased()
     // Check if the word is in the list and if not found
-    guard let wordIndex = words.firstIndex(where: { $0.word.uppercased() == upperWord })
+    guard
+      let wordIndex = words.firstIndex(where: { $0.word.uppercased() == upperWord })
+        ?? words.firstIndex(where: { $0.word.uppercased() == String(upperWord.reversed()) })
     else {
       return false
     }

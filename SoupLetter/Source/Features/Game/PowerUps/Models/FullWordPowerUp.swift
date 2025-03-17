@@ -3,7 +3,7 @@ struct FullWordPowerUp: PowerUp {
   let icon: String = "text.book.closed"
   let description: String = "Get a full word hint"
   var isAvailable: Bool = true
-  var price: Int = 100
+  var price: Int = 200
 
   private let setHintedPositions: ([Position]) -> Void
   private let wallet: Wallet

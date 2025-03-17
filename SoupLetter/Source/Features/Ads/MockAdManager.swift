@@ -16,15 +16,13 @@
       isRewardedReady = true
     }
 
-    func onGameComplete(on viewController: UIViewController) async -> Bool {
-      print("!!!!! onGameComplete")
+    func showInterstitialAd(on viewController: UIViewController) async -> Bool {
       isInterstitialReady = false
       isInterstitialReady = true
       return true
     }
 
     func showRewardedAd(on viewController: UIViewController) async -> Bool {
-      print("!!!!! showRewardedAd")
       isRewardedReady = false
       isRewardedReady = true
       return true
