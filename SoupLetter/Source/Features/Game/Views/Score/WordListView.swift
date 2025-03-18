@@ -30,8 +30,7 @@ struct WordListView: View {
         }
       }
     }
-    .padding( 12)
-    
+    .padding(12)
     .roundedContainer()
     .onAppear {
       arrangeWordsIntoRows()
@@ -64,7 +63,7 @@ struct WordListView: View {
     var newWords: [[WordData]] = []
     var currentWidth: CGFloat = 0
     let componentWidth = geometry.size.width
-    
+
     let notDiscoveredWords = viewModel.words.filter { !$0.isFound }.sorted {
       $0.word.count < $1.word.count
     }

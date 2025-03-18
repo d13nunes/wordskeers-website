@@ -9,13 +9,9 @@ struct PauseButtonView: View {
 
   var body: some View {
     Button(action: onPauseClicked) {
-      HStack(alignment: .center, spacing: 0) {
-        Image("Pause")
-      }
-      .padding(.horizontal, 0)
-      .padding(.vertical, 8)
-      .frame(width: 42, height: 34)
-      .roundedContainer()
+      Image("Pause")
+        .frame(width: 42, height: 34)
+        .roundedContainer()
     }
   }
 }

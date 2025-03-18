@@ -26,12 +26,12 @@ struct DailyRewardBadge: View {
               .weight(.medium)
           )
           .multilineTextAlignment(.center)
-          .foregroundColor(AppColors.red)
+          .foregroundColor(.black)
       }
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
       .frame(height: 40)
-      .background(AppColors.red.opacity(0.2))
+      .background(.white)
       .cornerRadius(8)
 
       .onAppear {

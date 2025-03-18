@@ -16,8 +16,9 @@ struct GameView: View {
         .ignoresSafeArea()
 
       VStack(spacing: 0) {
+        GameHeaderView(viewModel: viewModel)
         VStack(alignment: .center, spacing: 12) {
-          GameHeaderView(viewModel: viewModel)
+          Spacer()
           ScoreView(viewModel: viewModel)
           BoardView(viewModel: viewModel)
             .layoutPriority(100)

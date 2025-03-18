@@ -17,7 +17,26 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    createWordsListView(isCompact: true)
+    GeometryReader { geometry in
+      VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .bottom) {
+          Text(scoreTitle)
+            .font(
+              Font.custom("Inter", size: 32)
+                .weight(.bold)
+            )
+            .multilineTextAlignment(.leading)
+            .lineLimit(2)
+            .minimumScaleFactor(0.5)
+            .padding(.leading, 12)
+            .frame(maxHeight: 44, alignment: .leading)
+          Spacer()
+          timerView
+          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
+        }
+        WordListView(viewModel: viewModel, geometry: geometry)
+      }
+    }
   }
 
   private var scoreTitle: String {
@@ -43,26 +62,6 @@ struct ScoreView: View {
     .roundedContainer()
   }
 
-  private func createWordsListView(isCompact: Bool) -> some View {
-    GeometryReader { geometry in
-      VStack(alignment: .leading, spacing: isCompact ? 6 : 16) {
-        HStack(alignment: .bottom) {
-          Text(scoreTitle)
-            .font(
-              Font.custom("Inter", size: 32)
-                .weight(.bold)
-            )
-            .lineLimit(2)
-            .minimumScaleFactor(0.5)
-            .frame(maxHeight: 44, alignment: .leading)
-          Spacer()
-          timerView
-          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
-        }
-        WordListView(viewModel: viewModel, geometry: geometry)
-      }
-    }
-  }
 }
 
 #if DEBUG
