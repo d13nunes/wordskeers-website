@@ -104,6 +104,7 @@ struct NewGameSelectionView: View {
   }
 }
 
+#if DEBUG
 #Preview {
   NewGameSelectionView(
     viewModel: NewGameSelectionViewModel(
@@ -114,3 +115,4 @@ struct NewGameSelectionView: View {
       }
     ))
 }
+#endif

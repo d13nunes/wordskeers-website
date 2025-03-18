@@ -34,7 +34,7 @@ struct PowerUpButtonViewModel {
   )
   static let hintDirection = PowerUpButtonViewModel(
     enabled: true,
-    color: Color(red: 0.02, green: 0.47, blue: 0.34),
+    color: Color(red: 0.76, green: 0.25, blue: 0.05),
     icon: "PowerUpDirection",
     description: "Direction",
     price: "100"
@@ -42,7 +42,7 @@ struct PowerUpButtonViewModel {
 
   static let rotateBoard = PowerUpButtonViewModel(
     enabled: true,
-    color: Color(red: 0.76, green: 0.25, blue: 0.05),
+    color: Color(red: 0.02, green: 0.47, blue: 0.34),
     icon: "PowerUpRotate",
     description: "Rotate",
     price: "100"

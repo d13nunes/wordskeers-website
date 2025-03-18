@@ -209,31 +209,34 @@ struct DailyRewardsView: View {
     )
   }
 }
-// MARK: - Preview
-#Preview {
-  // Create a mock ViewModel with preview data
-  let service = DailyRewardsService(
-    wallet: Wallet.forTesting(),
-    adManager: MockAdManager(),
-    analytics: ConsoleAnalyticsManager(),
-    notificationService: MockNotificationService()
-  )
-  service.reset()
 
-  let viewModel = DailyRewardsViewModel(rewardsService: service)
-  let testRewards = [
-    DailyReward(coins: 100, claimed: false, requiresAd: false),
-    DailyReward(coins: 200, claimed: true, requiresAd: false),
-    DailyReward(coins: 300, claimed: false, requiresAd: false),
-    DailyReward(coins: 400, claimed: false, requiresAd: true),
-  ]
-  return DailyRewardsView(viewModel: viewModel)
-  // VStack {
-  // nextTimerCardView()
-  // claimedRewardCardView(reward: testRewards[0])
-  // lockedRewardCardView(reward: testRewards[1])
-  // unclaimedRewardCardView(reward: testRewards[2])
-  // unclaimedRewardCardView(reward: testRewards[3])
-  // notificationButtonView()
-  // }
-}
+#if DEBUG
+  // MARK: - Preview
+  #Preview {
+    // Create a mock ViewModel with preview data
+    let service = DailyRewardsService(
+      wallet: Wallet.forTesting(),
+      adManager: MockAdManager(),
+      analytics: ConsoleAnalyticsManager(),
+      notificationService: MockNotificationService()
+    )
+    service.reset()
+
+    let viewModel = DailyRewardsViewModel(rewardsService: service)
+    let testRewards = [
+      DailyReward(coins: 100, claimed: false, requiresAd: false),
+      DailyReward(coins: 200, claimed: true, requiresAd: false),
+      DailyReward(coins: 300, claimed: false, requiresAd: false),
+      DailyReward(coins: 400, claimed: false, requiresAd: true),
+    ]
+    return DailyRewardsView(viewModel: viewModel)
+    // VStack {
+    // nextTimerCardView()
+    // claimedRewardCardView(reward: testRewards[0])
+    // lockedRewardCardView(reward: testRewards[1])
+    // unclaimedRewardCardView(reward: testRewards[2])
+    // unclaimedRewardCardView(reward: testRewards[3])
+    // notificationButtonView()
+    // }
+  }
+#endif
