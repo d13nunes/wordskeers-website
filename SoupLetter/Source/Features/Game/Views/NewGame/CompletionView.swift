@@ -63,7 +63,7 @@ struct CompletionCompactView: View {
         )
         if showStandardRewardButton {
           DoubleRewardButton(
-            title: "Skip Ad",
+            title: "Continue",
             iconName: "nil",
             isLoading: false,
             backgroundColor: .blue,

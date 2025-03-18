@@ -56,7 +56,7 @@ struct CoinsToastView: View {
                 .scaleEffect(coinScale)
                 .symbolEffect(.bounce, options: .speed(1.5), value: coinScale)
 
-              VStack(alignment: .leading) {
+              VStack(alignment: .center) {
                 Text("+\(coinAmount)")
                   .font(.title2.bold())
                   .foregroundColor(.white)
@@ -147,7 +147,6 @@ struct CoinsToastView: View {
 
     // Show confetti with a slight delay
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-      print("🎬🎬🎬 CoinsToastView: Showing confetti")
       withAnimation {
         showConfetti = true
       }

@@ -23,7 +23,15 @@ final class AdManager: AdManaging {
     return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
   }
 
+  var canShowInterstitialBasedOnFrequency: Bool {
+    let timeSinceLastAd = Date().timeIntervalSince(lastInterstitialShownTime)
+    return timeSinceLastAd >= AdConstants.Frequency.minimumInterval
+  }
+
   private var isAdMobInitialized = false
+
+  // Timestamps for when ads were last shown
+  private var lastInterstitialShownTime: Date = Date()
 
   private let interstitialAdManager = InterstitialAdManager()
   private let rewardedAdManager = RewardedAdManager()
@@ -39,6 +47,11 @@ final class AdManager: AdManaging {
 
   private func getCanShowAds() -> Bool {
     return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
+  }
+
+  // Private implementation of the frequency check
+  private func checkInterstitialFrequency() -> Bool {
+    return canShowInterstitialBasedOnFrequency
   }
 
   @MainActor
@@ -72,6 +85,20 @@ final class AdManager: AdManaging {
   @MainActor
   func showInterstitialAd(on viewController: UIViewController) async -> Bool {
     guard canShowAds else { return false }
+
+    // Check frequency limit
+    guard checkInterstitialFrequency() else {
+      print("📢 [Interstitial] Ad not shown due to frequency limit")
+      analyticsManager.trackEvent(
+        .adInterstitialFailed,
+        parameters:
+          AnalyticsParamsCreator.adEvent(
+            adType: "interstitial",
+            location: "game_complete",
+            errorReason: "frequency_limit"))
+      return false
+    }
+
     // Track ad requested event
     analyticsManager.trackEvent(
       .adInterstitialRequested,
@@ -82,6 +109,9 @@ final class AdManager: AdManaging {
 
     // Track ad impression or failure
     if result {
+      // Update the last shown timestamp
+      lastInterstitialShownTime = Date()
+
       analyticsManager.trackEvent(
         .adInterstitialImpression,
         parameters:
@@ -152,6 +182,9 @@ final class AdManager: AdManaging {
     let result = await rewardedInterstitialAdManager.showAd(on: viewController)
 
     if result {
+      // Update the last shown timestamp
+      lastInterstitialShownTime = Date()
+
       analyticsManager.trackEvent(
         .adRewardedInterstitialImpression,
         parameters:

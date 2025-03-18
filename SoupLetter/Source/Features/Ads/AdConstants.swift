@@ -22,7 +22,10 @@ enum AdConstants {
   /// Configuration for when to show ads
   enum Frequency {
     /// Minimum time between interstitial ads (in seconds)
-    static let minimumInterval: TimeInterval = 180  // 3 minutes
+    static let minimumInterval: TimeInterval = 30  // 30 seconds
+
+    /// Minimum time between rewarded interstitial ads (in seconds)
+    static let minimumRewardedInterstitialInterval: TimeInterval = 30  // 30 seconds
 
     /// Number of game completions before showing an ad
     static let gameCompletionsBeforeAd = 3
