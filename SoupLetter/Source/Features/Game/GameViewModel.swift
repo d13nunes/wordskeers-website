@@ -195,7 +195,7 @@ import SwiftUI
     var amount = 5
     let event: AnalyticsEvent = double ? .gameCoinsCollectedDouble : .gameCoinsCollected
     if double {
-      let success = await adManager.showRewardedAd(on: viewController)
+      let success = await adManager.showRewardedInterstitial(on: viewController)
       if success {
         amount = 10
       }

@@ -15,6 +15,10 @@ final class AdManager: AdManaging {
     rewardedAdManager.adState == .loaded
   }
 
+  var isRewardedInterstitialReady: Bool {
+    rewardedInterstitialAdManager.adState == .loaded
+  }
+
   var canShowAds: Bool {
     return !UserDefaults.standard.bool(forKey: "remove_ads_purchased")
   }
@@ -23,6 +27,7 @@ final class AdManager: AdManaging {
 
   private let interstitialAdManager = InterstitialAdManager()
   private let rewardedAdManager = RewardedAdManager()
+  private let rewardedInterstitialAdManager = RewardedInterstitialAdManager()
   private let analyticsManager: AnalyticsService
 
   private let consentService: AdvertisingConsentService
@@ -135,4 +140,41 @@ final class AdManager: AdManaging {
     return result
   }
 
+  @MainActor
+  func showRewardedInterstitial(on viewController: UIViewController) async -> Bool {
+    guard canShowAds else { return false }
+
+    analyticsManager.trackEvent(
+      .adRewardedInterstitialRequested,
+      parameters:
+        AnalyticsParamsCreator.adEvent(adType: "rewarded_interstitial", location: "in_game"))
+
+    let result = await rewardedInterstitialAdManager.showAd(on: viewController)
+
+    if result {
+      analyticsManager.trackEvent(
+        .adRewardedInterstitialImpression,
+        parameters:
+          AnalyticsParamsCreator.adEvent(adType: "rewarded_interstitial", location: "in_game"))
+      analyticsManager.trackEvent(
+        .adRewardedInterstitialCompleted,
+        parameters:
+          AnalyticsParamsCreator.adEvent(
+            adType: "rewarded_interstitial", location: "in_game", rewardGranted: true))
+    } else {
+      analyticsManager.trackEvent(
+        .adRewardedInterstitialFailed,
+        parameters:
+          AnalyticsParamsCreator.adEvent(
+            adType: "rewarded_interstitial", location: "in_game",
+            errorReason: "not_implemented_or_failed"))
+    }
+
+    analyticsManager.trackEvent(
+      .adRewardedInterstitialClosed,
+      parameters:
+        AnalyticsParamsCreator.adEvent(adType: "rewarded_interstitial", location: "in_game"))
+
+    return result
+  }
 }

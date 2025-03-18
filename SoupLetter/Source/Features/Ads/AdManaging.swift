@@ -3,6 +3,7 @@ import UIKit
 protocol AdManaging {
   var isInterstitialReady: Bool { get }
   var isRewardedReady: Bool { get }
+  var isRewardedInterstitialReady: Bool { get }
   var canShowAds: Bool { get }
 
   @MainActor
@@ -13,4 +14,7 @@ protocol AdManaging {
 
   @MainActor
   func showRewardedAd(on viewController: UIViewController) async -> Bool
+
+  @MainActor
+  func showRewardedInterstitial(on viewController: UIViewController) async -> Bool
 }

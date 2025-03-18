@@ -30,6 +30,12 @@ public enum AnalyticsEvent: String {
   case adRewardedCompleted = "ad_rewarded_completed"
   case adRewardedClosed = "ad_rewarded_closed"
 
+  case adRewardedInterstitialRequested = "ad_rewarded_interstitial_requested"
+  case adRewardedInterstitialImpression = "ad_rewarded_interstitial_impression"
+  case adRewardedInterstitialFailed = "ad_rewarded_interstitial_failed"
+  case adRewardedInterstitialCompleted = "ad_rewarded_interstitial_completed"
+  case adRewardedInterstitialClosed = "ad_rewarded_interstitial_closed"
+
   // MARK: - App Events
   case appStarted = "app_started"
   case appActive = "app_active"
