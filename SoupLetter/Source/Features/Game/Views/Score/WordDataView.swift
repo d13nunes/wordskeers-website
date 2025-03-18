@@ -28,8 +28,8 @@ struct WordDataView: View {
         .matchedGeometryEffect(id: word, in: wordTransition)
     }
     .padding(.horizontal, WordDataView.horizontalPadding - 4)
-    .padding(.top, 7)
-    .padding(.bottom, 8)
+    .padding(.top, 6)
+    .padding(.bottom, 7)
     .frame(alignment: .center)
     .background(Color(red: 0.95, green: 0.96, blue: 0.98))
     .cornerRadius(8)

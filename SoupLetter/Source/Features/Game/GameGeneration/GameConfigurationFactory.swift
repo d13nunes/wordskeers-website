@@ -110,6 +110,20 @@ struct GameConfigurationFactory: GameConfigurationFactoryProtocol {
           "hello", "world", "foo", "bar", "baz", "qux", "quux", "corge", "grault", "garply",
           "waldo",
           "fred", "plugh", "xyzzy", "thud",
+          "hello1", "world2", "foo1", "bar2", "baz3", "qux4", "quux5", "corge6", "grault7",
+          "garply8",
+          "hello12", "world22", "foo11", "bar22", "baz33", "qux44", "quux55", "corge66", "grault77",
+          "garply88",
+          "hello123", "world223", "foo113", "bar223", "baz333", "qux443", "quux553", "corge663",
+          "grault773", "garply883",
+          "hello1234", "world2234", "foo1134", "bar2234", "baz3334", "qux4434", "quux5534",
+          "corge6634", "grault7734", "garply8834",
+          "hello12345", "world22345", "foo11345", "bar22345", "baz33345", "qux44345", "quux55345",
+          "corge66345", "grault77345", "garply88345",
+          "hello123456", "world223456", "foo113456", "bar223456", "baz333456", "qux443456",
+          "quux553456", "corge663456", "grault773456", "garply883456",
+          "hello1234567", "world2234567", "foo1134567", "bar2234567", "baz3334567",
+          "qux4434567", "quux5534567", "corge6634567", "grault7734567", "garply8834567",
         ].prefix(wordCount))
 
       return GameConfiguration(

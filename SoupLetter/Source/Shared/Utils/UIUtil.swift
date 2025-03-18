@@ -164,3 +164,8 @@ struct MyButton: View {
       })
   }
 #endif
+
+func isSmallScreen() -> Bool {
+  let height = UIScreen.main.nativeBounds.height
+  return height <= 1334.0  // iPhone SE (1st Gen) or smaller
+}

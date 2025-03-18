@@ -5,7 +5,7 @@ struct WordListView: View {
 
   @State var viewModel: GameViewModel
   @State private var recentlyFoundWord: String?
-  let geometry: GeometryProxy
+  @State private var mostRecentlyFoundWords: [String] = []
 
   var hintedWord: WordData? {
     viewModel.powerUpManager.hintedWord
@@ -13,27 +13,76 @@ struct WordListView: View {
 
   private let fontSize: CGFloat = 14.0
 
-  @State private var words: [[WordData]] = []
+  private var words: [WordData] {
+    // Track if a word was most recently found (to move it to the end)
+    let isRecentlyFound: (WordData) -> Bool = { word in
+      return mostRecentlyFoundWords.contains(word.word)
+    }
 
+    // Group 1: Not discovered words (sorted by length)
+    let notDiscoveredWords = viewModel.words
+      .filter { !$0.isFound }
+      .sorted { $0.word.count < $1.word.count }
+
+    // Group 2: Discovered words (not most recent, sorted by length)
+    let discoveredWords = viewModel.words
+      .filter { $0.isFound && !isRecentlyFound($0) }
+      .sorted { $0.word.count < $1.word.count }
+
+    // Group 3: Most recently discovered words (in reverse order of discovery - newest last)
+    let recentlyDiscoveredWords =
+      mostRecentlyFoundWords
+      .reversed()  // Newest words last
+      .compactMap { recentWord in
+        viewModel.words.first { $0.word == recentWord && $0.isFound }
+      }
+
+    // Combine all groups with recently found at the end
+    let sortedWords = notDiscoveredWords + discoveredWords + recentlyDiscoveredWords
+    return sortedWords
+  }
+  var height: CGFloat {
+    if isSmallScreen() {
+      print(" ✅ screen is small")
+      return 76
+    } else if viewModel.words.count > 20 {
+      return 148
+    } else if viewModel.words.count > 11 {
+      return 120
+    } else if viewModel.words.count > 6 {
+      return 80
+    } else {
+      return 60
+    }
+  }
+  var maxRows: Int {
+    if isSmallScreen() {
+      print(" ✅ screen is small")
+      return 2
+    } else if viewModel.words.count > 20 {
+      return 4
+    } else if viewModel.words.count > 11 {
+      return 3
+    } else if viewModel.words.count > 6 {
+      return 2
+    } else {
+      return 2
+    }
+  }
+  @State private var currentPageIndex: Int = 0
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      ForEach(words, id: \.self) { word in
-        HStack(spacing: 4) {
-          ForEach(word, id: \.self) { wordData in
-            WordDataView(
-              word: wordData.word,
-              isFound: wordData.isFound,
-              direction: wordData.word == hintedWord?.word ? hintedWord?.direction.symbol : nil,
-              wordFontSize: fontSize,
-              recentlyFoundWord: recentlyFoundWord)
-          }
-        }
-      }
-    }
-    .padding(12)
-    .roundedContainer()
-    .onAppear {
-      arrangeWordsIntoRows()
+      PaginatedFlowView(
+        items: words,
+        viewModel: viewModel,
+        recentlyFoundWord: recentlyFoundWord,
+        maxRows: maxRows,  // Maximum 3 rows per page
+        spacing: isSmallScreen() ? 4 : 8,
+        currentPageIndex: $currentPageIndex
+      )
+      .frame(height: height)
+      .padding(isSmallScreen() ? 6 : 12)
+      .roundedContainer()
     }
     .onChange(of: viewModel.words) { oldWords, newWords in
       // Find newly discovered word
@@ -42,8 +91,25 @@ struct WordListView: View {
       }) {
         withAnimation(.spring(duration: 0.3)) {
           recentlyFoundWord = newlyFound.word
+
+          // Add to recently found words list (maintaining order of discovery)
+          if !mostRecentlyFoundWords.contains(newlyFound.word) {
+            // Remove if already in list (shouldn't happen, but just in case)
+            if let existingIndex = mostRecentlyFoundWords.firstIndex(of: newlyFound.word) {
+              mostRecentlyFoundWords.remove(at: existingIndex)
+            }
+
+            // Add to the list
+            mostRecentlyFoundWords.append(newlyFound.word)
+
+            // Limit the number of recent words to remember
+            if mostRecentlyFoundWords.count > 10 {
+              mostRecentlyFoundWords.removeFirst()
+            }
+          }
         }
-        // Reset after animation
+
+        // Reset highlight after animation
         Task { @MainActor in
           try? await Task.sleep(for: .milliseconds(500))
           withAnimation(.spring(duration: 0.3)) {
@@ -51,53 +117,20 @@ struct WordListView: View {
           }
         }
       }
-      arrangeWordsIntoRows()
-
     }
-  }
-
-  /// Function to arrange words into rows dynamically based on screen width
-  private func arrangeWordsIntoRows() {
-
-    var currentRow: [WordData] = []
-    var newWords: [[WordData]] = []
-    var currentWidth: CGFloat = 0
-    let componentWidth = geometry.size.width
-
-    let notDiscoveredWords = viewModel.words.filter { !$0.isFound }.sorted {
-      $0.word.count < $1.word.count
-    }
-    let discoveredWords = viewModel.words.filter { $0.isFound }.sorted {
-      $0.word.count < $1.word.count
-    }
-
-    let sortedWords = notDiscoveredWords + discoveredWords
-    for wordData in sortedWords {
-      let wordWidth = WordDataView.getSize(for: wordData.word, fontSize: fontSize)
-
-      if currentWidth + wordWidth > componentWidth {
-        newWords.append(currentRow)
-        currentRow = [wordData]
-        currentWidth = wordWidth
-      } else {
-        currentRow.append(wordData)
-        currentWidth += wordWidth + 10  // Include spacing
+    .onChange(of: viewModel.gridId) { oldId, newId in
+      if oldId != newId {
+        currentPageIndex = 0
       }
     }
-
-    if !currentRow.isEmpty {
-      newWords.append(currentRow)
-    }
-    words = newWords
   }
-
 }
 
 #if DEBUG
 
   #Preview {
 
-    let viewModel = getViewModel(gridSize: 12, wordCount: 10)
+    let viewModel = getViewModel(gridSize: 12, wordCount: 40)
     VStack {
       Button("Find Random Word") {
         let word = viewModel.wordValidator.findRandomWord()!
@@ -115,11 +148,9 @@ struct WordListView: View {
           print("Direction Power Up requested: \(success)")
         }
       }
-
-      GeometryReader { geometry in
-        WordListView(viewModel: viewModel, geometry: geometry)
-      }
+      WordListView(viewModel: viewModel)
     }
+    .padding(12)
     .background(AppColors.background)
 
   }

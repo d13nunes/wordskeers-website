@@ -63,6 +63,7 @@ final class AdManager: AdManaging {
   private func initializeAdMob() {
     // For testing
     #if DEBUG
+      print("📢 [AdMob] Initializing with test device identifiers: GADSimulatorID")
       MobileAds.shared.requestConfiguration.testDeviceIdentifiers = ["GADSimulatorID"]
     #endif
 

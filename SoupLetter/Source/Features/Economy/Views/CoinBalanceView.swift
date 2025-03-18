@@ -31,8 +31,7 @@ struct CoinBalanceView: View {
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
       .frame(height: 40)
-      .background(.white)
-      .roundedCornerRadius()
+      .roundedContainer()
     }
     .buttonStyle(.plain)
     .accessibilityLabel("Coin balance: \(wallet.coins)")

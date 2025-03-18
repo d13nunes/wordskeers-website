@@ -32,7 +32,7 @@ struct DailyRewardBadge: View {
       .padding(.vertical, 8)
       .frame(height: 40)
       .background(.white)
-      .cornerRadius(8)
+      .roundedContainer()
 
       .onAppear {
         if animate {

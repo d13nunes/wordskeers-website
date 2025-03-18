@@ -27,6 +27,10 @@ import SwiftUI
     gameManager.words
   }
 
+  var gridId: Int64 {
+    gameManager.gridId
+  }
+
   var selectedLetters: [String] {
     selectionHandler.selectedCells.map { grid[$0.row][$0.col] }
   }
@@ -151,7 +155,7 @@ import SwiftUI
       gridSize: self.gameManager.grid.count
     )
     powerUpManager.setupPowerUps(
-      enabledPowerUps: [.fullWord, .hint, .directional, .rotateBoard],
+      enabledPowerUps: [.fullWord, .hint, .rotateBoard],
       words: gameManager.words
     )
   }

@@ -17,25 +17,25 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    GeometryReader { geometry in
-      VStack(alignment: .leading, spacing: 6) {
-        HStack(alignment: .bottom) {
-          Text(scoreTitle)
-            .font(
-              Font.custom("Inter", size: 32)
-                .weight(.bold)
-            )
-            .multilineTextAlignment(.leading)
-            .lineLimit(2)
-            .minimumScaleFactor(0.5)
-            .padding(.leading, 12)
-            .frame(maxHeight: 44, alignment: .leading)
-          Spacer()
-          timerView
-          PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
-        }
-        WordListView(viewModel: viewModel, geometry: geometry)
+
+    VStack(alignment: .leading, spacing: 6) {
+      HStack(alignment: .bottom) {
+        Text(scoreTitle)
+          .font(
+            Font.custom("Inter", size: 32)
+              .weight(.bold)
+          )
+          .multilineTextAlignment(.leading)
+          .lineLimit(2)
+          .minimumScaleFactor(0.3)
+          .padding(.leading, 12)
+          .frame(maxHeight: isSmallScreen() ? 32 : 44, alignment: .leading)
+        Spacer()
+        timerView
+          .padding(.bottom, 8)
+        PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
       }
+      WordListView(viewModel: viewModel)
     }
   }
 
@@ -57,9 +57,6 @@ struct ScoreView: View {
             .weight(.medium)
         )
     }
-    .padding(.horizontal, 12)
-    .padding(.vertical, 8)
-    .roundedContainer()
   }
 
 }
@@ -69,7 +66,7 @@ struct ScoreView: View {
     ZStack {
       AppColors.background
       ScoreView(
-        viewModel: getViewModel(gridSize: 15, wordCount: 10)
+        viewModel: getViewModel(gridSize: 15, wordCount: 50)
       )
       .padding(.horizontal)
     }

@@ -32,7 +32,7 @@ class GridGenerator: GridGenerating {
       gridSize: size,
       words: words,
       validDirections: validDirections,
-      category: "Placeholder",
+      category: "Placeholder asdas das das das dasd s",
       gameMode: .undefined
     )
   }

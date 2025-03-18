@@ -7,7 +7,7 @@ struct LargeMenuView<Content: View>: View {
   }
   var body: some View {
     ZStack {
-      Color.white.opacity(1)
+      AppColors.background.opacity(1)
         .ignoresSafeArea()
       content
         .padding(.horizontal, 44)
