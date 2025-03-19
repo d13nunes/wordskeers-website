@@ -206,6 +206,13 @@ class DailyRewardsService {
       rewardsState.canClaimToday = false
     }
 
+    Task {
+      let isNotificationsEnabled = await areNotificationsEnabled()
+      if isNotificationsEnabled {
+        await scheduleNextRewardNotification()
+      }
+    }
+
     // Save to persistence
     saveRewardsState()
 
