@@ -25,14 +25,13 @@ struct ScoreView: View {
             Font.custom("Inter", size: 32)
               .weight(.bold)
           )
+          .frame(maxHeight: isSmallScreen() ? 32 : 64, alignment: .leading)
           .multilineTextAlignment(.leading)
           .lineLimit(2)
           .minimumScaleFactor(0.3)
-          .padding(.leading, 12)
-          .frame(maxHeight: isSmallScreen() ? 32 : 44, alignment: .leading)
+          .padding(.leading, 8)
+          .padding(.bottom, -8)
         Spacer()
-        timerView
-          .padding(.bottom, 8)
         PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
       }
       WordListView(viewModel: viewModel)
