@@ -54,32 +54,7 @@ struct CoinStoreView: View {
                 .padding(.vertical, 40)
               } else if storeService.coinPackages.allSatisfy({ $0.product == nil }) {
                 // Failed to load products
-                VStack(spacing: 16) {
-                  Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.orange)
-
-                  Text("Could not load store products")
-                    .font(.headline)
-
-                  Text("Please check your internet connection and try again.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
-
-                  Button("Retry") {
-                    Task {
-                      await storeService.loadProducts()
-                    }
-                  }
-                  .padding(.horizontal, 24)
-                  .padding(.vertical, 12)
-                  .background(Color.blue)
-                  .foregroundStyle(.white)
-                  .clipShape(RoundedRectangle(cornerRadius: 8))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
+                EmptyView()
               } else {
                 // Successfully loaded products
                 let validPackages = storeService.coinPackages.filter { $0.product != nil }
@@ -163,17 +138,17 @@ struct CoinStoreView: View {
             }
           }
 
-          ToolbarItem(placement: .topBarTrailing) {
-            Button {
-              Task {
-                await restorePurchases()
-              }
-            } label: {
-              Text("Restore")
-                .font(.subheadline)
-            }
-            .disabled(isPurchasing || isRestoring)
-          }
+          // ToolbarItem(placement: .topBarTrailing) {
+          //   Button {
+          //     Task {
+          //       await restorePurchases()
+          //     }
+          //   } label: {
+          //     Text("Restore")
+          //       .font(.subheadline)
+          //   }
+          //   .disabled(isPurchasing || isRestoring)
+          // }
         }
       }
       .alert("Store", isPresented: $showAlert) {
@@ -228,6 +203,35 @@ struct CoinStoreView: View {
       .storeStyle()
     }
     .padding(.bottom, 8)
+  }
+
+  private var noProductsView: some View {
+    VStack(spacing: 16) {
+      Image(systemName: "exclamationmark.triangle")
+        .font(.system(size: 40))
+        .foregroundStyle(.orange)
+
+      Text("Could not load store products")
+        .font(.headline)
+
+      Text("Please check your internet connection and try again.")
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.center)
+
+      Button("Retry") {
+        Task {
+          await storeService.loadProducts()
+        }
+      }
+      .padding(.horizontal, 24)
+      .padding(.vertical, 12)
+      .background(Color.blue)
+      .foregroundStyle(.white)
+      .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, 40)
   }
 
   /// Purchase a coin package
