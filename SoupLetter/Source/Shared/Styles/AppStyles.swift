@@ -1,14 +1,14 @@
 import SwiftUI
 
 extension View {
-  func roundedContainer() -> some View {
-    self.background(.white)
+  func roundedContainer(backgroundColor: Color = .white) -> some View {
+    self.background(backgroundColor)
       .roundedCornerRadius()
       .roundedShadow()
   }
 
   func roundedCornerRadius() -> some View {
-    self.cornerRadius(12)
+    self.cornerRadius(8)
   }
 
   func roundedShadow() -> some View {

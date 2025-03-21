@@ -5,13 +5,29 @@ struct PauseButtonView: View {
 
   let onPauseClicked: () -> Void
 
-  private var width: CGFloat { horizontalSizeClass == .compact ? 44 : 64 }
-
   var body: some View {
+
     Button(action: onPauseClicked) {
-      Image("Pause")
-        .frame(width: 42, height: 34)
-        .roundedContainer()
+      VStack(spacing: 0) {
+        Image("Pause")
+          .resizable()
+          //.renderingMode(.template)
+          .foregroundColor(.black)
+          .frame(width: 15, height: 24)
+          .padding(.top, 8)
+          .padding(.bottom, 6)
+        Text("Pause")
+          .font(
+            Font.custom("Inter", size: 10)
+              .weight(.medium)
+          )
+          .multilineTextAlignment(.center)
+          .foregroundColor(.black)
+      }
+      .padding(.bottom, 6)
+      .frame(width: 70, height: 57)
+      .background(.white)
+      .roundedContainer()
     }
   }
 }

@@ -30,7 +30,7 @@ struct CoinBalanceView: View {
       }
       .padding(.horizontal, 16)
       .padding(.vertical, 8)
-      .frame(height: 40)
+      .frame(height: 36)
       .roundedContainer()
     }
     .buttonStyle(.plain)

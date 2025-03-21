@@ -17,7 +17,6 @@ struct ScoreView: View {
   }
 
   var body: some View {
-
     VStack(alignment: .leading, spacing: 6) {
       HStack(alignment: .bottom) {
         Text(scoreTitle)
@@ -25,14 +24,13 @@ struct ScoreView: View {
             Font.custom("Inter", size: 32)
               .weight(.bold)
           )
+          .bold()
           .frame(maxHeight: isSmallScreen() ? 32 : 64, alignment: .leading)
           .multilineTextAlignment(.leading)
           .lineLimit(2)
           .minimumScaleFactor(0.3)
           .padding(.leading, 8)
-          .padding(.bottom, -8)
         Spacer()
-        PauseButtonView(onPauseClicked: viewModel.onShowPauseMenu)
       }
       WordListView(viewModel: viewModel)
     }

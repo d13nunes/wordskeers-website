@@ -7,14 +7,6 @@ struct PowerUpButtonViewModel {
   let description: String
   let price: String
 
-  static let hintLetter = PowerUpButtonViewModel(
-    enabled: true,
-    color: Color(red: 0.73, green: 0.11, blue: 0.11),
-    icon: "PowerUpLetter",
-    description: "Find Letter",
-    price: "100"
-  )
-
   func withPrice(_ price: Int) -> PowerUpButtonViewModel {
     return PowerUpButtonViewModel(
       enabled: enabled,
@@ -24,6 +16,14 @@ struct PowerUpButtonViewModel {
       price: "\(price)"
     )
   }
+
+  static let hintLetter = PowerUpButtonViewModel(
+    enabled: true,
+    color: Color(red: 0.73, green: 0.11, blue: 0.11),
+    icon: "PowerUpLetter",
+    description: "Find Letter",
+    price: "100"
+  )
 
   static let hintFullWord = PowerUpButtonViewModel(
     enabled: true,
@@ -80,13 +80,6 @@ struct PowerUpButtonView: View {
           .frame(width: 14, height: 14)
           .padding(.top, 8)
           .padding(.bottom, 6)
-        Text(viewModel.description)
-          .font(
-            Font.custom("Inter", size: 10)
-              .weight(.medium)
-          )
-          .multilineTextAlignment(.center)
-          .foregroundColor(viewModel.color)
         HStack(alignment: .center, spacing: 2) {
           CoinBadge()
             .frame(width: 8, height: 8)
@@ -98,6 +91,13 @@ struct PowerUpButtonView: View {
         }
         .padding(.horizontal, 0)
         .frame(alignment: .bottom)
+        Text(viewModel.description)
+          .font(
+            Font.custom("Inter", size: 10)
+              .weight(.medium)
+          )
+          .multilineTextAlignment(.center)
+          .foregroundColor(viewModel.color)
       }
       .padding(.bottom, 6)
       .frame(width: 70)

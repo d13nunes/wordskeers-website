@@ -30,13 +30,19 @@ struct GameView: View {
           BoardView(viewModel: viewModel)
             .layoutPriority(100)
 
-          if !viewModel.powerUpManager.powerUps.isEmpty {
-            HStack {
-              Spacer()
+          HStack(alignment: .center, spacing: 12) {
+
+            PauseButtonView(
+
+              onPauseClicked: viewModel.onShowPauseMenu
+            )
+            if !viewModel.powerUpManager.powerUps.isEmpty {
               PowerUpsStackView(viewModel: viewModel)
             }
-            .padding(.bottom, bottomPadding)
+
           }
+          .padding(.horizontal, 12)
+          .padding(.bottom, bottomPadding)
           if !isCompact {
             Spacer()
           }

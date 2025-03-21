@@ -28,7 +28,7 @@ struct LetterCell: View {
 
       HStack(alignment: .center, spacing: 0) {
         Text(letter)
-          .font(.system(size: size * 0.65))
+          .font(.system(size: size * 0.7))
           .bold()
 
           .foregroundColor(Color(red: 0.12, green: 0.16, blue: 0.23))
