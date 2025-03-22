@@ -108,18 +108,14 @@ import StoreKit
   /// Check existing purchases to determine if remove ads was purchased
   @MainActor
   private func checkExistingPurchases() async {
-    do {
-      for await verification in Transaction.currentEntitlements {
-        guard case .verified(let transaction) = verification else { continue }
+    for await verification in Transaction.currentEntitlements {
+      guard case .verified(let transaction) = verification else { continue }
 
-        // Check if user has purchased remove ads
-        if transaction.productID == removeAdsProduct.productId {
-          removeAdsProduct.isPurchased = true
-          UserDefaults.standard.set(true, forKey: "remove_ads_purchased")
-        }
+      // Check if user has purchased remove ads
+      if transaction.productID == removeAdsProduct.productId {
+        removeAdsProduct.isPurchased = true
+        UserDefaults.standard.set(true, forKey: "remove_ads_purchased")
       }
-    } catch {
-      print("Failed to check existing purchases: \(error)")
     }
   }
 

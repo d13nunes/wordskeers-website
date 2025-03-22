@@ -19,6 +19,10 @@ struct CoinStoreView: View {
   let wallet: Wallet
   let analytics: AnalyticsService
 
+  var isRemoveAdsActive: Bool {
+    !storeService.removeAdsProduct.isPurchased && storeService.removeAdsProduct.product != nil
+  }
+
   var body: some View {
     NavigationStack {
       ScrollViewReader { proxy in
@@ -28,9 +32,7 @@ struct CoinStoreView: View {
               // Header
               BalanceBigView(wallet: wallet)
               // Remove Ads Banner
-              if !storeService.removeAdsProduct.isPurchased
-                && storeService.removeAdsProduct.product != nil
-              {
+              if isRemoveAdsActive {
                 removeAdsBanner
               }
 
@@ -137,18 +139,19 @@ struct CoinStoreView: View {
               dismiss()
             }
           }
-
-          // ToolbarItem(placement: .topBarTrailing) {
-          //   Button {
-          //     Task {
-          //       await restorePurchases()
-          //     }
-          //   } label: {
-          //     Text("Restore")
-          //       .font(.subheadline)
-          //   }
-          //   .disabled(isPurchasing || isRestoring)
-          // }
+          if isRemoveAdsActive {
+            ToolbarItem(placement: .topBarTrailing) {
+              Button {
+                Task {
+                  await restorePurchases()
+                }
+              } label: {
+                Text("Restore")
+                  .font(.subheadline)
+              }
+              .disabled(isPurchasing || isRestoring)
+            }
+          }
         }
       }
       .alert("Store", isPresented: $showAlert) {
