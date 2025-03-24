@@ -12,10 +12,10 @@ enum AdConstants {
       static let rewardedInterstitial = "ca-app-pub-3940256099942544/6978759866"
     #else
       /// Production interstitial ad unit ID
-      static let interstitial = "ca-app-pub-2232295072431002/3832920916"
-      static let rewarded = "ca-app-pub-2232295072431002/2715920992"
-      static let banner = "ca-app-pub-2232295072431002/9508893193"
-      static let rewardedInterstitial = "ca-app-pub-2232295072431002/9107348180"
+      static let interstitial = "ca-app-pub-9539843520256562/2545593663"
+      static let rewarded = "ca-app-pub-9539843520256562/3226451648"
+      static let banner = "ca-app-pub-9539843520256562/1015855733"
+      static let rewardedInterstitial = "ca-app-pub-9539843520256562/5270995200"
     #endif
   }
 
