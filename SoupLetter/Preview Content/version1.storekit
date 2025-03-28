@@ -88,6 +88,21 @@
       "productID" : "com.wordseekr.coinpack.removeads",
       "referenceName" : "Remove Ads",
       "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "3.99",
+      "familyShareable" : false,
+      "internalID" : "49D5E1C2",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.wordseekr.coinpack.removeads60",
+      "referenceName" : "Remove Ads - Early Bird",
+      "type" : "NonConsumable"
     }
   ],
   "settings" : {

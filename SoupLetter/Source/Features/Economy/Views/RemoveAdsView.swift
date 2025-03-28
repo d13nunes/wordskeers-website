@@ -14,12 +14,7 @@ struct RemoveAdsView: View {
     NavigationStack {
       VStack(spacing: 24) {
         // Header with icon
-        VStack(spacing: 12) {
-          Image(systemName: storeService.removeAdsProduct.icon)
-            .font(.system(size: 70))
-            .foregroundStyle(.blue)
-            .padding(.bottom, 8)
-
+        VStack(spacing: 0) {
           Text(storeService.removeAdsProduct.name)
             .font(.title)
             .fontWeight(.bold)
@@ -34,28 +29,42 @@ struct RemoveAdsView: View {
 
         // Benefits
         VStack(alignment: .leading, spacing: 16) {
+          VStack {
+            Text("🎉 Limited-Time Offer! 🎉")
+              .font(.title3)
+              .fontWeight(.bold)
+              .frame(maxWidth: .infinity, alignment: .leading)
+            Text("Early Adopters Special: Enjoy a seamless, ad-free experience. Now at an exclusive early bird discount!\nAct now! Offer available for a limited period only.")
+              .multilineTextAlignment(.leading)
+              .fontWeight(.regular)
+          }
+          VStack(spacing: 8) {
           Text("Benefits")
             .font(.title3)
             .fontWeight(.bold)
             .frame(maxWidth: .infinity, alignment: .leading)
+          
+            FeatureRow(text: "No more interruptions", icon: "checkmark.circle.fill")
+            FeatureRow(text: "Ad-free gameplay", icon: "checkmark.circle.fill")
+            FeatureRow(text: "Faster loading times", icon: "checkmark.circle.fill")
+            FeatureRow(text: "One-time purchase", icon: "checkmark.circle.fill")
+            FeatureRow(text: "Supports future development", icon: "checkmark.circle.fill")
+          }
+          .padding(.top, 8)
 
-          FeatureRow(text: "No more interruptions", icon: "checkmark.circle.fill")
-          FeatureRow(text: "Ad-free gameplay", icon: "checkmark.circle.fill")
-          FeatureRow(text: "Faster loading times", icon: "checkmark.circle.fill")
-          FeatureRow(text: "One-time purchase", icon: "checkmark.circle.fill")
-          FeatureRow(text: "Supports future development", icon: "checkmark.circle.fill")
         }
         .padding()
         .background {
           RoundedRectangle(cornerRadius: 16)
             .fill(Color(.secondarySystemBackground))
         }
-        .padding(.horizontal)
+        .padding(.horizontal, 24)
 
         Spacer()
 
         // Purchase button or already purchased message
         if storeService.removeAdsProduct.isPurchased {
+
           HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
               .foregroundStyle(.green)
@@ -66,33 +75,57 @@ struct RemoveAdsView: View {
           .frame(maxWidth: .infinity)
           .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
           .padding(.horizontal)
+
         } else {
+          ZStack(alignment: .leadingLastTextBaseline) {
+
           // Purchase button
           Button {
             Task {
               await purchaseRemoveAds()
             }
-          } label: {
-            HStack {
-              if isPurchasing {
-                ProgressView()
-                  .tint(.white)
-              } else {
-                Text(
-                  storeService.removeAdsProduct.priceText.isEmpty
-                    ? "Loading..." : storeService.removeAdsProduct.priceText
-                )
-                .fontWeight(.bold)
-              }
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
-            .foregroundStyle(.white)
           }
-          .buttonStyle(.plain)
-          .disabled(isPurchasing || storeService.removeAdsProduct.priceText.isEmpty)
-          .padding(.horizontal)
+            label: {
+          
+              HStack {
+                if isPurchasing {
+                  ProgressView()
+                    .tint(.white)
+                } else {
+                  Text(
+                    storeService.removeAdsProduct.priceText.isEmpty
+                      ? "Loading..." : storeService.removeAdsProduct.priceText
+                  )
+                  .fontWeight(.bold)
+                }
+              }
+              .frame(maxWidth: .infinity)
+              .padding()
+              .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 12))
+              .foregroundStyle(.white)
+
+            }
+            .buttonStyle(.plain)
+            .disabled(isPurchasing || storeService.removeAdsProduct.priceText.isEmpty)
+            .padding(.horizontal)
+
+            if !(isPurchasing || storeService.removeAdsProduct.priceText.isEmpty) {
+              Text("60% Off")
+                .font(.system(size: 16))
+                .bold(true)
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(AppColors.red)
+
+                .roundedCornerRadius()
+                //.frame(maxWidth: 120)
+                .rotationEffect(.degrees(-4))
+                .offset(x: 42, y: -2)
+                .transition(.opacity)
+            }
+          }
+          .pulsating(active: true, duration: 3, style: .light)
         }
 
         // Restore purchases link

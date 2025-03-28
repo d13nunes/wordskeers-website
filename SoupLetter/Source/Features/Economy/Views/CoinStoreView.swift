@@ -175,37 +175,52 @@ struct CoinStoreView: View {
     Button {
       showRemoveAdsView = true
     } label: {
-      HStack(spacing: 0) {
-        StoreItemIcon(
-          image: "RemoveAds",
-          color: AppColors.red
-        )
-        .padding(.leading, 16)
-        .padding(.trailing, 16)
-        // Icon and title
-        VStack(alignment: .leading, spacing: 4) {
-          Text("Remove Ads")
-            .font(
-              Font.custom("Inter", size: 16)
-                .weight(.bold)
-            )
-            .foregroundColor(AppColors.storeText)
-
-          Text("Enjoy an ad-free experience")
-            .font(.subheadline)
+      ZStack(alignment: .topTrailing) {
+        HStack {
+          StoreItemIcon(
+            image: "RemoveAds",
+            color: AppColors.red,
+            backgroundColor: .white
+          )
+          .padding(.leading, 16)
+          .padding(.trailing, 16)
+          // Icon and title
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Remove Ads")
+              .font(
+                Font.custom("Inter", size: 16)
+                  .weight(.bold)
+              )
+              .foregroundColor(AppColors.storeText)
+            
+            Text("Enjoy an ad-free experience")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          }
+          
+          Spacer()
+          
+          // Arrow icon
+          Image(systemName: "chevron.right")
             .foregroundStyle(.secondary)
         }
-
-        Spacer()
-
-        // Arrow icon
-        Image(systemName: "chevron.right")
-          .foregroundStyle(.secondary)
+        .padding(17)
+        .storeStyle()
+        Text("Limited Offer!")
+          .font(.system(size: 12))
+          .bold(true)
+          .foregroundColor(.white)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 4)
+          .background(AppColors.red, in: RoundedRectangle(cornerRadius: 6))
+          .roundedCornerRadius()
+          .offset(x: -24, y: -6)
+          .pulsating(active: true, duration: 3)
       }
-      .padding(17)
-      .storeStyle()
+      .padding(.vertical, 8)
+     
+      
     }
-    .padding(.bottom, 8)
   }
 
   private var noProductsView: some View {

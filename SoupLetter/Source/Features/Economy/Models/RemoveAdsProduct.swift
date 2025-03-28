@@ -16,8 +16,11 @@ struct RemoveAdsProduct {
   var product: Product?
 
   /// Reference to the actual StoreKit product ID
-  let productId: String = "com.wordseekr.coinpack.removeads"
-
+  let productIdStandard: String = "com.wordseekr.coinpack.removeads"
+  let productIdDiscountedEarlyBird: String = "com.wordseekr.coinpack.removeads60"
+  var productId: String {
+    productIdDiscountedEarlyBird
+  }
   /// Icon name for the product
   let icon: String = "banner.slash"
 
