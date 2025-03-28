@@ -17,7 +17,7 @@ struct ScoreView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: 0) {
       HStack(alignment: .bottom) {
         Text(scoreTitle)
           .font(

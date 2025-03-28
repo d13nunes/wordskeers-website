@@ -32,7 +32,7 @@ struct DoubleRewardButton: View {
     title: String = "Double Coins",
     iconName: String = "play.rectangle.fill",
     isLoading: Bool = false,
-    backgroundColor: Color = .green,
+    backgroundColor: Color = AppColors.green,
     accessibilityLabel: String = "Double coins by watching an ad",
     action: @escaping () async -> Void
   ) {
@@ -83,7 +83,7 @@ struct DoubleRewardButton: View {
     DoubleRewardButton(
       title: "Watch Ad for Bonus",
       iconName: "film.fill",
-      backgroundColor: .blue,
+      backgroundColor: AppColors.blue,
       accessibilityLabel: "Watch advertisement to receive bonus rewards"
     ) {
       // No-op for preview

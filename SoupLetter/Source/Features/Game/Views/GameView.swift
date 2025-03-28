@@ -19,11 +19,8 @@ struct GameView: View {
     let bottomPadding = isSmallScreen ? 0.0 : isCompact ? 8.0 : 16.0
     let spacing: CGFloat = isSmallScreen ? 4 : 8
 
-    VStack(spacing: 0) {
+    ZStack(alignment: .top) {
       VStack(spacing: 0) {
-        GameHeaderView(viewModel: viewModel)
-
-          .padding(.horizontal, 12)
         VStack(alignment: .center, spacing: spacing) {
           Spacer()
           ScoreView(viewModel: viewModel)
@@ -52,13 +49,12 @@ struct GameView: View {
         if viewModel.canShowBannerAd {
           // Banner Ad at the bottom with fixed size
           StandardBannerView()
-            .frame(width: .infinity, height: 50)
+            .frame(width: UIScreen.main.bounds.width, height: 50)
         }
       }
       .overlay {
         ZStack {
           if let newGameViewModel = viewModel.newGameSelectionViewModel {
-
             NewGameSelectionView(viewModel: newGameViewModel)
           }
           if viewModel.isShowingPauseMenu {
@@ -106,6 +102,9 @@ struct GameView: View {
           )
         }
       }
+
+      GameHeaderView(viewModel: viewModel)
+        .padding(.horizontal, 12)
 
     }
 

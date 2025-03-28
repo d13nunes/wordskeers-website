@@ -63,10 +63,10 @@ struct CompletionCompactView: View {
         )
         if showStandardRewardButton {
           DoubleRewardButton(
-            title: "Continue",
+            title: "Collect 5 Coins",
             iconName: "nil",
             isLoading: false,
-            backgroundColor: .blue,
+            backgroundColor: AppColors.blue,
             action: onNextLevel
           )
           .transition(.opacity.combined(with: .move(edge: .bottom)))
