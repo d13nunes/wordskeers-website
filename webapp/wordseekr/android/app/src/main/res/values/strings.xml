@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">wordseekr</string>
+    <string name="title_activity_main">wordseekr</string>
+    <string name="package_name">com.rhenis.gridwords</string>
+    <string name="custom_url_scheme">com.rhenis.gridwords</string>
+</resources>
