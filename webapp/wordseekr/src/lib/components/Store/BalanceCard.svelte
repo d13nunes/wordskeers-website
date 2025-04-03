@@ -1,7 +1,9 @@
 <script lang="ts">
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
+	import { walletStore } from '$lib/economy/walletStore';
 
-	export let balance: number;
+	let balance = $state(0);
+	walletStore.subscribe((newBalance) => (balance = newBalance));
 </script>
 
 <div class="dailyreward-card flex flex-col items-center gap-0 border-[1px] border-gray-200">

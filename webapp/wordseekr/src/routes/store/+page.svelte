@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	function handleRemoveAds() {
 		goto('/store/remove-ads');
@@ -43,13 +44,14 @@
 
 	function handleProductClick(id: string) {
 		console.log(id);
+		walletStore.addCoins(100);
 	}
 </script>
 
 <div class="h-svh w-svw bg-slate-50 select-none">
 	<div class="flex flex-col items-stretch gap-2 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
-		<BalanceCard balance={100} />
+		<BalanceCard />
 		<StoreProductCard
 			title="Remove Ads"
 			detail="Enjoy an ad-free experience"
