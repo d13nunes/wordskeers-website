@@ -1,5 +1,10 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+
+	export let close: () => void = () => {
+		goto('/store');
+		console.log('close remove ads');
+	};
 	export let buyRemoveAds: () => void = () => {
 		console.log('buy remove ads');
 	};
@@ -12,10 +17,7 @@
 
 <div class="relative flex h-svh w-svw flex-col bg-white">
 	<!-- Main Content -->
-	<button
-		class="text-md absolute top-4 left-4 font-normal text-blue-500"
-		onclick={() => goto('/store')}
-	>
+	<button class="text-md absolute top-4 left-4 font-normal text-blue-500" onclick={close}>
 		Close
 	</button>
 

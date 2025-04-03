@@ -1,25 +1,29 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
+	import DailyRewards from '../dailyrewards/+page.svelte';
 
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
+	import BottomSheet from '$lib/components/shared/BottomSheet.svelte';
 	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
 	let size = 6;
 	let directions: string[] = ['up', 'down', 'left', 'right'];
 	let selectedDirection: string | null = null;
 
+	let isDailyRewardsOpen = false;
+
 	function onDirectionChange(event: CustomEvent) {
 		console.log(event);
 	}
 	function onStoreClick() {
-		console.log('store clicked');
 		goto('/store');
+		console.log('store clicked');
 	}
 	function onPlayClick() {
 		console.log('play clicked');
 	}
 	function onDailyRewardClick() {
-		goto('/dailyrewards');
+		isDailyRewardsOpen = true;
 		console.log('daily reward clicked');
 	}
 </script>
@@ -59,3 +63,7 @@
 		</button>
 	</div>
 </div>
+
+<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
+	<DailyRewards />
+</BottomSheet>

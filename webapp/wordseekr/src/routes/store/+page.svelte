@@ -4,8 +4,8 @@
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
 
 	function handleRemoveAds() {
-		console.log('remove ads');
 		goto('/store/remove-ads');
+		console.log('remove ads');
 	}
 
 	const products = [

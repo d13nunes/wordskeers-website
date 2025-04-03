@@ -4,7 +4,7 @@
 
 	export let balance: number;
 	export let onClick: () => void;
-	export let isActive: boolean = false;
+	export let isActive: boolean = true;
 </script>
 
 <button
