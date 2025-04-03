@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
 
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
@@ -12,11 +13,13 @@
 	}
 	function onStoreClick() {
 		console.log('store clicked');
+		goto('/store');
 	}
 	function onPlayClick() {
 		console.log('play clicked');
 	}
 	function onDailyRewardClick() {
+		goto('/dailyrewards');
 		console.log('daily reward clicked');
 	}
 </script>

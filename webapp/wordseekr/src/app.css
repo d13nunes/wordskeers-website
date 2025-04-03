@@ -7,3 +7,24 @@
 .card {
     @apply rounded-md bg-white px-4 py-4 shadow-sm select-none;
 }
+
+.dailyreward-card {
+    @apply rounded-xl bg-gray-100 p-6;
+}
+
+@keyframes subtle-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-indicator {
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+

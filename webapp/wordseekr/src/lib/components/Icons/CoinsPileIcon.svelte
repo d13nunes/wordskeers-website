@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let color: string = 'oklch(76.9% 0.188 70.08)';
+	export let color: string = '#ffb900';
 </script>
 
 <svg viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -5,7 +5,7 @@
 	export let onClick: () => void;
 </script>
 
-<button class="card-button flex flex-row items-center justify-center gap-3">
+<button class="card-button flex flex-row items-center justify-center gap-3" onclick={onClick}>
 	<div class="h-4 w-4">
 		<DailyRewardIcon fill="#c10007" />
 	</div>

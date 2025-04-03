@@ -1,5 +1,5 @@
 <script lang="ts">
-	import CoinsPileIcon from '../CoinsPileIcon.svelte';
+	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 
 	export let price: string = '100';
 	export let priceColor: string = 'text-orange-500';
