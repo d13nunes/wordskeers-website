@@ -1,5 +1,13 @@
 @import 'tailwindcss';
 
+
+/* Optional mobile enhancements */
+html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    touch-action: manipulation;
+  }
+
 .card-button {
     @apply rounded-md bg-white px-4 py-2 shadow-sm select-none hover:bg-gray-50 active:shadow-xs;
 }
@@ -28,3 +36,6 @@
     animation: subtle-pulse 2s ease-in-out infinite;
 }
 
+.button-active {
+    @apply active:scale-95 transition-all duration-300;
+}

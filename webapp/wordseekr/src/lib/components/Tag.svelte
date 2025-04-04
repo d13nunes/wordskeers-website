@@ -42,16 +42,24 @@
 		}
 		return themes[themeName as ThemeName];
 	}
-	export let tag: string = 'default';
-	export let variant: ThemeName = ThemeName.Default;
-	export let customBg = null;
-	export let customText = null;
-	export let isDiscovered: boolean = false;
+	interface Props {
+		tag: string;
+		variant?: ThemeName;
+		customBg?: string;
+		customText?: string;
+		isDiscovered: boolean;
+	}
+	let { tag, isDiscovered, customBg, customText, variant = ThemeName.Default }: Props = $props();
+	// export let tag: string = 'default';
+	// export let variant: ThemeName = ThemeName.Default;
+	// export let customBg = null;
+	// export let customText = null;
+	// export let isDiscovered: boolean = false;
 
 	// Use custom colors if provided, otherwise use the theme
-	$: theme = getTheme(variant);
-	$: bgColor = customBg || theme.bg;
-	$: textColor = customText || theme.text;
+	let theme = getTheme(variant);
+	let bgColor = customBg || theme.bg;
+	let textColor = customText || theme.text;
 
 	interface Theme {
 		bg: string;

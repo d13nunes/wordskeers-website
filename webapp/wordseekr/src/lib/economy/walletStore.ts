@@ -6,7 +6,6 @@ const COIN_BALANCE_KEY = 'coinBalance';
 async function loadInitialBalance(): Promise<number> {
 	try {
 		const { value } = await Preferences.get({ key: COIN_BALANCE_KEY });
-		console.log('!! value', value);
 		return value ? parseInt(value, 10) : 0;
 	} catch (error) {
 		console.error('Failed to load coin balance from preferences:', error);
@@ -25,7 +24,12 @@ async function saveBalance(balance: number): Promise<void> {
 	}
 }
 
-function createWalletStore() {
+async function getBalance(): Promise<number> {
+	const { value } = await Preferences.get({ key: COIN_BALANCE_KEY });
+	return value ? parseInt(value, 10) : 0;
+}
+
+function createWalletStore(): Wallet {
 	const { subscribe, set, update } = writable<number>(0); // Initialize with 0, will be updated async
 
 	// Load the initial balance asynchronously
@@ -60,8 +64,20 @@ function createWalletStore() {
 			const newBalance = 0;
 			set(newBalance);
 			saveBalance(newBalance);
+		},
+		canBuy: async (amount: number) => {
+			const balance = await getBalance();
+			return amount <= balance;
 		}
 	};
 }
 
-export const walletStore = createWalletStore();
+export interface Wallet {
+	subscribe: (callback: (balance: number) => void) => void;
+	canBuy: (amount: number) => Promise<boolean>;
+	addCoins: (amount: number) => void;
+	subtractCoins: (amount: number) => void;
+	reset: () => void;
+}
+
+export const walletStore: Wallet = createWalletStore();

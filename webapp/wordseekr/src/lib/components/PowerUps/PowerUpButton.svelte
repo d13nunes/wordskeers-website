@@ -12,7 +12,7 @@
 
 <button class=" select-none" on:click={onClick}>
 	<div
-		class="flex h-28 w-28 flex-col items-center justify-center rounded-lg border-gray-200 py-4 shadow-sm {color}"
+		class="flex h-28 w-28 flex-col items-center justify-center rounded-lg border-gray-200 py-4 shadow-sm {color} button-active"
 	>
 		<div class="h-8 w-8">
 			<slot />

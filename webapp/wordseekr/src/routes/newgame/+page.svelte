@@ -30,7 +30,7 @@
 
 <div class="relative flex h-screen w-screen items-center justify-center bg-slate-50 p-6">
 	<div class="absolute top-12 right-12 flex flex-row gap-2">
-		<DailyRewardTag tag="Daily Reward" onClick={onDailyRewardClick} />
+		<DailyRewardTag tag="Daily Reward" onclick={onDailyRewardClick} />
 		<BalanceTag onclick={onStoreClick} />
 	</div>
 	<div class="flex max-w-2xl flex-col items-center justify-center">
@@ -56,7 +56,7 @@
 		/>
 
 		<button
-			class="mt-12 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white"
+			class="button-active mt-12 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white"
 			onclick={onPlayClick}
 		>
 			Play

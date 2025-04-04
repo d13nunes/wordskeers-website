@@ -6,7 +6,7 @@
 
 <button on:click={onClick}>
 	<div
-		class="flex h-28 w-28 flex-col items-center justify-center rounded-lg bg-white px-6 py-4 shadow-sm"
+		class="button-active flex h-28 w-28 flex-col items-center justify-center rounded-lg bg-white px-6 py-4 shadow-sm"
 	>
 		<div class="w-8">
 			<PauseIcon />
