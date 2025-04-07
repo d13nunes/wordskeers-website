@@ -1,6 +1,10 @@
-<script>
-	export let visible = false;
-	export let close;
+<script lang="ts">
+	interface Props {
+		visible: boolean;
+		close: () => void;
+	}
+
+	let { visible, close }: Props = $props();
 
 	let startY = 0;
 	let offsetY = 0;
@@ -8,12 +12,14 @@
 	let hasAnimated = false;
 	let isDismissing = false;
 
-	$: if (!visible) {
-		// Reset all states when sheet is hidden
-		hasAnimated = false;
-		isDismissing = false;
-		offsetY = 0;
-	}
+	$effect(() => {
+		if (!visible) {
+			// Reset all states when sheet is hidden
+			hasAnimated = false;
+			isDismissing = false;
+			offsetY = 0;
+		}
+	});
 
 	function handleDismiss() {
 		if (!isDismissing) {
@@ -22,14 +28,14 @@
 		}
 	}
 
-	function handlePointerDown(event) {
+	function handlePointerDown(event: PointerEvent) {
 		startY = event.clientY;
 		isDragging = true;
 		window.addEventListener('pointermove', handlePointerMove);
 		window.addEventListener('pointerup', handlePointerUp);
 	}
 
-	function handlePointerMove(event) {
+	function handlePointerMove(event: PointerEvent) {
 		if (!isDragging) return;
 		offsetY = event.clientY - startY;
 		if (offsetY < 0) offsetY = 0;

@@ -3,47 +3,122 @@
 	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
+	import {
+		productsStore,
+		purchasesStore,
+		PRODUCT_IDS,
+		initializeIAP,
+		COIN_PACKS_META
+	} from '$lib/economy/iapStore';
+	import { onMount } from 'svelte';
+
+	// Initialize IAP on mount
+	onMount(() => {
+		initializeIAP();
+	});
 
 	function handleRemoveAds() {
-		goto('/store/remove-ads');
-		console.log('remove ads');
+		purchasesStore.makePurchase(PRODUCT_IDS.REMOVE_ADS).catch((error) => {
+			console.error('Failed to purchase remove ads:', error);
+		});
 	}
 
-	const products = [
+	// CoinPackage(
+	//     id: "small_coin_pack",
+	//     name: "Starter Pack",
+	//     coinAmount: 300,
+	//     productId: "com.wordseekr.coinpack.100"
+	//   ),
+	//   CoinPackage(
+	//     id: "medium_coin_pack",
+	//     name: "Popular Pack",
+	//     coinAmount: 900,
+	//     productId: "com.wordseekr.coinpack.300"
+	//   ),
+	//   CoinPackage(
+	//     id: "large_coin_pack",
+	//     name: "Premium Pack",
+	//     coinAmount: 2000,
+	//     productId: "com.wordseekr.coinpack.700",
+	//     isMostPopular: true
+	//   ),
+	//   CoinPackage(
+	//     id: "huge_coin_pack",
+	//     name: "Mega Pack",
+	//     coinAmount: 4000,
+	//     productId: "com.wordseekr.coinpack.1500",
+	//     isBestValue: true
+	//   ),
+	// ]
+
+	interface Product {
+		id: string;
+		name: string;
+		coins: number;
+		price: string | undefined;
+		productId: string;
+		type: 'iap' | 'ad';
+	}
+
+	let coinPacks: Product[] = [];
+
+	productsStore.subscribe((products) => {
+		coinPacks = Object.values(products)
+			.filter((product) => coinPacksIDs.includes(product.id))
+			.map((product) => {
+				const meta = COIN_PACKS_META[product.id];
+				return {
+					id: product.id,
+					name: meta.title,
+					coins: meta.coins,
+					price: product.displayPrice,
+					productId: product.id,
+					type: 'iap'
+				};
+			});
+	});
+
+	const coinPacksIDs: string[] = [
+		PRODUCT_IDS.COIN_PACK_SMALL,
+		PRODUCT_IDS.COIN_PACK_MEDIUM,
+		PRODUCT_IDS.COIN_PACK_LARGE,
+		PRODUCT_IDS.COIN_PACK_HUGE
+	];
+
+	const rewardedAdProducts: Product[] = [
 		{
-			id: '1',
-			title: 'Starter Pack',
-			detail: '300 coins',
-			price: '0.99 $'
-		},
-		{
-			id: '2',
-			title: 'Popular Pack',
-			detail: '1000 coins',
-			price: '2.99 $',
-			callout: 'Most Popular',
-			isCalloutRed: false
-		},
-		{
-			id: '3',
-			title: 'Pro Pack',
-			detail: '2000 coins',
-			price: '4.99 $',
-			callout: 'Best Value',
-			isCalloutRed: true
+			id: 'REWARDED_AD',
+			name: 'Get Free Coins',
+			coins: 100,
+			price: undefined,
+			productId: PRODUCT_IDS.REMOVE_ADS,
+			type: 'ad'
 		}
 	];
 
-	const rewardedAdProducts = [
-		{
-			id: '1',
-			title: 'Get Free Coins',
-			detail: '100 coins'
+	function handleProductClick(product: Product) {
+		if (product.type === 'iap') {
+			buyProduct(product);
+		} else {
+			watchAd(product);
 		}
-	];
+	}
 
-	function handleProductClick(id: string) {
-		console.log(id);
+	function buyProduct(product: Product) {
+		const productId = product.productId;
+		purchasesStore
+			.makePurchase(productId)
+			.then(() => {
+				walletStore.addCoins(product.coins);
+			})
+			.catch((error) => {
+				console.error(`Failed to purchase ${productId}:`, error);
+			});
+	}
+
+	function watchAd(product: Product) {
+		// This would integrate with your ad system
+		console.log('Watch ad for rewards');
 		walletStore.addCoins(100);
 	}
 </script>
@@ -53,31 +128,33 @@
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
 		<StoreProductCard
-			title="Remove Ads"
-			detail="Enjoy an ad-free experience"
+			title="Ad-Free Experience"
+			detail="Remove all ads permanently"
 			isIndicatorActive={true}
-			onClick={handleRemoveAds}
+			onclick={handleRemoveAds}
 			callout="Limited Time"
+			isRemoveAds={true}
 			isCalloutRed={true}
 			isCalloutAnimating={true}
 		/>
 
 		<span class="text-xl font-bold">Coins</span>
-		{#each products as product}
+		{#each coinPacks as product}
 			<StoreProductCard
-				title={product.title}
-				detail={product.detail}
+				title={product.name}
+				detail={`${product.coins} coins`}
+				callout={product.type === 'iap' ? 'Best Value' : ''}
 				price={product.price}
-				callout={product.callout}
-				isCalloutRed={product.isCalloutRed}
-				onClick={() => handleProductClick(product.id)}
+				isCalloutRed={product.type === 'iap'}
+				onclick={() => handleProductClick(product)}
 			/>
 		{/each}
 		{#each rewardedAdProducts as product}
 			<StoreProductCard
-				title={product.title}
-				detail={product.detail}
-				onClick={() => handleProductClick(product.id)}
+				title={product.name}
+				detail={`${product.coins} coins`}
+				isCalloutRed={false}
+				onclick={() => handleProductClick(product)}
 			/>
 		{/each}
 	</div>

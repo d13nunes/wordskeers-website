@@ -21,7 +21,7 @@
 </script>
 
 {#key data.pathname}
-	<div in:fly={transitionIn} out:fly={transitionOut}>
+	<div class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right min-h-screen">
 		<slot />
 	</div>
 {/key}

@@ -1,23 +1,51 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
 
-	export let close: () => void = () => {
+	let price = '3.99 €'; // Default price
+
+	onMount(() => {
+		// Load the actual price from the store
+		if ($productsStore[PRODUCT_IDS.REMOVE_ADS]) {
+			price = $productsStore[PRODUCT_IDS.REMOVE_ADS].displayPrice;
+		}
+	});
+
+	function close() {
 		goto('/store');
-		console.log('close remove ads');
-	};
-	export let buyRemoveAds: () => void = () => {
-		console.log('buy remove ads');
-	};
-	export let restore: () => void = () => {
-		console.log('restore remove ads');
-	};
+	}
+
+	function buyRemoveAds() {
+		purchasesStore
+			.makePurchase(PRODUCT_IDS.REMOVE_ADS)
+			.then(() => {
+				// Success will be handled by the store listener
+				console.log('Purchase initiated');
+			})
+			.catch((error) => {
+				console.error('Failed to purchase remove ads:', error);
+			});
+	}
+
+	function restore() {
+		// Handle restoring purchases
+		purchasesStore
+			.initializePurchases()
+			.then(() => {
+				console.log('Purchases restored');
+			})
+			.catch((error) => {
+				console.error('Failed to restore purchases:', error);
+			});
+	}
 </script>
 
 <!-- Header -->
 
 <div class="relative flex h-svh w-svw flex-col bg-white">
 	<!-- Main Content -->
-	<button class="text-md absolute top-4 left-4 font-normal text-blue-500" onclick={close}>
+	<button class="text-md absolute top-4 left-4 font-normal text-blue-500" on:click={close}>
 		Close
 	</button>
 
@@ -67,17 +95,24 @@
 
 	<!-- Purchase Button -->
 	<div class="p-4">
-		<button
-			class="relative w-full rounded-xl bg-blue-700 py-4 text-white active:bg-blue-800"
-			onclick={buyRemoveAds}
-		>
-			<span class="absolute left-4 rounded-md bg-red-700 px-2 py-1 text-sm text-white">60% Off</span
+		{#if $adsRemoved}
+			<button class="w-full rounded-xl bg-green-700 py-4 text-white">
+				<span class="text-xl font-semibold">✓ Ads Removed!</span>
+			</button>
+		{:else}
+			<button
+				class="relative w-full rounded-xl bg-blue-700 py-4 text-white active:bg-blue-800"
+				on:click={buyRemoveAds}
 			>
-			<span class="text-xl font-semibold">3,99 €</span>
-		</button>
-		<button class="w-full py-4 text-center text-blue-700 active:text-blue-800" onclick={restore}>
-			Restore Remove Ads
-		</button>
+				<span class="absolute left-4 rounded-md bg-red-700 px-2 py-1 text-sm text-white"
+					>60% Off</span
+				>
+				<span class="text-xl font-semibold">{price}</span>
+			</button>
+			<button class="w-full py-4 text-center text-blue-700 active:text-blue-800" on:click={restore}>
+				Restore Remove Ads
+			</button>
+		{/if}
 	</div>
 </div>
 

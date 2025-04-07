@@ -2,16 +2,32 @@
 	import StoreSmallCard from '$lib/components/StoreSmallCard.svelte';
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import ArrowIcon from './Icons/ArrowIcon.svelte';
-	export let title: string;
-	export let detail: string;
-	export let price: string | undefined = undefined;
-	export let callout: string | undefined = undefined;
-	export let isCalloutRed: boolean = false;
-	export let isIndicatorActive: boolean = false;
-	export let isCalloutAnimating: boolean = false;
+	import RemoveAdsIcon from './Icons/RemoveAdsIcon.svelte';
+	interface Props {
+		title: string;
+		detail: string;
+		price?: string;
+		callout?: string;
+		isCalloutRed?: boolean;
+		isIndicatorActive?: boolean;
+		isCalloutAnimating?: boolean;
+		isRemoveAds?: boolean;
+		onclick: () => void;
+	}
+
+	let {
+		title,
+		detail,
+		price = undefined,
+		callout = undefined,
+		isCalloutRed = false,
+		isIndicatorActive = false,
+		isCalloutAnimating = false,
+		isRemoveAds = false,
+		onclick
+	}: Props = $props();
 
 	const animation = isCalloutAnimating ? 'pulse-indicator' : '';
-	export let onClick: () => void = () => {};
 </script>
 
 {#if callout}
@@ -25,13 +41,17 @@
 		</div>
 	</div>
 {/if}
-<StoreSmallCard {title} {detail} {onClick}>
-	<div slot="icon">
+<StoreSmallCard {title} {detail} {onclick}>
+	{#snippet icon()}
 		<div class="h-8 w-8">
-			<CoinsPileIcon />
+			{#if isRemoveAds}
+				<RemoveAdsIcon />
+			{:else}
+				<CoinsPileIcon />
+			{/if}
 		</div>
-	</div>
-	<div slot="action">
+	{/snippet}
+	{#snippet action()}
 		{#if isIndicatorActive}
 			<div class="h-4 w-4">
 				<ArrowIcon color="#2563eb" />
@@ -41,5 +61,5 @@
 		{:else}
 			<div class="min-w-[80px] rounded-md bg-emerald-700 px-3 py-1 text-white">Watch Ad</div>
 		{/if}
-	</div>
+	{/snippet}
 </StoreSmallCard>

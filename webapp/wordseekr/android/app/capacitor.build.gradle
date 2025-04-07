@@ -9,9 +9,11 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':adplorg-capacitor-in-app-purchase')
+    implementation project(':capacitor-community-admob')
     implementation project(':capacitor-local-notifications')
     implementation project(':capacitor-preferences')
-
+    implementation "com.android.billingclient:billing:7.1.1"
 }
 
 

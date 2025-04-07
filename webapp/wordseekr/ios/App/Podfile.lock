@@ -1,34 +1,64 @@
 PODS:
+  - AdplorgCapacitorInAppPurchase (2.0.50):
+    - Capacitor
   - Capacitor (7.1.0):
     - CapacitorCordova
+  - CapacitorCommunityAdmob (7.0.2):
+    - Capacitor
+    - Google-Mobile-Ads-SDK (= 11.3.0)
+    - GoogleUserMessagingPlatform (< 3.0.0, >= 2.7.0)
   - CapacitorCordova (7.1.0)
   - CapacitorLocalNotifications (7.0.1):
     - Capacitor
   - CapacitorPreferences (7.0.1):
     - Capacitor
+  - CordovaPlugins (7.1.0):
+    - CapacitorCordova
+  - Google-Mobile-Ads-SDK (11.3.0):
+    - GoogleUserMessagingPlatform (>= 1.1)
+  - GoogleUserMessagingPlatform (2.7.0)
 
 DEPENDENCIES:
+  - "AdplorgCapacitorInAppPurchase (from `../../node_modules/@adplorg/capacitor-in-app-purchase`)"
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorCommunityAdmob (from `../../node_modules/@capacitor-community/admob`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
+
+SPEC REPOS:
+  trunk:
+    - Google-Mobile-Ads-SDK
+    - GoogleUserMessagingPlatform
 
 EXTERNAL SOURCES:
+  AdplorgCapacitorInAppPurchase:
+    :path: "../../node_modules/@adplorg/capacitor-in-app-purchase"
   Capacitor:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorCommunityAdmob:
+    :path: "../../node_modules/@capacitor-community/admob"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorLocalNotifications:
     :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorPreferences:
     :path: "../../node_modules/@capacitor/preferences"
+  CordovaPlugins:
+    :path: "../capacitor-cordova-ios-plugins"
 
 SPEC CHECKSUMS:
+  AdplorgCapacitorInAppPurchase: d5ce2b70a64fde51fd2a402af0485740d62256cd
   Capacitor: bceb785fb78f5e81e4a9e37843bc1c24bd9c7194
+  CapacitorCommunityAdmob: 66ea0a261565771c5b5180def626b90b9bd92bd3
   CapacitorCordova: 866217f32c1d25b326c568a10ea3ed0c36b13e29
   CapacitorLocalNotifications: c2212755b33d2513b8bb325096ce3a64d4039ae3
   CapacitorPreferences: 6c98117d4d7508034a4af9db64d6b26fc75d7b94
+  CordovaPlugins: 775e89f0c90fb74fa0ecc04e3f571ed5781f15c5
+  Google-Mobile-Ads-SDK: 301a16c461c331ba34ff4dab40a22ab7c147af61
+  GoogleUserMessagingPlatform: a8b56893477f67212fbc8411c139e61d463349f5
 
-PODFILE CHECKSUM: e403e09360e414f8b4628b544c63f5b0044a63a3
+PODFILE CHECKSUM: dc671cd3fbbe84ef98d18a078d052365a8ceed5c
 
 COCOAPODS: 1.16.2
