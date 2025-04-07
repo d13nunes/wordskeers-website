@@ -9,7 +9,7 @@ html {
   }
 
 .card-button {
-    @apply rounded-md bg-white px-4 py-2 shadow-sm select-none hover:bg-gray-50 active:shadow-xs;
+    @apply rounded-md bg-white px-4 py-2 shadow-sm select-none hover:bg-gray-50 active:shadow-xs lg:px-6 lg:py-3;
 }
 
 .card {

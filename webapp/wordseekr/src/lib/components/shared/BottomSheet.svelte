@@ -28,14 +28,14 @@
 		}
 	}
 
-	function handlePointerDown(event: PointerEvent) {
+	function handlePointerDown(event) {
 		startY = event.clientY;
 		isDragging = true;
 		window.addEventListener('pointermove', handlePointerMove);
 		window.addEventListener('pointerup', handlePointerUp);
 	}
 
-	function handlePointerMove(event: PointerEvent) {
+	function handlePointerMove(event) {
 		if (!isDragging) return;
 		offsetY = event.clientY - startY;
 		if (offsetY < 0) offsetY = 0;

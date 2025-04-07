@@ -2,18 +2,18 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
-
-	let price = '3.99 €'; // Default price
-
+	import { pop } from '$lib/navigation-stack';
+	let price = '';
 	onMount(() => {
 		// Load the actual price from the store
-		if ($productsStore[PRODUCT_IDS.REMOVE_ADS]) {
-			price = $productsStore[PRODUCT_IDS.REMOVE_ADS].displayPrice;
+		const removeAdsProduct = $productsStore[PRODUCT_IDS.REMOVE_ADS];
+		if (removeAdsProduct) {
+			price = removeAdsProduct.displayPrice;
 		}
 	});
 
 	function close() {
-		goto('/store');
+		goto('');
 	}
 
 	function buyRemoveAds() {

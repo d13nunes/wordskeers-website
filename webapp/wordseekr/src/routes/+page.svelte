@@ -1,107 +1,72 @@
 <script lang="ts">
-	import Tag from '$lib/components/Tag.svelte';
-	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
-	import DirectionPowerUp from '$lib/components/PowerUps/DirectionPowerUp.svelte';
-	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
-	import FindWordPowerUp from '$lib/components/PowerUps/FindWordPowerUp.svelte';
-	import PauseButton from '$lib/components/Pause/PauseButton.svelte';
-	import { createMockGame } from '$lib/components/Game/game';
 	import { goto } from '$app/navigation';
-	import Board from '$lib/components/Game/Board.svelte';
-	import { type Position } from '$lib/components/Game/Position';
-	import { ColorGenerator } from '$lib/components/Game/color-generator';
-	import type { Word } from '$lib/components/Game/Word';
-	import { initialize, banner } from '$lib/ads/Ad';
+	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
+	import DailyRewards from './dailyrewards/+page.svelte';
+	import Store from './store/+page.svelte';
 
-	let isRotated = $state(false);
+	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
+	import BottomSheet from '$lib/components/shared/BottomSheet.svelte';
+	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
+	let size = 6;
+	let directions: string[] = ['up', 'down', 'left', 'right'];
+	let selectedDirection: string | null = null;
 
-	async function init() {
-		console.log('📺 init');
-		await initialize();
-		console.log('📺 init banner');
-		await banner();
+	let isDailyRewardsOpen = false;
+	let isStoreOpen = false;
+
+	function onDirectionChange(event: CustomEvent) {
+		console.log(event);
 	}
-
-	init();
-
-	let words: Word[] = $state([]);
-
-	let game = createMockGame(); // TODO
-
-	let colorGenerator = new ColorGenerator();
-
-	words = game.words.map((word) => ({
-		word,
-		color: undefined,
-		textColor: undefined,
-		isDiscovered: false
-	}));
-
-	function getWord(word: string): Word | undefined {
-		const wordDirection = words.find((w) => w.word === word);
-		if (wordDirection) {
-			return wordDirection;
-		}
-		const reverseWord = word.split('').reverse().join('');
-		const reverseWordDirection = words.find((w) => w.word === reverseWord);
-		return reverseWordDirection;
+	function onStoreClick() {
+		//goto('/store');
+		isStoreOpen = true;
 	}
-
-	let onWordSelect = (
-		word: string,
-		path: Position[],
-		setDiscovered: (position: Position[]) => void
-	) => {
-		const discoveredWord = getWord(word);
-		if (discoveredWord && !discoveredWord.isDiscovered) {
-			discoveredWord.color = getColor().bg;
-			console.log('!!!! words[index].color', discoveredWord.color);
-			discoveredWord.isDiscovered = true;
-			setDiscovered(path);
-		}
-	};
-
-	function onPauseClick() {
-		/// show new game route
-		goto('/newgame');
+	function onPlayClick() {
+		goto('/game');
 	}
-
-	function onPowerUpRotateClick() {
-		isRotated = !isRotated;
-	}
-
-	function onPowerUpDirectionClick() {}
-
-	function onPowerUpFindLetterClick() {}
-
-	function onPowerUpFindWordClick() {}
-	function getColor() {
-		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
+	function onDailyRewardClick() {
+		isDailyRewardsOpen = true;
 	}
 </script>
 
-<div class="h-screen w-screen overflow-hidden bg-slate-50">
-	<div class="p-8">
-		<div class="card flex flex-row flex-wrap gap-2">
-			{#each words as word}
-				<Tag
-					tag={word.word}
-					isDiscovered={word.isDiscovered}
-					customBg={word.color}
-					customText={word.color}
-				/>
-			{/each}
-		</div>
-		<div class="flex flex-row pt-2">
-			<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} />
+<div class="bg-slate-50 p-6">
+	<div class="relative flex h-screen items-end justify-center pb-[150px] lg:items-center lg:pb-0">
+		<div class="flex max-w-2xl flex-col items-center justify-center">
+			<div class="flex flex-col items-center justify-center gap-0">
+				<span class="text-4xl font-bold lg:text-6xl">Classic</span>
+				<span class="text-sm text-gray-500 lg:text-base">Game Mode</span>
+			</div>
+			<div class="mt-12 flex flex-row items-center justify-center gap-1">
+				<span class="text-black-500 text-sm font-normal">Search for words in</span>
+				<span class="text-black-500 text-sm font-bold">{size}x{size}</span>
+				<span class="text-black-500 text-sm font-normal">grid</span>
+			</div>
+			<div class="mb-2 flex flex-row items-center justify-center gap-1">
+				<span class="text-black-500 text-sm font-normal">Words can found in</span>
+				{#each directions as direction}
+					<span class="text-black-500 text-sm font-bold">{direction}</span>
+				{/each}
+			</div>
+			<SegmentedSelector
+				segments={directions}
+				selected={selectedDirection}
+				on:change={onDirectionChange}
+			/>
+
+			<button
+				class="button-active mt-12 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white"
+				onclick={onPlayClick}
+			>
+				Play
+			</button>
 		</div>
 	</div>
-	<div class="flex flex-row gap-2 p-8">
-		<PauseButton onClick={onPauseClick} />
-		<div class="w-full"></div>
-		<RotatePowerUp onClick={onPowerUpRotateClick} />
-		<DirectionPowerUp onClick={onPowerUpDirectionClick} />
-		<FindLetterPowerUp onClick={onPowerUpFindLetterClick} />
-		<FindWordPowerUp onClick={onPowerUpFindWordClick} />
-	</div>
+
+	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
+		<DailyRewards />
+	</BottomSheet>
+
+	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
+		<Store />
+	</BottomSheet>
 </div>

@@ -18,14 +18,12 @@
 	const handleEnableNotification = () => {
 		console.log('enable notification');
 	};
-
-	const balance = 100;
 </script>
 
-<div class="h-svh w-svw bg-slate-50 select-none">
+<div class="h-svh bg-white select-none">
 	<div class="flex flex-col items-stretch gap-2 p-4">
 		<span class="self-center text-2xl font-bold">Daily Rewards</span>
-		<BalanceCard {balance} />
+		<BalanceCard />
 		<!--!! daily reward locked -->
 		<LockDailyRewardCard title="Daily Reward" detail="Watch ad to unlock" />
 		<!--!! daily reward claimable -->

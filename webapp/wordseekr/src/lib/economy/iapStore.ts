@@ -184,8 +184,28 @@ export const adsRemoved = derived(
 	($purchasesStore) => $purchasesStore[PRODUCT_IDS.REMOVE_ADS] || false
 );
 
+// Helper function to check if IAP is available
+export async function isIAPAvailable(): Promise<boolean> {
+	try {
+		const result = await CapacitorInAppPurchase.getProducts({
+			productIds: [PRODUCT_IDS.COIN_PACK_SMALL] // Just check with one product
+		});
+		console.log('result', result);
+		return result.products.length > 0;
+	} catch (error) {
+		console.warn('IAP is not available in this environment:', error);
+		return false;
+	}
+}
+
 // Helper function to initialize the IAP system
 export async function initializeIAP() {
+	const isAvailable = await isIAPAvailable();
+	if (!isAvailable) {
+		console.warn('IAP initialization skipped - not available in this environment');
+		return;
+	}
+
 	await purchasesStore.initializePurchases();
 	await productsStore.loadProducts();
 }

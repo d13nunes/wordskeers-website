@@ -12,15 +12,11 @@
 	} from '$lib/economy/iapStore';
 	import { onMount } from 'svelte';
 
-	// Initialize IAP on mount
-	onMount(() => {
-		initializeIAP();
-	});
-
 	function handleRemoveAds() {
-		purchasesStore.makePurchase(PRODUCT_IDS.REMOVE_ADS).catch((error) => {
-			console.error('Failed to purchase remove ads:', error);
-		});
+		goto('/remove-ads');
+		// purchasesStore.makePurchase(PRODUCT_IDS.REMOVE_ADS).catch((error) => {
+		// 	console.error('Failed to purchase remove ads:', error);
+		// });
 	}
 
 	// CoinPackage(
@@ -60,13 +56,26 @@
 		type: 'iap' | 'ad';
 	}
 
-	let coinPacks: Product[] = [];
+	const coinPacksIDs: string[] = [
+		PRODUCT_IDS.COIN_PACK_SMALL,
+		PRODUCT_IDS.COIN_PACK_MEDIUM,
+		PRODUCT_IDS.COIN_PACK_LARGE,
+		PRODUCT_IDS.COIN_PACK_HUGE
+	];
 
+	let coinPacks: Product[] = [];
+	console.log('productsStore', productsStore);
 	productsStore.subscribe((products) => {
+		console.log('coinPacksIDs', coinPacksIDs);
+		const p = Object.values(products);
+		console.log('products', p);
+		console.log('COIN_PACKS_META', COIN_PACKS_META);
 		coinPacks = Object.values(products)
 			.filter((product) => coinPacksIDs.includes(product.id))
 			.map((product) => {
+				console.log('product', product);
 				const meta = COIN_PACKS_META[product.id];
+				console.log('meta', meta);
 				return {
 					id: product.id,
 					name: meta.title,
@@ -77,13 +86,6 @@
 				};
 			});
 	});
-
-	const coinPacksIDs: string[] = [
-		PRODUCT_IDS.COIN_PACK_SMALL,
-		PRODUCT_IDS.COIN_PACK_MEDIUM,
-		PRODUCT_IDS.COIN_PACK_LARGE,
-		PRODUCT_IDS.COIN_PACK_HUGE
-	];
 
 	const rewardedAdProducts: Product[] = [
 		{
@@ -123,7 +125,7 @@
 	}
 </script>
 
-<div class="h-svh w-svw bg-slate-50 select-none">
+<div class="h-svh bg-white select-none">
 	<div class="flex flex-col items-stretch gap-2 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />

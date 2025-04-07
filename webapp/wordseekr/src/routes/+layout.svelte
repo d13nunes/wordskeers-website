@@ -1,27 +1,27 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import '../app.css';
-
-	import { fade, fly } from 'svelte/transition';
-	import { cubicIn, cubicOut } from 'svelte/easing';
+	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
+	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
 
 	interface Props {
-		data: {
-			pathname: string;
-		};
+		children: Snippet;
 	}
 
-	let { data }: Props = $props();
+	const { children }: Props = $props();
 
-	const duration = 300;
-	const delay = duration + 100;
-	const y = 10;
-
-	const transitionIn = { easing: cubicOut, y, duration, delay };
-	const transitionOut = { easing: cubicIn, y: -y, duration };
+	function onDailyRewardClick() {
+		console.log('daily reward clicked');
+	}
+	function onStoreClick() {
+		console.log('store clicked');
+	}
 </script>
 
-{#key data.pathname}
-	<div class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right min-h-screen">
-		<slot />
+<div class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right min-h-screen bg-slate-50">
+	<div class="absolute top-16 right-4 flex flex-row gap-2 lg:top-8">
+		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
+		<BalanceTag onclick={onStoreClick} />
 	</div>
-{/key}
+	{@render children()}
+</div>
