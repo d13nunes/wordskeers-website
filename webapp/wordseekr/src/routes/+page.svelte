@@ -11,21 +11,11 @@
 	let directions: string[] = ['up', 'down', 'left', 'right'];
 	let selectedDirection: string | null = null;
 
-	let isDailyRewardsOpen = false;
-	let isStoreOpen = false;
-
 	function onDirectionChange(event: CustomEvent) {
 		console.log(event);
 	}
-	function onStoreClick() {
-		//goto('/store');
-		isStoreOpen = true;
-	}
 	function onPlayClick() {
 		goto('/game');
-	}
-	function onDailyRewardClick() {
-		isDailyRewardsOpen = true;
 	}
 </script>
 
@@ -61,12 +51,4 @@
 			</button>
 		</div>
 	</div>
-
-	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
-		<DailyRewards />
-	</BottomSheet>
-
-	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
-		<Store />
-	</BottomSheet>
 </div>
