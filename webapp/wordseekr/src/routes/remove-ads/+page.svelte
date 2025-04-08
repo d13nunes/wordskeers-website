@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
-	import { pop } from '$lib/navigation-stack';
-	let price = '';
+
+	let price = $state('');
 	onMount(() => {
 		// Load the actual price from the store
 		const removeAdsProduct = $productsStore[PRODUCT_IDS.REMOVE_ADS];
@@ -12,9 +11,11 @@
 		}
 	});
 
-	function close() {
-		goto('');
+	interface Props {
+		close: () => void;
 	}
+
+	const { close }: Props = $props();
 
 	function buyRemoveAds() {
 		purchasesStore
@@ -22,6 +23,8 @@
 			.then(() => {
 				// Success will be handled by the store listener
 				console.log('Purchase initiated');
+				// TODO: Show a success message
+				close();
 			})
 			.catch((error) => {
 				console.error('Failed to purchase remove ads:', error);
@@ -43,14 +46,23 @@
 
 <!-- Header -->
 
-<div class="relative flex h-svh w-svw flex-col bg-white">
+<div class="relative flex w-full flex-col bg-white select-none">
 	<!-- Main Content -->
-	<button class="text-md absolute top-4 left-4 font-normal text-blue-500" on:click={close}>
+	<button
+		class="text-md absolute top-4 left-4 font-normal text-blue-500 active:text-blue-800"
+		onclick={close}
+	>
 		Close
 	</button>
+	<button
+		class="text-md absolute top-4 right-4 font-normal text-blue-500 active:text-blue-800"
+		onclick={restore}
+	>
+		Restore
+	</button>
 
-	<div class=" flex-1 justify-items-center px-6 pt-16">
-		<h class="mb-2 text-3xl font-bold">Ad-Free Experience</h>
+	<div class=" flex-1 justify-items-center px-4 pt-16">
+		<h class="mb-2 text-3xl font-bold sm:text-xl">Ad-Free Experience</h>
 		<p class="mb-4 text-xl text-gray-500">Remove all ads permanently</p>
 
 		<!-- Offer Box -->
@@ -58,8 +70,7 @@
 			<div class="">
 				<p class="text-xl font-semibold">🎉 Limited-Time Offer! 🎉</p>
 				<p class="text-base font-normal">
-					Early Adopters Special: Enjoy a seamless, ad-free experience. Now at an exclusive early
-					bird discount!
+					Enjoy a seamless, ad-free experience. Now at an exclusive early bird discount!
 				</p>
 				<p class="text-base font-normal">Act now! Offer available for a limited period only.</p>
 			</div>
@@ -102,15 +113,12 @@
 		{:else}
 			<button
 				class="relative w-full rounded-xl bg-blue-700 py-4 text-white active:bg-blue-800"
-				on:click={buyRemoveAds}
+				onclick={buyRemoveAds}
 			>
 				<span class="absolute left-4 rounded-md bg-red-700 px-2 py-1 text-sm text-white"
 					>60% Off</span
 				>
 				<span class="text-xl font-semibold">{price}</span>
-			</button>
-			<button class="w-full py-4 text-center text-blue-700 active:text-blue-800" on:click={restore}>
-				Restore Remove Ads
 			</button>
 		{/if}
 	</div>

@@ -1,51 +1,25 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
+	import RemoveAdsPage from '../remove-ads/+page.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
 	import {
 		productsStore,
 		purchasesStore,
 		PRODUCT_IDS,
-		initializeIAP,
 		COIN_PACKS_META
 	} from '$lib/economy/iapStore';
-	import { onMount } from 'svelte';
+
+	import { closeModal, openModal } from '$lib/components/shared/ModalHost';
 
 	function handleRemoveAds() {
-		goto('/remove-ads');
-		// purchasesStore.makePurchase(PRODUCT_IDS.REMOVE_ADS).catch((error) => {
-		// 	console.error('Failed to purchase remove ads:', error);
-		// });
+		openModal(RemoveAdsPage, {
+			close: () => {
+				console.log('closeModal');
+				closeModal();
+			}
+		});
 	}
-
-	// CoinPackage(
-	//     id: "small_coin_pack",
-	//     name: "Starter Pack",
-	//     coinAmount: 300,
-	//     productId: "com.wordseekr.coinpack.100"
-	//   ),
-	//   CoinPackage(
-	//     id: "medium_coin_pack",
-	//     name: "Popular Pack",
-	//     coinAmount: 900,
-	//     productId: "com.wordseekr.coinpack.300"
-	//   ),
-	//   CoinPackage(
-	//     id: "large_coin_pack",
-	//     name: "Premium Pack",
-	//     coinAmount: 2000,
-	//     productId: "com.wordseekr.coinpack.700",
-	//     isMostPopular: true
-	//   ),
-	//   CoinPackage(
-	//     id: "huge_coin_pack",
-	//     name: "Mega Pack",
-	//     coinAmount: 4000,
-	//     productId: "com.wordseekr.coinpack.1500",
-	//     isBestValue: true
-	//   ),
-	// ]
 
 	interface Product {
 		id: string;
@@ -53,6 +27,8 @@
 		coins: number;
 		price: string | undefined;
 		productId: string;
+		callout?: string;
+		isCalloutRed?: boolean;
 		type: 'iap' | 'ad';
 	}
 
@@ -82,8 +58,10 @@
 					coins: meta.coins,
 					price: product.displayPrice,
 					productId: product.id,
+					callout: meta.callout,
+					isCalloutRed: meta.isCalloutRed,
 					type: 'iap'
-				};
+				} as Product;
 			});
 	});
 
@@ -123,31 +101,38 @@
 		console.log('Watch ad for rewards');
 		walletStore.addCoins(100);
 	}
+	let removeAds = $state(false);
+	walletStore.removeAds((removeAds) => {
+		console.log('removeAds', removeAds);
+		removeAds = removeAds;
+	});
 </script>
 
 <div class="h-svh bg-white select-none">
 	<div class="flex flex-col items-stretch gap-2 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
-		<StoreProductCard
-			title="Ad-Free Experience"
-			detail="Remove all ads permanently"
-			isIndicatorActive={true}
-			onclick={handleRemoveAds}
-			callout="Limited Time"
-			isRemoveAds={true}
-			isCalloutRed={true}
-			isCalloutAnimating={true}
-		/>
+		{#if !removeAds}
+			<StoreProductCard
+				title="Ad-Free Experience"
+				detail="Remove all ads permanently"
+				isIndicatorActive={true}
+				onclick={handleRemoveAds}
+				callout="Limited Time"
+				isRemoveAds={true}
+				isCalloutRed={true}
+				isCalloutAnimating={true}
+			/>
+		{/if}
 
 		<span class="text-xl font-bold">Coins</span>
 		{#each coinPacks as product}
 			<StoreProductCard
 				title={product.name}
 				detail={`${product.coins} coins`}
-				callout={product.type === 'iap' ? 'Best Value' : ''}
+				callout={product.callout}
 				price={product.price}
-				isCalloutRed={product.type === 'iap'}
+				isCalloutRed={product.isCalloutRed}
 				onclick={() => handleProductClick(product)}
 			/>
 		{/each}

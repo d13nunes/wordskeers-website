@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { Preferences } from '@capacitor/preferences';
 
 const COIN_BALANCE_KEY = 'coinBalance';
+const REMOVE_ADS_KEY = 'removeAds';
 
 async function loadInitialBalance(): Promise<number> {
 	try {
@@ -24,26 +25,50 @@ async function saveBalance(balance: number): Promise<void> {
 	}
 }
 
+async function saveRemoveAds(removeAds: boolean): Promise<void> {
+	try {
+		await Preferences.set({
+			key: REMOVE_ADS_KEY,
+			value: removeAds.toString()
+		});
+	} catch (error) {
+		console.error('Failed to save remove ads to preferences:', error);
+	}
+}
+
+async function getRemoveAds(): Promise<boolean> {
+	try {
+		const { value } = await Preferences.get({ key: REMOVE_ADS_KEY });
+		return value ? value === 'true' : false;
+	} catch (error) {
+		console.error('Failed to get remove ads from preferences:', error);
+		return false;
+	}
+}
+
 async function getBalance(): Promise<number> {
 	const { value } = await Preferences.get({ key: COIN_BALANCE_KEY });
 	return value ? parseInt(value, 10) : 0;
 }
 
 function createWalletStore(): Wallet {
-	const { subscribe, set, update } = writable<number>(0); // Initialize with 0, will be updated async
-
+	const { subscribe: coins, set: setCoins, update: updateCoins } = writable<number>(0); // Initialize with 0, will be updated async
 	// Load the initial balance asynchronously
 	loadInitialBalance().then((initialBalance) => {
-		set(initialBalance);
+		setCoins(initialBalance);
+	});
+	const { subscribe: removeAds, set: setRemoveAds } = writable<boolean>(false);
+	getRemoveAds().then((removeAds) => {
+		setRemoveAds(removeAds);
 	});
 
 	return {
-		subscribe,
+		coins,
 		addCoins: (amount: number) => {
 			if (amount <= 0) {
 				return;
 			}
-			update((currentBalance) => {
+			updateCoins((currentBalance) => {
 				const newBalance = currentBalance + amount;
 				saveBalance(newBalance);
 				return newBalance;
@@ -53,17 +78,24 @@ function createWalletStore(): Wallet {
 			if (amount <= 0) {
 				return;
 			}
-			update((currentBalance) => {
+			updateCoins((currentBalance) => {
 				const newBalance = Math.max(0, currentBalance - amount); // Prevent negative balance
 				saveBalance(newBalance);
 				return newBalance;
 			});
 		},
+		removeAds,
+		setRemoveAds: (removeAds: boolean) => {
+			saveRemoveAds(removeAds);
+			setRemoveAds(removeAds);
+		},
 		// Optional: A method to reset the balance (useful for testing/debugging)
 		reset: () => {
 			const newBalance = 0;
-			set(newBalance);
+			setCoins(newBalance);
 			saveBalance(newBalance);
+			setRemoveAds(false);
+			saveRemoveAds(false);
 		},
 		canBuy: async (amount: number) => {
 			const balance = await getBalance();
@@ -73,10 +105,12 @@ function createWalletStore(): Wallet {
 }
 
 export interface Wallet {
-	subscribe: (callback: (balance: number) => void) => void;
+	coins: (callback: (balance: number) => void) => void;
 	canBuy: (amount: number) => Promise<boolean>;
 	addCoins: (amount: number) => void;
 	subtractCoins: (amount: number) => void;
+	removeAds: (callback: (removeAds: boolean) => void) => void;
+	setRemoveAds: (removeAds: boolean) => void;
 	reset: () => void;
 }
 

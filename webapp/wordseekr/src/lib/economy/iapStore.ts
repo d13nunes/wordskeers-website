@@ -9,16 +9,26 @@ export const PRODUCT_IDS = {
 	COIN_PACK_MEDIUM: 'com.wordseekr.coinpack.300',
 	COIN_PACK_LARGE: 'com.wordseekr.coinpack.700',
 	COIN_PACK_HUGE: 'com.wordseekr.coinpack.1500',
-	REMOVE_ADS: 'com.wordseekr.coinpack.removeads',
-	REMOVE_ADS_DISCOUNT: 'com.wordseekr.coinpack.removeads60'
+	REMOVE_ADS_OLD: 'com.wordseekr.coinpack.removeads',
+	REMOVE_ADS_DISCOUNT_OLD: 'com.wordseekr.coinpack.removeads60',
+	REMOVE_ADS: 'com.wordseekr.removeads',
+	REMOVE_ADS_DISCOUNT: 'com.wordseekr.removeads60'
 };
 
 interface ProductMeta {
 	coins: number;
 	title: string;
 	description: string;
+	callout?: string;
+	isCalloutRed?: boolean;
 }
 
+export const removeAds = [
+	PRODUCT_IDS.REMOVE_ADS,
+	PRODUCT_IDS.REMOVE_ADS_DISCOUNT,
+	PRODUCT_IDS.REMOVE_ADS_OLD,
+	PRODUCT_IDS.REMOVE_ADS_DISCOUNT_OLD
+];
 // Map product IDs to coin amounts
 export const COIN_PACKS_META: Record<string, ProductMeta> = {
 	[PRODUCT_IDS.COIN_PACK_SMALL]: {
@@ -34,12 +44,16 @@ export const COIN_PACKS_META: Record<string, ProductMeta> = {
 	[PRODUCT_IDS.COIN_PACK_LARGE]: {
 		coins: 2000,
 		title: 'Premium Pack',
-		description: '2000 coins'
+		description: '2000 coins',
+		callout: 'Most Popular',
+		isCalloutRed: true
 	},
 	[PRODUCT_IDS.COIN_PACK_HUGE]: {
 		coins: 4000,
 		title: 'Mega Pack',
-		description: '4000 coins'
+		description: '4000 coins',
+		callout: 'Best Value',
+		isCalloutRed: false
 	},
 	[PRODUCT_IDS.REMOVE_ADS]: {
 		coins: 0,
@@ -124,8 +138,9 @@ const createPurchasesStore = () => {
 						}
 
 						// Handle non-consumable purchases like Remove Ads
-						if (productId === PRODUCT_IDS.REMOVE_ADS) {
-							update((state) => ({ ...state, [productId]: true }));
+						if (removeAds.includes(productId)) {
+							console.log('✅ Removing ads');
+							walletStore.setRemoveAds(true);
 						}
 					}
 				});
@@ -168,6 +183,14 @@ const createPurchasesStore = () => {
 				await CapacitorInAppPurchase.manageSubscriptions({});
 			} catch (error) {
 				console.error('Failed to open subscription management:', error);
+				throw error;
+			}
+		},
+		restore: async () => {
+			try {
+				await purchasesStore.initializePurchases();
+			} catch (error) {
+				console.error('Failed to restore purchases:', error);
 				throw error;
 			}
 		}

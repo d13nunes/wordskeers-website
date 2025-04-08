@@ -3,7 +3,7 @@
 	import { walletStore } from '$lib/economy/walletStore';
 
 	let balance = $state(0);
-	walletStore.subscribe((newBalance) => (balance = newBalance));
+	walletStore.coins((newBalance) => (balance = newBalance));
 </script>
 
 <div class="dailyreward-card flex flex-col items-center gap-0 border-[1px] border-gray-200">

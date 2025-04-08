@@ -9,7 +9,7 @@
 	let isActive = $state(false);
 	let { onclick } = $props();
 
-	walletStore.subscribe((newBalance) => (balance = newBalance));
+	walletStore.coins((newBalance) => (balance = newBalance));
 
 	onMount(async () => {
 		isActive = await isIAPAvailable();
