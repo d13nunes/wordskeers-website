@@ -19,11 +19,13 @@
 	function onStoreClick() {
 		console.log('store clicked');
 		isStoreOpen = true;
+		isDailyRewardsOpen = false;
 	}
 
 	function onDailyRewardClick() {
 		console.log('daily rewards clicked');
 		isDailyRewardsOpen = true;
+		isStoreOpen = false;
 	}
 
 	function cenas() {

@@ -1,12 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
-	import DailyRewards from './dailyrewards/+page.svelte';
-	import Store from './store/+page.svelte';
 
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
-	import BottomSheet from '$lib/components/shared/BottomSheet.svelte';
-	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
 	let size = 6;
 	let directions: string[] = ['up', 'down', 'left', 'right'];
 	let selectedDirection: string | null = null;
