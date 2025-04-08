@@ -86,7 +86,7 @@
         }
       ],
       "productID" : "com.wordseekr.coinpack.removeads",
-      "referenceName" : "Remove Ads",
+      "referenceName" : "Remove Ads - Old",
       "type" : "NonConsumable"
     },
     {
@@ -102,6 +102,36 @@
       ],
       "productID" : "com.wordseekr.coinpack.removeads60",
       "referenceName" : "Remove Ads - Early Bird",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "63608589",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.wordseekr.removeads",
+      "referenceName" : "Remove Ads",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "24B54C0F",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.wordseekr.removeads60",
+      "referenceName" : "Remove Ads - EarlyBird",
       "type" : "NonConsumable"
     }
   ],
