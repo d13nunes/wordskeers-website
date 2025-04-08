@@ -11,18 +11,8 @@
 	import { type Position } from '$lib/components/Game/Position';
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import type { Word } from '$lib/components/Game/Word';
-	import { initialize, banner } from '$lib/ads/Ad';
 
 	let isRotated = $state(false);
-
-	async function init() {
-		console.log('📺 init');
-		await initialize();
-		console.log('📺 init banner');
-		await banner();
-	}
-
-	init();
 
 	let words: Word[] = $state([]);
 

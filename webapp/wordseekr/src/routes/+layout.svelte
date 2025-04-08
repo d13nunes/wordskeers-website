@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import '../app.css';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
 	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
@@ -7,6 +7,9 @@
 	import DailyRewards from './dailyrewards/+page.svelte';
 	import Store from './store/+page.svelte';
 	import ModalHost from '$lib/components/shared/ModalHost.svelte';
+	import { goto } from '$app/navigation';
+	import { adStore } from '$lib/ads/ads';
+	import { AdType } from '$lib/ads/ads-types';
 
 	interface Props {
 		children: Snippet;
@@ -29,9 +32,12 @@
 		isStoreOpen = false;
 	}
 
-	function cenas() {
-		console.log('cenas clicked');
-	}
+	onMount(async () => {
+		console.log('layout onMount');
+		await adStore.initialize();
+		const success = await adStore.showAd(AdType.Banner);
+		console.log('success', success);
+	});
 </script>
 
 <div
@@ -40,6 +46,7 @@
 	<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
 		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
 		<BalanceTag onclick={onStoreClick} />
+		<button onclick={() => goto('/ads')}>Ad</button>
 	</div>
 	{@render children()}
 
