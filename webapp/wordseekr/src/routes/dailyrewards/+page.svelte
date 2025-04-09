@@ -1,45 +1,68 @@
 <script lang="ts">
 	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
-	import LockDailyRewardCard from '$lib/components/DailyRewards/LockDailyRewardCard.svelte';
-	import ClaimableDailyRewardCard from '$lib/components/DailyRewards/ClaimableDailyRewardCard.svelte';
-	import DailyRewardTimerCard from '../../lib/components/DailyRewards/DailyRewardTimerCard.svelte';
-	import DailyRewardsEnableNotificationCard from '$lib/components/DailyRewards/DailyRewardsEnableNotificationCard.svelte';
+	import DailyRewardCardLock from '$lib/components/DailyRewards/DailyRewardCardLock.svelte';
+	import ClaimableDailyCardReward from '$lib/components/DailyRewards/DailyRewardCardClaimable.svelte';
+	import DailyRewardCardTimer from '../../lib/components/DailyRewards/DailyRewardCardTimer.svelte';
+	import DailyRewardsEnableCardNotification from '$lib/components/DailyRewards/DailyRewardsCardEnableNotification.svelte';
+	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 
-	function handleClaimDailyReward() {
-		console.log('claim daily reward');
+	import { onMount } from 'svelte';
+	import DailyRewardCardClaimed from '$lib/components/DailyRewards/DailyRewardCardClaimed.svelte';
+	import { DailyRewardStatus } from '$lib/rewards/daily-reward.model';
+
+	// Store subscriptions
+	let rewards = $derived($dailyRewardsStore?.currentRewards ?? []);
+	let claimedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimed));
+	let lockedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Locked));
+	let claimableRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimable));
+	let resetRewardTimestamp = $derived($dailyRewardsStore?.resetRewardTimestamp);
+	let hasClaimedFirstReward = $derived(($dailyRewardsStore?.rewardsCollectedToday ?? 0) > 0);
+
+	async function handleClaimDailyReward(rewardId: string, requiresAd: boolean) {
+		const result = await dailyRewardsStore.claimReward(rewardId);
+		// TODO Animation
 	}
 
-	function handleWatchAd() {
-		console.log('watch ad');
-	}
-
-	const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24);
-
-	const handleEnableNotification = () => {
-		console.log('enable notification');
+	const handleEnableNotification = async () => {
+		await dailyRewardsStore.setEnableNotifications(true);
 	};
+
+	onMount(() => {
+		// Refresh the state when the component mounts
+		dailyRewardsStore.refresh();
+	});
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-2 p-4">
-		<span class="self-center text-2xl font-bold">Daily Rewards</span>
+	<div class="flex flex-col items-stretch gap-2 px-4 pt-5">
+		<h1 class="mb-2 self-center text-2xl font-bold">Daily Rewards</h1>
 		<BalanceCard />
-		<!--!! daily reward locked -->
-		<LockDailyRewardCard title="Daily Reward" detail="Watch ad to unlock" />
-		<!--!! daily reward claimable -->
-		<ClaimableDailyRewardCard
-			title="Claim 100 coins"
-			detail="Free Reward"
-			isAd={false}
-			onClick={handleClaimDailyReward}
-		/>
-		<ClaimableDailyRewardCard
-			title="Claim 100 coins"
-			detail="Free Reward"
-			isAd={true}
-			onClick={handleClaimDailyReward}
-		/>
-		<DailyRewardTimerCard {endDate} />
-		<DailyRewardsEnableNotificationCard onClick={handleEnableNotification} />
+
+		{#if resetRewardTimestamp}
+			<DailyRewardCardTimer endDate={new Date(resetRewardTimestamp)} />
+		{/if}
+		{#each claimedRewards as reward (reward.id)}
+			<DailyRewardCardClaimed title={`Earned ${reward.coins} coins`} detail="Claimed" />
+		{/each}
+
+		{#each lockedRewards as reward (reward.id)}
+			<DailyRewardCardLock
+				title="Daily Reward"
+				detail={reward.requiresAd ? 'Watch ad to unlock' : 'Not available yet'}
+			/>
+		{/each}
+
+		{#each claimableRewards as reward (reward.id)}
+			<ClaimableDailyCardReward
+				title={`Claim ${reward.coins} coins`}
+				detail={'Free Coins'}
+				isAd={reward.requiresAd}
+				onClick={() => handleClaimDailyReward(reward.id, reward.requiresAd)}
+			/>
+		{/each}
+
+		{#if hasClaimedFirstReward && !$dailyRewardsStore?.notificationsEnabled}
+			<DailyRewardsEnableCardNotification onClick={handleEnableNotification} />
+		{/if}
 	</div>
 </div>

@@ -109,7 +109,7 @@
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-2 p-4">
+	<div class="flex flex-col items-stretch gap-2 px-4 pt-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
 		{#if !removeAds}

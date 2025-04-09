@@ -3,13 +3,15 @@
 	import SmallCard from '$lib/components/SmallCard.svelte';
 	import { onMount, onDestroy } from 'svelte';
 
-	export let endDate: Date;
+	let { endDate } = $props<{
+		endDate?: Date;
+	}>();
 
 	const title = 'Next Reward';
 	const detail = 'Time Remaining';
-	const onClick: () => void = () => {};
+	const onClick = $state(() => {});
 
-	let timeRemaining = '';
+	let timeRemaining = $state('');
 	let interval: ReturnType<typeof setInterval>;
 
 	function updateTimeRemaining() {
@@ -38,13 +40,15 @@
 	});
 </script>
 
-<SmallCard {title} {detail} disabled={true} {onClick}>
-	<div slot="icon">
+<SmallCard {title} {detail} disabled={true} {onClick} class="bg-blue-100">
+	{#snippet icon()}
 		<div class="h-5 w-5">
 			<ClockIcon />
 		</div>
-	</div>
-	<div slot="action">
-		<div class="min-w-[100px] rounded-md bg-gray-700 px-4 py-2 text-white">{timeRemaining}</div>
-	</div>
+	{/snippet}
+	{#snippet action()}
+		<div class="min-w-[100px] rounded-md bg-blue-700 px-4 py-2 font-mono font-bold text-white">
+			{timeRemaining}
+		</div>
+	{/snippet}
 </SmallCard>

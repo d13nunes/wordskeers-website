@@ -11,7 +11,7 @@ import {
 	NOTIFICATION_CHANNEL_DESCRIPTION,
 	NEXT_REWARD_NOTIFICATION_ID
 } from './daily-rewards.config';
-import { isSameDay, addHours, startOfTomorrow } from 'date-fns';
+import { addHours, startOfTomorrow, addDays } from 'date-fns';
 
 /**
  * Checks notification permissions.
@@ -19,7 +19,7 @@ import { isSameDay, addHours, startOfTomorrow } from 'date-fns';
  */
 async function checkPermissions(): Promise<boolean> {
 	if (!Capacitor.isPluginAvailable('LocalNotifications')) {
-		console.warn('LocalNotifications plugin not available');
+		console.warn('📨LocalNotifications plugin not available');
 		return false;
 	}
 	const result = await LocalNotifications.checkPermissions();
@@ -32,7 +32,7 @@ async function checkPermissions(): Promise<boolean> {
  */
 async function requestPermissions(): Promise<boolean> {
 	if (!Capacitor.isPluginAvailable('LocalNotifications')) {
-		console.warn('LocalNotifications plugin not available');
+		console.warn('📨LocalNotifications plugin not available');
 		return false;
 	}
 	const result = await LocalNotifications.requestPermissions();
@@ -44,6 +44,7 @@ async function requestPermissions(): Promise<boolean> {
  */
 async function createNotificationChannel(): Promise<void> {
 	if (Capacitor.getPlatform() !== 'android' || !Capacitor.isPluginAvailable('LocalNotifications')) {
+		console.log('📨Notification channel not available on this platform.');
 		return;
 	}
 	try {
@@ -54,7 +55,7 @@ async function createNotificationChannel(): Promise<void> {
 			importance: 4, // High importance
 			visibility: 1 // Public visibility
 		});
-		console.log(`Notification channel '${NOTIFICATION_CHANNEL_ID}' created or already exists.`);
+		console.log(`📨Notification channel '${NOTIFICATION_CHANNEL_ID}' created or already exists.`);
 	} catch (error) {
 		console.error('Error creating notification channel:', error);
 	}
@@ -65,11 +66,9 @@ async function createNotificationChannel(): Promise<void> {
  * @param firstRewardClaimTimestamp Timestamp (ms) when the first reward was claimed, if any.
  * @param lastClaimTimestamp Timestamp (ms) of the very last claim.
  */
-async function scheduleNextRewardNotification(
-	firstRewardClaimTimestamp?: number,
-	lastClaimTimestamp?: number
-): Promise<void> {
+async function scheduleNextRewardNotification(firstRewardClaimTimestamp: number): Promise<void> {
 	if (!Capacitor.isPluginAvailable('LocalNotifications')) {
+		console.warn('📨LocalNotifications plugin not available');
 		return;
 	}
 
@@ -78,32 +77,35 @@ async function scheduleNextRewardNotification(
 	const now = Date.now();
 	let scheduleTime: Date | undefined;
 
-	if (firstRewardClaimTimestamp) {
-		// 4-hour window active or just ended
-		const fourHoursLater = addHours(new Date(firstRewardClaimTimestamp), 4);
-		if (fourHoursLater.getTime() > now) {
-			scheduleTime = fourHoursLater; // Schedule for the end of the 4-hour window
-		}
+	// 4-hour window active or just ended
+	const fourHoursLater = addHours(new Date(firstRewardClaimTimestamp), 4);
+	if (fourHoursLater.getTime() > now) {
+		scheduleTime = fourHoursLater; // Schedule for the end of the 4-hour window
+	}
+	const nextMorning = addHours(startOfTomorrow(), 8);
+	if (nextMorning.getTime() > now) {
+		scheduleTime = nextMorning; // Schedule for the start of the next day
 	}
 
-	if (!scheduleTime && lastClaimTimestamp) {
-		// If no 4-hour window is active/relevant, schedule for the start of the next day
-		const lastClaimDate = new Date(lastClaimTimestamp);
-		if (isSameDay(lastClaimDate, new Date())) {
-			scheduleTime = startOfTomorrow();
-		}
+	const nextMorningTwoDaysLater = addHours(addDays(startOfTomorrow(), 2), 8);
+	if (nextMorningTwoDaysLater.getTime() > now) {
+		scheduleTime = nextMorningTwoDaysLater; // Schedule for the start of the next day
+	}
+	const nextMorningOneWeekLater = addHours(addDays(startOfTomorrow(), 7), 8);
+	if (nextMorningOneWeekLater.getTime() > now) {
+		scheduleTime = nextMorningOneWeekLater; // Schedule for the start of the next week
 	}
 
 	// If we still don't have a schedule time, it means rewards are likely available now
 	// or it's the very first time, so we don't schedule a notification yet.
 	if (!scheduleTime) {
-		console.log('No future reward notification needed at this time.');
+		console.log('📨No future reward notification needed at this time.');
 		return;
 	}
 
 	// Ensure the schedule time is in the future
 	if (scheduleTime.getTime() <= now) {
-		console.log('Calculated schedule time is in the past, skipping notification.');
+		console.log('📨Calculated schedule time is in the past, skipping notification.');
 		return;
 	}
 
@@ -123,7 +125,7 @@ async function scheduleNextRewardNotification(
 
 	try {
 		const result = await LocalNotifications.schedule(options);
-		console.log('Scheduled reward notification:', result, 'at:', scheduleTime);
+		console.log('📨Scheduled reward notification:', result, 'at:', scheduleTime);
 	} catch (error) {
 		console.error('Error scheduling notification:', error);
 	}
@@ -144,7 +146,7 @@ async function cancelScheduledNotifications(): Promise<void> {
 
 		if (notificationIdsToCancel.length > 0) {
 			await LocalNotifications.cancel({ notifications: notificationIdsToCancel });
-			console.log('Cancelled pending reward notification(s).');
+			console.log('📨Cancelled pending reward notification(s).');
 		}
 	} catch (error) {
 		console.error('Error cancelling notifications:', error);

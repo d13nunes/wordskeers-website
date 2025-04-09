@@ -2,19 +2,21 @@
 	import SmallCard from '$lib/components/SmallCard.svelte';
 	import BellIcon from '$lib/components/Icons/BellIcon.svelte';
 
-	export let onClick: () => void = () => {};
+	let { onClick = () => {} } = $props<{
+		onClick: () => void;
+	}>();
 
-	const title: string = 'Enable notification';
-	const detail: string = 'Never miss a reward!';
+	const title = 'Enable notification';
+	const detail = 'Never miss a reward!';
 </script>
 
 <SmallCard {title} {detail} disabled={false} {onClick}>
-	<div slot="icon">
+	{#snippet icon()}
 		<div class=" h-5 w-5">
 			<BellIcon />
 		</div>
-	</div>
-	<div slot="action">
+	{/snippet}
+	{#snippet action()}
 		<div class="rounded-md bg-blue-600 px-4 py-2 text-white">Enable</div>
-	</div>
+	{/snippet}
 </SmallCard>

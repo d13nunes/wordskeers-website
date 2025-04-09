@@ -1,10 +1,13 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		visible: boolean;
+		children: () => Snippet;
 		close: () => void;
 	}
 
-	let { visible, close }: Props = $props();
+	let { visible, children, close }: Props = $props();
 
 	let startY = $state(0);
 	let offsetY = $state(0);
@@ -63,7 +66,7 @@
 		on:click={handleDismiss}
 	>
 		<div
-			class="shadow-top pointer-events-auto max-h-[90vh] w-full touch-none overflow-y-scroll rounded-t-4xl bg-white p-4"
+			class="shadow-top pointer-events-auto max-h-[90vh] w-full touch-none overflow-y-scroll rounded-t-4xl bg-white px-4"
 			on:click|stopPropagation
 			on:pointerdown={handlePointerDown}
 			class:slide-up={visible && !hasAnimated && !isDismissing}
@@ -76,11 +79,7 @@
 				}
 			}}
 		>
-			<div
-				class="mx-auto mb-4 h-1.5 w-10 cursor-pointer rounded-full bg-gray-300"
-				on:click={handleDismiss}
-			/>
-			<slot />
+			{@render children()}
 		</div>
 	</div>
 {/if}
