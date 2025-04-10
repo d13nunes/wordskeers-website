@@ -34,7 +34,7 @@
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-2 px-4 pt-5">
+	<div class="flex flex-col gap-2 px-4 pt-5">
 		<h1 class="mb-2 self-center text-2xl font-bold">Daily Rewards</h1>
 		<BalanceCard />
 

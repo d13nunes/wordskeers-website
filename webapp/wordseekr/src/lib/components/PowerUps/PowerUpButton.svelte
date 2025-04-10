@@ -1,30 +1,43 @@
 <script lang="ts">
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
+	import type { Snippet } from 'svelte';
 
-	export let price: string = '100';
-	export let priceColor: string = 'text-orange-500';
-	export let color: string = 'bg-orange-500';
-	export let title: string = 'Rotate';
-	export let titleColor: string = 'text-orange-500';
+	interface Props {
+		price: string;
+		priceColor: string;
+		color: string;
+		title: string;
+		titleColor: string;
+		onclick: () => void;
+		icon: Snippet;
+	}
 
-	export let onClick: () => void;
+	let {
+		price = '100',
+		priceColor = 'text-orange-500',
+		color = 'bg-orange-500',
+		title = 'Rotate',
+		titleColor = 'text-orange-500',
+		onclick,
+		icon
+	}: Props = $props();
 </script>
 
-<button class=" select-none" on:click={onClick}>
+<button class=" select-none" {onclick}>
 	<div
-		class="flex h-28 w-28 flex-col items-center justify-center rounded-lg border-gray-200 py-4 shadow-sm {color} button-active"
+		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} button-active"
 	>
-		<div class="h-8 w-8">
-			<slot />
+		<div class="h-6 w-6">
+			{@render icon()}
 		</div>
-		<div class="flex flex-col items-center justify-center pt-3">
+		<div class="absolute bottom-2 flex flex-col items-center justify-center">
 			<div class="flex flex-row items-center justify-center gap-0.5">
-				<div class="h-3 w-3">
+				<div class="h-2 w-2">
 					<CoinsPileIcon />
 				</div>
-				<span class="text-xs font-normal {priceColor}">{price}</span>
+				<span class="font-regular text-xs {priceColor}">{price}</span>
 			</div>
-			<span class="text-sm font-medium {titleColor}">{title}</span>
+			<span class="font-regular text-xs {titleColor}">{title}</span>
 		</div>
 	</div>
 </button>

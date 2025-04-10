@@ -1,8 +1,12 @@
 <script lang="ts">
 	import PowerUpButton from './PowerUpButton.svelte';
 	import FindWordIcon from './Icons/FindWordIcon.svelte';
-	export let onClick: () => void;
-	export let price: string = '100';
+	interface Props {
+		onclick: () => void;
+		price: string;
+	}
+
+	let { onclick, price }: Props = $props();
 </script>
 
 <PowerUpButton
@@ -10,7 +14,10 @@
 	title="Find Word"
 	titleColor="text-cyan-700"
 	priceColor="text-cyan-600"
-	{onClick}
+	{onclick}
+	{price}
 >
-	<FindWordIcon color="#007595" />
+	{#snippet icon()}
+		<FindWordIcon color="#007595" />
+	{/snippet}
 </PowerUpButton>

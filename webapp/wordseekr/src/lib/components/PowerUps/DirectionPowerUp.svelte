@@ -2,8 +2,12 @@
 	import PowerUpButton from './PowerUpButton.svelte';
 	import DirectionIcon from './Icons/DirectionIcon.svelte';
 
-	export let onClick: () => void;
-	export let price: string = '100';
+	interface Props {
+		onclick: () => void;
+		price: string;
+	}
+
+	let { onclick, price }: Props = $props();
 </script>
 
 <PowerUpButton
@@ -12,7 +16,9 @@
 	title="Direction"
 	titleColor="text-orange-700"
 	priceColor="text-orange-600"
-	{onClick}
+	{onclick}
 >
-	<DirectionIcon color="#bb4d00" />
+	{#snippet icon()}
+		<DirectionIcon color="#bb4d00" />
+	{/snippet}
 </PowerUpButton>

@@ -31,7 +31,7 @@
 </script>
 
 {#if callout}
-	<div class="relative">
+	<div class="relative -mt-2">
 		<div
 			class="absolute top-1 right-4 flex h-5 items-center rounded-sm {animation} {isCalloutRed
 				? 'bg-red-700'

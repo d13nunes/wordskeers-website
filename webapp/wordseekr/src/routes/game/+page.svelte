@@ -68,30 +68,39 @@
 	function getColor() {
 		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
 	}
+	let title = 'Cenas'; //$derived(game.title);
+	let isRemoveAdsActive = $state(false);
 </script>
 
-<div class="h-screen w-screen overflow-hidden bg-slate-50">
-	<div class="p-8">
-		<div class="card flex flex-row flex-wrap gap-2">
-			{#each words as word}
-				<Tag
-					tag={word.word}
-					isDiscovered={word.isDiscovered}
-					customBg={word.color}
-					customText={word.color}
-				/>
-			{/each}
+<div class="">
+	<div
+		class="flex h-screen flex-col items-center justify-end {isRemoveAdsActive
+			? 'pb-12'
+			: 'pb-28'} lg:items-center lg:pb-0"
+	>
+		<div class="p-4">
+			<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
+			<div class=" flex flex-row flex-wrap gap-2 py-2">
+				{#each words as word}
+					<Tag
+						tag={word.word}
+						isDiscovered={word.isDiscovered}
+						customBg={word.color}
+						customText={word.color}
+					/>
+				{/each}
+			</div>
+			<div class="flex items-center justify-center pt-4">
+				<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} />
+			</div>
 		</div>
-		<div class="flex flex-row pt-2">
-			<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} />
+		<div class="flex flex-row items-center justify-center gap-6">
+			<PauseButton onclick={onPauseClick} />
+			<div class="flex w-full flex-row items-center justify-center gap-2">
+				<FindWordPowerUp onclick={onPowerUpFindWordClick} price="200" />
+				<FindLetterPowerUp onclick={onPowerUpFindLetterClick} price="100" />
+				<RotatePowerUp onclick={onPowerUpRotateClick} price="10" />
+			</div>
 		</div>
-	</div>
-	<div class="flex flex-row gap-2 p-8">
-		<PauseButton onClick={onPauseClick} />
-		<div class="w-full"></div>
-		<RotatePowerUp onClick={onPowerUpRotateClick} />
-		<DirectionPowerUp onClick={onPowerUpDirectionClick} />
-		<FindLetterPowerUp onClick={onPowerUpFindLetterClick} />
-		<FindWordPowerUp onClick={onPowerUpFindWordClick} />
 	</div>
 </div>

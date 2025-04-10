@@ -41,7 +41,7 @@
 </script>
 
 <div
-	class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right max-h-screen min-h-screen overflow-y-clip bg-slate-50"
+	class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right max-h-screen min-h-screen overflow-y-clip bg-slate-50 select-none"
 >
 	<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
 		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />

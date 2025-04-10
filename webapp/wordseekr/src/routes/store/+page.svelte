@@ -109,7 +109,7 @@
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-2 px-4 pt-4">
+	<div class="flex flex-col items-stretch gap-2 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
 		{#if !removeAds}
@@ -124,25 +124,26 @@
 				isCalloutAnimating={true}
 			/>
 		{/if}
-
-		<span class="text-xl font-bold">Coins</span>
-		{#each coinPacks as product}
-			<StoreProductCard
-				title={product.name}
-				detail={`${product.coins} coins`}
-				callout={product.callout}
-				price={product.price}
-				isCalloutRed={product.isCalloutRed}
-				onclick={() => handleProductClick(product)}
-			/>
-		{/each}
-		{#each rewardedAdProducts as product}
-			<StoreProductCard
-				title={product.name}
-				detail={`${product.coins} coins`}
-				isCalloutRed={false}
-				onclick={() => handleProductClick(product)}
-			/>
-		{/each}
+		<div class="flex flex-col items-stretch gap-2">
+			<span class="text-xl font-bold">Coins</span>
+			{#each coinPacks as product}
+				<StoreProductCard
+					title={product.name}
+					detail={`${product.coins} coins`}
+					callout={product.callout}
+					price={product.price}
+					isCalloutRed={product.isCalloutRed}
+					onclick={() => handleProductClick(product)}
+				/>
+			{/each}
+			{#each rewardedAdProducts as product}
+				<StoreProductCard
+					title={product.name}
+					detail={`${product.coins} coins`}
+					isCalloutRed={false}
+					onclick={() => handleProductClick(product)}
+				/>
+			{/each}
+		</div>
 	</div>
 </div>

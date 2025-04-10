@@ -47,7 +47,7 @@
 		</div>
 	{/snippet}
 	{#snippet action()}
-		<div class="min-w-[100px] rounded-md bg-blue-700 px-4 py-2 font-mono font-bold text-white">
+		<div class="small-card-action bg-blue-700 font-mono font-semibold text-white">
 			{timeRemaining}
 		</div>
 	{/snippet}

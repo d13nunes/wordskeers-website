@@ -4,15 +4,39 @@ export interface Game {
 }
 
 export function createMockGame(): Game {
-	return {
+	const a = {
 		grid: [
-			['A', 'B', 'C', 'D', 'E', 'F'],
-			['G', 'H', 'I', 'J', 'K', 'L'],
-			['M', 'N', 'O', 'P', 'Q', 'R'],
-			['S', 'T', 'U', 'V', 'W', 'X'],
-			['Y', 'Z', 'A', 'B', 'C', 'D'],
-			['E', 'F', 'G', 'H', 'I', 'J']
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'],
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'],
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'],
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'],
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'],
+			['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'],
+			['N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
 		],
-		words: ['ABC', 'DEF', 'GHI', 'AHO']
+		words: [
+			'ABC',
+			'DEF',
+			'GHI',
+			'AHO',
+			'BCE',
+			'BDI',
+			'BDF',
+			'BDE',
+			'BDC',
+			'BDA',
+			'BDO',
+			'BDI',
+			'dsa',
+			'sdas',
+			'sadasdasdasd'
+		]
 	};
+	console.log('!!!!', a);
+	return a;
 }

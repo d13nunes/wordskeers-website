@@ -181,7 +181,7 @@
 
 <div class="flex flex-col items-center justify-center">
 	<div
-		class="card grid gap-2 transition-transform duration-500 ease-in-out"
+		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
 		style="grid-template-columns: repeat({numColumns}, minmax(0, 1fr)); transform: {isRotated
 			? 'rotate(180deg)'
 			: 'rotate(0deg)'}"
@@ -195,19 +195,21 @@
 	>
 		{#each cells as row}
 			{#each row as cell}
-				<div
-					class="flex h-16 w-16 cursor-pointer items-center justify-center rounded-2xl text-3xl font-medium transition-colors
-					duration-500 ease-in-out select-none {getBGColor(cell)}"
-					style="transform: {isRotated ? 'rotate(180deg)' : 'rotate(0deg)'}"
-					onmousedown={() => handleMouseDown(cell.row, cell.col)}
-					onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
-					ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
-					data-row={cell.row}
-					data-col={cell.col}
-					role="button"
-					tabindex="0"
-				>
-					{cell.letter}
+				<div class="h-[32px] w-[32px]">
+					<div
+						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-[18px] font-semibold transition-colors
+					duration-150 ease-in-out {getBGColor(cell)} text-center text-gray-900"
+						style="transform: {isRotated ? 'rotate(180deg)' : 'rotate(0deg)'}"
+						onmousedown={() => handleMouseDown(cell.row, cell.col)}
+						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
+						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
+						data-row={cell.row}
+						data-col={cell.col}
+						role="button"
+						tabindex="0"
+					>
+						{cell.letter}
+					</div>
 				</div>
 			{/each}
 		{/each}

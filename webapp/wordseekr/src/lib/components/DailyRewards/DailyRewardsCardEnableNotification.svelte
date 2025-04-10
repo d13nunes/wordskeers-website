@@ -17,6 +17,6 @@
 		</div>
 	{/snippet}
 	{#snippet action()}
-		<div class="rounded-md bg-blue-600 px-4 py-2 text-white">Enable</div>
+		<div class="small-card-action bg-blue-600 text-white">Enable</div>
 	{/snippet}
 </SmallCard>

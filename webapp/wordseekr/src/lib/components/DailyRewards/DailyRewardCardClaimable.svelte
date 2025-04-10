@@ -18,9 +18,9 @@
 	{/snippet}
 	{#snippet action()}
 		{#if isAd}
-			<div class="min-w-[100px] rounded-md bg-emerald-700 px-4 py-2 text-white">Watch Ad</div>
+			<div class="small-card-action bg-emerald-700 text-white">Watch Ad</div>
 		{:else}
-			<div class="min-w-[100px] rounded-md bg-blue-600 px-4 py-2 text-white">Collect Now</div>
+			<div class="small-card-action bg-blue-600 text-white">Collect</div>
 		{/if}
 	{/snippet}
 </SmallCard>

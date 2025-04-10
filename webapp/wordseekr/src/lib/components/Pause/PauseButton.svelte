@@ -1,17 +1,19 @@
 <script lang="ts">
 	import PauseIcon from './PauseIcon.svelte';
-
-	export let onClick: () => void;
+	interface Props {
+		onclick: () => void;
+	}
+	let { onclick }: Props = $props();
 </script>
 
-<button on:click={onClick}>
+<button {onclick}>
 	<div
-		class="button-active flex h-28 w-28 flex-col items-center justify-center rounded-lg bg-white px-6 py-4 shadow-sm"
+		class="button-active relative flex h-20 w-18 flex-col items-center justify-center rounded-lg bg-white px-4 py-2 shadow-sm"
 	>
-		<div class="w-8">
+		<div class="mb-5 w-6">
 			<PauseIcon />
 		</div>
-		<div class="flex flex-col items-center justify-center pt-3">
+		<div class="absolute bottom-2 flex flex-col items-center justify-center">
 			<span class="text-sm font-medium text-gray-500">Pause</span>
 		</div>
 	</div>
