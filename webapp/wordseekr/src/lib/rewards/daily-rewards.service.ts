@@ -82,11 +82,11 @@ function generateNewDailyRewards(): DailyReward[] {
  */
 function checkAndApplyResets(currentState: DailyRewardsState): DailyRewardsState {
 	const now = Date.now();
-
 	// --- 4-Hour Window Reset Check ---
 	// If the first reward was claimed, check if 4 hours have passed.
 	if (currentState.resetRewardTimestamp) {
-		const fourHoursAfterFirstClaim = currentState.resetRewardTimestamp + RESET_WINDOW_MS;
+		const fourHoursAfterFirstClaim = currentState.resetRewardTimestamp;
+
 		if (now >= fourHoursAfterFirstClaim) {
 			return resetRewardsState(currentState); // Full reset
 		}
@@ -140,7 +140,12 @@ async function scheduleNotifications(state: DailyRewardsState): Promise<void> {
 async function claimReward(
 	state: DailyRewardsState,
 	rewardId: string
-): Promise<{ newState: DailyRewardsState; coinsAwarded: number } | null> {
+): Promise<{
+	state: DailyRewardsState;
+	success: boolean;
+	coinsAwarded?: number;
+	noAdsAvailable?: boolean;
+} | null> {
 	// Basic validation (can add more specific checks if needed)
 	const reward = state.currentRewards.find((r) => r.id === rewardId);
 	if (!reward || reward.status !== DailyRewardStatus.Claimable) {
@@ -151,10 +156,13 @@ async function claimReward(
 	let canReward = false;
 
 	if (reward.requiresAd) {
+		const isAdLoaded = await adStore.isAdLoaded(AdType.Rewarded);
+		if (!isAdLoaded) {
+			return { state, success: false, noAdsAvailable: true };
+		}
 		const didWatchAd = await adStore.showAd(AdType.Rewarded);
-
 		if (!didWatchAd) {
-			return { newState: state, coinsAwarded: 0 };
+			return { state, success: false };
 		}
 		canReward = true;
 	} else {
@@ -164,7 +172,7 @@ async function claimReward(
 	}
 
 	if (!canReward) {
-		return { newState: state, coinsAwarded: 0 };
+		return { state, success: false };
 	}
 
 	const nextClaimableReward = state.currentRewards
@@ -185,7 +193,7 @@ async function claimReward(
 	state.rewardsCollectedToday += 1;
 
 	await saveState(state);
-	return { newState: state, coinsAwarded: reward.coins };
+	return { state, success: true, coinsAwarded: reward.coins };
 }
 
 async function setEnableNotifications(

@@ -8,9 +8,25 @@ const _dailyRewardsState: Writable<DailyRewardsState | null> = writable(null); /
 
 // --- Service Interaction ---
 
+let refreshTimer: NodeJS.Timeout | null = null;
+
+function setRefreshTimer(state: DailyRewardsState) {
+	if (!state.resetRewardTimestamp) {
+		return;
+	}
+	if (refreshTimer) {
+		clearTimeout(refreshTimer);
+	}
+	const delay = state.resetRewardTimestamp - Date.now();
+	refreshTimer = setTimeout(() => {
+		state = DailyRewardsService._checkAndApplyResets(state);
+		_dailyRewardsState.set(state);
+	}, delay);
+}
 // Function to initialize the store by loading state via the service
 async function initializeStore(): Promise<void> {
 	const initialState = await DailyRewardsService.initialize();
+	setRefreshTimer(initialState);
 	_dailyRewardsState.set(initialState);
 }
 
@@ -36,18 +52,25 @@ export const dailyRewardsState: Readable<DailyRewardsState | null> = derived(
 
 async function claimRewardAction(
 	rewardId: string
-): Promise<{ success: boolean; coinsAwarded?: number }> {
+): Promise<{ success: boolean; coinsAwarded?: number; noAdsAvailable?: boolean }> {
 	const currentState = get(_dailyRewardsState);
 	if (!currentState) {
 		return { success: false };
 	}
-
-	const result = await DailyRewardsService.claimReward(currentState, rewardId);
-	if (result) {
-		_dailyRewardsState.set(result.newState);
-		return { success: true, coinsAwarded: result.coinsAwarded };
+	try {
+		const result = await DailyRewardsService.claimReward(currentState, rewardId);
+		if (result?.success) {
+			const newState = result.state;
+			setRefreshTimer(newState);
+			_dailyRewardsState.set(newState);
+			return { success: true, coinsAwarded: result.coinsAwarded };
+		} else if (result?.noAdsAvailable) {
+			return { success: false, noAdsAvailable: true };
+		}
+		return { success: false };
+	} catch (error) {
+		return { success: false, noAdsAvailable: true };
 	}
-	return { success: false };
 }
 
 async function setEnableNotificationsAction(enable: boolean): Promise<void> {

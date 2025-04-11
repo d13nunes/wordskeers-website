@@ -67,6 +67,7 @@
     "drizzle-orm": "^0.40.0",
     "prettier-plugin-curly": "^0.3.1",
     "rxjs": "^7.8.2",
+    "svelte-confetti": "^2.0.0",
     "svelte-loading-spinners": "^0.3.6"
   }
 }

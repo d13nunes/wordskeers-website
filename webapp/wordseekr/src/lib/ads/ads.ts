@@ -112,8 +112,10 @@ function createAdStore(adProviders: AdProvider[]) {
 		}
 		try {
 			const result = await adProvider.load();
+			console.log('📺 loaded ad', adType, result);
 			return result;
-		} catch {
+		} catch (error) {
+			console.log('📺 failed to load ad', adType, error);
 			return false;
 		}
 	}
@@ -155,7 +157,19 @@ function createAdStore(adProviders: AdProvider[]) {
 		loadAd,
 		showAd,
 		hideAd,
-		getAdLoadingState: createAdTypeLoadingStore
+		getAdLoadingState: createAdTypeLoadingStore,
+		isAdLoaded: (adType: AdType) => {
+			const adProvider = adProviders.find((ad) => ad.adType === adType);
+			if (!adProvider) {
+				throw new Error(`📺 Ad provider for ${adType} not found`);
+			}
+			let isLoaded = false;
+			const subscription = adProvider.isLoaded.subscribe((value) => {
+				isLoaded = value;
+			});
+			subscription();
+			return isLoaded;
+		}
 	};
 }
 
@@ -165,6 +179,7 @@ interface AdStore {
 	loadAd: (adType: AdType) => Promise<boolean>;
 	showAd: (adType: AdType) => Promise<boolean>;
 	hideAd: (adType: AdType) => Promise<void>;
+	isAdLoaded: (adType: AdType) => boolean;
 	getAdLoadingState: (adType: AdType) => Readable<boolean>;
 }
 

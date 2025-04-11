@@ -2,7 +2,7 @@ import { writable, derived } from 'svelte/store';
 import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
 import type { Product, TransactionEvent } from '@adplorg/capacitor-in-app-purchase';
 import { walletStore } from './walletStore';
-import { Capacitor, registerPlugin } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { RestorePurchases } from '$lib/plugins/RestorePurchases';
 
 // Product IDs as they appear in App Store/Google Play
@@ -119,7 +119,6 @@ const createProductsStore = () => {
 function isRestoreAvailable() {
 	try {
 		const isAvailable = Capacitor.isPluginAvailable('RestorePurchases');
-		console.log('isRestoreAvailable', isAvailable);
 		return isAvailable;
 	} catch (error) {
 		console.error('Failed to check restore availability: isRestoreAvailable', error);
@@ -130,8 +129,11 @@ function isRestoreAvailable() {
 async function restorePurchases(): Promise<boolean> {
 	try {
 		const result = await RestorePurchases.restore(removeAds);
-		console.log('!!! restorePurchases', result);
-		return result.result === 'success';
+		const isSuccess = result.productIds.length > 0;
+		if (isSuccess) {
+			walletStore.setRemoveAds(true);
+		}
+		return isSuccess;
 	} catch (error) {
 		console.error('Failed to restore purchases:', error);
 		return false;
@@ -162,7 +164,6 @@ const createPurchasesStore = () => {
 
 						// Handle non-consumable purchases like Remove Ads
 						if (removeAds.includes(productId)) {
-							console.log('🗞️🗞️ Removing ads');
 							walletStore.setRemoveAds(true);
 						}
 					}
@@ -179,12 +180,10 @@ const createPurchasesStore = () => {
 		},
 		makePurchase: async (productId: string) => {
 			try {
-				console.log('🗞️🗞️ makePurchase', productId);
 				const result = await CapacitorInAppPurchase.purchaseProduct({
 					productId,
 					referenceUUID: generateReferenceUUID()
 				});
-				console.log('🗞️🗞️ makePurchase result', result);
 				if (result.transaction) {
 					const transactionData = JSON.parse(result.transaction);
 					const productId = transactionData.productId;

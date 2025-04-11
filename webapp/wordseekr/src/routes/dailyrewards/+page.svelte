@@ -5,11 +5,10 @@
 	import DailyRewardCardTimer from '../../lib/components/DailyRewards/DailyRewardCardTimer.svelte';
 	import DailyRewardsEnableCardNotification from '$lib/components/DailyRewards/DailyRewardsCardEnableNotification.svelte';
 	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
-
 	import { onMount } from 'svelte';
 	import DailyRewardCardClaimed from '$lib/components/DailyRewards/DailyRewardCardClaimed.svelte';
 	import { DailyRewardStatus } from '$lib/rewards/daily-reward.model';
-
+	import { Confetti } from 'svelte-confetti';
 	// Store subscriptions
 	let rewards = $derived($dailyRewardsStore?.currentRewards ?? []);
 	let claimedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimed));
@@ -17,10 +16,20 @@
 	let claimableRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimable));
 	let resetRewardTimestamp = $derived($dailyRewardsStore?.resetRewardTimestamp);
 	let hasClaimedFirstReward = $derived(($dailyRewardsStore?.rewardsCollectedToday ?? 0) > 0);
-
+	let showConfetti = $state(false);
 	async function handleClaimDailyReward(rewardId: string, requiresAd: boolean) {
 		const result = await dailyRewardsStore.claimReward(rewardId);
-		// TODO Animation
+
+		showConfetti = true;
+		setTimeout(() => {
+			showConfetti = false;
+		}, 1000);
+		if (result.success) {
+			// TODO Animation
+		} else if (result.noAdsAvailable) {
+			// TODO Show no ads available
+			alert('No ads available');
+		}
 	}
 
 	const handleEnableNotification = async () => {
@@ -34,8 +43,9 @@
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col gap-2 px-4 pt-5">
+	<div class="relative flex flex-col gap-2 px-4 pt-5">
 		<h1 class="mb-2 self-center text-2xl font-bold">Daily Rewards</h1>
+
 		<BalanceCard />
 
 		{#if resetRewardTimestamp}

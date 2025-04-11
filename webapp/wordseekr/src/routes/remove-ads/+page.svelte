@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
-
+	import LoadSpinner from '$lib/components/shared/LoadSpinner.svelte';
 	let price = $state('');
 	onMount(() => {
 		// Load the actual price from the store
@@ -11,6 +11,8 @@
 		}
 	});
 
+	let isLoading = $state(false);
+
 	interface Props {
 		close: () => void;
 	}
@@ -18,28 +20,42 @@
 	const { close }: Props = $props();
 
 	function buyRemoveAds() {
+		isLoading = true;
 		purchasesStore
 			.makePurchase(PRODUCT_IDS.REMOVE_ADS_DISCOUNT)
-			.then(() => {
-				// Success will be handled by the store listener
-				console.log('Purchase initiated');
-				// TODO: Show a success message
-				close();
+			.then((success) => {
+				if (success) {
+					alert(
+						'Remove Ads Purchased\n\nEnjoy an ad-free experience!\nThank you for supporting the app!'
+					);
+					close();
+				}
 			})
 			.catch((error) => {
 				console.error('Failed to purchase remove ads:', error);
+			})
+			.finally(() => {
+				isLoading = false;
 			});
 	}
 
 	function restore() {
 		// Handle restoring purchases
+		isLoading = true;
 		purchasesStore
 			.restore()
-			.then(() => {
-				console.log('Purchases restored');
+			.then((success) => {
+				console.log('Purchases restored', success);
+				if (success) {
+					alert('Purchases restored');
+					close();
+				}
 			})
 			.catch((error) => {
 				console.error('Failed to restore purchases:', error);
+			})
+			.finally(() => {
+				isLoading = false;
 			});
 	}
 	let isRestoreAvailable = purchasesStore.isRestoreAvailable();
@@ -134,8 +150,8 @@
 			</button>
 		{/if}
 	</div>
-</div>
 
-<style>
-	/* Add any additional custom styles here if needed */
-</style>
+	{#if isLoading}
+		<LoadSpinner />
+	{/if}
+</div>

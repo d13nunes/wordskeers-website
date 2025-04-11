@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LoadSpinner from '$lib/components/shared/LoadSpinner.svelte';
+
 	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
 	import RemoveAdsPage from '../remove-ads/+page.svelte';
@@ -9,8 +11,12 @@
 		PRODUCT_IDS,
 		COIN_PACKS_META
 	} from '$lib/economy/iapStore';
+	import { fade } from 'svelte/transition';
 
 	import { closeModal, openModal } from '$lib/components/shared/ModalHost';
+	import { adStore } from '$lib/ads/ads';
+	import { AdType } from '$lib/ads/ads-types';
+	import { Jumper } from 'svelte-loading-spinners';
 
 	function handleRemoveAds() {
 		openModal(RemoveAdsPage, {
@@ -20,6 +26,8 @@
 			}
 		});
 	}
+
+	let isLoading = $state(false);
 
 	interface Product {
 		id: string;
@@ -79,30 +87,46 @@
 	}
 
 	function buyProduct(product: Product) {
+		console.log('!!!! buyProduct', product);
 		const productId = product.productId;
+		isLoading = true;
 		purchasesStore
 			.makePurchase(productId)
-			.then(() => {
-				walletStore.addCoins(product.coins);
+			.then((success) => {
+				console.log('!!!! buyProduct success', success);
+				if (success) {
+					walletStore.addCoins(product.coins);
+				}
 			})
 			.catch((error) => {
 				console.error(`Failed to purchase ${productId}:`, error);
+			})
+			.finally(() => {
+				isLoading = false;
 			});
 	}
 
-	function watchAd(product: Product) {
+	async function watchAd(product: Product) {
 		// This would integrate with your ad system
 		console.log('Watch ad for rewards');
-		walletStore.addCoins(100);
+		isLoading = true;
+		try {
+			let watched = await adStore.showAd(AdType.Rewarded);
+			if (watched) {
+				walletStore.addCoins(100);
+			}
+		} catch (error) {
+			console.error(`Failed to watch ad:`, error);
+		}
+		isLoading = false;
 	}
 	let showRemoveAds = $state(false);
 	walletStore.removeAds((removeAds) => {
-		console.log('🗞️🗞️ removeAds', removeAds);
 		showRemoveAds = !removeAds;
 	});
 </script>
 
-<div class="h-svh bg-white select-none">
+<div class="relative h-svh bg-white select-none">
 	<div class="flex flex-col items-stretch gap-3 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
@@ -140,4 +164,8 @@
 			{/each}
 		</div>
 	</div>
+
+	{#if isLoading}
+		<LoadSpinner />
+	{/if}
 </div>
