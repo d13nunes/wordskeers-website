@@ -7,6 +7,7 @@ import { AdmobRewardInterstitial } from './Admob/admob-rewardinterstitial';
 import { AdmobBanner } from './Admob/admob-banner';
 import type { AdProvider } from './ads-types';
 import { walletStore } from '$lib/economy/walletStore';
+
 interface AdmobAdIds {
 	interstitial: string;
 	rewardInterstitial: string;
@@ -21,11 +22,28 @@ const admobAdIdsDebug: AdmobAdIds = {
 	banner: 'ca-app-pub-3940256099942544/2934735716'
 };
 
+// const admobAdIdsProductionIOS: AdmobAdIds = {};
+// const admobAdIdsProductionAndroid: AdmobAdIds = {
+// 	interstitial: 'ca-app-pub-9539843520256562/8306519367',
+// 	rewardInterstitial: 'ca-app-pub-9539843520256562/1328804202',
+// 	reward: 'ca-app-pub-9539843520256562/9667229737',
+// 	banner: 'ca-app-pub-9539843520256562/2262611927'
+// };
+// let admobAdIds: AdmobAdIds;
+// if (Capacitor.getPlatform() === 'ios') {
+// 	console.log('iOS!');
+// 	admobAdIds = admobAdIdsProductionIOS;
+// } else if (Capacitor.getPlatform() === 'android') {
+// 	console.log('Android!');
+// 	admobAdIds = admobAdIdsProductionAndroid;
+// } else {
+// 	console.log('Web!');
+// }
 const admobAdIds = admobAdIdsDebug;
-
 function createAdStore(adProviders: AdProvider[]) {
 	let canShowInterstitial = false;
 	walletStore.removeAds((removeAds) => {
+		console.log('🗞️🗞️ removeAds', removeAds);
 		canShowInterstitial = !removeAds;
 		if (removeAds) {
 			// Hide banner ads when removeAds is true
@@ -38,8 +56,6 @@ function createAdStore(adProviders: AdProvider[]) {
 		}
 	});
 	const isInitialized = writable(false);
-
-	// Create a store to track loading state for each ad type
 
 	// Create a derived store that allows subscribing to specific ad types
 	const createAdTypeLoadingStore = (adType: AdType) => {

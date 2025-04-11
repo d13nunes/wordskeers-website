@@ -4,4 +4,5 @@
     <string name="title_activity_main">wordseekr</string>
     <string name="package_name">com.rhenis.gridwords</string>
     <string name="custom_url_scheme">com.rhenis.gridwords</string>
+    <string name="admob_app_id">ca-app-pub-9539843520256562~5572668529</string>
 </resources>

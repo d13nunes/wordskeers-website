@@ -19,7 +19,7 @@
 
 	function buyRemoveAds() {
 		purchasesStore
-			.makePurchase(PRODUCT_IDS.REMOVE_ADS)
+			.makePurchase(PRODUCT_IDS.REMOVE_ADS_DISCOUNT)
 			.then(() => {
 				// Success will be handled by the store listener
 				console.log('Purchase initiated');
@@ -34,7 +34,7 @@
 	function restore() {
 		// Handle restoring purchases
 		purchasesStore
-			.initializePurchases()
+			.restore()
 			.then(() => {
 				console.log('Purchases restored');
 			})
@@ -42,6 +42,7 @@
 				console.error('Failed to restore purchases:', error);
 			});
 	}
+	let isRestoreAvailable = purchasesStore.isRestoreAvailable();
 </script>
 
 <!-- Header -->
@@ -54,12 +55,15 @@
 	>
 		Close
 	</button>
-	<button
-		class="text-md absolute top-4 right-4 font-normal text-blue-500 active:text-blue-800"
-		onclick={restore}
-	>
-		Restore
-	</button>
+
+	{#if isRestoreAvailable}
+		<button
+			class="text-md absolute top-4 right-4 font-normal text-blue-500 active:text-blue-800"
+			onclick={restore}
+		>
+			Restore
+		</button>
+	{/if}
 
 	<div class=" flex-1 justify-items-center px-4 pt-16 max-[24rem]:pt-10">
 		<p

@@ -2,6 +2,8 @@ import { writable, derived } from 'svelte/store';
 import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
 import type { Product, TransactionEvent } from '@adplorg/capacitor-in-app-purchase';
 import { walletStore } from './walletStore';
+import { Capacitor, registerPlugin } from '@capacitor/core';
+import { RestorePurchases } from '$lib/plugins/RestorePurchases';
 
 // Product IDs as they appear in App Store/Google Play
 export const PRODUCT_IDS = {
@@ -103,17 +105,38 @@ const createProductsStore = () => {
 					}),
 					{}
 				);
-
 				set(products);
 				return products;
 			} catch (error) {
 				console.error('Failed to load IAP products:', error);
 				return {};
 			}
-		}
+		},
+		removeAdsIds: PRODUCT_IDS.REMOVE_ADS_DISCOUNT
 	};
 };
 
+function isRestoreAvailable() {
+	try {
+		const isAvailable = Capacitor.isPluginAvailable('RestorePurchases');
+		console.log('isRestoreAvailable', isAvailable);
+		return isAvailable;
+	} catch (error) {
+		console.error('Failed to check restore availability: isRestoreAvailable', error);
+		return false;
+	}
+}
+
+async function restorePurchases(): Promise<boolean> {
+	try {
+		const result = await RestorePurchases.restore(removeAds);
+		console.log('!!! restorePurchases', result);
+		return result.result === 'success';
+	} catch (error) {
+		console.error('Failed to restore purchases:', error);
+		return false;
+	}
+}
 // Store for tracking purchases
 const createPurchasesStore = () => {
 	const { subscribe, update } = writable<Record<string, boolean>>({
@@ -139,7 +162,7 @@ const createPurchasesStore = () => {
 
 						// Handle non-consumable purchases like Remove Ads
 						if (removeAds.includes(productId)) {
-							console.log('✅ Removing ads');
+							console.log('🗞️🗞️ Removing ads');
 							walletStore.setRemoveAds(true);
 						}
 					}
@@ -156,10 +179,20 @@ const createPurchasesStore = () => {
 		},
 		makePurchase: async (productId: string) => {
 			try {
+				console.log('🗞️🗞️ makePurchase', productId);
 				const result = await CapacitorInAppPurchase.purchaseProduct({
 					productId,
 					referenceUUID: generateReferenceUUID()
 				});
+				console.log('🗞️🗞️ makePurchase result', result);
+				if (result.transaction) {
+					const transactionData = JSON.parse(result.transaction);
+					const productId = transactionData.productId;
+					if (removeAds.includes(productId)) {
+						console.log('✅ Removing ads');
+						walletStore.setRemoveAds(true);
+					}
+				}
 				return result;
 			} catch (error) {
 				console.error('Purchase failed:', error);
@@ -186,14 +219,8 @@ const createPurchasesStore = () => {
 				throw error;
 			}
 		},
-		restore: async () => {
-			try {
-				await purchasesStore.initializePurchases();
-			} catch (error) {
-				console.error('Failed to restore purchases:', error);
-				throw error;
-			}
-		}
+		isRestoreAvailable,
+		restore: restorePurchases
 	};
 };
 

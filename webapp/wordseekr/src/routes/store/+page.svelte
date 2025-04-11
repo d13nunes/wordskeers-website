@@ -39,19 +39,13 @@
 		PRODUCT_IDS.COIN_PACK_HUGE
 	];
 
-	let coinPacks: Product[] = [];
-	console.log('productsStore', productsStore);
+	let coinPacks: Product[] = $state([]);
+
 	productsStore.subscribe((products) => {
-		console.log('coinPacksIDs', coinPacksIDs);
-		const p = Object.values(products);
-		console.log('products', p);
-		console.log('COIN_PACKS_META', COIN_PACKS_META);
 		coinPacks = Object.values(products)
 			.filter((product) => coinPacksIDs.includes(product.id))
 			.map((product) => {
-				console.log('product', product);
 				const meta = COIN_PACKS_META[product.id];
-				console.log('meta', meta);
 				return {
 					id: product.id,
 					name: meta.title,
@@ -101,18 +95,18 @@
 		console.log('Watch ad for rewards');
 		walletStore.addCoins(100);
 	}
-	let removeAds = $state(false);
+	let showRemoveAds = $state(false);
 	walletStore.removeAds((removeAds) => {
-		console.log('removeAds', removeAds);
-		removeAds = removeAds;
+		console.log('🗞️🗞️ removeAds', removeAds);
+		showRemoveAds = !removeAds;
 	});
 </script>
 
 <div class="h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-2 p-4">
+	<div class="flex flex-col items-stretch gap-3 p-4">
 		<span class="self-center text-2xl font-bold">Store</span>
 		<BalanceCard />
-		{#if !removeAds}
+		{#if showRemoveAds}
 			<StoreProductCard
 				title="Ad-Free Experience"
 				detail="Remove all ads permanently"
