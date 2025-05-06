@@ -5,9 +5,10 @@
 	interface Props {
 		onclick: () => void;
 		price: string;
+		disabled?: boolean;
 	}
 
-	let { onclick, price }: Props = $props();
+	let { onclick, price, disabled = false }: Props = $props();
 </script>
 
 <PowerUpButton
@@ -17,6 +18,7 @@
 	titleColor="text-emerald-700"
 	priceColor="text-emerald-600"
 	{onclick}
+	{disabled}
 >
 	{#snippet icon()}
 		<RotateIcon color="#007a55" />

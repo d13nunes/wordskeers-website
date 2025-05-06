@@ -94,7 +94,8 @@ export function createGridFor(wordsLocation: WordLocation[], size: number): stri
 
 export function getWordPositions(word: Word): Position[] {
 	const positions: Position[] = [];
-	for (let i = 0; i < word.word.length; i++) {
+	const wordLength = word?.word?.length ?? 0;
+	for (let i = 0; i < wordLength; i++) {
 		const position = {
 			row: word.position.row + i * word.direction.dy,
 			col: word.position.col + i * word.direction.dx

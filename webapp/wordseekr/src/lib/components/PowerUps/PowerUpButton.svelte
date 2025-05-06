@@ -10,6 +10,7 @@
 		titleColor: string;
 		onclick: () => void;
 		icon: Snippet;
+		disabled?: boolean;
 	}
 
 	let {
@@ -19,13 +20,16 @@
 		title = 'Rotate',
 		titleColor = 'text-orange-500',
 		onclick,
-		icon
+		icon,
+		disabled = false
 	}: Props = $props();
 </script>
 
-<button class=" select-none" {onclick}>
+<button class="select-none" {onclick} {disabled}>
 	<div
-		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} button-active"
+		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} button-active {disabled
+			? 'cursor-not-allowed opacity-50'
+			: ''}"
 	>
 		<div class="h-6 w-6">
 			{@render icon()}

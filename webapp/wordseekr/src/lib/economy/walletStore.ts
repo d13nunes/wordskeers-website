@@ -62,27 +62,40 @@ function createWalletStore(): Wallet {
 		setRemoveAds(removeAds);
 	});
 
+	async function canBuy(amount: number): Promise<boolean> {
+		const balance = await getBalance();
+		return amount <= balance;
+	}
+
+	async function addCoins(amount: number): Promise<void> {
+		return new Promise((resolve) => {
+			updateCoins((currentBalance) => {
+				const newBalance = Math.max(0, currentBalance + amount); // Ensure balance is not negative
+				saveBalance(newBalance);
+				return newBalance;
+			});
+			resolve();
+		});
+	}
+
 	return {
 		coins,
 		addCoins: (amount: number) => {
 			if (amount <= 0) {
 				return;
 			}
-			updateCoins((currentBalance) => {
-				const newBalance = currentBalance + amount;
-				saveBalance(newBalance);
-				return newBalance;
-			});
+			addCoins(amount);
 		},
-		subtractCoins: (amount: number) => {
+		canBuy,
+		tryAndBuy: async (amount: number) => {
 			if (amount <= 0) {
-				return;
+				return false;
 			}
-			updateCoins((currentBalance) => {
-				const newBalance = Math.max(0, currentBalance - amount); // Prevent negative balance
-				saveBalance(newBalance);
-				return newBalance;
-			});
+			if (!(await canBuy(amount))) {
+				return false;
+			}
+			await addCoins(-amount);
+			return true;
 		},
 		removeAds,
 		setRemoveAds: (removeAds: boolean) => {
@@ -96,19 +109,15 @@ function createWalletStore(): Wallet {
 			saveBalance(newBalance);
 			setRemoveAds(false);
 			saveRemoveAds(false);
-		},
-		canBuy: async (amount: number) => {
-			const balance = await getBalance();
-			return amount <= balance;
 		}
 	};
 }
 
 export interface Wallet {
 	coins: (callback: (balance: number) => void) => void;
-	canBuy: (amount: number) => Promise<boolean>;
 	addCoins: (amount: number) => void;
-	subtractCoins: (amount: number) => void;
+	canBuy: (amount: number) => Promise<boolean>;
+	tryAndBuy: (amount: number) => Promise<boolean>;
 	removeAds: (callback: (removeAds: boolean) => void) => void;
 	setRemoveAds: (removeAds: boolean) => void;
 	reset: () => void;

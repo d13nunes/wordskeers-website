@@ -179,7 +179,7 @@
 			return currentColor.bg;
 		}
 		const isHint = hintPositions.some(
-			(position) => position.row === cell.row && position.col === cell.col
+			(position) => position && position.row === cell.row && position.col === cell.col
 		);
 		if (isHint) {
 			return 'bg-yellow-100';
