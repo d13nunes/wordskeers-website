@@ -163,12 +163,8 @@ function createAdStore(adProviders: AdProvider[]) {
 			if (!adProvider) {
 				throw new Error(`📺 Ad provider for ${adType} not found`);
 			}
-			let isLoaded = false;
-			const subscription = adProvider.isLoaded.subscribe((value) => {
-				isLoaded = value;
-			});
-			subscription();
-			return isLoaded;
+			// Use the same derived store logic as getAdLoadingState
+			return derived(adProvider.isLoaded, ($state) => $state);
 		}
 	};
 }
@@ -179,7 +175,7 @@ interface AdStore {
 	loadAd: (adType: AdType) => Promise<boolean>;
 	showAd: (adType: AdType) => Promise<boolean>;
 	hideAd: (adType: AdType) => Promise<void>;
-	isAdLoaded: (adType: AdType) => boolean;
+	isAdLoaded: (adType: AdType) => Readable<boolean>;
 	getAdLoadingState: (adType: AdType) => Readable<boolean>;
 }
 

@@ -10,21 +10,25 @@
 		isDiscovered: boolean;
 		isDiscoveredColor: string | null;
 	}
+
+	let currentHintPositions: Position[] = [];
 	interface Props {
 		grid: string[][];
 		isRotated: boolean;
+		hintPositions: Position[];
 		onWordSelect: (
 			word: string,
 			path: Position[],
 			setDiscovered: (position: Position[]) => void
 		) => void;
+
 		getColor: () => ColorTheme;
 	}
 	let selectedCells: Position[] = $state([]);
 	let firstSelectedCell: Position | null = null;
 	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
-	let { grid, onWordSelect, getColor, isRotated = false }: Props = $props();
+	let { grid, onWordSelect, getColor, isRotated = false, hintPositions = [] }: Props = $props();
 
 	// Calculate number of columns dynamically
 	let numColumns = grid[0]?.length || 3; // Default to 3 if grid is empty
@@ -40,12 +44,14 @@
 					col: colIndex,
 					isSelected: false,
 					isDiscovered: false,
+					isHint: false,
 					isDiscoveredColor: null
 				};
 			});
 		})
 	);
 	let currentColor: ColorTheme = getColor();
+	let hintColor: string = 'bg-yellow-300';
 
 	function handleInteractionStart(rowIndex: number, colIndex: number) {
 		isInteracting = true;
@@ -171,6 +177,12 @@
 	function getBGColor(cell: Cell) {
 		if (cell.isSelected) {
 			return currentColor.bg;
+		}
+		const isHint = hintPositions.some(
+			(position) => position.row === cell.row && position.col === cell.col
+		);
+		if (isHint) {
+			return 'bg-yellow-100';
 		}
 		if (cell.isDiscoveredColor) {
 			return `${cell.isDiscoveredColor}`;

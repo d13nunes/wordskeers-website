@@ -1,39 +1,37 @@
 <script lang="ts">
 	import Tag from '$lib/components/Tag.svelte';
 	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
-	import DirectionPowerUp from '$lib/components/PowerUps/DirectionPowerUp.svelte';
 	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
 	import FindWordPowerUp from '$lib/components/PowerUps/FindWordPowerUp.svelte';
 	import PauseButton from '$lib/components/Pause/PauseButton.svelte';
-	import { createMockGame } from '$lib/components/Game/game';
+	import {
+		createGameForConfiguration,
+		getWordPositions,
+		mockGameConfiguration,
+		type Word,
+		type WordLocation
+	} from '$lib/components/Game/game';
 	import { goto } from '$app/navigation';
 	import Board from '$lib/components/Game/Board.svelte';
 	import { type Position } from '$lib/components/Game/Position';
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
-	import type { Word } from '$lib/components/Game/Word';
+	import { randomInt } from '$lib/utils/random-utils';
 
 	let isRotated = $state(false);
 
-	let words: Word[] = $state([]);
-
-	let game = createMockGame(); // TODO
+	const configuration = mockGameConfiguration();
+	let game = createGameForConfiguration(configuration);
 
 	let colorGenerator = new ColorGenerator();
-
-	words = game.words.map((word) => ({
-		word,
-		color: undefined,
-		textColor: undefined,
-		isDiscovered: false
-	}));
+	let hintPositions: Position[] = $state([]);
 
 	function getWord(word: string): Word | undefined {
-		const wordDirection = words.find((w) => w.word === word);
+		const wordDirection = game.words.find((w) => w.word === word);
 		if (wordDirection) {
 			return wordDirection;
 		}
 		const reverseWord = word.split('').reverse().join('');
-		const reverseWordDirection = words.find((w) => w.word === reverseWord);
+		const reverseWordDirection = game.words.find((w) => w.word === reverseWord);
 		return reverseWordDirection;
 	}
 
@@ -45,9 +43,9 @@
 		const discoveredWord = getWord(word);
 		if (discoveredWord && !discoveredWord.isDiscovered) {
 			discoveredWord.color = getColor().bg;
-			console.log('!!!! words[index].color', discoveredWord.color);
 			discoveredWord.isDiscovered = true;
 			setDiscovered(path);
+			hintPositions.length = 0;
 		}
 	};
 
@@ -60,16 +58,37 @@
 		isRotated = !isRotated;
 	}
 
-	function onPowerUpDirectionClick() {}
-
-	function onPowerUpFindLetterClick() {}
-
-	function onPowerUpFindWordClick() {}
-	function getColor() {
-		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
+	function onPowerUpFindLetterClick() {
+		hintPositions.length = 0;
+		const suggestedWord = getRandonUndiscoveredWord();
+		const suggestedPositions = getWordPositions(suggestedWord);
+		const suggestedLetter = suggestedPositions[randomInt(suggestedPositions.length)];
+		hintPositions.push(suggestedLetter);
+		console.log('hint letter', suggestedLetter);
 	}
-	let title = 'Cenas'; //$derived(game.title);
+
+	function getRandonUndiscoveredWord(): Word {
+		const undiscoveredWord = game.words.filter((word) => !word.isDiscovered);
+		const randomIndex = randomInt(undiscoveredWord.length);
+		return undiscoveredWord[randomIndex];
+	}
+
+	function onPowerUpFindWordClick() {
+		const suggestedWord = getRandonUndiscoveredWord();
+		hintPositions.length = 0;
+		hintPositions.push(...getWordPositions(suggestedWord));
+		// TODO
+	}
+	function getColor() {
+		return colorGenerator.getColor(game.words.filter((w) => w.isDiscovered).length);
+	}
+	let title = $derived(game.title);
 	let isRemoveAdsActive = $state(false);
+
+	function createGridFor(wordsLocation: WordLocation[], size: number) {
+		throw new Error('Function not implemented.');
+	}
+	let firstSelectedCell: Position | null = null;
 </script>
 
 <div class="">
@@ -81,9 +100,9 @@
 		<div class="p-4">
 			<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
 			<div class=" flex flex-row flex-wrap gap-2 py-2">
-				{#each words as word}
+				{#each game.words as word}
 					<Tag
-						tag={word.word}
+						tag={word.word.toUpperCase()}
 						isDiscovered={word.isDiscovered}
 						customBg={word.color}
 						customText={word.color}
@@ -91,7 +110,7 @@
 				{/each}
 			</div>
 			<div class="flex items-center justify-center pt-4">
-				<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} />
+				<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} {hintPositions} />
 			</div>
 		</div>
 		<div class="flex flex-row items-center justify-center gap-6">
