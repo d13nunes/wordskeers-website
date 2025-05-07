@@ -17,6 +17,9 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
+	import { flip } from 'svelte/animate';
+	import { cubicIn, cubicInOut, cubicOut, quintOut } from 'svelte/easing';
+	import { crossfade } from 'svelte/transition';
 
 	let isRotated = $state(false);
 	let isRotateDisabled = $state(false);
@@ -59,9 +62,9 @@
 		}
 	};
 
+	let showPauseModal = $state(false);
 	function onPauseClick() {
-		/// show new game route
-		goto('/');
+		showPauseModal = true;
 	}
 
 	function onPowerUpRotateClick() {
@@ -138,21 +141,44 @@
 </script>
 
 <div class="">
+	{#if showPauseModal}
+		<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+			<div class="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg">
+				<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
+				<div class="flex flex-row gap-4">
+					<button
+						class="rounded bg-red-500 px-4 py-2 text-white hover:bg-blue-600"
+						on:click={() => (showPauseModal = false)}
+					>
+						New Game
+					</button>
+					<button
+						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+						on:click={() => (showPauseModal = false)}
+					>
+						Resume Game
+					</button>
+				</div>
+			</div>
+		</div>
+	{/if}
 	<div
 		class="flex h-screen flex-col items-center justify-end {isRemoveAdsActive
 			? 'pb-12'
-			: 'pb-28'} lg:items-center lg:pb-0"
+			: 'pb-28'} lg:items-center lg:pb-24"
 	>
-		<div class="p-4">
+		<div class="p-4 lg:px-64">
 			<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
 			<div class=" flex flex-row flex-wrap gap-2 py-2">
-				{#each sortedWords as word}
-					<Tag
-						tag={word.word.toUpperCase()}
-						isDiscovered={word.isDiscovered}
-						bgColor={word.color}
-						textColor={word.textColor}
-					/>
+				{#each sortedWords as word (word.word)}
+					<div animate:flip={{ duration: 450, easing: cubicInOut }}>
+						<Tag
+							tag={word.word.toUpperCase()}
+							isDiscovered={word.isDiscovered}
+							bgColor={word.color}
+							textColor={word.textColor}
+						/>
+					</div>
 				{/each}
 			</div>
 			<div class="flex items-center justify-center pt-4">

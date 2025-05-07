@@ -11,12 +11,10 @@
 		PRODUCT_IDS,
 		COIN_PACKS_META
 	} from '$lib/economy/iapStore';
-	import { fade } from 'svelte/transition';
 
 	import { closeModal, openModal } from '$lib/components/shared/ModalHost';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import { Jumper } from 'svelte-loading-spinners';
 
 	function handleRemoveAds() {
 		openModal(RemoveAdsPage, {

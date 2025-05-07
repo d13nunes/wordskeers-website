@@ -46,7 +46,6 @@
 	<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
 		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
 		<BalanceTag onclick={onStoreClick} />
-		<button onclick={() => goto('/ads')}>Ad</button>
 	</div>
 	{@render children()}
 

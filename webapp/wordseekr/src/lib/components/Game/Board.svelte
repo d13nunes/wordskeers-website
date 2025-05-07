@@ -2,6 +2,7 @@
 	import { type Position } from './Position';
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
+	import { Column } from 'drizzle-orm';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -19,7 +20,6 @@
 			path: Position[],
 			setDiscovered: (position: Position[]) => void
 		) => void;
-
 		getColor: () => ColorTheme;
 	}
 	let selectedCells: Position[] = $state([]);
@@ -207,6 +207,7 @@
 			{#each row as cell}
 				<div class="h-[32px] w-[32px]">
 					<div
+						id={`${cell.row}${cell.col}`}
 						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-[18px] font-semibold transition-colors
 					duration-150 ease-in-out {getBGColor(cell)} text-center text-gray-900"
 						style="transform: {isRotated ? 'rotate(180deg)' : 'rotate(0deg)'}"
