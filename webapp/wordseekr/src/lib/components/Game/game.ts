@@ -214,7 +214,7 @@ export function mockGameConfiguration(): GameConfiguration {
 				direction: directionMap.RIGHT
 			}
 		],
-		size: 12,
+		size: 10,
 		title: 'Ocean Words'
 	};
 }

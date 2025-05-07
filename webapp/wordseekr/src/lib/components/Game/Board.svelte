@@ -10,8 +10,6 @@
 		isDiscovered: boolean;
 		isDiscoveredColor: string | null;
 	}
-
-	let currentHintPositions: Position[] = [];
 	interface Props {
 		grid: string[][];
 		isRotated: boolean;
@@ -51,7 +49,6 @@
 		})
 	);
 	let currentColor: ColorTheme = getColor();
-	let hintColor: string = 'bg-yellow-300';
 
 	function handleInteractionStart(rowIndex: number, colIndex: number) {
 		isInteracting = true;
@@ -86,6 +83,7 @@
 			// Call the callback with the selected word and path
 			onWordSelect(selectedWord, cells, setDiscovered);
 			resetSelectedCells();
+			currentColor = getColor();
 		}
 	}
 
@@ -176,13 +174,13 @@
 	}
 	function getBGColor(cell: Cell) {
 		if (cell.isSelected) {
-			return currentColor.bg;
+			return currentColor.isSelectedColor;
 		}
 		const isHint = hintPositions.some(
 			(position) => position && position.row === cell.row && position.col === cell.col
 		);
 		if (isHint) {
-			return 'bg-yellow-100';
+			return currentColor.hint;
 		}
 		if (cell.isDiscoveredColor) {
 			return `${cell.isDiscoveredColor}`;

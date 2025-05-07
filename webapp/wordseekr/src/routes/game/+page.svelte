@@ -31,14 +31,17 @@
 	let colorGenerator = new ColorGenerator();
 	let hintPositions: Position[] = $state([]);
 
-	function getWord(word: string): Word | undefined {
-		const wordDirection = words.find((w) => w.word === word);
-		if (wordDirection) {
+	function getWord(word: string): number | undefined {
+		const wordDirection = words.findIndex((w) => w.word === word);
+		if (wordDirection !== -1) {
 			return wordDirection;
 		}
 		const reverseWord = word.split('').reverse().join('');
-		const reverseWordDirection = words.find((w) => w.word === reverseWord);
-		return reverseWordDirection;
+		const reverseWordDirection = words.findIndex((w) => w.word === reverseWord);
+		if (reverseWordDirection !== -1) {
+			return reverseWordDirection;
+		}
+		return undefined;
 	}
 
 	let onWordSelect = (
@@ -46,10 +49,11 @@
 		path: Position[],
 		setDiscovered: (position: Position[]) => void
 	) => {
-		const discoveredWord = getWord(word);
-		if (discoveredWord && !discoveredWord.isDiscovered) {
-			discoveredWord.color = getColor().bg;
-			discoveredWord.isDiscovered = true;
+		const wordIndex = getWord(word);
+		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
+			words[wordIndex].color = getColor().bg;
+			words[wordIndex].textColor = 'text-white';
+			words[wordIndex].isDiscovered = true;
 			setDiscovered(path);
 			hintPositions.length = 0;
 		}
@@ -70,16 +74,18 @@
 		}, powerUpCooldownButton);
 	}
 
-	function onPowerUpFindLetterClick() {
+	async function onPowerUpFindLetterClick() {
 		if (isFindLetterDisabled) return;
 		hintPositions.length = 0;
 		const suggestedWord = getRandonUndiscoveredWord();
 		const suggestedPositions = getWordPositions(suggestedWord);
-		const suggestedLetter = suggestedPositions[randomInt(suggestedPositions.length)];
-		hintPositions.push(suggestedLetter);
-		console.log('hint letter', suggestedLetter);
+		const suggestedLetterIndex = randomInt(suggestedPositions.length - 1);
+		const suggestedLetter = suggestedPositions[suggestedLetterIndex];
 		isFindLetterDisabled = true;
-		walletStore.tryAndBuy(powerUpPrices.findLetter);
+		const didBuy = await walletStore.tryAndBuy(powerUpPrices.findLetter);
+		if (didBuy) {
+			hintPositions.push(suggestedLetter);
+		}
 		setTimeout(() => {
 			isFindLetterDisabled = false;
 		}, powerUpCooldownButton);
@@ -87,7 +93,7 @@
 
 	function getRandonUndiscoveredWord(): Word {
 		const undiscoveredWord = words.filter((word) => !word.isDiscovered);
-		const randomIndex = randomInt(undiscoveredWord.length);
+		const randomIndex = randomInt(undiscoveredWord.length - 1);
 		return undiscoveredWord[randomIndex];
 	}
 
@@ -114,12 +120,21 @@
 		findWord: 200
 	};
 	walletStore.coins((balance) => {
-		console.log('💰 balance', balance);
 		isRotateDisabled = balance < powerUpPrices.rotate;
 		isFindLetterDisabled = balance < powerUpPrices.findLetter;
 		isFindWordDisabled = balance < powerUpPrices.findWord;
 	});
-	walletStore.addCoins(1000);
+
+	walletStore.addCoins(1000); // TODO: remove
+
+	let sortedWords = $derived(
+		[...words].sort((a, b) => {
+			if (a.isDiscovered !== b.isDiscovered) {
+				return (a.isDiscovered ? 1 : 0) - (b.isDiscovered ? 1 : 0);
+			}
+			return a.word.length - b.word.length;
+		})
+	);
 </script>
 
 <div class="">
@@ -131,12 +146,12 @@
 		<div class="p-4">
 			<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
 			<div class=" flex flex-row flex-wrap gap-2 py-2">
-				{#each words as word}
+				{#each sortedWords as word}
 					<Tag
 						tag={word.word.toUpperCase()}
 						isDiscovered={word.isDiscovered}
-						customBg={word.color}
-						customText={word.color}
+						bgColor={word.color}
+						textColor={word.textColor}
 					/>
 				{/each}
 			</div>

@@ -11,11 +11,16 @@
 	// Define the type for theme names
 	type ThemeName = (typeof ThemeName)[keyof typeof ThemeName];
 
+	interface Theme {
+		bg: string;
+		text: string;
+	}
+
 	// Define color themes
 	const themes: Record<ThemeName, Theme> = {
 		default: {
-			bg: 'bg-slate-100',
-			text: 'text-slate-700'
+			bg: 'bg-slate-200',
+			text: 'text-gray-900'
 		},
 		red: {
 			bg: 'bg-red-100',
@@ -45,11 +50,11 @@
 	interface Props {
 		tag: string;
 		variant?: ThemeName;
-		customBg?: string;
-		customText?: string;
+		bgColor?: string;
+		textColor?: string;
 		isDiscovered: boolean;
 	}
-	let { tag, isDiscovered, customBg, customText, variant = ThemeName.Default }: Props = $props();
+	let { tag, isDiscovered, bgColor, textColor, variant = ThemeName.Default }: Props = $props();
 	// export let tag: string = 'default';
 	// export let variant: ThemeName = ThemeName.Default;
 	// export let customBg = null;
@@ -58,22 +63,19 @@
 
 	// Use custom colors if provided, otherwise use the theme
 	let theme = getTheme(variant);
-	let bgColor = customBg || theme.bg;
-	let textColor = customText || theme.text;
-
-	interface Theme {
-		bg: string;
-		text: string;
-	}
+	$effect(() => {
+		bgColor = bgColor ? bgColor : theme.bg;
+		textColor = textColor ? textColor : theme.text;
+	});
 </script>
 
 <div
-	class="flex h-full items-center select-none {isDiscovered
+	class="flex h-full items-center transition-colors duration-300 ease-in-out select-none {isDiscovered
 		? 'opacity-50'
-		: ''} rounded-xl {bgColor}"
+		: ''} rounded-xl {bgColor} "
 >
 	<span
-		class="px-4 py-1 font-[Inter] {isDiscovered
+		class="px-4 py-1 font-[Inter] transition-all duration-300 ease-in-out {isDiscovered
 			? 'line-through'
 			: ''} text-sm font-medium {textColor}">{tag}</span
 	>
