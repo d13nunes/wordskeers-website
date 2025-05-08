@@ -208,8 +208,9 @@
 				<div class="h-[32px] w-[32px]">
 					<div
 						id={`${cell.row}${cell.col}`}
-						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-[18px] font-semibold transition-colors
-					duration-150 ease-in-out {getBGColor(cell)} text-center text-gray-900"
+						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-[18px] font-semibold {getBGColor(
+							cell
+						)} text-center text-gray-900"
 						style="transform: {isRotated ? 'rotate(180deg)' : 'rotate(0deg)'}"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
 						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
