@@ -8,18 +8,16 @@
 		createGameForConfiguration,
 		getWordPositions,
 		mockGameConfiguration,
-		type Word,
-		type WordLocation
+		type Word
 	} from '$lib/components/Game/game';
-	import { goto } from '$app/navigation';
 	import Board from '$lib/components/Game/Board.svelte';
 	import { type Position } from '$lib/components/Game/Position';
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { flip } from 'svelte/animate';
-	import { cubicIn, cubicInOut, cubicOut, quintOut } from 'svelte/easing';
-	import { crossfade } from 'svelte/transition';
+	import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
+	import { fade, scale } from 'svelte/transition';
 
 	let isRotated = $state(false);
 	let isRotateDisabled = $state(false);
@@ -51,15 +49,19 @@
 		word: string,
 		path: Position[],
 		setDiscovered: (position: Position[]) => void
-	) => {
+	): boolean => {
 		const wordIndex = getWord(word);
+		console.log('✅ wordIndex', wordIndex);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
 			words[wordIndex].color = getColor().bg;
 			words[wordIndex].textColor = 'text-white';
 			words[wordIndex].isDiscovered = true;
 			setDiscovered(path);
 			hintPositions.length = 0;
+			console.log('✅ wordIndex', wordIndex);
+			return true;
 		}
+		return false;
 	};
 
 	let showPauseModal = $state(false);
@@ -142,19 +144,27 @@
 
 <div class="">
 	{#if showPauseModal}
-		<div class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
-			<div class="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg">
+		<div
+			in:fade={{ duration: 300, easing: cubicOut }}
+			out:fade={{ delay: 100, duration: 300, easing: cubicIn }}
+			class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+		>
+			<div
+				in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
+				out:scale={{ duration: 300, easing: cubicInOut }}
+				class="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg"
+			>
 				<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
 				<div class="flex flex-row gap-4">
 					<button
-						class="rounded bg-red-500 px-4 py-2 text-white hover:bg-blue-600"
-						on:click={() => (showPauseModal = false)}
+						class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+						onclick={() => (showPauseModal = false)}
 					>
 						New Game
 					</button>
 					<button
 						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-						on:click={() => (showPauseModal = false)}
+						onclick={() => (showPauseModal = false)}
 					>
 						Resume Game
 					</button>

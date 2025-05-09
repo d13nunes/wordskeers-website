@@ -37,9 +37,6 @@ export class PathValidator {
 			return [];
 		}
 
-		const direction = this.getSnappedDirection(start, end);
-		console.log('✅ direction', direction);
-
 		const positions: Position[] = [];
 		const dx = end.col - start.col;
 		const dy = end.row - start.row;
@@ -57,11 +54,6 @@ export class PathValidator {
 			const col = start.col + stepX * index;
 			positions.push({ row, col });
 		}
-
-		console.log(
-			'✅ positions',
-			positions.map((position) => `${position.row},${position.col}`).join('|')
-		);
 
 		return positions;
 	}

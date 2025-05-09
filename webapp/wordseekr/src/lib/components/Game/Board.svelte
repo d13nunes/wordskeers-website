@@ -2,7 +2,8 @@
 	import { type Position } from './Position';
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
-	import { Column } from 'drizzle-orm';
+	import Confetti from 'svelte-confetti';
+
 	interface Cell {
 		letter: string;
 		row: number;
@@ -19,11 +20,13 @@
 			word: string,
 			path: Position[],
 			setDiscovered: (position: Position[]) => void
-		) => void;
+		) => boolean;
 		getColor: () => ColorTheme;
 	}
 	let selectedCells: Position[] = $state([]);
 	let firstSelectedCell: Position | null = null;
+	let showConfetti = $state(false);
+	let confettiConfig = $state({ amount: 200, size: 20 });
 	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
 	let { grid, onWordSelect, getColor, isRotated = false, hintPositions = [] }: Props = $props();
@@ -66,6 +69,20 @@
 			cells[pos.row][pos.col].isDiscovered = true;
 			cells[pos.row][pos.col].isDiscoveredColor = currentColor?.bg ?? defaultColor;
 		});
+
+		// Calculate confetti amount based on word length
+		const wordLength = position.length;
+		confettiConfig = {
+			amount: Math.min(50 + wordLength * 30, 300), // More confetti for longer words, max 300
+			size: Math.min(15 + wordLength * 2, 30) // Bigger confetti for longer words, max 30
+		};
+
+		setTimeout(() => {
+			showConfetti = true;
+		}, 500);
+		setTimeout(() => {
+			showConfetti = false;
+		}, 1500);
 	}
 
 	function handleInteractionEnd() {
@@ -81,9 +98,11 @@
 				.join('');
 
 			// Call the callback with the selected word and path
-			onWordSelect(selectedWord, cells, setDiscovered);
-			resetSelectedCells();
-			currentColor = getColor();
+			const didFoundWord = onWordSelect(selectedWord, cells, setDiscovered);
+			if (didFoundWord) {
+				resetSelectedCells();
+				currentColor = getColor();
+			}
 		}
 	}
 
@@ -183,18 +202,24 @@
 			return currentColor.hint;
 		}
 		if (cell.isDiscoveredColor) {
+			console.log('✅ cell.isDiscoveredColor', cell.isDiscoveredColor);
 			return `${cell.isDiscoveredColor}`;
 		}
 		return '';
 	}
+
+	let boardAngle = $derived(isRotated ? 'rotate(180deg)' : 'rotate(0deg)');
 </script>
 
 <div class="flex flex-col items-center justify-center">
+	{#if showConfetti}
+		<div class="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+			<Confetti amount={confettiConfig.amount} size={confettiConfig.size} />
+		</div>
+	{/if}
 	<div
 		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
-		style="grid-template-columns: repeat({numColumns}, minmax(0, 1fr)); transform: {isRotated
-			? 'rotate(180deg)'
-			: 'rotate(0deg)'}"
+		style="grid-template-columns: repeat({numColumns}, minmax(0, 1fr)); transform: {boardAngle}"
 		onmouseleave={handleMouseLeave}
 		onmouseup={handleMouseUp}
 		ontouchend={handleTouchEnd}
@@ -208,10 +233,10 @@
 				<div class="h-[32px] w-[32px]">
 					<div
 						id={`${cell.row}${cell.col}`}
+						style="transform: {boardAngle}"
 						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-[18px] font-semibold {getBGColor(
 							cell
-						)} text-center text-gray-900"
-						style="transform: {isRotated ? 'rotate(180deg)' : 'rotate(0deg)'}"
+						)} text-center text-gray-900 {cell.isDiscovered ? 'discovered' : ''}"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
 						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
 						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
@@ -227,3 +252,45 @@
 		{/each}
 	</div>
 </div>
+
+<style>
+	@keyframes discover {
+		/* 0% {
+			transform: scale(0.8);
+			opacity: 1;
+		}
+		25% {
+			transform: scale(1.2);
+			opacity: 0.8;
+		}
+		50% {
+			transform: scale(0.9);
+			opacity: 1.8;
+		}
+		75% {
+			transform: scale(1.1);
+			opacity: 0.8;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		} */
+
+		0% {
+			transform: scale(0.8);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.2);
+			opacity: 0.8;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	.discovered {
+		animation: discover 0.5s ease-out;
+	}
+</style>

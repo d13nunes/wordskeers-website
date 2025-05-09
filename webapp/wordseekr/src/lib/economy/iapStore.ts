@@ -188,7 +188,6 @@ const createPurchasesStore = () => {
 					const transactionData = JSON.parse(result.transaction);
 					const productId = transactionData.productId;
 					if (removeAds.includes(productId)) {
-						console.log('✅ Removing ads');
 						walletStore.setRemoveAds(true);
 					}
 				}
