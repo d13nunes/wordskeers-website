@@ -62,6 +62,7 @@
     "@capacitor/preferences": "^7.0.1",
     "@inlang/paraglide-js": "^2.0.0",
     "@libsql/client": "^0.14.0",
+    "animejs": "^4.0.2",
     "cordova-plugin-purchase": "^13.12.1",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.40.0",

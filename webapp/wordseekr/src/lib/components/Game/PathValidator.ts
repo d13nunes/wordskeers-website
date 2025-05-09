@@ -37,6 +37,14 @@ export class PathValidator {
 			return [];
 		}
 
+		const snappedDirection = this.getSnappedDirection(start, end);
+		console.log(
+			'📺 snappedDirection',
+			snappedDirection.direction.x,
+			snappedDirection.direction.y,
+			allDirectionNames[snappedDirection.name]
+		);
+
 		const positions: Position[] = [];
 		const dx = end.col - start.col;
 		const dy = end.row - start.row;
@@ -46,12 +54,12 @@ export class PathValidator {
 			return [start];
 		}
 
-		const stepX = dx / steps;
-		const stepY = dy / steps;
+		const dy1 = snappedDirection.direction.x;
+		const dx1 = snappedDirection.direction.y;
 
 		for (let index = 0; index <= steps; index++) {
-			const row = start.row + stepY * index;
-			const col = start.col + stepX * index;
+			const row = start.row + index * dy1;
+			const col = start.col - index * dx1;
 			positions.push({ row, col });
 		}
 
@@ -61,6 +69,7 @@ export class PathValidator {
 	normalizeAngle(angle: number): number {
 		return ((angle + 180) % 360) - 180;
 	}
+
 	getSnappedDirection(start: Position, end: Position) {
 		const dx = end.col - start.col;
 		const dy = end.row - start.row;
@@ -69,9 +78,11 @@ export class PathValidator {
 			throw new Error('Start and end points are the same — no direction.');
 		}
 
+		// Calculate the angle between the points
 		const angleRad = Math.atan2(dy, dx);
 		const angleDeg = angleRad * (180 / Math.PI);
 
+		// Find the closest direction by comparing angles
 		let closest = allDirections[0];
 		let minDiff = Infinity;
 
@@ -83,11 +94,10 @@ export class PathValidator {
 			}
 		}
 
-		const length = Math.hypot(closest.dx, closest.dy);
 		return {
 			direction: {
-				x: closest.dx / length,
-				y: closest.dy / length
+				x: closest.dx,
+				y: closest.dy
 			},
 			name: closest.name
 		};
