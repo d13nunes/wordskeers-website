@@ -45,23 +45,16 @@
 		return undefined;
 	}
 
-	let onWordSelect = (
-		word: string,
-		path: Position[],
-		setDiscovered: (position: Position[]) => void
-	): boolean => {
+	let onWordSelect = (word: string, path: Position[]): Position[] => {
 		const wordIndex = getWord(word);
-		console.log('✅ wordIndex', wordIndex);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
 			words[wordIndex].color = getColor().bg;
 			words[wordIndex].textColor = 'text-white';
 			words[wordIndex].isDiscovered = true;
-			setDiscovered(path);
 			hintPositions.length = 0;
-			console.log('✅ wordIndex', wordIndex);
-			return true;
+			return path;
 		}
-		return false;
+		return [];
 	};
 
 	let showPauseModal = $state(false);

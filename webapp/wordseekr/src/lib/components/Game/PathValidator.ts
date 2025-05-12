@@ -38,13 +38,6 @@ export class PathValidator {
 		}
 
 		const snappedDirection = this.getSnappedDirection(start, end);
-		console.log(
-			'📺 snappedDirection',
-			snappedDirection.direction.x,
-			snappedDirection.direction.y,
-			allDirectionNames[snappedDirection.name]
-		);
-
 		const positions: Position[] = [];
 		const dx = end.col - start.col;
 		const dy = end.row - start.row;
@@ -54,12 +47,12 @@ export class PathValidator {
 			return [start];
 		}
 
-		const dy1 = snappedDirection.direction.x;
-		const dx1 = snappedDirection.direction.y;
+		const dx1 = snappedDirection.direction.x;
+		const dy1 = snappedDirection.direction.y;
 
 		for (let index = 0; index <= steps; index++) {
 			const row = start.row + index * dy1;
-			const col = start.col - index * dx1;
+			const col = start.col + index * dx1;
 			positions.push({ row, col });
 		}
 
@@ -88,6 +81,7 @@ export class PathValidator {
 
 		for (const dir of allDirections) {
 			const diff = Math.abs(this.normalizeAngle(angleDeg - dir.angle));
+			// console.log('📺 angleDegdiff', dir.name, dir.angle, diff);
 			if (diff < minDiff) {
 				minDiff = diff;
 				closest = dir;

@@ -15,11 +15,7 @@
 		grid: string[][];
 		isRotated: boolean;
 		hintPositions: Position[];
-		onWordSelect: (
-			word: string,
-			path: Position[],
-			setDiscovered: (position: Position[]) => void
-		) => boolean;
+		onWordSelect: (word: string, path: Position[]) => Position[];
 		getColor: () => ColorTheme;
 	}
 
@@ -28,6 +24,7 @@
 	let firstSelectedCell: Position | null = null;
 	let showConfetti = $state(false);
 	let confettiConfig = $state({ amount: 200, size: 20 });
+	let isAnimatingIsDiscovered = false;
 	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
 	let { grid, onWordSelect, getColor, isRotated = false, hintPositions = [] }: Props = $props();
@@ -53,9 +50,7 @@
 		})
 	);
 	let currentColor: ColorTheme = getColor();
-
 	let previousHints: Position[] = [];
-	let previousSelectedCells = $state<Position[]>([]);
 
 	function handleInteractionStart(rowIndex: number, colIndex: number) {
 		isInteracting = true;
@@ -100,10 +95,11 @@
 				.join('');
 
 			// Call the callback with the selected word and path
-			const didFoundWord = onWordSelect(selectedWord, cells, setDiscovered);
-			if (didFoundWord) {
+			const discoveredPositions = onWordSelect(selectedWord, cells);
+			if (discoveredPositions.length > 0) {
+				setDiscovered(discoveredPositions);
 				resetSelectedCells();
-				animateDiscovered(cells);
+				animateDiscovered(discoveredPositions);
 				currentColor = getColor();
 			} else {
 				animateWrongWord(cells);
@@ -226,19 +222,40 @@
 	}
 
 	function animateWrongWord(positions: Position[]) {
-		const cells = positions.map((position) => {
-			return document.getElementById(`${position.row}${position.col}`);
+		positions.forEach((position) => {
+			const cell = document.getElementById(`${position.row}${position.col}`);
+			if (cell) {
+				const backgroundColor =
+					discoveredColorMapping[`${position.row}${position.col}`] ?? '#ffffff';
+				animate(cell, {
+					rotate: [-5, +5, -5, +5, -5, +5, -5, 0],
+					duration: 300,
+					easing: 'easeInOutQuad',
+					backgroundColor: backgroundColor
+				});
+			}
 		});
-		animate(cells, {
-			rotate: [-5, +5, -5, +5, -5, +5, -5, 0],
-			duration: 300,
-			easing: 'easeInOutQuad',
-			backgroundColor: discoveredColorMapping[`${positions[0].row}${positions[0].col}`] ?? '#FFFFFF'
-		});
+
+		// const cells = positions.map((position) => {
+		// 	return document.getElementById(`${position.row}${position.col}`);
+		// });
+		// cells
+		// 	.filter((cell) => cell !== null)
+		// 	.forEach((cell) => {
+		// 		const backgroundColor =
+		// 			discoveredColorMapping[`${positions[0].row}${positions[0].col}`] ?? '#FFFFFF';
+		// 		animate(cell, {
+		// 			rotate: [-5, +5, -5, +5, -5, +5, -5, 0],
+		// 			duration: 300,
+		// 			easing: 'easeInOutQuad',
+		// 			backgroundColor: backgroundColor
+		// 		});
+		// 	});
 	}
 
 	function animateDiscovered(positions: Position[]) {
 		const colorTheme = currentColor;
+		isAnimatingIsDiscovered = true;
 		animate(
 			positions.map((position) => {
 				return document.getElementById(`${position.row}${position.col}`);
@@ -249,15 +266,16 @@
 				duration: 500,
 				backgroundColor: [colorTheme.isSelectedColorHex, colorTheme.bgHex],
 				easing: 'easeInOutQuad',
-				repeat: 1
-				// onComplete: (animation) => {
-				// 	animation.target.style.backgroundColor = currentColor.isDiscoveredColorHex;
-				// }
+				repeat: 1,
+				onComplete: (animation) => {
+					isAnimatingIsDiscovered = false;
+				}
 			}
 		);
 	}
 
 	$effect(() => {
+		isAnimatingIsDiscovered = true;
 		let angle = isRotated ? 180 : 0;
 		let elements = [];
 		const board = document.getElementById('board');
@@ -267,14 +285,9 @@
 		const cells = Array.from(board?.children || []);
 		elements.push(...cells);
 		animate(elements, {
-			rotate: [angle, angle]
-		});
-	});
-	$effect(() => {
-		hintPositions.forEach((position) => {
-			const cell = document.getElementById(`${position.row}${position.col}`);
-			if (cell) {
-				cell.style.backgroundColor = currentColor.hint;
+			rotate: [angle, angle],
+			onComplete: () => {
+				isAnimatingIsDiscovered = false;
 			}
 		});
 	});
@@ -283,12 +296,14 @@
 		const cell = document.getElementById(`${position.row}${position.col}`);
 		if (cell) {
 			const colorTheme = currentColor;
+			const backgroundColor = '#ffffff';
+			console.log('🎥🎥🎥 animatedHint', cell.style.backgroundColor);
 			animate(cell, {
-				scale: [1, 0.8, 1.1, 0.8, 1],
-				rotate: [-5, +5, 0],
-				opacity: [1, 0.8, 1, 0.8, 1],
-				duration: 500,
-				backgroundColor: [colorTheme.bgHex, colorTheme.hintHex],
+				// scale: [1, 0.8, 1.1, 0.8, 1],
+				rotate: [-5, +5, -5, +5, -5, +5, 0],
+				// opacity: [1, 0.8, 1, 0.8, 1],
+				duration: 1000,
+				backgroundColor: [backgroundColor, colorTheme.hintHex, colorTheme.hintHex],
 				easing: 'easeInOutQuad',
 				repeat: 1
 				// onComplete: (animation) => {
@@ -299,22 +314,33 @@
 	}
 
 	$effect(() => {
-		previousHints.forEach(animatedDeselect);
+		previousHints
+			.filter((position) => {
+				const shouldAnimate =
+					!isAnimatingIsDiscovered && !discoveredColorMapping[`${position.row}${position.col}`];
+				console.log(
+					'🎥🎥🎥 shouldAnimate',
+					isAnimatingIsDiscovered,
+					discoveredColorMapping[`${position.row}${position.col}`],
+					shouldAnimate
+				);
+				if (!isAnimatingIsDiscovered) {
+					return true;
+				}
+				return shouldAnimate;
+			})
+			.forEach(animatedDeselect);
 		hintPositions.forEach(animatedHint);
 		previousHints = [...hintPositions];
-	});
-
-	$effect.root(() => {
-		// previousSelectedCells = [...selectedCells];
 	});
 </script>
 
 <div class="flex flex-col items-center justify-center">
-	{#if showConfetti}
+	<!-- {#if showConfetti}
 		<div class="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
 			<Confetti amount={confettiConfig.amount} size={confettiConfig.size} />
 		</div>
-	{/if}
+	{/if} -->
 	<div
 		id="board"
 		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"

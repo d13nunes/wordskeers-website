@@ -32,49 +32,49 @@ export const directionMap: Record<string, Direction> = {
 		name: DirectionName.UP,
 		dx: 0,
 		dy: -1,
-		angle: 0
+		angle: -90
 	},
 	DOWN: {
 		name: DirectionName.DOWN,
 		dx: 0,
 		dy: 1,
-		angle: 180
+		angle: 90
 	},
 	LEFT: {
 		name: DirectionName.LEFT,
 		dx: -1,
 		dy: 0,
-		angle: 270
+		angle: 180
 	},
 	RIGHT: {
 		name: DirectionName.RIGHT,
 		dx: 1,
 		dy: 0,
-		angle: 90
+		angle: 0
 	},
 	UP_LEFT: {
 		name: DirectionName.UP_LEFT,
 		dx: -1,
 		dy: -1,
-		angle: 315
+		angle: -135
 	},
 	UP_RIGHT: {
 		name: DirectionName.UP_RIGHT,
 		dx: 1,
 		dy: -1,
-		angle: 45
+		angle: -45
 	},
 	DOWN_LEFT: {
 		name: DirectionName.DOWN_LEFT,
 		dx: -1,
 		dy: 1,
-		angle: 225
+		angle: 135
 	},
 	DOWN_RIGHT: {
 		name: DirectionName.DOWN_RIGHT,
 		dx: 1,
 		dy: 1,
-		angle: 135
+		angle: 45
 	}
 };
 
