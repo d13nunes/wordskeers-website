@@ -18,12 +18,14 @@
 	import { flip } from 'svelte/animate';
 	import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
 	import { fade, scale } from 'svelte/transition';
+	import { animate } from 'animejs';
 
 	let isRotated = $state(false);
+	let isGameEnded = $state(false);
 	let isRotateDisabled = $state(false);
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
-	const powerUpCooldownButton = 600;
+	const powerUpCooldownButton = 2000;
 
 	const configuration = mockGameConfiguration();
 	let game = createGameForConfiguration(configuration);
@@ -52,6 +54,11 @@
 			words[wordIndex].textColor = 'text-white';
 			words[wordIndex].isDiscovered = true;
 			hintPositions.length = 0;
+			const totalWords = words.length;
+			const discoveredWords = words.filter((w) => w.isDiscovered).length;
+			if (discoveredWords === totalWords) {
+				isGameEnded = true;
+			}
 			return path;
 		}
 		return [];
@@ -62,30 +69,45 @@
 		showPauseModal = true;
 	}
 
+	let isPowerUpAnimationActive = $state(false);
+
 	function onPowerUpRotateClick() {
-		if (isRotateDisabled) return;
+		if (isRotateDisabled || isPowerUpAnimationActive) return;
+		isPowerUpAnimationActive = true;
 		isRotated = !isRotated;
-		isRotateDisabled = true;
 		walletStore.tryAndBuy(powerUpPrices.rotate);
+		const rotateIcon = document.getElementById('rotate-icon');
+		const finalRotation = isRotated ? '360' : '-360';
+		if (rotateIcon) {
+			animate(rotateIcon, {
+				rotate: ['0', finalRotation],
+				duration: 1000,
+				easing: 'easeInOutQuad'
+			});
+		}
 		setTimeout(() => {
-			isRotateDisabled = false;
+			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
 	}
 
 	async function onPowerUpFindLetterClick() {
-		if (isFindLetterDisabled) return;
+		if (isFindLetterDisabled || isPowerUpAnimationActive) return;
+		isPowerUpAnimationActive = true;
 		hintPositions.length = 0;
 		const suggestedWord = getRandonUndiscoveredWord();
 		const suggestedPositions = getWordPositions(suggestedWord);
 		const suggestedLetterIndex = randomInt(suggestedPositions.length - 1);
 		const suggestedLetter = suggestedPositions[suggestedLetterIndex];
-		isFindLetterDisabled = true;
 		const didBuy = await walletStore.tryAndBuy(powerUpPrices.findLetter);
 		if (didBuy) {
 			hintPositions.push(suggestedLetter);
+			const icon = document.getElementById('find-letter-icon');
+			if (icon) {
+				animatePowerUp(suggestedLetter, icon);
+			}
 		}
 		setTimeout(() => {
-			isFindLetterDisabled = false;
+			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
 	}
 
@@ -95,15 +117,85 @@
 		return undiscoveredWord[randomIndex];
 	}
 
+	function animatePowerUp(position: Position, icon: HTMLElement) {
+		const board = document.getElementById(`${position.row}${position.col}`);
+		const boardRect = board?.getBoundingClientRect();
+		const findWordIconRect = icon.getBoundingClientRect();
+
+		if (boardRect && findWordIconRect) {
+			// Calculate the center position of the board
+			const boardCenterX = boardRect.x + boardRect.width / 2;
+			const boardCenterY = boardRect.y + boardRect.height / 2;
+
+			// Calculate the position to center the icon
+			// We subtract half of the icon's dimensions to center it
+			const targetX = boardCenterX - findWordIconRect.width / 2;
+			const targetY = boardCenterY - findWordIconRect.height / 2;
+
+			// Calculate the translation needed from the icon's current position
+			const translateX = targetX - findWordIconRect.x;
+			const translateY = targetY - findWordIconRect.y;
+
+			// Store original position for the return animation
+			const originalX = findWordIconRect.x;
+			const originalY = findWordIconRect.y;
+
+			// First animation: move to center and scale up
+			const moveToCenter = animate(icon, {
+				translateX,
+				translateY,
+				duration: 700,
+				opacity: [1, 1, 0.8],
+				scale: 1.5,
+				easing: 'easeInOut'
+			});
+
+			// Chain the animations
+			moveToCenter.then(() => {
+				// Second animation: fade out
+				const fadeOut = animate(icon, {
+					delay: 100,
+					opacity: [0.8, 0],
+					rotate: [0, 360],
+					scale: [1.5, 0.0],
+					duration: 500,
+					easing: 'easeOutQuad'
+				});
+
+				fadeOut.then(() => {
+					// Reset position and scale instantly
+					animate(icon, {
+						translateX: 0,
+						translateY: 0,
+						scale: 1,
+						duration: 0
+					});
+
+					// Final animation: fade in at original position
+					animate(icon, {
+						opacity: 1,
+						duration: 500,
+						easing: 'easeInOut'
+					});
+				});
+			});
+		}
+	}
+
 	function onPowerUpFindWordClick() {
-		if (isFindWordDisabled) return;
+		if (isFindWordDisabled || isPowerUpAnimationActive) return;
+		isPowerUpAnimationActive = true;
 		const suggestedWord = getRandonUndiscoveredWord();
 		hintPositions.length = 0;
 		hintPositions.push(...getWordPositions(suggestedWord));
 		walletStore.tryAndBuy(powerUpPrices.findWord);
-		isFindWordDisabled = true;
+		const findWordIcon = document.getElementById('find-word-icon');
+		if (findWordIcon) {
+			const suggestedLetter = hintPositions[Math.floor(hintPositions.length / 2)];
+			animatePowerUp(suggestedLetter, findWordIcon);
+		}
 		setTimeout(() => {
-			isFindWordDisabled = false;
+			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
 	}
 
@@ -123,7 +215,7 @@
 		isFindWordDisabled = balance < powerUpPrices.findWord;
 	});
 
-	walletStore.addCoins(1000); // TODO: remove
+	walletStore.addCoins(300); // TODO: remove
 
 	let sortedWords = $derived(
 		[...words].sort((a, b) => {
@@ -184,8 +276,15 @@
 					</div>
 				{/each}
 			</div>
-			<div class="flex items-center justify-center pt-4">
-				<Board grid={game.grid} {onWordSelect} {getColor} {isRotated} {hintPositions} />
+			<div class="flex items-center justify-center pt-2">
+				<Board
+					grid={game.grid}
+					{onWordSelect}
+					{getColor}
+					{isRotated}
+					{hintPositions}
+					{isGameEnded}
+				/>
 			</div>
 		</div>
 		<div class="flex flex-row items-center justify-center gap-6">

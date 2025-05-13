@@ -20,6 +20,6 @@
 	{disabled}
 >
 	{#snippet icon()}
-		<FindWordIcon color="#007595" />
+		<FindWordIcon color="#0E7490" />
 	{/snippet}
 </PowerUpButton>

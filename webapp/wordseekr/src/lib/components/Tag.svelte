@@ -55,13 +55,7 @@
 		isDiscovered: boolean;
 	}
 	let { tag, isDiscovered, bgColor, textColor, variant = ThemeName.Default }: Props = $props();
-	// export let tag: string = 'default';
-	// export let variant: ThemeName = ThemeName.Default;
-	// export let customBg = null;
-	// export let customText = null;
-	// export let isDiscovered: boolean = false;
 
-	// Use custom colors if provided, otherwise use the theme
 	let theme = getTheme(variant);
 	$effect(() => {
 		bgColor = bgColor ? bgColor : theme.bg;
@@ -75,8 +69,8 @@
 		: ''} rounded-xl {bgColor} "
 >
 	<span
-		class="px-4 py-1 font-[Inter] transition-all duration-300 ease-in-out {isDiscovered
+		class="px-2 py-1 font-[Inter] transition-all duration-300 ease-in-out {isDiscovered
 			? 'line-through'
-			: ''} text-sm font-medium {textColor}">{tag}</span
+			: ''} text-xs font-thin {textColor}">{tag}</span
 	>
 </div>

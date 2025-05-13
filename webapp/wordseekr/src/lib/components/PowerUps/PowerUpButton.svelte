@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
-	import type { Snippet } from 'svelte';
+	import { animate } from 'animejs';
+	import { onMount, type Snippet } from 'svelte';
 
 	interface Props {
 		price: string;
@@ -23,12 +24,42 @@
 		icon,
 		disabled = false
 	}: Props = $props();
+
+	let button: HTMLDivElement;
+	onMount(() => {
+		const scaleDown = () => {
+			if (disabled) return;
+			animate(button, {
+				scale: [1, 0.95],
+				duration: 100,
+				easing: 'easeOutQuad'
+			});
+		};
+
+		const scaleUp = () => {
+			if (disabled) return;
+			animate(button, {
+				scale: [0.95, 1],
+				duration: 100,
+				easing: 'easeOutQuad'
+			});
+		};
+
+		button.addEventListener('mousedown', scaleDown);
+		button.addEventListener('mouseup', scaleUp);
+		button.addEventListener('mouseleave', scaleUp);
+
+		button.addEventListener('touchstart', scaleDown, { passive: true });
+		button.addEventListener('touchend', scaleUp);
+		button.addEventListener('touchcancel', scaleUp);
+	});
 </script>
 
 <button class="select-none" {onclick} {disabled}>
 	<div
-		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} button-active {disabled
-			? 'cursor-not-allowed opacity-50'
+		bind:this={button}
+		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} {disabled
+			? 'opacity-70'
 			: ''}"
 	>
 		<div class="h-6 w-6">

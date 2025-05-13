@@ -82,19 +82,19 @@ async function scheduleNextRewardNotification(firstRewardClaimTimestamp: number)
 	if (fourHoursLater.getTime() > now) {
 		scheduleTime = fourHoursLater; // Schedule for the end of the 4-hour window
 	}
-	const nextMorning = addHours(startOfTomorrow(), 8);
-	if (nextMorning.getTime() > now) {
-		scheduleTime = nextMorning; // Schedule for the start of the next day
-	}
+	// const nextMorning = addHours(startOfTomorrow(), 8);
+	// if (nextMorning.getTime() > now) {
+	// 	scheduleTime = nextMorning; // Schedule for the start of the next day
+	// }
 
-	const nextMorningTwoDaysLater = addHours(addDays(startOfTomorrow(), 2), 8);
-	if (nextMorningTwoDaysLater.getTime() > now) {
-		scheduleTime = nextMorningTwoDaysLater; // Schedule for the start of the next day
-	}
-	const nextMorningOneWeekLater = addHours(addDays(startOfTomorrow(), 7), 8);
-	if (nextMorningOneWeekLater.getTime() > now) {
-		scheduleTime = nextMorningOneWeekLater; // Schedule for the start of the next week
-	}
+	// const nextMorningTwoDaysLater = addHours(addDays(startOfTomorrow(), 2), 8);
+	// if (nextMorningTwoDaysLater.getTime() > now) {
+	// 	scheduleTime = nextMorningTwoDaysLater; // Schedule for the start of the next day
+	// }
+	// const nextMorningOneWeekLater = addHours(addDays(startOfTomorrow(), 7), 8);
+	// if (nextMorningOneWeekLater.getTime() > now) {
+	// 	scheduleTime = nextMorningOneWeekLater; // Schedule for the start of the next week
+	// }
 
 	// If we still don't have a schedule time, it means rewards are likely available now
 	// or it's the very first time, so we don't schedule a notification yet.

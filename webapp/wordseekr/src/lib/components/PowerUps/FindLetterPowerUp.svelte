@@ -21,6 +21,6 @@
 	{disabled}
 >
 	{#snippet icon()}
-		<FindLetterIcon color="#c10007" />
+		<FindLetterIcon color="#B91C1C" />
 	{/snippet}
 </PowerUpButton>

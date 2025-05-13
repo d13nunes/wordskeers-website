@@ -15,6 +15,7 @@
 		grid: string[][];
 		isRotated: boolean;
 		hintPositions: Position[];
+		isGameEnded: boolean;
 		onWordSelect: (word: string, path: Position[]) => Position[];
 		getColor: () => ColorTheme;
 	}
@@ -22,12 +23,18 @@
 	let discoveredColorMapping: Record<string, string> = $state({});
 	let selectedCells: Position[] = $state([]);
 	let firstSelectedCell: Position | null = null;
-	let showConfetti = $state(false);
-	let confettiConfig = $state({ amount: 200, size: 20 });
+	let confettiConfig = $state({ amount: 500, size: 20 });
 	let isAnimatingIsDiscovered = false;
 	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
-	let { grid, onWordSelect, getColor, isRotated = false, hintPositions = [] }: Props = $props();
+	let {
+		grid,
+		onWordSelect,
+		getColor,
+		isRotated = false,
+		hintPositions = [],
+		isGameEnded = false
+	}: Props = $props();
 
 	// Calculate number of columns dynamically
 	let numColumns = grid[0]?.length || 3; // Default to 3 if grid is empty
@@ -73,13 +80,6 @@
 			amount: Math.min(50 + wordLength * 30, 300), // More confetti for longer words, max 300
 			size: Math.min(15 + wordLength * 2, 30) // Bigger confetti for longer words, max 30
 		};
-
-		setTimeout(() => {
-			showConfetti = true;
-		}, 500);
-		setTimeout(() => {
-			showConfetti = false;
-		}, 1500);
 	}
 
 	function handleInteractionEnd() {
@@ -167,7 +167,6 @@
 	}
 
 	function handleMouseUp() {
-		console.log('🎥🎥🎥 handleMouseUp');
 		handleInteractionEnd();
 	}
 
@@ -228,29 +227,13 @@
 				const backgroundColor =
 					discoveredColorMapping[`${position.row}${position.col}`] ?? '#ffffff';
 				animate(cell, {
-					rotate: [-5, +5, -5, +5, -5, +5, -5, 0],
+					rotate: [-5, +5, -5, +5, -5, 0],
 					duration: 300,
 					easing: 'easeInOutQuad',
 					backgroundColor: backgroundColor
 				});
 			}
 		});
-
-		// const cells = positions.map((position) => {
-		// 	return document.getElementById(`${position.row}${position.col}`);
-		// });
-		// cells
-		// 	.filter((cell) => cell !== null)
-		// 	.forEach((cell) => {
-		// 		const backgroundColor =
-		// 			discoveredColorMapping[`${positions[0].row}${positions[0].col}`] ?? '#FFFFFF';
-		// 		animate(cell, {
-		// 			rotate: [-5, +5, -5, +5, -5, +5, -5, 0],
-		// 			duration: 300,
-		// 			easing: 'easeInOutQuad',
-		// 			backgroundColor: backgroundColor
-		// 		});
-		// 	});
 	}
 
 	function animateDiscovered(positions: Position[]) {
@@ -297,15 +280,13 @@
 		if (cell) {
 			const colorTheme = currentColor;
 			const backgroundColor = '#ffffff';
-			console.log('🎥🎥🎥 animatedHint', cell.style.backgroundColor);
 			animate(cell, {
 				// scale: [1, 0.8, 1.1, 0.8, 1],
-				rotate: [-5, +5, -5, +5, -5, +5, 0],
-				// opacity: [1, 0.8, 1, 0.8, 1],
+				rotate: [0, -5, +5, -5, +5, -5, +5, 0],
 				duration: 1000,
 				backgroundColor: [backgroundColor, colorTheme.hintHex, colorTheme.hintHex],
 				easing: 'easeInOutQuad',
-				repeat: 1
+				delay: 900
 				// onComplete: (animation) => {
 				// 	animation.target.style.backgroundColor = currentColor.isDiscoveredColorHex;
 				// }
@@ -336,11 +317,11 @@
 </script>
 
 <div class="flex flex-col items-center justify-center">
-	<!-- {#if showConfetti}
+	{#if isGameEnded}
 		<div class="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
 			<Confetti amount={confettiConfig.amount} size={confettiConfig.size} />
 		</div>
-	{/if} -->
+	{/if}
 	<div
 		id="board"
 		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
@@ -355,7 +336,7 @@
 	>
 		{#each cells as row}
 			{#each row as cell}
-				<div class="h-[32px] w-[32px]">
+				<div class="h-[34px] w-[34px]">
 					<div
 						id={`${cell.row}${cell.col}`}
 						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-center text-[18px] font-semibold text-gray-900"
