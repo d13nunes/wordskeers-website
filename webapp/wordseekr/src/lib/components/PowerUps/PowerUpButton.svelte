@@ -32,7 +32,7 @@
 			animate(button, {
 				scale: [1, 0.95],
 				duration: 100,
-				easing: 'easeOutQuad'
+				ease: 'easeOutQuad'
 			});
 		};
 
@@ -41,7 +41,7 @@
 			animate(button, {
 				scale: [0.95, 1],
 				duration: 100,
-				easing: 'easeOutQuad'
+				ease: 'easeOutQuad'
 			});
 		};
 

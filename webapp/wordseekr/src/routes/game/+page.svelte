@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PauseMenu from './PauseMenu.svelte';
+
 	import Tag from '$lib/components/Tag.svelte';
 	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
 	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
@@ -16,12 +18,15 @@
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { flip } from 'svelte/animate';
-	import { cubicIn, cubicInOut, cubicOut } from 'svelte/easing';
-	import { fade, scale } from 'svelte/transition';
-	import { animate } from 'animejs';
+	import { cubicInOut } from 'svelte/easing';
+	import { animate, utils } from 'animejs';
+	import { goto } from '$app/navigation';
+	import GameEndedModal from './GameEndedModal.svelte';
+	import { adStore } from '$lib/ads/ads';
+	import { AdType } from '$lib/ads/ads-types';
 
 	let isRotated = $state(false);
-	let isGameEnded = $state(false);
+	let isGameEnded = $state(true);
 	let isRotateDisabled = $state(false);
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
@@ -65,6 +70,7 @@
 	};
 
 	let showPauseModal = $state(false);
+
 	function onPauseClick() {
 		showPauseModal = true;
 	}
@@ -82,7 +88,7 @@
 			animate(rotateIcon, {
 				rotate: ['0', finalRotation],
 				duration: 1000,
-				easing: 'easeInOutQuad'
+				ease: 'inOutQuad'
 			});
 		}
 		setTimeout(() => {
@@ -215,7 +221,7 @@
 		isFindWordDisabled = balance < powerUpPrices.findWord;
 	});
 
-	walletStore.addCoins(300); // TODO: remove
+	walletStore.addCoins(70); // TODO: remove
 
 	let sortedWords = $derived(
 		[...words].sort((a, b) => {
@@ -225,40 +231,73 @@
 			return a.word.length - b.word.length;
 		})
 	);
+	let isRewardAdReady = false;
+	adStore.isAdLoaded(AdType.Rewarded).subscribe((isLoaded) => {
+		isRewardAdReady = isLoaded;
+	});
+
+	let elapsedTime = $state(0);
+
+	function getFormatedTime(elapsedTime: number) {
+		const minutes = Math.floor(elapsedTime / 60);
+		const seconds = elapsedTime % 60;
+		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+	}
+
+	const rewardCoins = 110;
+
+	async function collectReward(showAd: boolean) {
+		let didWatchAd;
+		if (showAd) {
+			didWatchAd = await adStore.showAd(AdType.Rewarded);
+		} else {
+			didWatchAd = false;
+		}
+		const gameEndedPrize = didWatchAd ? 100 : 50;
+		const coinPileIconName = 'coin-pile-icon';
+
+		const balanceTag = document.getElementById('balance-tag-icon');
+		const coinPileIcon = document.getElementById(coinPileIconName);
+
+		if (balanceTag && coinPileIcon) {
+			const balanceTagRect = balanceTag.getBoundingClientRect();
+			const coinPileIconRect = coinPileIcon.getBoundingClientRect();
+			const translateX = balanceTagRect.x - coinPileIconRect.x - coinPileIconRect.width / 2;
+			const translateY = balanceTagRect.y - coinPileIconRect.y - coinPileIconRect.height / 2;
+			const animationDuration = 1000;
+			animate(coinPileIcon, {
+				translateX,
+				translateY,
+				scale: [1, 1, 1, 0.5, 0],
+				ease: 'inOut',
+				duration: animationDuration
+			}).then(() => {
+				setTimeout(() => {
+					goto('/');
+				}, 500);
+			});
+			setTimeout(() => {
+				walletStore.addCoins(gameEndedPrize);
+			}, animationDuration * 0.75);
+		}
+	}
 </script>
 
 <div class="">
 	{#if showPauseModal}
-		<div
-			in:fade={{ duration: 300, easing: cubicOut }}
-			out:fade={{ delay: 100, duration: 300, easing: cubicIn }}
-			class="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
-		>
-			<div
-				in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
-				out:scale={{ duration: 300, easing: cubicInOut }}
-				class="flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg"
-			>
-				<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
-				<div class="flex flex-row gap-4">
-					<button
-						class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-						onclick={() => (showPauseModal = false)}
-					>
-						New Game
-					</button>
-					<button
-						class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-						onclick={() => (showPauseModal = false)}
-					>
-						Resume Game
-					</button>
-				</div>
-			</div>
-		</div>
+		<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
 	{/if}
+	{#if isGameEnded}
+		<GameEndedModal
+			message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou’ve earned ${rewardCoins} coins!`}
+			onClickContinue={() => collectReward(false)}
+			onClickDouble={() => collectReward(true)}
+			showDoubleButton={false}
+		/>
+	{/if}
+
 	<div
-		class="flex h-screen flex-col items-center justify-end {isRemoveAdsActive
+		class="relative flex h-screen flex-col items-center justify-end {isRemoveAdsActive
 			? 'pb-12'
 			: 'pb-28'} lg:items-center lg:pb-24"
 	>

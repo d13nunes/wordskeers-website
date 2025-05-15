@@ -10,6 +10,11 @@
 	let isActive = $state(false);
 	let { onclick } = $props();
 	let displayBalance = $state(0);
+	let balanceTagIcon: HTMLElement | null = null;
+
+	onMount(() => {
+		balanceTagIcon = document.getElementById('balance-tag-icon');
+	});
 
 	walletStore.coins((newBalance) => {
 		if (balance !== newBalance) {
@@ -25,6 +30,14 @@
 					displayBalance = counter.value;
 				}
 			});
+
+			if (balanceTagIcon) {
+				animate(balanceTagIcon, {
+					scale: [1, 1.2, 0.8, 1],
+					duration: 1000,
+					ease: 'inOutQuad'
+				});
+			}
 		}
 	});
 
@@ -35,12 +48,13 @@
 </script>
 
 <button
+	id="balance-tag"
 	class="card-button flex flex-row items-center justify-center gap-3 lg:gap-4"
 	disabled={!isActive}
 	{onclick}
 >
 	<div class="h-4 w-4 lg:h-6 lg:w-6">
-		<CoinsPileIcon />
+		<CoinsPileIcon id="balance-tag-icon" />
 	</div>
 	<span class="text-black-500 font-mono text-sm font-medium lg:text-lg">{displayBalance}</span>
 

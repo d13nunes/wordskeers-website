@@ -38,7 +38,6 @@ export function createGridFor(wordsLocation: WordLocation[], size: number): stri
 	const grid: string[][] = Array(size)
 		.fill(null)
 		.map(() => Array(size).fill(filler));
-	console.log('❤️Generated grid: ', grid);
 
 	for (const wordLocation of wordsLocation) {
 		const word = wordLocation.word;
@@ -52,7 +51,6 @@ export function createGridFor(wordsLocation: WordLocation[], size: number): stri
 			grid[row][column] = letter.toUpperCase();
 		}
 	}
-	console.log('❤️Grid with words: ', grid);
 	const randomLetters: string[] = [
 		'A',
 		'B',
@@ -88,7 +86,6 @@ export function createGridFor(wordsLocation: WordLocation[], size: number): stri
 			}
 		}
 	}
-	console.log('❤️Grid final: ', grid);
 	return grid;
 }
 
@@ -133,66 +130,66 @@ export function mockGameConfiguration(): GameConfiguration {
 	return {
 		id: 'mock',
 		wordsLocation: [
-			// {
-			// 	word: 'STRAIT',
-			// 	initialPosition: { row: 1, col: 4 },
-			// 	direction: directionMap.DOWN_RIGHT
-			// },
-			// {
-			// 	word: 'ATLANTIC',
-			// 	initialPosition: { row: 9, col: 1 },
-			// 	direction: directionMap.UP_RIGHT
-			// },
-			// {
-			// 	word: 'SEABED',
-			// 	initialPosition: { row: 2, col: 3 },
-			// 	direction: directionMap.DOWN_RIGHT
-			// },
-			// {
-			// 	word: 'CARIBBEAN',
-			// 	initialPosition: { row: 1, col: 0 },
-			// 	direction: directionMap.DOWN
-			// },
-			// {
-			// 	word: 'ARCTIC',
-			// 	initialPosition: { row: 7, col: 2 },
-			// 	direction: directionMap.UP
-			// },
-			// {
-			// 	word: 'BLACK',
-			// 	initialPosition: { row: 8, col: 9 },
-			// 	direction: directionMap.LEFT
-			// },
-			// {
-			// 	word: 'SOUTHERN',
-			// 	initialPosition: { row: 9, col: 9 },
-			// 	direction: directionMap.LEFT
-			// },
-			// {
-			// 	word: 'ADRIATIC',
-			// 	initialPosition: { row: 8, col: 1 },
-			// 	direction: directionMap.UP
-			// },
-			// {
-			// 	word: 'CHANNEL',
-			// 	initialPosition: { row: 8, col: 4 },
-			// 	direction: directionMap.UP
-			// },
-			// {
-			// 	word: 'WAVES',
-			// 	initialPosition: { row: 6, col: 3 },
-			// 	direction: directionMap.UP
-			// },
-			// {
-			// 	word: 'GULF',
-			// 	initialPosition: { row: 7, col: 5 },
-			// 	direction: directionMap.UP_RIGHT
-			// },
-			// {
-			// 	word: 'RED',
-			// 	initialPosition: { row: 1, col: 5 },
-			// 	direction: directionMap.RIGHT
-			// },
+			{
+				word: 'STRAIT',
+				initialPosition: { row: 1, col: 4 },
+				direction: directionMap.DOWN_RIGHT
+			},
+			{
+				word: 'ATLANTIC',
+				initialPosition: { row: 9, col: 1 },
+				direction: directionMap.UP_RIGHT
+			},
+			{
+				word: 'SEABED',
+				initialPosition: { row: 2, col: 3 },
+				direction: directionMap.DOWN_RIGHT
+			},
+			{
+				word: 'CARIBBEAN',
+				initialPosition: { row: 1, col: 0 },
+				direction: directionMap.DOWN
+			},
+			{
+				word: 'ARCTIC',
+				initialPosition: { row: 7, col: 2 },
+				direction: directionMap.UP
+			},
+			{
+				word: 'BLACK',
+				initialPosition: { row: 8, col: 9 },
+				direction: directionMap.LEFT
+			},
+			{
+				word: 'SOUTHERN',
+				initialPosition: { row: 9, col: 9 },
+				direction: directionMap.LEFT
+			},
+			{
+				word: 'ADRIATIC',
+				initialPosition: { row: 8, col: 1 },
+				direction: directionMap.UP
+			},
+			{
+				word: 'CHANNEL',
+				initialPosition: { row: 8, col: 4 },
+				direction: directionMap.UP
+			},
+			{
+				word: 'WAVES',
+				initialPosition: { row: 6, col: 3 },
+				direction: directionMap.UP
+			},
+			{
+				word: 'GULF',
+				initialPosition: { row: 7, col: 5 },
+				direction: directionMap.UP_RIGHT
+			},
+			{
+				word: 'RED',
+				initialPosition: { row: 1, col: 5 },
+				direction: directionMap.RIGHT
+			},
 			{
 				word: 'TIDE',
 				initialPosition: { row: 7, col: 6 },

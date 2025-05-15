@@ -12,11 +12,14 @@ export class AdmobReward implements AdProvider {
 
 	isLoaded: Readable<boolean> = this._isLoaded;
 	private isLoading = false;
-	load(): Promise<boolean> {
+	async load(): Promise<boolean> {
 		if (this.isLoading) {
 			return Promise.resolve(false);
 		}
 		this.isLoading = true;
+		AdMob.prepareRewardVideoAd({
+			adId: this.adId
+		});
 		return new Promise((resolve, reject) => {
 			AdMob.addListener(RewardAdPluginEvents.Loaded, () => {
 				this._isLoaded.set(true);
@@ -27,9 +30,6 @@ export class AdmobReward implements AdProvider {
 				this._isLoaded.set(false);
 				this.isLoading = false;
 				reject(new Error('Failed to load rewarded ad'));
-			});
-			AdMob.prepareRewardVideoAd({
-				adId: this.adId
 			});
 		});
 	}

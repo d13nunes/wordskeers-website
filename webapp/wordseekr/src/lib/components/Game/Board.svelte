@@ -2,7 +2,6 @@
 	import { type Position } from './Position';
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
-	import Confetti from 'svelte-confetti';
 	import { animate } from 'animejs';
 	interface Cell {
 		letter: string;
@@ -23,7 +22,6 @@
 	let discoveredColorMapping: Record<string, string> = $state({});
 	let selectedCells: Position[] = $state([]);
 	let firstSelectedCell: Position | null = null;
-	let confettiConfig = $state({ amount: 500, size: 20 });
 	let isAnimatingIsDiscovered = false;
 	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
@@ -73,13 +71,6 @@
 		position.forEach((pos) => {
 			discoveredColorMapping[`${pos.row}${pos.col}`] = currentColor?.bgHex ?? defaultColor;
 		});
-
-		// Calculate confetti amount based on word length
-		const wordLength = position.length;
-		confettiConfig = {
-			amount: Math.min(50 + wordLength * 30, 300), // More confetti for longer words, max 300
-			size: Math.min(15 + wordLength * 2, 30) // Bigger confetti for longer words, max 30
-		};
 	}
 
 	function handleInteractionEnd() {
@@ -98,8 +89,8 @@
 			const discoveredPositions = onWordSelect(selectedWord, cells);
 			if (discoveredPositions.length > 0) {
 				setDiscovered(discoveredPositions);
-				resetSelectedCells();
 				animateDiscovered(discoveredPositions);
+				resetSelectedCells();
 				currentColor = getColor();
 			} else {
 				animateWrongWord(cells);
@@ -189,20 +180,25 @@
 		selectedCells.push(...newCells);
 	}
 
+	function resetSelectedCells() {
+		updateSelectedCells([]);
+	}
+
 	function animatedSelect(position: Position) {
 		const cell = document.getElementById(`${position.row}${position.col}`);
 		if (cell) {
 			animate(cell, {
-				scale: [1, 0.8, 1.1, 0.8, 1],
-				opacity: [1, 0.8, 0.8, 0.8, 1],
+				// scale: [1, 0.8, 1.1, 0.8, 1],
+				// opacity: [1, 0.8, 0.8, 0.8, 1],
 				backgroundColor: [currentColor.isSelectedColorHex],
 				duration: 1,
-				easing: 'easeInOutQuad'
+				ease: 'inOutQuad'
 			});
 		}
 	}
 
 	function animatedDeselect(position: Position) {
+		if (isAnimatingIsDiscovered) return;
 		const id = `${position.row}${position.col}`;
 		const cell = document.getElementById(id);
 		if (cell) {
@@ -211,13 +207,28 @@
 				opacity: [1, 0.8, 1],
 				backgroundColor: discoveredColorMapping[id] ?? '#ffffff',
 				duration: 1,
-				easing: 'easeInOutQuad'
+				ease: 'inOutQuad'
 			});
 		}
 	}
 
-	function resetSelectedCells() {
-		updateSelectedCells([]);
+	function animatedHint(position: Position) {
+		const cell = document.getElementById(`${position.row}${position.col}`);
+		if (cell) {
+			const colorTheme = currentColor;
+			const backgroundColor = '#ffffff';
+			animate(cell, {
+				// scale: [1, 0.8, 1.1, 0.8, 1],
+				rotate: [0, -5, +5, -5, +5, -5, +5, 0],
+				duration: 1000,
+				backgroundColor: [backgroundColor, colorTheme.hintHex, colorTheme.hintHex],
+				ease: 'inOutQuad',
+				delay: 900
+				// onComplete: (animation) => {
+				// 	animation.target.style.backgroundColor = currentColor.isDiscoveredColorHex;
+				// }
+			});
+		}
 	}
 
 	function animateWrongWord(positions: Position[]) {
@@ -229,7 +240,7 @@
 				animate(cell, {
 					rotate: [-5, +5, -5, +5, -5, 0],
 					duration: 300,
-					easing: 'easeInOutQuad',
+					ease: 'inOutQuad',
 					backgroundColor: backgroundColor
 				});
 			}
@@ -239,22 +250,30 @@
 	function animateDiscovered(positions: Position[]) {
 		const colorTheme = currentColor;
 		isAnimatingIsDiscovered = true;
-		animate(
-			positions.map((position) => {
-				return document.getElementById(`${position.row}${position.col}`);
-			}),
-			{
-				scale: [1, 0.8, 1.1, 0.8, 1],
-				opacity: [1, 0.8, 0.8, 0.8, 1],
-				duration: 500,
-				backgroundColor: [colorTheme.isSelectedColorHex, colorTheme.bgHex],
-				easing: 'easeInOutQuad',
-				repeat: 1,
-				onComplete: (animation) => {
-					isAnimatingIsDiscovered = false;
-				}
+
+		positions.forEach((position, index) => {
+			const cell = document.getElementById(`${position.row}${position.col}`);
+			const delay = index * 100;
+			const isLast = index === positions.length - 1;
+			if (cell) {
+				animate(cell, {
+					delay: delay,
+					scale: [1, 0.9, 1.1, 1],
+					duration: 500,
+					backgroundColor: [
+						colorTheme.isSelectedColorHex,
+						colorTheme.isSelectedColorHex,
+						colorTheme.bgHex
+					],
+					ease: 'linear',
+					onComplete: (animation) => {
+						if (isLast) {
+							isAnimatingIsDiscovered = false;
+						}
+					}
+				});
 			}
-		);
+		});
 	}
 
 	$effect(() => {
@@ -275,36 +294,11 @@
 		});
 	});
 
-	function animatedHint(position: Position) {
-		const cell = document.getElementById(`${position.row}${position.col}`);
-		if (cell) {
-			const colorTheme = currentColor;
-			const backgroundColor = '#ffffff';
-			animate(cell, {
-				// scale: [1, 0.8, 1.1, 0.8, 1],
-				rotate: [0, -5, +5, -5, +5, -5, +5, 0],
-				duration: 1000,
-				backgroundColor: [backgroundColor, colorTheme.hintHex, colorTheme.hintHex],
-				easing: 'easeInOutQuad',
-				delay: 900
-				// onComplete: (animation) => {
-				// 	animation.target.style.backgroundColor = currentColor.isDiscoveredColorHex;
-				// }
-			});
-		}
-	}
-
 	$effect(() => {
 		previousHints
 			.filter((position) => {
 				const shouldAnimate =
 					!isAnimatingIsDiscovered && !discoveredColorMapping[`${position.row}${position.col}`];
-				console.log(
-					'🎥🎥🎥 shouldAnimate',
-					isAnimatingIsDiscovered,
-					discoveredColorMapping[`${position.row}${position.col}`],
-					shouldAnimate
-				);
 				if (!isAnimatingIsDiscovered) {
 					return true;
 				}
@@ -317,11 +311,6 @@
 </script>
 
 <div class="flex flex-col items-center justify-center">
-	{#if isGameEnded}
-		<div class="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-			<Confetti amount={confettiConfig.amount} size={confettiConfig.size} />
-		</div>
-	{/if}
 	<div
 		id="board"
 		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
@@ -339,7 +328,7 @@
 				<div class="h-[34px] w-[34px]">
 					<div
 						id={`${cell.row}${cell.col}`}
-						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-center text-[18px] font-semibold text-gray-900"
+						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-center text-[20px] font-semibold text-gray-900"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
 						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
 						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
