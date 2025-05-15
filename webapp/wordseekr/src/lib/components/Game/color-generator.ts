@@ -8,20 +8,25 @@ export interface ColorTheme {
 	hintHex: string;
 	isSelectedColorHex: string;
 }
+
+const RED_THEME: ColorTheme = {
+	bg: 'bg-indigo-300',
+	text: 'text-indigo-700',
+	hint: 'bg-indigo-100',
+	isSelectedColor: 'bg-indigo-200',
+	bgHex: '#A5B4FC',
+	textHex: '#4338CA',
+	hintHex: '#E0E7FF',
+	isSelectedColorHex: '#C7D2FE'
+};
+
 export class ColorGenerator {
 	colors: ColorTheme[];
+	private useRedOnly: boolean = false;
+
 	constructor() {
 		this.colors = [
-			{
-				bg: 'bg-red-300',
-				text: 'text-red-700',
-				hint: 'bg-red-100',
-				isSelectedColor: 'bg-red-200',
-				bgHex: '#FCA5A5',
-				textHex: '#B91C1C',
-				hintHex: '#FEE2E2',
-				isSelectedColorHex: '#FECACA'
-			},
+			RED_THEME,
 			{
 				bg: 'bg-green-300',
 				text: 'text-green-700',
@@ -115,6 +120,10 @@ export class ColorGenerator {
 		];
 	}
 
+	toggleRedOnly() {
+		this.useRedOnly = !this.useRedOnly;
+	}
+
 	getBGColor(index: number) {
 		return this.colors[index % this.colors.length].bg;
 	}
@@ -124,6 +133,13 @@ export class ColorGenerator {
 	}
 
 	getColor(index: number) {
+		if (this.useRedOnly) {
+			return RED_THEME;
+		}
 		return this.colors[index % this.colors.length];
+	}
+
+	isRedOnly() {
+		return this.useRedOnly;
 	}
 }

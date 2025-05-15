@@ -57,9 +57,12 @@
 	let currentColor: ColorTheme = getColor();
 	let previousHints: Position[] = [];
 
+	$effect(() => {
+		currentColor = getColor();
+	});
+
 	function handleInteractionStart(rowIndex: number, colIndex: number) {
 		isInteracting = true;
-		currentColor = getColor();
 		const position = { row: rowIndex, col: colIndex };
 		updateSelectedCells([position]);
 		firstSelectedCell = position;
@@ -253,13 +256,13 @@
 
 		positions.forEach((position, index) => {
 			const cell = document.getElementById(`${position.row}${position.col}`);
-			const delay = index * 100;
+			const delay = index * 50;
 			const isLast = index === positions.length - 1;
 			if (cell) {
 				animate(cell, {
 					delay: delay,
 					scale: [1, 0.9, 1.1, 1],
-					duration: 500,
+					duration: 300,
 					backgroundColor: [
 						colorTheme.isSelectedColorHex,
 						colorTheme.isSelectedColorHex,

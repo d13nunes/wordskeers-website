@@ -130,21 +130,21 @@ export function mockGameConfiguration(): GameConfiguration {
 	return {
 		id: 'mock',
 		wordsLocation: [
-			{
-				word: 'STRAIT',
-				initialPosition: { row: 1, col: 4 },
-				direction: directionMap.DOWN_RIGHT
-			},
-			{
-				word: 'ATLANTIC',
-				initialPosition: { row: 9, col: 1 },
-				direction: directionMap.UP_RIGHT
-			},
-			{
-				word: 'SEABED',
-				initialPosition: { row: 2, col: 3 },
-				direction: directionMap.DOWN_RIGHT
-			},
+			// {
+			// 	word: 'STRAIT',
+			// 	initialPosition: { row: 1, col: 4 },
+			// 	direction: directionMap.DOWN_RIGHT
+			// },
+			// {
+			// 	word: 'ATLANTIC',
+			// 	initialPosition: { row: 9, col: 1 },
+			// 	direction: directionMap.UP_RIGHT
+			// },
+			// {
+			// 	word: 'SEABED',
+			// 	initialPosition: { row: 2, col: 3 },
+			// 	direction: directionMap.DOWN_RIGHT
+			// },
 			{
 				word: 'CARIBBEAN',
 				initialPosition: { row: 1, col: 0 },

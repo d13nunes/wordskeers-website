@@ -72,7 +72,7 @@
 				</div>
 				<span class="font-regular text-xs {priceColor}">{price}</span>
 			</div>
-			<span class="font-regular text-xs {titleColor}">{title}</span>
+			<span class="font-regular text-xs {titleColor}">{title}1</span>
 		</div>
 	</div>
 </button>

@@ -24,9 +24,10 @@
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
+	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
 
 	let isRotated = $state(false);
-	let isGameEnded = $state(true);
+	let isGameEnded = $state(false);
 	let isRotateDisabled = $state(false);
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
@@ -38,6 +39,19 @@
 
 	let colorGenerator = new ColorGenerator();
 	let hintPositions: Position[] = $state([]);
+	let isRedOnly = $state(false);
+
+	function toggleRedOnly() {
+		isRedOnly = !isRedOnly;
+		colorGenerator.toggleRedOnly();
+	}
+
+	function getColor() {
+		if (isRedOnly) {
+			return colorGenerator.getColor(0);
+		}
+		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
+	}
 
 	function getWord(word: string): number | undefined {
 		const wordDirection = words.findIndex((w) => w.word === word);
@@ -205,13 +219,10 @@
 		}, powerUpCooldownButton);
 	}
 
-	function getColor() {
-		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
-	}
 	let title = $derived(game.title);
 	let isRemoveAdsActive = $state(false);
 	const powerUpPrices = {
-		rotate: 10,
+		rotate: 5,
 		findLetter: 100,
 		findWord: 200
 	};
@@ -237,12 +248,6 @@
 	});
 
 	let elapsedTime = $state(0);
-
-	function getFormatedTime(elapsedTime: number) {
-		const minutes = Math.floor(elapsedTime / 60);
-		const seconds = elapsedTime % 60;
-		return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-	}
 
 	const rewardCoins = 110;
 
@@ -289,7 +294,7 @@
 	{/if}
 	{#if isGameEnded}
 		<GameEndedModal
-			message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou’ve earned ${rewardCoins} coins!`}
+			message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${rewardCoins} coins!`}
 			onClickContinue={() => collectReward(false)}
 			onClickDouble={() => collectReward(true)}
 			showDoubleButton={false}
@@ -302,12 +307,28 @@
 			: 'pb-28'} lg:items-center lg:pb-24"
 	>
 		<div class="p-4 lg:px-64">
-			<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
-			<div class=" flex flex-row flex-wrap gap-2 py-2">
+			<div class="flex items-center justify-between">
+				<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
+				<button
+					onclick={toggleRedOnly}
+					class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium {isRedOnly
+						? 'bg-red-100 text-red-700'
+						: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+				>
+					<div
+						class="h-4 w-4 rounded-full"
+						style="background-color: {isRedOnly
+							? '#FCA5A5'
+							: colorGenerator.getColor(words.filter((w) => w.isDiscovered).length).bgHex}"
+					/>
+					{isRedOnly ? 'Red Only' : 'Multi Color'}
+				</button>
+			</div>
+			<div class=" flex flex-row flex-wrap gap-2 p-2 py-2">
 				{#each sortedWords as word (word.word)}
 					<div animate:flip={{ duration: 450, easing: cubicInOut }}>
 						<Tag
-							tag={word.word.toUpperCase()}
+							tag={toTitleCase(word.word)}
 							isDiscovered={word.isDiscovered}
 							bgColor={word.color}
 							textColor={word.textColor}

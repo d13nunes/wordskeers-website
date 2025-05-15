@@ -20,7 +20,7 @@
 	const themes: Record<ThemeName, Theme> = {
 		default: {
 			bg: 'bg-slate-200',
-			text: 'text-gray-900'
+			text: 'text-gray-700'
 		},
 		red: {
 			bg: 'bg-red-100',
@@ -58,19 +58,20 @@
 
 	let theme = getTheme(variant);
 	$effect(() => {
-		bgColor = bgColor ? bgColor : theme.bg;
-		textColor = textColor ? textColor : theme.text;
+		bgColor = theme.bg;
+		textColor = theme.text;
+		console.log('!!!color', bgColor, textColor);
 	});
 </script>
 
 <div
-	class="flex h-full items-center transition-colors duration-300 ease-in-out select-none {isDiscovered
+	class="flex h-full items-center rounded-sm transition-colors duration-300 ease-in-out select-none {isDiscovered
 		? 'opacity-50'
-		: ''} rounded-xl {bgColor} "
+		: ''} rounded-md {bgColor} "
 >
 	<span
-		class="px-2 py-1 font-[Inter] transition-all duration-300 ease-in-out {isDiscovered
+		class="px-2 py-2 transition-all duration-300 ease-in-out {isDiscovered
 			? 'line-through'
-			: ''} text-xs font-thin {textColor}">{tag}</span
+			: ''} font-regular text-xs/2 {textColor}">{tag}</span
 	>
 </div>
