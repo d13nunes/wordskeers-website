@@ -25,6 +25,7 @@
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
 	import { flip } from 'svelte/animate';
+	import { appStateManager } from '$lib/utils/app-state';
 
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -244,6 +245,24 @@
 
 	let elapsedTime = $state(0);
 	let timerInterval: NodeJS.Timeout;
+
+	let unsubscribeAppState: (() => void) | undefined;
+
+	$effect(() => {
+		// Subscribe to app state changes
+		unsubscribeAppState = appStateManager.subscribe((isActive) => {
+			if (!isActive && !showPauseModal && !isGameEnded) {
+				showPauseModal = true;
+			}
+		});
+
+		// Cleanup subscription when component unmounts
+		return () => {
+			if (unsubscribeAppState) {
+				unsubscribeAppState();
+			}
+		};
+	});
 
 	// Start timer when component mounts
 	$effect(() => {
