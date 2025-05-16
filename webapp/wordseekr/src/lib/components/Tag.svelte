@@ -58,8 +58,8 @@
 
 	let theme = getTheme(variant);
 	$effect(() => {
-		bgColor = theme.bg;
-		textColor = theme.text;
+		bgColor = bgColor ? bgColor : theme.bg;
+		textColor = textColor ? textColor : theme.text;
 		console.log('!!!color', bgColor, textColor);
 	});
 </script>

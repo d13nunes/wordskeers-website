@@ -49,7 +49,7 @@
 
 <button
 	id="balance-tag"
-	class="card-button flex flex-row items-center justify-center gap-3 lg:gap-4"
+	class="card-button flex flex-row items-center justify-center"
 	disabled={!isActive}
 	{onclick}
 >

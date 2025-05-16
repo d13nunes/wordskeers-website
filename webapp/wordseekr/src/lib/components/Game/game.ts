@@ -145,71 +145,71 @@ export function mockGameConfiguration(): GameConfiguration {
 			// 	initialPosition: { row: 2, col: 3 },
 			// 	direction: directionMap.DOWN_RIGHT
 			// },
-			{
-				word: 'CARIBBEAN',
-				initialPosition: { row: 1, col: 0 },
-				direction: directionMap.DOWN
-			},
-			{
-				word: 'ARCTIC',
-				initialPosition: { row: 7, col: 2 },
-				direction: directionMap.UP
-			},
-			{
-				word: 'BLACK',
-				initialPosition: { row: 8, col: 9 },
-				direction: directionMap.LEFT
-			},
-			{
-				word: 'SOUTHERN',
-				initialPosition: { row: 9, col: 9 },
-				direction: directionMap.LEFT
-			},
-			{
-				word: 'ADRIATIC',
-				initialPosition: { row: 8, col: 1 },
-				direction: directionMap.UP
-			},
-			{
-				word: 'CHANNEL',
-				initialPosition: { row: 8, col: 4 },
-				direction: directionMap.UP
-			},
-			{
-				word: 'WAVES',
-				initialPosition: { row: 6, col: 3 },
-				direction: directionMap.UP
-			},
-			{
-				word: 'GULF',
-				initialPosition: { row: 7, col: 5 },
-				direction: directionMap.UP_RIGHT
-			},
-			{
-				word: 'RED',
-				initialPosition: { row: 1, col: 5 },
-				direction: directionMap.RIGHT
-			},
-			{
-				word: 'TIDE',
-				initialPosition: { row: 7, col: 6 },
-				direction: directionMap.RIGHT
-			},
-			{
-				word: 'LAGOON',
-				initialPosition: { row: 0, col: 2 },
-				direction: directionMap.RIGHT
-			},
-			{
-				word: 'CURRENT',
-				initialPosition: { row: 0, col: 9 },
-				direction: directionMap.DOWN
-			},
-			{
-				word: 'PACIFIC',
-				initialPosition: { row: 0, col: 8 },
-				direction: directionMap.DOWN
-			},
+			// {
+			// 	word: 'CARIBBEAN',
+			// 	initialPosition: { row: 1, col: 0 },
+			// 	direction: directionMap.DOWN
+			// },
+			// {
+			// 	word: 'ARCTIC',
+			// 	initialPosition: { row: 7, col: 2 },
+			// 	direction: directionMap.UP
+			// },
+			// {
+			// 	word: 'BLACK',
+			// 	initialPosition: { row: 8, col: 9 },
+			// 	direction: directionMap.LEFT
+			// },
+			// {
+			// 	word: 'SOUTHERN',
+			// 	initialPosition: { row: 9, col: 9 },
+			// 	direction: directionMap.LEFT
+			// },
+			// {
+			// 	word: 'ADRIATIC',
+			// 	initialPosition: { row: 8, col: 1 },
+			// 	direction: directionMap.UP
+			// },
+			// {
+			// 	word: 'CHANNEL',
+			// 	initialPosition: { row: 8, col: 4 },
+			// 	direction: directionMap.UP
+			// },
+			// {
+			// 	word: 'WAVES',
+			// 	initialPosition: { row: 6, col: 3 },
+			// 	direction: directionMap.UP
+			// },
+			// {
+			// 	word: 'GULF',
+			// 	initialPosition: { row: 7, col: 5 },
+			// 	direction: directionMap.UP_RIGHT
+			// },
+			// {
+			// 	word: 'RED',
+			// 	initialPosition: { row: 1, col: 5 },
+			// 	direction: directionMap.RIGHT
+			// },
+			// {
+			// 	word: 'TIDE',
+			// 	initialPosition: { row: 7, col: 6 },
+			// 	direction: directionMap.RIGHT
+			// },
+			// {
+			// 	word: 'LAGOON',
+			// 	initialPosition: { row: 0, col: 2 },
+			// 	direction: directionMap.RIGHT
+			// },
+			// {
+			// 	word: 'CURRENT',
+			// 	initialPosition: { row: 0, col: 9 },
+			// 	direction: directionMap.DOWN
+			// },
+			// {
+			// 	word: 'PACIFIC',
+			// 	initialPosition: { row: 0, col: 8 },
+			// 	direction: directionMap.DOWN
+			// },
 			{
 				word: 'NPC',
 				initialPosition: { row: 0, col: 7 },

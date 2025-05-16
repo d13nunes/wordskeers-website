@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BigCoinPile from '$lib/components/Icons/BigCoinPile.svelte';
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import Confetti from 'svelte-confetti';
 	import { cubicOut, cubicIn, cubicInOut } from 'svelte/easing';
@@ -39,16 +40,16 @@
 	<div
 		in:scale={{ delay: 600, duration: 300, easing: cubicInOut }}
 		out:scale={{ duration: 300, easing: cubicInOut }}
-		class="flex flex-col items-center gap-6 rounded-xl bg-white px-8 py-10 text-center shadow-xl"
+		class="flex flex-col items-center gap-4 rounded-xl bg-white px-8 py-8 text-center shadow-xl"
 	>
 		<h2 class="text-3xl font-bold text-gray-900">🎉 Well done! 🎉</h2>
 		<p class="text-lg text-gray-700" style="white-space: pre-line;">{message}</p>
 
-		<div class="h-16 w-16">
-			<CoinsPileIcon id="coin-pile-icon" />
+		<div class="w-24">
+			<BigCoinPile id="coin-pile-icon" />
 		</div>
 
-		<div class=" flex gap-4">
+		<div class="mt-2 flex gap-4">
 			<button
 				bind:this={continueButton}
 				class="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"

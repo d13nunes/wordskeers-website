@@ -18,13 +18,16 @@
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { flip } from 'svelte/animate';
-	import { cubicInOut } from 'svelte/easing';
+	import { fade, fly } from 'svelte/transition';
 	import { animate, utils } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
+	import SettingsIcon from '$lib/components/Icons/SettingsIcon.svelte';
+	import InGameSettingsPainel from './InGameSettingsPainel.svelte';
+	import { cubicInOut } from 'svelte/easing';
 
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -39,21 +42,12 @@
 
 	let colorGenerator = new ColorGenerator();
 	let hintPositions: Position[] = $state([]);
-	let isRedOnly = $state(false);
-
-	function toggleRedOnly() {
-		isRedOnly = !isRedOnly;
-		colorGenerator.toggleRedOnly();
-	}
-
 	function getColor() {
-		if (isRedOnly) {
-			return colorGenerator.getColor(0);
-		}
 		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
 	}
+	let showSettings = $state(false);
 
-	function getWord(word: string): number | undefined {
+	function getWordIndex(word: string): number | undefined {
 		const wordDirection = words.findIndex((w) => w.word === word);
 		if (wordDirection !== -1) {
 			return wordDirection;
@@ -67,10 +61,10 @@
 	}
 
 	let onWordSelect = (word: string, path: Position[]): Position[] => {
-		const wordIndex = getWord(word);
+		const wordIndex = getWordIndex(word);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
-			words[wordIndex].color = getColor().bg;
-			words[wordIndex].textColor = 'text-white';
+			words[wordIndex].color = 'bg-slate-200';
+			words[wordIndex].textColor = 'text-gray-700';
 			words[wordIndex].isDiscovered = true;
 			hintPositions.length = 0;
 			const totalWords = words.length;
@@ -125,10 +119,18 @@
 			if (icon) {
 				animatePowerUp(suggestedLetter, icon);
 			}
+			setBGColorTag(suggestedWord.word, getColor().bg);
 		}
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
+	}
+
+	function setBGColorTag(word: string, color: string) {
+		const wordIndex = getWordIndex(word);
+		if (wordIndex !== undefined) {
+			words[wordIndex].color = color;
+		}
 	}
 
 	function getRandonUndiscoveredWord(): Word {
@@ -155,10 +157,6 @@
 			// Calculate the translation needed from the icon's current position
 			const translateX = targetX - findWordIconRect.x;
 			const translateY = targetY - findWordIconRect.y;
-
-			// Store original position for the return animation
-			const originalX = findWordIconRect.x;
-			const originalY = findWordIconRect.y;
 
 			// First animation: move to center and scale up
 			const moveToCenter = animate(icon, {
@@ -213,6 +211,7 @@
 		if (findWordIcon) {
 			const suggestedLetter = hintPositions[Math.floor(hintPositions.length / 2)];
 			animatePowerUp(suggestedLetter, findWordIcon);
+			setBGColorTag(suggestedWord.word, getColor().bg);
 		}
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
@@ -310,32 +309,35 @@
 			<div class="flex items-center justify-between">
 				<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
 				<button
-					onclick={toggleRedOnly}
-					class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium {isRedOnly
-						? 'bg-red-100 text-red-700'
-						: 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+					onclick={() => {
+						showSettings = !showSettings;
+						console.log('clicked', showSettings);
+					}}
+					class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium {showSettings
+						? 'bg-red-100'
+						: 'bg-gray-100'}"
 				>
-					<div
-						class="h-4 w-4 rounded-full"
-						style="background-color: {isRedOnly
-							? '#FCA5A5'
-							: colorGenerator.getColor(words.filter((w) => w.isDiscovered).length).bgHex}"
-					/>
-					{isRedOnly ? 'Red Only' : 'Multi Color'}
+					<div class="h-6 w-6">
+						<SettingsIcon />
+					</div>
 				</button>
 			</div>
-			<div class=" flex flex-row flex-wrap gap-2 p-2 py-2">
-				{#each sortedWords as word (word.word)}
-					<div animate:flip={{ duration: 450, easing: cubicInOut }}>
+			{#if showSettings}
+				<div>
+					<InGameSettingsPainel />
+				</div>
+			{:else}
+				<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
+					{#each sortedWords as word (word.word)}
 						<Tag
 							tag={toTitleCase(word.word)}
 							isDiscovered={word.isDiscovered}
 							bgColor={word.color}
 							textColor={word.textColor}
 						/>
-					</div>
-				{/each}
-			</div>
+					{/each}
+				</div>
+			{/if}
 			<div class="flex items-center justify-center pt-2">
 				<Board
 					grid={game.grid}
