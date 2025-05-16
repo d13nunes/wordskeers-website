@@ -9,24 +9,32 @@ export interface ColorTheme {
 	isSelectedColorHex: string;
 }
 
-const RED_THEME: ColorTheme = {
-	bg: 'bg-indigo-300',
-	text: 'text-indigo-700',
-	hint: 'bg-indigo-100',
-	isSelectedColor: 'bg-indigo-200',
-	bgHex: '#A5B4FC',
-	textHex: '#4338CA',
-	hintHex: '#E0E7FF',
-	isSelectedColorHex: '#C7D2FE'
-};
-
 export class ColorGenerator {
 	colors: ColorTheme[];
 	private useRedOnly: boolean = false;
 
 	constructor() {
 		this.colors = [
-			RED_THEME,
+			{
+				bg: 'bg-red-300',
+				text: 'text-red-700',
+				hint: 'bg-red-100',
+				isSelectedColor: 'bg-red-200',
+				bgHex: '#FCA5A5',
+				textHex: '#B91C1C',
+				hintHex: '#FEE2E2',
+				isSelectedColorHex: '#FECACA'
+			},
+			{
+				bg: 'bg-indigo-300',
+				text: 'text-indigo-700',
+				hint: 'bg-indigo-100',
+				isSelectedColor: 'bg-indigo-200',
+				bgHex: '#A5B4FC',
+				textHex: '#4338CA',
+				hintHex: '#E0E7FF',
+				isSelectedColorHex: '#C7D2FE'
+			},
 			{
 				bg: 'bg-green-300',
 				text: 'text-green-700',
@@ -98,16 +106,6 @@ export class ColorGenerator {
 				isSelectedColorHex: '#D9F99D'
 			},
 			{
-				bg: 'bg-indigo-300',
-				text: 'text-indigo-700',
-				hint: 'bg-indigo-100',
-				isSelectedColor: 'bg-indigo-200',
-				bgHex: '#A5B4FC',
-				textHex: '#4338CA',
-				hintHex: '#E0E7FF',
-				isSelectedColorHex: '#C7D2FE'
-			},
-			{
 				bg: 'bg-cyan-300',
 				text: 'text-cyan-700',
 				hint: 'bg-cyan-100',
@@ -116,6 +114,26 @@ export class ColorGenerator {
 				textHex: '#0E7490',
 				hintHex: '#CFFAFE',
 				isSelectedColorHex: '#A5F3FC'
+			},
+			{
+				bg: 'bg-emerald-300',
+				text: 'text-emerald-700',
+				hint: 'bg-emerald-100',
+				isSelectedColor: 'bg-emerald-200',
+				bgHex: '#6EE7B7',
+				textHex: '#059669',
+				hintHex: '#D9F99D',
+				isSelectedColorHex: '#D9F99D'
+			},
+			{
+				bg: 'bg-amber-300',
+				text: 'text-amber-700',
+				hint: 'bg-amber-100',
+				isSelectedColor: 'bg-amber-200',
+				bgHex: '#F59E0B',
+				textHex: '#92400E',
+				hintHex: '#FEF3C7',
+				isSelectedColorHex: '#FDE68A'
 			}
 		];
 	}
@@ -133,9 +151,6 @@ export class ColorGenerator {
 	}
 
 	getColor(index: number) {
-		if (this.useRedOnly) {
-			return RED_THEME;
-		}
 		return this.colors[index % this.colors.length];
 	}
 

@@ -230,10 +230,14 @@
 
 	walletStore.addCoins(70); // TODO: remove
 
+	let sortDiscoveredWords = false;
+
 	let sortedWords = $derived(
 		[...words].sort((a, b) => {
-			if (a.isDiscovered !== b.isDiscovered) {
-				return (a.isDiscovered ? 1 : 0) - (b.isDiscovered ? 1 : 0);
+			if (sortDiscoveredWords) {
+				if (a.isDiscovered !== b.isDiscovered) {
+					return (a.isDiscovered ? 1 : 0) - (b.isDiscovered ? 1 : 0);
+				}
 			}
 			return a.word.length - b.word.length;
 		})
@@ -270,10 +274,8 @@
 			if (!showPauseModal) {
 				elapsedTime++;
 			}
-			console.log('↘️ elapsedTime', elapsedTime);
 		}, 1000);
 
-		console.log('↘️ timerInterval', timerInterval);
 		// Cleanup timer when component unmounts or game ends
 		return () => {
 			clearInterval(timerInterval);

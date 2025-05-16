@@ -9,7 +9,6 @@
 	} as const;
 
 	// Define the type for theme names
-	type ThemeName = (typeof ThemeName)[keyof typeof ThemeName];
 
 	interface Theme {
 		bg: string;
@@ -17,50 +16,22 @@
 	}
 
 	// Define color themes
-	const themes: Record<ThemeName, Theme> = {
-		default: {
-			bg: 'bg-slate-200',
-			text: 'text-gray-700'
-		},
-		red: {
-			bg: 'bg-red-100',
-			text: 'text-red-700'
-		},
-		cyan: {
-			bg: 'bg-cyan-100',
-			text: 'text-cyan-700'
-		},
-		emerald: {
-			bg: 'bg-emerald-100',
-			text: 'text-emerald-700'
-		},
-		amber: {
-			bg: 'bg-amber-100',
-			text: 'text-amber-700'
-		}
+	const defaultTheme: Theme = {
+		bg: 'bg-slate-200',
+		text: 'text-gray-700'
 	};
 
-	function getTheme(themeName: string): Theme {
-		if (!(themeName in themes)) {
-			console.error(`Invalid theme name: ${themeName}`);
-			return themes.default;
-		}
-		return themes[themeName as ThemeName];
-	}
 	interface Props {
 		tag: string;
-		variant?: ThemeName;
 		bgColor?: string;
 		textColor?: string;
 		isDiscovered: boolean;
 	}
-	let { tag, isDiscovered, bgColor, textColor, variant = ThemeName.Default }: Props = $props();
+	let { tag, isDiscovered, bgColor, textColor }: Props = $props();
 
-	let theme = getTheme(variant);
 	$effect(() => {
-		bgColor = bgColor ? bgColor : theme.bg;
-		textColor = textColor ? textColor : theme.text;
-		console.log('!!!color', bgColor, textColor);
+		bgColor = bgColor ? bgColor : defaultTheme.bg;
+		textColor = textColor ? textColor : defaultTheme.text;
 	});
 </script>
 
