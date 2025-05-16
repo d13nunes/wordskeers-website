@@ -94,14 +94,20 @@ class DatabaseService {
 		try {
 			// Initialize SQL.js
 			const SQL = await initSqlJs({
-				locateFile: (file: string) => `/assets/${file}` // Add type annotation for file parameter
+				locateFile: (file: string) => `/assets/${file}`
 			});
 
-			// Create a new database
-			this.connection = new SQL.Database();
+			// Fetch the pre-populated database from assets
+			const response = await fetch('/assets/databases/wordseekr.db');
+			if (!response.ok) {
+				throw new Error(
+					'Failed to fetch pre-populated database from /assets/databases/wordseekr.db'
+				);
+			}
+			const buffer = await response.arrayBuffer();
+			this.connection = new SQL.Database(new Uint8Array(buffer));
 
-			// Initialize schema
-			await this.initializeSchema();
+			// No need to initialize schema for pre-populated DB
 		} catch (error) {
 			throw new Error(
 				`Failed to initialize web database: ${error instanceof Error ? error.message : 'Unknown error'}`
