@@ -219,7 +219,7 @@
 		const cell = document.getElementById(`${position.row}${position.col}`);
 		if (cell) {
 			const colorTheme = currentColor;
-			const backgroundColor = '#ffffff';
+			const backgroundColor = discoveredColorMapping[`${position.row}${position.col}`] ?? '#ffffff';
 			animate(cell, {
 				// scale: [1, 0.8, 1.1, 0.8, 1],
 				rotate: [0, -5, +5, -5, +5, -5, +5, 0],

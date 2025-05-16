@@ -17,17 +17,14 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { flip } from 'svelte/animate';
-	import { fade, fly } from 'svelte/transition';
-	import { animate, utils } from 'animejs';
+	import { animate } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
-	import SettingsIcon from '$lib/components/Icons/SettingsIcon.svelte';
-	import InGameSettingsPainel from './InGameSettingsPainel.svelte';
-	import { cubicInOut } from 'svelte/easing';
+	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
+	import { flip } from 'svelte/animate';
 
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -45,7 +42,6 @@
 	function getColor() {
 		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
 	}
-	let showSettings = $state(false);
 
 	function getWordIndex(word: string): number | undefined {
 		const wordDirection = words.findIndex((w) => w.word === word);
@@ -247,6 +243,30 @@
 	});
 
 	let elapsedTime = $state(0);
+	let timerInterval: NodeJS.Timeout;
+
+	// Start timer when component mounts
+	$effect(() => {
+		timerInterval = setInterval(() => {
+			if (!showPauseModal) {
+				elapsedTime++;
+			}
+			console.log('↘️ elapsedTime', elapsedTime);
+		}, 1000);
+
+		console.log('↘️ timerInterval', timerInterval);
+		// Cleanup timer when component unmounts or game ends
+		return () => {
+			clearInterval(timerInterval);
+		};
+	});
+
+	// Stop timer when game ends
+	$effect(() => {
+		if (isGameEnded) {
+			clearInterval(timerInterval);
+		}
+	});
 
 	const rewardCoins = 110;
 
@@ -306,38 +326,27 @@
 			: 'pb-28'} lg:items-center lg:pb-24"
 	>
 		<div class="p-4 lg:px-64">
-			<div class="flex items-center justify-between">
+			<div class="flex items-baseline justify-between">
 				<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
-				<button
-					onclick={() => {
-						showSettings = !showSettings;
-						console.log('clicked', showSettings);
-					}}
-					class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium {showSettings
-						? 'bg-red-100'
-						: 'bg-gray-100'}"
-				>
-					<div class="h-6 w-6">
-						<SettingsIcon />
+				<div class="flex items-center gap-2">
+					<span class="text-gray-700">{elapsedTime}</span>
+					<div class="h-4 w-4">
+						<ClockIcon color="#37385F" />
 					</div>
-				</button>
-			</div>
-			{#if showSettings}
-				<div>
-					<InGameSettingsPainel />
 				</div>
-			{:else}
-				<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
-					{#each sortedWords as word (word.word)}
+			</div>
+			<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
+				{#each sortedWords as word (word.word)}
+					<div animate:flip={{ duration: 450 }}>
 						<Tag
 							tag={toTitleCase(word.word)}
 							isDiscovered={word.isDiscovered}
 							bgColor={word.color}
 							textColor={word.textColor}
 						/>
-					{/each}
-				</div>
-			{/if}
+					</div>
+				{/each}
+			</div>
 			<div class="flex items-center justify-center pt-2">
 				<Board
 					grid={game.grid}
