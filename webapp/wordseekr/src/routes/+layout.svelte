@@ -10,6 +10,7 @@
 	import { goto } from '$app/navigation';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
+	import DatabaseInitializer from '$lib/database/DatabaseInitializer.svelte';
 
 	interface Props {
 		children: Snippet;
@@ -40,20 +41,22 @@
 	});
 </script>
 
-<div
-	class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right max-h-screen min-h-screen overflow-y-clip bg-slate-50 select-none"
->
-	<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
-		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
-		<BalanceTag onclick={onStoreClick} />
-	</div>
-	{@render children()}
+<DatabaseInitializer>
+	<div
+		class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right max-h-screen min-h-screen overflow-y-clip bg-slate-50 select-none"
+	>
+		<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
+			<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
+			<BalanceTag onclick={onStoreClick} />
+		</div>
+		{@render children()}
 
-	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
-		<DailyRewards />
-	</BottomSheet>
-	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
-		<Store />
-	</BottomSheet>
-	<ModalHost />
-</div>
+		<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
+			<DailyRewards />
+		</BottomSheet>
+		<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
+			<Store />
+		</BottomSheet>
+		<ModalHost />
+	</div>
+</DatabaseInitializer>

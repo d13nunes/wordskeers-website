@@ -259,7 +259,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$HOME/.bun/bin:$PATH\"\nif ! command -v bun &> /dev/null\nthen\n    echo \"❌ 'bun' could not be found. Make sure it is installed and in your PATH.\"\n    exit 1\nfi\nbun ios\n";
+			shellScript = "export PATH=\"$HOME/.bun/bin:$PATH\"\nif ! command -v bun &> /dev/null\nthen\n    echo \"❌ 'bun' could not be found. Make sure it is installed and in your PATH.\"\n    exit 1\nfi\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
