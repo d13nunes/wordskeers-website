@@ -119,8 +119,25 @@ class DatabaseService {
 		try {
 			this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
 
-			// Copy the database from assets if it doesn't exist
-			await CapacitorSQLite.copyFromAssets({});
+			// Close any existing connection first
+			try {
+				await CapacitorSQLite.closeConnection({ database: DB_NAME });
+			} catch (error) {
+				// Ignore errors if connection doesn't exist
+				console.log(
+					'No existing connection to close:',
+					error instanceof Error ? error.message : 'Unknown error'
+				);
+			}
+
+			// Check if database exists before copying
+			const isDbExists = await CapacitorSQLite.isDatabase({ database: DB_NAME });
+			if (!isDbExists.result) {
+				console.log('Database does not exist, copying from assets...');
+				await CapacitorSQLite.copyFromAssets({});
+			} else {
+				console.log('Database already exists, skipping copy from assets');
+			}
 
 			// Now create the connection as usual
 			const db = await this.sqliteConnection.createConnection(
@@ -234,6 +251,13 @@ class DatabaseService {
 		]);
 	}
 
+	public async markGridAsPlayed(gridId: number, timeTaken: number): Promise<void> {
+		await this.executeQuery(
+			'UPDATE word_search_grids SET played_at = CURRENT_TIMESTAMP, time_taken = ? WHERE id = ?',
+			[timeTaken, gridId]
+		);
+	}
+
 	// Theme methods
 	public async getThemes(): Promise<Theme[]> {
 		return this.executeQuery<Theme>('SELECT * FROM themes ORDER BY name');
@@ -297,6 +321,12 @@ class DatabaseService {
 		const listing = results[0] || null;
 		const words = await this.getListingWords(listingId);
 		return { listing, words };
+	}
+
+	// Add missing getGridById method
+	public async getGridById(id: number): Promise<Grid | null> {
+		const results = await this.executeQuery<Grid>('SELECT * FROM grids WHERE id = ?', [id]);
+		return results[0] || null;
 	}
 }
 

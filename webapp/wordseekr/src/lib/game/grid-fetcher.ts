@@ -67,6 +67,35 @@ export async function getGridWithID(id: number): Promise<GameConfiguration> {
 		title: grid.name
 	};
 }
+
+export async function getUnplayedAndTotalForDifficulty(difficulty: Difficulty): Promise<{
+	unplayed: number;
+	total: number;
+}> {
+	const config = DifficultyConfigMap.config(difficulty);
+	const grids = await databaseService.getWordSearchGrids();
+	const result = {
+		unplayed: grids.filter((grid) => grid.size === config.gridSize && !grid.played_at).length,
+		total: grids.filter((grid) => grid.size === config.gridSize).length
+	};
+	console.log('result', result);
+	return result;
+}
+
+export async function getTotalGridCountForDifficulty(difficulty: Difficulty): Promise<number> {
+	const config = DifficultyConfigMap.config(difficulty);
+	const grids = await databaseService.getWordSearchGrids();
+	return grids.filter((grid) => grid.size === config.gridSize).length;
+}
+
+export async function getTotalGridCountUnplayedForDifficulty(
+	difficulty: Difficulty
+): Promise<number> {
+	const config = DifficultyConfigMap.config(difficulty);
+	const grids = await databaseService.getWordSearchGrids();
+	return grids.filter((grid) => grid.size === config.gridSize && !grid.played_at).length;
+}
+
 function convertWordPlacement(placement: WordPlacement): WordLocation {
 	const direction = convertDatabaseDirection(placement.direction);
 	return {

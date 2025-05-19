@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import PauseMenu from './PauseMenu.svelte';
 	import Tag from '$lib/components/Tag.svelte';
 	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
@@ -27,6 +27,8 @@
 	import { appStateManager } from '$lib/utils/app-state';
 	import { getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
+	import { databaseService } from '$lib/database/database.service';
+	import { parse } from 'date-fns';
 
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -44,7 +46,7 @@
 	onMount(async () => {
 		try {
 			// Get difficulty from URL params
-			const id = $page.url.searchParams.get('id');
+			const id: number = parseInt(page.url.searchParams.get('id') ?? '-1');
 			if (!id) {
 				throw new Error('Invalid id');
 			}
@@ -95,6 +97,11 @@
 			const discoveredWords = words.filter((w) => w.isDiscovered).length;
 			if (discoveredWords === totalWords) {
 				isGameEnded = true;
+				// Mark grid as played when game ends
+				const gridId = parseInt(game.config.id);
+				if (!isNaN(gridId)) {
+					databaseService.markGridAsPlayed(gridId, elapsedTime);
+				}
 			}
 			return path;
 		}
@@ -397,18 +404,18 @@
 			<div class="p-4 lg:px-64">
 				<button
 					type="button"
-					class="flex w-full items-baseline justify-between"
+					class="flex w-full items-end justify-between"
 					onclick={() => (isClockVisible = !isClockVisible)}
 				>
-					<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
-					{#if isClockVisible}
-						<div class="flex items-center gap-2">
-							<span class="text-gray-700">{elapsedTime}</span>
-							<div class="h-4 w-4">
-								<ClockIcon color="#37385F" />
-							</div>
+					<span class="pl-1 text-left text-2xl font-bold text-gray-700">{title}</span>
+					<div class="flex h-7 items-center gap-1">
+						{#if isClockVisible}
+							<span class="  text-gray-700">{elapsedTime}</span>
+						{/if}
+						<div class="h-4 w-4">
+							<ClockIcon color="#37385F" />
 						</div>
-					{/if}
+					</div>
 				</button>
 				<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
 					{#each sortedWords as word (word.word)}

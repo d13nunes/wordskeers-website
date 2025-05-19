@@ -5,6 +5,8 @@ export interface WordSearchGrid {
 	words_count: number;
 	directions: string;
 	grid_hash: string;
+	played_at: string | null;
+	time_taken: number | null;
 }
 
 export interface WordPlacement {

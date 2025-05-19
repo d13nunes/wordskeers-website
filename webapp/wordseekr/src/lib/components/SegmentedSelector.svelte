@@ -1,25 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let segments: string[] = [];
-	export let selected: string | null = null;
-	export let onChange: ((segment: string) => void) | undefined = undefined;
+	interface SegmentedSelectorProps {
+		segments: string[];
+		firstSelectedIndex: number | null;
+		onChange: (index: number) => void;
+	}
 
+	let { segments, firstSelectedIndex, onChange }: SegmentedSelectorProps = $props();
+
+	let selected = $state(firstSelectedIndex ?? 0);
 	// References to DOM elements
 	let containerElement: HTMLElement;
 	let buttonsContainer: HTMLElement;
 	let activeIndicator: HTMLElement;
 
-	// Reactive variable to track the currently selected index
-	$: selectedIndex = selected ? segments.indexOf(selected) : 0;
-
-	// Initialize the first segment as selected if none provided
-	onMount(() => {
-		if (!selected && segments.length > 0) {
-			selected = segments[0];
-		}
-	});
-
+	let selectedIndex = $derived(selected ? selected : 0);
 	// Action to handle positioning the indicator
 	function setupSegments(node: HTMLElement) {
 		const resizeObserver = new ResizeObserver(() => updateIndicator());
@@ -35,12 +31,10 @@
 	}
 
 	// Handle selection change
-	function select(segment: string) {
-		if (segment !== selected) {
-			selected = segment;
-			if (onChange) {
-				onChange(segment);
-			}
+	function select(index: number) {
+		if (index !== selected) {
+			selected = index;
+			onChange(index);
 		}
 	}
 
@@ -66,9 +60,11 @@
 	}
 
 	// Update indicator whenever selection changes
-	$: if (containerElement && selectedIndex >= 0) {
-		updateIndicator();
-	}
+	$effect(() => {
+		if (containerElement && selectedIndex >= 0) {
+			updateIndicator();
+		}
+	});
 </script>
 
 <div
@@ -76,27 +72,24 @@
 	bind:this={containerElement}
 	use:setupSegments
 >
-	<!-- Active indicator element -->
 	<div
 		bind:this={activeIndicator}
 		class="absolute top-0.5 z-0 h-[calc(100%-4px)] rounded-[7px] bg-white shadow-sm transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
 	></div>
-
-	<!-- Segment buttons container -->
 	<div bind:this={buttonsContainer} class="relative z-10 flex w-full">
 		{#each segments as segment, i}
-			<div class="flex w-full flex-row items-center justify-center">
+			<div class="flex w-full min-w-18 flex-row items-center justify-center">
 				<button
+					onclick={() => select(i)}
 					class="flex-1 cursor-pointer border-none bg-transparent text-xs transition-colors duration-200 ease-in-out
-				{selectedIndex === i ? 'text-black ' : 'text-black/70'}
-				{selected === segment ? 'font-bold' : 'font-normal'}"
-					on:click={() => select(segment)}
+					{selectedIndex === i ? 'text-black ' : 'text-black/70'}
+					{selected === i ? 'font-bold' : 'font-normal'}"
 				>
 					{segment}
 				</button>
-				<!-- {#if i !== segments.length - 1}
-					<div class="-ml-0.5 h-3/5 w-0.5 bg-gray-300"></div>
-				{/if} -->
+				{#if i !== segments.length - 1 && selectedIndex - 1 !== i && selectedIndex !== i}
+					<div class="-ml-0.5 h-3/5 w-[1px] bg-gray-300"></div>
+				{/if}
 			</div>
 		{/each}
 	</div>

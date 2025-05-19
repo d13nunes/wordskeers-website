@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { databaseService, databaseState } from './database.service';
+	import { goto } from '$app/navigation';
 
 	let isInitializing = true;
 	let error: string | null = null;
@@ -8,15 +9,10 @@
 	onMount(async () => {
 		try {
 			await databaseService.initialize();
-			console.log('!!! database initialized');
-			const grids = await databaseService.getWordSearchGrids();
-			console.log('!!!!! grid', grids);
 		} catch (e) {
-			console.error('!!!!! error', e);
 			error = e instanceof Error ? e.message : 'Failed to initialize database';
 		} finally {
 			isInitializing = false;
-			console.log('!!!!! isInitializing', isInitializing);
 		}
 	});
 
@@ -43,7 +39,9 @@
 			<p class="mt-2 text-sm text-red-700">{error}</p>
 			<button
 				class="mt-4 rounded-md bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
-				on:click={() => window.location.reload()}
+				onclick={() => {
+					goto('/');
+				}}
 			>
 				Retry
 			</button>

@@ -21,7 +21,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "copy-sql-wasm": "node scripts/copy-sql-wasm.js",
-    "copy-database": "node scripts/copy-database.js"
+    "copy-database": "node scripts/copy-database.js",
+    "migrate": "node scripts/run-migration.js"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.1.0",
@@ -75,6 +76,7 @@
     "prettier-plugin-curly": "^0.3.1",
     "rxjs": "^7.8.2",
     "sql.js": "^1.13.0",
+    "sqlite3": "^5.1.7",
     "svelte-confetti": "^2.0.0",
     "svelte-loading-spinners": "^0.3.6"
   }
