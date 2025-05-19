@@ -37,7 +37,7 @@
 	let isFindWordDisabled = $state(false);
 	const powerUpCooldownButton = 2000;
 
-	let isClockVisible = $state(false);
+	let isClockVisible = $state(true);
 
 	let game = $state<any>(null);
 	let words = $state<Word[]>([]);
