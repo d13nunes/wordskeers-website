@@ -27,6 +27,29 @@ export const allDirectionNames = [
 	DirectionName.DOWN_RIGHT
 ];
 
+export function convertDatabaseDirection(direction: string): Direction {
+	switch (direction.toLowerCase()) {
+		case 'horizontal':
+			return directionMap.RIGHT;
+		case 'vertical':
+			return directionMap.DOWN;
+		case 'horizontal-r':
+			return directionMap.LEFT;
+		case 'vertical-r':
+			return directionMap.UP;
+		case 'diagonal-ur':
+			return directionMap.UP_RIGHT;
+		case 'diagonal-ul':
+			return directionMap.UP_LEFT;
+		case 'diagonal-dr':
+			return directionMap.DOWN_RIGHT;
+		case 'diagonal-dl':
+			return directionMap.DOWN_LEFT;
+		default:
+			throw new Error(`Invalid direction: ${direction}`);
+	}
+}
+
 export const directionMap: Record<string, Direction> = {
 	UP: {
 		name: DirectionName.UP,

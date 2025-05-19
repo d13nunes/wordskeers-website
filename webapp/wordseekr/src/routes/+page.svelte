@@ -4,6 +4,7 @@
 	import { Difficulty } from '$lib/game/difficulty';
 	import { DifficultyConfigMap } from '$lib/game/difficulty-config-map';
 	import { DirectionName } from '$lib/components/Game/Direction';
+	import { getRandomGridForDifficulty, getRandonGridID } from '$lib/game/grid-fetcher';
 
 	let selectedDifficulty: Difficulty = Difficulty.Medium;
 	const difficulties = [
@@ -21,9 +22,10 @@
 		selectedDifficulty = event.detail as Difficulty;
 	}
 
-	function onPlayClick() {
-		// TODO: Pass difficulty to game page
-		goto('/game');
+	async function onPlayClick() {
+		const id = await getRandonGridID(selectedDifficulty);
+		console.log('id', id);
+		goto(`/game?id=${id}`);
 	}
 </script>
 

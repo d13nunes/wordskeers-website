@@ -1,0 +1,77 @@
+import { databaseService } from '../database/database.service';
+import { Difficulty } from './difficulty';
+import { DifficultyConfigMap } from './difficulty-config-map';
+import type { GameConfiguration, WordLocation } from '../components/Game/game';
+import { convertDatabaseDirection } from '../components/Game/Direction';
+import type { WordPlacement } from '$lib/database/types';
+
+export async function getRandomGridForDifficulty(
+	difficulty: Difficulty
+): Promise<GameConfiguration> {
+	// Get the configuration for the selected difficulty
+	const config = DifficultyConfigMap.config(difficulty);
+
+	// Get all grids from the database
+	const grids = await databaseService.getWordSearchGrids();
+
+	// Filter grids that match the difficulty criteria
+	const matchingGrids = grids.filter(
+		(grid) => grid.size === config.gridSize && grid.words_count >= (config.wordsCount ?? 0)
+	);
+
+	if (matchingGrids.length === 0) {
+		throw new Error(`No grids found for difficulty ${difficulty}`);
+	}
+
+	// Select a random grid from the matching ones
+	const randomGrid = matchingGrids[Math.floor(Math.random() * matchingGrids.length)];
+
+	// Get the word placements for the selected grid
+	const placements = await databaseService.getWordPlacements(randomGrid.id);
+
+	// Convert placements to word locations
+	const wordsLocation = placements.map(convertWordPlacement);
+
+	// Create and return the game configuration
+	return {
+		id: randomGrid.id.toString(),
+		wordsLocation,
+		size: randomGrid.size,
+		title: randomGrid.name
+	};
+}
+
+export async function getRandonGridID(difficulty: Difficulty): Promise<number> {
+	const config = DifficultyConfigMap.config(difficulty);
+	console.log('config', config);
+	const grids = await databaseService.getWordSearchGrids();
+	const matchingGrids = grids.filter((grid) => grid.size === config.gridSize);
+	return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
+}
+
+export async function getGridWithID(id: number): Promise<GameConfiguration> {
+	const grid = await databaseService.getWordSearchGridById(id);
+	if (!grid) {
+		throw new Error(`Grid with id ${id} not found`);
+	}
+	// Get the word placements for the selected grid
+	const placements = await databaseService.getWordPlacements(grid.id);
+
+	const wordsLocation = placements.map(convertWordPlacement);
+
+	// Create and return the game configuration
+	return {
+		id: grid.id.toString(),
+		wordsLocation,
+		size: grid.size,
+		title: grid.name
+	};
+}
+function convertWordPlacement(placement: WordPlacement): WordLocation {
+	const direction = convertDatabaseDirection(placement.direction);
+	return {
+		word: placement.word.toUpperCase(),
+		initialPosition: { row: placement.row, col: placement.col },
+		direction
+	};
+}

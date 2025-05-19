@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import PauseMenu from './PauseMenu.svelte';
-
 	import Tag from '$lib/components/Tag.svelte';
 	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
 	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
@@ -9,7 +9,6 @@
 	import {
 		createGameForConfiguration,
 		getWordPositions,
-		mockGameConfiguration,
 		type Word
 	} from '$lib/components/Game/game';
 	import Board from '$lib/components/Game/Board.svelte';
@@ -26,6 +25,8 @@
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
 	import { flip } from 'svelte/animate';
 	import { appStateManager } from '$lib/utils/app-state';
+	import { getGridWithID } from '$lib/game/grid-fetcher';
+	import { onMount } from 'svelte';
 
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -34,9 +35,28 @@
 	let isFindWordDisabled = $state(false);
 	const powerUpCooldownButton = 2000;
 
-	const configuration = mockGameConfiguration();
-	let game = createGameForConfiguration(configuration);
-	let words = $state(game.words);
+	let isClockVisible = $state(false);
+
+	let game = $state<any>(null);
+	let words = $state<Word[]>([]);
+	let error: string | null = $state(null);
+
+	onMount(async () => {
+		try {
+			// Get difficulty from URL params
+			const id = $page.url.searchParams.get('id');
+			if (!id) {
+				throw new Error('Invalid id');
+			}
+			// Get a random grid for the selected difficulty
+			const configuration = await getGridWithID(id);
+			game = createGameForConfiguration(configuration);
+			words = game.words;
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Failed to load game';
+			console.error('Error loading game:', e);
+		}
+	});
 
 	let colorGenerator = new ColorGenerator();
 	let hintPositions: Position[] = $state([]);
@@ -59,7 +79,14 @@
 
 	let onWordSelect = (word: string, path: Position[]): Position[] => {
 		const wordIndex = getWordIndex(word);
+		console.log(
+			'wordIndex',
+			wordIndex,
+			word,
+			words.map((w) => w.word)
+		);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
+			console.log('wordIndex', words[wordIndex], word);
 			words[wordIndex].color = 'bg-slate-200';
 			words[wordIndex].textColor = 'text-gray-700';
 			words[wordIndex].isDiscovered = true;
@@ -328,76 +355,104 @@
 	}
 </script>
 
-<div class="">
-	{#if showPauseModal}
-		<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
-	{/if}
-	{#if isGameEnded}
-		<GameEndedModal
-			message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${rewardCoins} coins!`}
-			onClickContinue={() => collectReward(false)}
-			onClickDouble={() => collectReward(true)}
-			showDoubleButton={false}
-		/>
-	{/if}
+{#if error}
+	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+		<div class="mx-4 max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
+			<h3 class="text-lg font-medium text-red-800">Error</h3>
+			<p class="mt-2 text-sm text-red-700">{error}</p>
+			<button
+				class="mt-4 rounded-md bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
+				onclick={() => goto('/')}
+			>
+				Return to Home
+			</button>
+		</div>
+	</div>
+{:else if !game}
+	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+		<div class="text-center">
+			<div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
+			<p class="mt-4 text-gray-700">Loading game...</p>
+		</div>
+	</div>
+{:else}
+	<div class="">
+		{#if showPauseModal}
+			<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
+		{/if}
+		{#if isGameEnded}
+			<GameEndedModal
+				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${rewardCoins} coins!`}
+				onClickContinue={() => collectReward(false)}
+				onClickDouble={() => collectReward(true)}
+				showDoubleButton={false}
+			/>
+		{/if}
 
-	<div
-		class="relative flex h-screen flex-col items-center justify-end {isRemoveAdsActive
-			? 'pb-12'
-			: 'pb-28'} lg:items-center lg:pb-24"
-	>
-		<div class="p-4 lg:px-64">
-			<div class="flex items-baseline justify-between">
-				<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
-				<div class="flex items-center gap-2">
-					<span class="text-gray-700">{elapsedTime}</span>
-					<div class="h-4 w-4">
-						<ClockIcon color="#37385F" />
-					</div>
+		<div
+			class="relative flex h-screen flex-col items-center justify-end {isRemoveAdsActive
+				? 'pb-12'
+				: 'pb-28'} lg:items-center lg:pb-24"
+		>
+			<div class="p-4 lg:px-64">
+				<button
+					type="button"
+					class="flex w-full items-baseline justify-between"
+					onclick={() => (isClockVisible = !isClockVisible)}
+				>
+					<span class="pl-1 text-2xl font-bold text-gray-700">{title}</span>
+					{#if isClockVisible}
+						<div class="flex items-center gap-2">
+							<span class="text-gray-700">{elapsedTime}</span>
+							<div class="h-4 w-4">
+								<ClockIcon color="#37385F" />
+							</div>
+						</div>
+					{/if}
+				</button>
+				<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
+					{#each sortedWords as word (word.word)}
+						<div animate:flip={{ duration: 450 }}>
+							<Tag
+								tag={toTitleCase(word.word)}
+								isDiscovered={word.isDiscovered}
+								bgColor={word.color}
+								textColor={word.textColor}
+							/>
+						</div>
+					{/each}
+				</div>
+				<div class="flex items-center justify-center pt-2">
+					<Board
+						grid={game.grid}
+						{onWordSelect}
+						{getColor}
+						{isRotated}
+						{hintPositions}
+						{isGameEnded}
+					/>
 				</div>
 			</div>
-			<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
-				{#each sortedWords as word (word.word)}
-					<div animate:flip={{ duration: 450 }}>
-						<Tag
-							tag={toTitleCase(word.word)}
-							isDiscovered={word.isDiscovered}
-							bgColor={word.color}
-							textColor={word.textColor}
-						/>
-					</div>
-				{/each}
-			</div>
-			<div class="flex items-center justify-center pt-2">
-				<Board
-					grid={game.grid}
-					{onWordSelect}
-					{getColor}
-					{isRotated}
-					{hintPositions}
-					{isGameEnded}
-				/>
-			</div>
-		</div>
-		<div class="flex flex-row items-center justify-center gap-6">
-			<PauseButton onclick={onPauseClick} />
-			<div class="flex w-full flex-row items-center justify-center gap-2">
-				<FindWordPowerUp
-					onclick={onPowerUpFindWordClick}
-					price={powerUpPrices.findWord.toString()}
-					disabled={isFindWordDisabled}
-				/>
-				<FindLetterPowerUp
-					onclick={onPowerUpFindLetterClick}
-					price={powerUpPrices.findLetter.toString()}
-					disabled={isFindLetterDisabled}
-				/>
-				<RotatePowerUp
-					onclick={onPowerUpRotateClick}
-					price={powerUpPrices.rotate.toString()}
-					disabled={isRotateDisabled}
-				/>
+			<div class="flex flex-row items-center justify-center gap-6">
+				<PauseButton onclick={onPauseClick} />
+				<div class="flex w-full flex-row items-center justify-center gap-2">
+					<FindWordPowerUp
+						onclick={onPowerUpFindWordClick}
+						price={powerUpPrices.findWord.toString()}
+						disabled={isFindWordDisabled}
+					/>
+					<FindLetterPowerUp
+						onclick={onPowerUpFindLetterClick}
+						price={powerUpPrices.findLetter.toString()}
+						disabled={isFindLetterDisabled}
+					/>
+					<RotatePowerUp
+						onclick={onPowerUpRotateClick}
+						price={powerUpPrices.rotate.toString()}
+						disabled={isRotateDisabled}
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+{/if}

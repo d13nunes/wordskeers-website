@@ -103,6 +103,7 @@ export function getWordPositions(word: Word): Position[] {
 }
 
 export function createGameForConfiguration(config: GameConfiguration): Game {
+	console.log('config', config);
 	return {
 		grid: createGridFor(config.wordsLocation, config.size),
 		title: config.title,
