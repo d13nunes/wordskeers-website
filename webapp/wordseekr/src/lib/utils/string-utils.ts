@@ -7,3 +7,7 @@ export function getFormatedTime(elapsedTime: number) {
 	const seconds = elapsedTime % 60;
 	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
+
+export function getPositionId(row: number, col: number) {
+	return `${row}.${col}`;
+}

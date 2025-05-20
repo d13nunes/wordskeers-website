@@ -7,10 +7,11 @@
 	import DailyRewards from './dailyrewards/+page.svelte';
 	import Store from './store/+page.svelte';
 	import ModalHost from '$lib/components/shared/ModalHost.svelte';
-	import { goto } from '$app/navigation';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import DatabaseInitializer from '$lib/database/DatabaseInitializer.svelte';
+	import { initialize } from '@capacitor-community/safe-area';
+	import { Capacitor } from '@capacitor/core';
 
 	interface Props {
 		children: Snippet;
@@ -22,30 +23,39 @@
 	let isStoreOpen = $state(false);
 
 	function onStoreClick() {
-		console.log('store clicked');
 		isStoreOpen = true;
 		isDailyRewardsOpen = false;
 	}
 
 	function onDailyRewardClick() {
-		console.log('daily rewards clicked');
 		isDailyRewardsOpen = true;
 		isStoreOpen = false;
 	}
 
 	onMount(async () => {
-		console.log('layout onMount');
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner);
-		console.log('success', success);
+		console.log('📺 BannerAd shown', success);
+		setTimeout(() => {
+			// Give it a moment to apply
+			const bottomInset = getCssVariableValue('--safe-area-inset-bottom');
+			console.log('📺CSS --safe-area-inset-top:', bottomInset);
+
+			if (bottomInset && bottomInset !== '0px') {
+				console.log('📺Safe Area CSS variables appear to be populated.', bottomInset);
+			} else {
+				console.warn('📺 Safe Area CSS variables might not be populated or are 0.');
+			}
+		}, 100); // Small delay to ensure CSS is applied
 	});
+	function getCssVariableValue(variableName: string) {
+		return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+	}
 </script>
 
 <DatabaseInitializer>
-	<div
-		class="pt-safe-top pb-safe-bottom px-safe-left pr-safe-right max-h-screen min-h-screen overflow-y-clip bg-slate-50 select-none"
-	>
-		<div class="absolute top-16 right-4 z-[100] flex flex-row gap-2 lg:top-8">
+	<main class=" flex flex-col bg-slate-50 select-none">
+		<div class="z-[100] me-2 mt-2 flex flex-row items-center justify-end gap-2">
 			<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
 			<BalanceTag onclick={onStoreClick} />
 		</div>
@@ -58,5 +68,18 @@
 			<Store />
 		</BottomSheet>
 		<ModalHost />
-	</div>
+	</main>
 </DatabaseInitializer>
+
+<style>
+	main {
+		padding-top: var(--safe-area-inset-top);
+		padding-right: var(--safe-area-inset-right);
+		padding-bottom: var(--safe-area-inset-bottom);
+		padding-left: var(--safe-area-inset-left);
+		min-height: 100vh;
+		box-sizing: border-box;
+		overflow-y: auto; /* Make main scrollable */
+		-webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+	}
+</style>

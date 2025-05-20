@@ -68,7 +68,7 @@
 </script>
 
 <div
-	class="relative flex h-8 w-full rounded-lg bg-gray-200 p-0.5 font-sans"
+	class="relative flex h-8 w-full min-w-full rounded-lg bg-gray-200 p-0.5 font-sans"
 	bind:this={containerElement}
 	use:setupSegments
 >
@@ -78,7 +78,7 @@
 	></div>
 	<div bind:this={buttonsContainer} class="relative z-10 flex w-full">
 		{#each segments as segment, i}
-			<div class="flex w-full min-w-18 flex-row items-center justify-center">
+			<div class="flex min-w-18 flex-row items-center justify-center">
 				<button
 					onclick={() => select(i)}
 					class="flex-1 cursor-pointer border-none bg-transparent text-xs transition-colors duration-200 ease-in-out

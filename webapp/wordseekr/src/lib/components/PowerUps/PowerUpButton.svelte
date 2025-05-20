@@ -58,21 +58,21 @@
 <button class="select-none" {onclick} {disabled}>
 	<div
 		bind:this={button}
-		class="relative flex h-20 w-20 flex-col items-center justify-start rounded-lg border-gray-200 py-3 shadow-sm {color} {disabled
+		class="relative flex h-16 w-16 flex-col items-center justify-start rounded-lg border-gray-200 py-2 shadow-sm {color} {disabled
 			? 'opacity-70'
 			: ''}"
 	>
 		<div class="h-6 w-6">
 			{@render icon()}
 		</div>
-		<div class="absolute bottom-2 flex flex-col items-center justify-center">
-			<div class="flex flex-row items-center justify-center gap-0.5">
+		<div class="absolute bottom-[4px] flex flex-col items-center justify-center gap-[0px]">
+			<div class="-mb-[3px] flex flex-row items-center justify-center gap-0.5">
 				<div class="h-2 w-2">
 					<CoinsPileIcon />
 				</div>
-				<span class="font-regular text-xs {priceColor}">{price}</span>
+				<span class="font-regular text-[10px] {priceColor}">{price}</span>
 			</div>
-			<span class="font-regular text-xs {titleColor}">{title}1</span>
+			<span class="font-regular text-[10px] {titleColor}">{title}</span>
 		</div>
 	</div>
 </button>

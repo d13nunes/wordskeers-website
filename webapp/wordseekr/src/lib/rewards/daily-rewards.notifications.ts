@@ -11,7 +11,6 @@ import {
 	NOTIFICATION_CHANNEL_DESCRIPTION,
 	NEXT_REWARD_NOTIFICATION_ID
 } from './daily-rewards.config';
-import { addHours, startOfTomorrow, addDays } from 'date-fns';
 
 /**
  * Checks notification permissions.
@@ -66,68 +65,30 @@ async function createNotificationChannel(): Promise<void> {
  * @param firstRewardClaimTimestamp Timestamp (ms) when the first reward was claimed, if any.
  * @param lastClaimTimestamp Timestamp (ms) of the very last claim.
  */
-async function scheduleNextRewardNotification(firstRewardClaimTimestamp: number): Promise<void> {
-	if (!Capacitor.isPluginAvailable('LocalNotifications')) {
-		console.warn('📨LocalNotifications plugin not available');
-		return;
-	}
-
+async function scheduleNextRewardNotification(date: Date): Promise<void> {
 	await cancelScheduledNotifications(); // Cancel previous notifications
-
-	const now = Date.now();
-	let scheduleTime: Date | undefined;
-
-	// 4-hour window active or just ended
-	const fourHoursLater = addHours(new Date(firstRewardClaimTimestamp), 4);
-	if (fourHoursLater.getTime() > now) {
-		scheduleTime = fourHoursLater; // Schedule for the end of the 4-hour window
-	}
-	// const nextMorning = addHours(startOfTomorrow(), 8);
-	// if (nextMorning.getTime() > now) {
-	// 	scheduleTime = nextMorning; // Schedule for the start of the next day
-	// }
-
-	// const nextMorningTwoDaysLater = addHours(addDays(startOfTomorrow(), 2), 8);
-	// if (nextMorningTwoDaysLater.getTime() > now) {
-	// 	scheduleTime = nextMorningTwoDaysLater; // Schedule for the start of the next day
-	// }
-	// const nextMorningOneWeekLater = addHours(addDays(startOfTomorrow(), 7), 8);
-	// if (nextMorningOneWeekLater.getTime() > now) {
-	// 	scheduleTime = nextMorningOneWeekLater; // Schedule for the start of the next week
-	// }
-
-	// If we still don't have a schedule time, it means rewards are likely available now
-	// or it's the very first time, so we don't schedule a notification yet.
-	if (!scheduleTime) {
-		console.log('📨No future reward notification needed at this time.');
-		return;
-	}
-
-	// Ensure the schedule time is in the future
-	if (scheduleTime.getTime() <= now) {
-		console.log('📨Calculated schedule time is in the past, skipping notification.');
-		return;
-	}
-
 	const options: ScheduleOptions = {
 		notifications: [
 			{
 				id: NEXT_REWARD_NOTIFICATION_ID,
-				title: 'WordSeekr Daily Reward',
-				body: 'Your next daily reward is available! Come back and claim it.',
-				schedule: { at: scheduleTime },
-				channelId: Capacitor.getPlatform() === 'android' ? NOTIFICATION_CHANNEL_ID : undefined,
-				smallIcon: 'res://ic_stat_notify', // Example: ensure you have this resource
-				largeIcon: 'res://ic_launcher' // Example: ensure you have this resource
+				title: 'Free Coins!',
+				body: 'Your reward is available!\nCome back and claim your free coins.',
+				schedule: { at: date, allowWhileIdle: true },
+				channelId: Capacitor.getPlatform() === 'android' ? NOTIFICATION_CHANNEL_ID : undefined
 			}
 		]
 	};
 
 	try {
 		const result = await LocalNotifications.schedule(options);
-		console.log('📨Scheduled reward notification:', result, 'at:', scheduleTime);
+		console.debug('📨 Scheduled reward notification result:', JSON.stringify(result, null, 2));
+
+		// Verify the notification was scheduled
+		const pending = await LocalNotifications.getPending();
+		console.debug('📨 Pending notifications after scheduling:', JSON.stringify(pending, null, 2));
 	} catch (error) {
 		console.error('Error scheduling notification:', error);
+		throw error; // Re-throw to handle in the calling code
 	}
 }
 

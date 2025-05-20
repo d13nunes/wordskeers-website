@@ -8,9 +8,9 @@
 
 <button {onclick}>
 	<div
-		class="button-active relative flex h-20 w-18 flex-col items-center justify-center rounded-lg bg-white px-4 py-2 shadow-sm"
+		class="button-active relative flex h-16 w-16 flex-col items-center justify-center rounded-lg bg-white px-4 py-2 shadow-sm"
 	>
-		<div class="mb-5 w-6">
+		<div class="mb-4 w-4">
 			<PauseIcon />
 		</div>
 		<div class="absolute bottom-2 flex flex-col items-center justify-center">

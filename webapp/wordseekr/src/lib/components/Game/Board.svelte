@@ -3,6 +3,7 @@
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
 	import { animate } from 'animejs';
+	import { getPositionId } from '$lib/utils/string-utils';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -72,7 +73,7 @@
 
 	function setDiscovered(position: Position[]) {
 		position.forEach((pos) => {
-			discoveredColorMapping[`${pos.row}${pos.col}`] = currentColor?.bgHex ?? defaultColor;
+			discoveredColorMapping[getPositionId(pos.row, pos.col)] = currentColor?.bgHex ?? defaultColor;
 		});
 	}
 
@@ -102,6 +103,7 @@
 	}
 
 	function handleInteractionMove(rowIndex: number, colIndex: number) {
+		console.log('handleInteractionMove', rowIndex, colIndex);
 		if (isInteracting) {
 			const newCell = { row: rowIndex, col: colIndex };
 			if (firstSelectedCell) {
@@ -109,6 +111,7 @@
 				const isValid = pathValidator.isValidPath(firstSelectedCell, newCell);
 				if (isValid) {
 					const positions = pathValidator.getPositionsInPath(firstSelectedCell, newCell);
+					console.log('positions', positions);
 					updateSelectedCells(positions);
 				}
 			} else {
@@ -188,7 +191,7 @@
 	}
 
 	function animatedSelect(position: Position) {
-		const cell = document.getElementById(`${position.row}${position.col}`);
+		const cell = document.getElementById(getPositionId(position.row, position.col));
 		if (cell) {
 			animate(cell, {
 				// scale: [1, 0.8, 1.1, 0.8, 1],
@@ -202,7 +205,7 @@
 
 	function animatedDeselect(position: Position) {
 		if (isAnimatingIsDiscovered) return;
-		const id = `${position.row}${position.col}`;
+		const id = getPositionId(position.row, position.col);
 		const cell = document.getElementById(id);
 		if (cell) {
 			animate(cell, {
@@ -216,10 +219,11 @@
 	}
 
 	function animatedHint(position: Position) {
-		const cell = document.getElementById(`${position.row}${position.col}`);
+		const cell = document.getElementById(getPositionId(position.row, position.col));
 		if (cell) {
 			const colorTheme = currentColor;
-			const backgroundColor = discoveredColorMapping[`${position.row}${position.col}`] ?? '#ffffff';
+			const backgroundColor =
+				discoveredColorMapping[getPositionId(position.row, position.col)] ?? '#ffffff';
 			animate(cell, {
 				// scale: [1, 0.8, 1.1, 0.8, 1],
 				rotate: [0, -5, +5, -5, +5, -5, +5, 0],
@@ -236,10 +240,10 @@
 
 	function animateWrongWord(positions: Position[]) {
 		positions.forEach((position) => {
-			const cell = document.getElementById(`${position.row}${position.col}`);
+			const cell = document.getElementById(getPositionId(position.row, position.col));
 			if (cell) {
 				const backgroundColor =
-					discoveredColorMapping[`${position.row}${position.col}`] ?? '#ffffff';
+					discoveredColorMapping[getPositionId(position.row, position.col)] ?? '#ffffff';
 				animate(cell, {
 					rotate: [-5, +5, -5, +5, -5, 0],
 					duration: 300,
@@ -255,7 +259,7 @@
 		isAnimatingIsDiscovered = true;
 
 		positions.forEach((position, index) => {
-			const cell = document.getElementById(`${position.row}${position.col}`);
+			const cell = document.getElementById(getPositionId(position.row, position.col));
 			const delay = index * 50;
 			const isLast = index === positions.length - 1;
 			if (cell) {
@@ -301,7 +305,8 @@
 		previousHints
 			.filter((position) => {
 				const shouldAnimate =
-					!isAnimatingIsDiscovered && !discoveredColorMapping[`${position.row}${position.col}`];
+					!isAnimatingIsDiscovered &&
+					!discoveredColorMapping[getPositionId(position.row, position.col)];
 				if (!isAnimatingIsDiscovered) {
 					return true;
 				}
@@ -330,7 +335,7 @@
 			{#each row as cell}
 				<div class="h-[34px] w-[34px]">
 					<div
-						id={`${cell.row}${cell.col}`}
+						id={getPositionId(cell.row, cell.col)}
 						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-center text-[20px] font-semibold text-gray-900"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
 						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}

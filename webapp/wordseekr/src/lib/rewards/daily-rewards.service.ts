@@ -49,6 +49,13 @@ async function loadState(): Promise<DailyRewardsState> {
 			const parsedState = JSON.parse(value) as DailyRewardsState;
 			// Basic validation if needed
 			if (parsedState && Array.isArray(parsedState.currentRewards)) {
+				// Convert resetRewardDate string back to Date object if it exists
+				if (parsedState.resetRewardDate) {
+					parsedState.resetRewardDate = new Date(parsedState.resetRewardDate);
+				}
+				if (parsedState.lastClaimDate) {
+					parsedState.lastClaimDate = new Date(parsedState.lastClaimDate);
+				}
 				// Merge with default state to ensure all keys exist if structure changed
 				return { ...DEFAULT_DAILY_REWARDS_STATE, ...parsedState };
 			}
@@ -81,29 +88,35 @@ function generateNewDailyRewards(): DailyReward[] {
  * This should be called when the app loads or becomes active.
  */
 function checkAndApplyResets(currentState: DailyRewardsState): DailyRewardsState {
-	const now = Date.now();
-	// --- 4-Hour Window Reset Check ---
-	// If the first reward was claimed, check if 4 hours have passed.
-	if (currentState.resetRewardTimestamp) {
-		const fourHoursAfterFirstClaim = currentState.resetRewardTimestamp;
+	try {
+		// --- 4-Hour Window Reset Check ---
+		// If the first reward was claimed, check if 4 hours have passed.
+		if (currentState.resetRewardDate) {
+			const fourHoursAfterFirstClaim = currentState.resetRewardDate;
+			console.log('📨📨 error checkAndApplyResets resetRewardDate', fourHoursAfterFirstClaim);
 
-		if (now >= fourHoursAfterFirstClaim) {
-			return resetRewardsState(currentState); // Full reset
+			if (Date.now() >= fourHoursAfterFirstClaim.getTime()) {
+				return resetRewardsState(currentState); // Full reset
+			}
 		}
-	}
-	if (currentState.currentRewards.length === 0) {
-		currentState.currentRewards = generateNewDailyRewards();
-	}
+		if (currentState.currentRewards.length === 0) {
+			currentState.currentRewards = generateNewDailyRewards();
+		}
 
-	// --- Ensure rewards exist if empty and claimable ---
-	// This handles the very first launch or after a reset where state might be clean
-	const canClaimAnyReward =
-		currentState.currentRewards.filter((r) => r.status === DailyRewardStatus.Claimable).length > 0;
-	if (canClaimAnyReward && currentState.currentRewards.length === 0) {
-		currentState.currentRewards = generateNewDailyRewards();
-	}
+		// --- Ensure rewards exist if empty and claimable ---
+		// This handles the very first launch or after a reset where state might be clean
+		const canClaimAnyReward =
+			currentState.currentRewards.filter((r) => r.status === DailyRewardStatus.Claimable).length >
+			0;
+		if (canClaimAnyReward && currentState.currentRewards.length === 0) {
+			currentState.currentRewards = generateNewDailyRewards();
+		}
 
-	return currentState; // Return potentially modified state
+		return currentState; // Return potentially modified state
+	} catch (error) {
+		console.error('Failed to check and apply resets:', error);
+		return DEFAULT_DAILY_REWARDS_STATE;
+	}
 }
 
 /**
@@ -122,17 +135,24 @@ function resetRewardsState(currentState: DailyRewardsState): DailyRewardsState {
 
 async function initialize(): Promise<DailyRewardsState> {
 	let state = await loadState();
+	console.log('📨📨 error initialize state', state.currentRewards);
 	state = checkAndApplyResets(state); // Apply resets based on loaded time data
+	console.log('📨📨 error initialize state after checkAndApplyResets', state);
 	await saveState(state); // Save potentially reset state
 	// Initial notification setup check (permissions, schedule if needed)
 	return state;
 }
 
 async function scheduleNotifications(state: DailyRewardsState): Promise<void> {
+	console.log('📨 !!!!!! Scheduling notifications... enabled:', state.notificationsEnabled);
 	if (state.notificationsEnabled) {
 		await DailyRewardsNotifications.initializeNotifications();
-		if (state.resetRewardTimestamp) {
-			await DailyRewardsNotifications.scheduleNextRewardNotification(state.resetRewardTimestamp);
+		if (state.resetRewardDate) {
+			console.log('📨Scheduling next reward notification... fcfcfc', state.resetRewardDate);
+			const lastRewardCollectionDate = new Date(state.resetRewardDate);
+
+			console.log('📨Scheduling next reward notification..1.', lastRewardCollectionDate);
+			await DailyRewardsNotifications.scheduleNextRewardNotification(lastRewardCollectionDate);
 		}
 	}
 }
@@ -166,7 +186,7 @@ async function claimReward(
 		}
 		canReward = true;
 	} else {
-		state.resetRewardTimestamp = Date.now() + RESET_WINDOW_MS;
+		state.resetRewardDate = new Date(Date.now() + RESET_WINDOW_MS);
 		await scheduleNotifications(state);
 		canReward = true;
 	}

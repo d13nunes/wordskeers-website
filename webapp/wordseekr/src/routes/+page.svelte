@@ -11,7 +11,6 @@
 		{ value: Difficulty.Easy, label: 'Easy' },
 		{ value: Difficulty.Medium, label: 'Medium' },
 		{ value: Difficulty.Hard, label: 'Hard' }
-		// { value: Difficulty.VeryHard, label: 'Very Hard' }
 	];
 
 	let selectedDifficultyIndex = $state(0);
@@ -36,13 +35,13 @@
 
 	$effect(() => {
 		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
-		directionsSymbols = DirectionPresets[selectedDifficulty].join(', ');
+		directionsSymbols = DirectionPresets[selectedDifficulty].join(' ');
 		const config = DifficultyConfigMap.config(selectedDifficulty);
 		gridSize = config.gridSize;
 	});
 </script>
 
-<div class="bg-slate-50 p-6">
+<div class="fixed inset-0 z-50 bg-slate-50">
 	<div class="relative flex h-screen items-end justify-center pb-[150px] lg:items-center lg:pb-0">
 		<div class="flex max-w-2xl flex-col items-center justify-center">
 			<div class="flex flex-col items-center justify-center gap-0">
@@ -56,9 +55,11 @@
 					<span class="text-black-500 text-sm font-bold">{gridSize}x{gridSize}</span>
 					<span class="text-black-500 text-sm font-normal">grid</span>
 				</div>
-				<div class="flex flex-row flex-wrap items-center justify-center gap-1">
+				<div class="flex flex-col items-center justify-center gap-0.5">
 					<span class="text-black-500 text-sm font-normal">Words can be found in</span>
-					<span class="text-black-500 text-sm font-bold">{directionsSymbols}</span>
+					<span class="text-black-500 text-sm font-bold">
+						{directionsSymbols}
+					</span>
 				</div>
 			</div>
 
@@ -72,7 +73,7 @@
 			</div>
 
 			<button
-				class="button-active mt-12 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white"
+				class="button-active mt-8 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white"
 				onclick={onPlayClick}
 			>
 				Play

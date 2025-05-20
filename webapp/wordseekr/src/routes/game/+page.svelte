@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import PauseMenu from './PauseMenu.svelte';
 	import Tag from '$lib/components/Tag.svelte';
 	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
 	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
@@ -16,20 +15,21 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { animate } from 'animejs';
+	import { animate, utils } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
+	import { getFormatedTime, getPositionId, toTitleCase } from '$lib/utils/string-utils';
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
 	import { flip } from 'svelte/animate';
 	import { appStateManager } from '$lib/utils/app-state';
 	import { getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
 	import { databaseService } from '$lib/database/database.service';
-	import { parse } from 'date-fns';
+	import PauseMenu from './PauseMenu.svelte';
 
+	let progressCircle = $state<SVGCircleElement | null>(null);
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
 	let isRotateDisabled = $state(false);
@@ -92,6 +92,7 @@
 			words[wordIndex].color = 'bg-slate-200';
 			words[wordIndex].textColor = 'text-gray-700';
 			words[wordIndex].isDiscovered = true;
+			addCoinsToPiggyBank(word);
 			hintPositions.length = 0;
 			const totalWords = words.length;
 			const discoveredWords = words.filter((w) => w.isDiscovered).length;
@@ -107,6 +108,50 @@
 		}
 		return [];
 	};
+
+	function addCoinsToPiggyBank(word: string) {
+		const totalToAdd = calculateWordCoins(word);
+		const finalValue = accumulatedCoins + totalToAdd;
+		let counter = { value: accumulatedCoins };
+
+		// Animate the progress circle
+		if (progressCircle) {
+			const currentProgress = (words.filter((w) => w.isDiscovered).length / words.length) * 100;
+			const nextProgress = ((words.filter((w) => w.isDiscovered).length + 1) / words.length) * 100;
+			const circumference = 2 * Math.PI * 44; // 2πr where r=44
+
+			animate(progressCircle, {
+				strokeDashoffset: [
+					circumference * (1 - currentProgress / 100),
+					circumference * (1 - nextProgress / 100)
+				],
+				duration: 1000,
+				easing: 'easeOutExpo'
+			});
+		}
+
+		// Animate the coin counter
+		animate(counter, {
+			value: finalValue,
+			duration: 1000,
+			easing: 'outExpo',
+			modifier: utils.round(0),
+			onUpdate: function () {
+				accumulatedCoins = counter.value;
+			}
+		});
+
+		// Add a bounce effect to the coin icon
+		const coinIcon = document.querySelector('.coin-icon');
+		if (coinIcon) {
+			animate(coinIcon, {
+				scale: [1, 1.2, 1],
+				rotate: [0, 10, -10, 0],
+				duration: 800,
+				easing: 'easeOutElastic(1, .5)'
+			});
+		}
+	}
 
 	let showPauseModal = $state(false);
 
@@ -171,7 +216,7 @@
 	}
 
 	function animatePowerUp(position: Position, icon: HTMLElement) {
-		const board = document.getElementById(`${position.row}${position.col}`);
+		const board = document.getElementById(getPositionId(position.row, position.col));
 		const boardRect = board?.getBoundingClientRect();
 		const findWordIconRect = icon.getBoundingClientRect();
 
@@ -256,6 +301,12 @@
 		findLetter: 100,
 		findWord: 200
 	};
+
+	// Add progress calculation
+	let progressPercentage = $derived(
+		words.length > 0 ? (words.filter((w) => w.isDiscovered).length / words.length) * 100 : 0
+	);
+
 	walletStore.coins((balance) => {
 		isRotateDisabled = balance < powerUpPrices.rotate;
 		isFindLetterDisabled = balance < powerUpPrices.findLetter;
@@ -323,8 +374,6 @@
 		}
 	});
 
-	const rewardCoins = 110;
-
 	async function collectReward(showAd: boolean) {
 		let didWatchAd;
 		if (showAd) {
@@ -360,6 +409,13 @@
 			}, animationDuration * 0.75);
 		}
 	}
+
+	// Add coin calculation function and state
+	function calculateWordCoins(word: string): number {
+		return 10; // Default reward per word
+	}
+
+	let accumulatedCoins = $state(0);
 </script>
 
 {#if error}
@@ -376,20 +432,20 @@
 		</div>
 	</div>
 {:else if !game}
-	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white">
 		<div class="text-center">
 			<div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
 			<p class="mt-4 text-gray-700">Loading game...</p>
 		</div>
 	</div>
 {:else}
-	<div class="">
+	<div class="fixed inset-0 z-50">
 		{#if showPauseModal}
 			<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
 		{/if}
 		{#if isGameEnded}
 			<GameEndedModal
-				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${rewardCoins} coins!`}
+				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${accumulatedCoins} coins!`}
 				onClickContinue={() => collectReward(false)}
 				onClickDouble={() => collectReward(true)}
 				showDoubleButton={false}
@@ -397,7 +453,7 @@
 		{/if}
 
 		<div
-			class="relative flex h-screen flex-col items-center justify-end {isRemoveAdsActive
+			class="relative flex h-screen flex-col items-center justify-end lg:justify-center {isRemoveAdsActive
 				? 'pb-12'
 				: 'pb-28'} lg:items-center lg:pb-24"
 		>
@@ -442,6 +498,7 @@
 			</div>
 			<div class="flex flex-row items-center justify-center gap-6">
 				<PauseButton onclick={onPauseClick} />
+				<!-- <GamePrizeGauge value={accumulatedCoins} /> -->
 				<div class="flex w-full flex-row items-center justify-center gap-2">
 					<FindWordPowerUp
 						onclick={onPowerUpFindWordClick}

@@ -11,13 +11,13 @@ const _dailyRewardsState: Writable<DailyRewardsState | null> = writable(null); /
 let refreshTimer: NodeJS.Timeout | null = null;
 
 function setRefreshTimer(state: DailyRewardsState) {
-	if (!state.resetRewardTimestamp) {
+	if (!state.resetRewardDate) {
 		return;
 	}
 	if (refreshTimer) {
 		clearTimeout(refreshTimer);
 	}
-	const delay = state.resetRewardTimestamp - Date.now();
+	const delay = state.resetRewardDate.getTime() - Date.now();
 	refreshTimer = setTimeout(() => {
 		state = DailyRewardsService._checkAndApplyResets(state);
 		_dailyRewardsState.set(state);
@@ -25,9 +25,13 @@ function setRefreshTimer(state: DailyRewardsState) {
 }
 // Function to initialize the store by loading state via the service
 async function initializeStore(): Promise<void> {
+	console.log('📨📨 error initializeStore');
 	const initialState = await DailyRewardsService.initialize();
+	console.log('📨📨 error initialState', initialState);
 	setRefreshTimer(initialState);
+	console.log('📨📨 error setRefreshTimer', initialState);
 	_dailyRewardsState.set(initialState);
+	console.log('📨📨 error _dailyRewardsState.set', initialState);
 }
 
 // Call initialize when the store module is loaded
@@ -69,6 +73,7 @@ async function claimRewardAction(
 		}
 		return { success: false };
 	} catch (error) {
+		console.error('Failed to claim daily reward:', error);
 		return { success: false, noAdsAvailable: true };
 	}
 }
@@ -96,16 +101,3 @@ export const dailyRewardsStore = {
 	setEnableNotifications: setEnableNotificationsAction,
 	refresh: refreshStateAction
 };
-
-// Example of how to listen for app state changes with Capacitor App plugin
-// (You would need to install `@capacitor/app`)
-/*
-import { App } from '@capacitor/app';
-
-App.addListener('appStateChange', async ({ isActive }) => {
-  if (isActive) {
-    console.log('App resumed, refreshing daily rewards state...');
-    await dailyRewardsStore.refresh();
-  }
-});
-*/
