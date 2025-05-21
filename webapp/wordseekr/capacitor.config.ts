@@ -23,6 +23,15 @@ const config: CapacitorConfig = {
 				biometricTitle: 'Biometric login for WordSeekr',
 				biometricSubTitle: 'Log in using your biometric'
 			}
+		},
+		SafeArea: {
+			enabled: true,
+			customColorsForSystemBars: true,
+			statusBarColor: '#000000',
+			statusBarContent: 'light',
+			navigationBarColor: '#000000',
+			navigationBarContent: 'light',
+			offset: 0
 		}
 	}
 };

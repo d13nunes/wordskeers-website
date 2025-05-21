@@ -6,6 +6,7 @@
       "dependencies": {
         "@adplorg/capacitor-in-app-purchase": "^2.0.62",
         "@capacitor-community/admob": "^7.0.3",
+        "@capacitor-community/safe-area": "^7.0.0-alpha.1",
         "@capacitor-community/sqlite": "^7.0.0",
         "@capacitor/android": "^7.2.0",
         "@capacitor/app": "^7.0.1",
@@ -90,6 +91,8 @@
     "@babel/types": ["@babel/types@7.27.0", "", { "dependencies": { "@babel/helper-string-parser": "^7.25.9", "@babel/helper-validator-identifier": "^7.25.9" } }, "sha512-H45s8fVLYjbhFH62dIJ3WtmJ6RSPt/3DRO0ZcT2SUiYiQyz3BLVb9ADEnLl91m74aQPS3AzzeajZHYOalWe3bg=="],
 
     "@capacitor-community/admob": ["@capacitor-community/admob@7.0.3", "", { "dependencies": { "@capacitor/core": "^7.0.0", "@rdlabo/capacitor-docgen": "^0.4.1" } }, "sha512-aogZipDosRZB5+RWNukKI1DhPnp7nZNw7KJqnL8Ii6rgYGJaCjpeBvN9bJjFbl1K2jNnCe5lp/a/YlLonBkUQA=="],
+
+    "@capacitor-community/safe-area": ["@capacitor-community/safe-area@7.0.0-alpha.1", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-N6ktkRiofqrt+N/vQzh4jcWY8IzJ4TVw1tKAPssvbddWFTyZzXzSdBeX/l/nracJF0PZqmLdA7JYTBfnOxXQYw=="],
 
     "@capacitor-community/sqlite": ["@capacitor-community/sqlite@7.0.0", "", { "dependencies": { "jeep-sqlite": "^2.7.2" }, "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-GSHxLEiyuhPoWwpMLOwfaOhLpfZglhfI1sqEgA5bSbtIYt1I+iK02b/ymonaghB176NhA5wuGd+spOIaL0kgHw=="],
 
