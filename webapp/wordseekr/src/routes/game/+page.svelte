@@ -8,6 +8,7 @@
 	import {
 		createGameForConfiguration,
 		getWordPositions,
+		type Game,
 		type Word
 	} from '$lib/components/Game/game';
 	import Board from '$lib/components/Game/Board.svelte';
@@ -39,10 +40,9 @@
 
 	let isClockVisible = $state(true);
 
-	let game = $state<any>(null);
+	let game = $state<Game | null>(null);
 	let words = $state<Word[]>([]);
 	let error: string | null = $state(null);
-
 	onMount(async () => {
 		try {
 			// Get difficulty from URL params
@@ -99,7 +99,7 @@
 			if (discoveredWords === totalWords) {
 				isGameEnded = true;
 				// Mark grid as played when game ends
-				const gridId = parseInt(game.config.id);
+				const gridId = parseInt(game?.config.id ?? '-1');
 				if (!isNaN(gridId)) {
 					databaseService.markGridAsPlayed(gridId, elapsedTime);
 				}
@@ -294,8 +294,11 @@
 		}, powerUpCooldownButton);
 	}
 
-	let title = $derived(game.title);
+	let title = $derived(game?.title ?? '');
 	let isRemoveAdsActive = $state(false);
+	walletStore.removeAds((removeAds) => {
+		isRemoveAdsActive = removeAds;
+	});
 	const powerUpPrices = {
 		rotate: 5,
 		findLetter: 100,
@@ -420,7 +423,7 @@
 
 {#if error}
 	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
-		<div class="mx-4 max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
+		<div class="mx-4 max-w-md rounded-lg border border-red-900 bg-red-50 p-4">
 			<h3 class="text-lg font-medium text-red-800">Error</h3>
 			<p class="mt-2 text-sm text-red-700">{error}</p>
 			<button
@@ -453,9 +456,10 @@
 		{/if}
 
 		<div
-			class="relative flex h-screen flex-col items-center justify-end lg:justify-center {isRemoveAdsActive
-				? 'pb-12'
-				: 'pb-28'} lg:items-center lg:pb-24"
+			class="relative flex h-screen flex-col items-center justify-end lg:items-center lg:justify-center lg:pb-24"
+			style="padding-bottom: calc(var(--safe-area-inset-bottom) + {isRemoveAdsActive
+				? '12px'
+				: '64px'}"
 		>
 			<div class="p-4 lg:px-64">
 				<button

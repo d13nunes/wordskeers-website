@@ -28,7 +28,7 @@
 
 	async function onPlayClick() {
 		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
-		const { unplayed, total } = await getUnplayedAndTotalForDifficulty(selectedDifficulty);
+		// const { unplayed, total } = await getUnplayedAndTotalForDifficulty(selectedDifficulty);
 		const id = await getRandonGridID(selectedDifficulty);
 		goto(`/game?id=${id}`);
 	}

@@ -79,6 +79,7 @@ class DatabaseService {
 				error: null
 			}));
 		} catch (error) {
+			console.error('!!! -> DatabaseService initialize error', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			databaseState.update((state) => ({
 				...state,
@@ -117,6 +118,7 @@ class DatabaseService {
 
 	private async initializeNativeDatabase(): Promise<void> {
 		try {
+			console.log('!!! -> DatabaseService initializeNativeDatabase ✅');
 			this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
 
 			// Close any existing connection first
@@ -152,9 +154,7 @@ class DatabaseService {
 			this.connection = db;
 			await this.initializeSchema();
 		} catch (error) {
-			throw new Error(
-				`Failed to initialize native database: ${error instanceof Error ? error.message : 'Unknown error'}`
-			);
+			throw new Error(`Failed to initialize native database📺: ${error}`);
 		}
 	}
 

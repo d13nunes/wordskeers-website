@@ -19,7 +19,7 @@ if (!existsSync(destDir)) {
 // Copy the file
 try {
     copyFileSync(sourceFile, destFile);
-    console.log('Successfully copied grids.sqlite to static/assets/wordseekr.db');
+    console.log(`Successfully copied ${sourceFile} to ${destFile}`);
 } catch (err) {
     console.error('Error copying database:', err);
     process.exit(1);

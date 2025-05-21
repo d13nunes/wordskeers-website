@@ -316,6 +316,36 @@
 		hintPositions.forEach(animatedHint);
 		previousHints = [...hintPositions];
 	});
+
+	interface CellBaseValues {
+		squareSize: number;
+		letterSize: number;
+		fontSize: number;
+	}
+
+	const cellBaseValues: CellBaseValues = {
+		squareSize: 34,
+		letterSize: 30,
+		fontSize: 20
+	};
+	let factor = $state(1);
+
+	$effect(() => {
+		if (grid.length <= 6) {
+			factor = 1.5;
+		} else if (grid.length <= 8) {
+			factor = 1.1;
+		} else if (grid.length <= 10) {
+			factor = 1;
+		} else if (grid.length <= 12) {
+			factor = 0.9;
+		}
+		console.log('factor', factor);
+	});
+
+	const squareSize = $derived(cellBaseValues.squareSize * factor);
+	const letterSize = $derived(cellBaseValues.letterSize * factor);
+	const fontSize = $derived(cellBaseValues.fontSize * factor);
 </script>
 
 <div class="flex flex-col items-center justify-center">
@@ -333,10 +363,14 @@
 	>
 		{#each cells as row}
 			{#each row as cell}
-				<div class="h-[34px] w-[34px]">
+				<div
+					style="height: {squareSize}px; width: {squareSize}px"
+					class="flex items-center justify-center"
+				>
 					<div
 						id={getPositionId(cell.row, cell.col)}
-						class=" flex h-[30px] w-[30px] items-center justify-center rounded-md text-center text-[20px] font-semibold text-gray-900"
+						style="height: {letterSize}px; width: {letterSize}px; font-size: {fontSize}px"
+						class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
 						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
 						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}

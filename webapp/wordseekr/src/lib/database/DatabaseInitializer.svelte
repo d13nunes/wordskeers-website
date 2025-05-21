@@ -3,24 +3,27 @@
 	import { databaseService, databaseState } from './database.service';
 	import { goto } from '$app/navigation';
 
-	let isInitializing = true;
-	let error: string | null = null;
+	let isInitializing = $state(true);
+	let error: string | null = $state(null);
+
+	let { children } = $props();
 
 	onMount(async () => {
 		try {
 			await databaseService.initialize();
 		} catch (e) {
+			console.error('!!! DatabaseInitializer error', e);
 			error = e instanceof Error ? e.message : 'Failed to initialize database';
 		} finally {
 			isInitializing = false;
 		}
 	});
 
-	// Subscribe to database state changes
-	$: ({ error: dbError } = $databaseState);
-	$: if (dbError) {
-		error = dbError;
-	}
+	$effect(() => {
+		console.log('!!! DatabaseInitializer isInitializing', isInitializing);
+		console.log('!!! DatabaseInitializer databaseState', $databaseState.error);
+		error = $databaseState.error;
+	});
 </script>
 
 {#if isInitializing}
@@ -48,5 +51,4 @@
 		</div>
 	</div>
 {/if}
-
-<slot />
+{@render children()}

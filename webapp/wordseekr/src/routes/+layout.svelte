@@ -10,8 +10,6 @@
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import DatabaseInitializer from '$lib/database/DatabaseInitializer.svelte';
-	import { initialize } from '@capacitor-community/safe-area';
-	import { Capacitor } from '@capacitor/core';
 
 	interface Props {
 		children: Snippet;
@@ -36,21 +34,7 @@
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner);
 		console.log('📺 BannerAd shown', success);
-		setTimeout(() => {
-			// Give it a moment to apply
-			const bottomInset = getCssVariableValue('--safe-area-inset-bottom');
-			console.log('📺CSS --safe-area-inset-top:', bottomInset);
-
-			if (bottomInset && bottomInset !== '0px') {
-				console.log('📺Safe Area CSS variables appear to be populated.', bottomInset);
-			} else {
-				console.warn('📺 Safe Area CSS variables might not be populated or are 0.');
-			}
-		}, 100); // Small delay to ensure CSS is applied
 	});
-	function getCssVariableValue(variableName: string) {
-		return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-	}
 </script>
 
 <DatabaseInitializer>
