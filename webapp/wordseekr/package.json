@@ -22,7 +22,8 @@
     "db:studio": "drizzle-kit studio",
     "copy-sql-wasm": "node scripts/copy-sql-wasm.js",
     "copy-database": "node scripts/copy-database.js",
-    "migrate": "node scripts/run-migration.js"
+    "migrate": "node scripts/run-migration.js",
+    "generate-assets": "bunx capacitor-assets generate"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
