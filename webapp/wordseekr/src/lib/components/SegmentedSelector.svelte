@@ -3,19 +3,17 @@
 
 	interface SegmentedSelectorProps {
 		segments: string[];
-		firstSelectedIndex: number | null;
+		selectedIndex: number;
 		onChange: (index: number) => void;
 	}
 
-	let { segments, firstSelectedIndex, onChange }: SegmentedSelectorProps = $props();
+	let { segments, selectedIndex, onChange }: SegmentedSelectorProps = $props();
 
-	let selected = $state(firstSelectedIndex ?? 0);
 	// References to DOM elements
 	let containerElement: HTMLElement;
 	let buttonsContainer: HTMLElement;
 	let activeIndicator: HTMLElement;
 
-	let selectedIndex = $derived(selected ? selected : 0);
 	// Action to handle positioning the indicator
 	function setupSegments(node: HTMLElement) {
 		const resizeObserver = new ResizeObserver(() => updateIndicator());
@@ -32,8 +30,8 @@
 
 	// Handle selection change
 	function select(index: number) {
-		if (index !== selected) {
-			selected = index;
+		if (index !== selectedIndex) {
+			selectedIndex = index;
 			onChange(index);
 		}
 	}
@@ -83,7 +81,7 @@
 					onclick={() => select(i)}
 					class="flex-1 cursor-pointer border-none bg-transparent text-xs transition-colors duration-200 ease-in-out
 					{selectedIndex === i ? 'text-black ' : 'text-black/70'}
-					{selected === i ? 'font-bold' : 'font-normal'}"
+					{selectedIndex === i ? 'font-bold' : 'font-normal'}"
 				>
 					{segment}
 				</button>

@@ -1,7 +1,7 @@
 // Configuration for the daily rewards system
 
 export const REWARD_COUNT = 3;
-export const RESET_WINDOW_MS = 10 * 1000; // 4 hours
+export const RESET_WINDOW_MS = 4 * 60 * 60 * 1000; // 4 hours
 
 // Coin ranges for rewards
 export const COIN_RANGES: { min: number; max: number }[] = [

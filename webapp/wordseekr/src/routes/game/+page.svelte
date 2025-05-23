@@ -1,10 +1,6 @@
 <script lang="ts">
+	import GameButtons from './GameButtons.svelte';
 	import { page } from '$app/state';
-	import Tag from '$lib/components/Tag.svelte';
-	import RotatePowerUp from '$lib/components/PowerUps/RotatePowerUp.svelte';
-	import FindLetterPowerUp from '$lib/components/PowerUps/FindLetterPowerUp.svelte';
-	import FindWordPowerUp from '$lib/components/PowerUps/FindWordPowerUp.svelte';
-	import PauseButton from '$lib/components/Pause/PauseButton.svelte';
 	import {
 		createGameForConfiguration,
 		getWordPositions,
@@ -21,15 +17,17 @@
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import { getFormatedTime, getPositionId, toTitleCase } from '$lib/utils/string-utils';
-	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
-	import { flip } from 'svelte/animate';
+	import { getFormatedTime, getPositionId } from '$lib/utils/string-utils';
 	import { appStateManager } from '$lib/utils/app-state';
 	import { getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
 	import { databaseService } from '$lib/database/database.service';
+	import { Preferences } from '@capacitor/preferences';
+	import BoardWords from './BoardWords.svelte';
 	import PauseMenu from './PauseMenu.svelte';
-
+	import { getIsSmallScreen } from '$lib/utils/utils';
+	import { endGameAdStore } from '$lib/game/end-game-ad';
+	let isSmallScreen = $state(true);
 	let progressCircle = $state<SVGCircleElement | null>(null);
 	let isRotated = $state(false);
 	let isGameEnded = $state(false);
@@ -38,12 +36,20 @@
 	let isFindWordDisabled = $state(false);
 	const powerUpCooldownButton = 2000;
 
-	let isClockVisible = $state(true);
+	let isClockVisible = $state(false);
+	const clockVisibleKey = 'isClockVisible';
 
 	let game = $state<Game | null>(null);
 	let words = $state<Word[]>([]);
 	let error: string | null = $state(null);
 	onMount(async () => {
+		isSmallScreen = getIsSmallScreen();
+		try {
+			const isClockVisibleResult = await Preferences.get({ key: clockVisibleKey });
+			isClockVisible = isClockVisibleResult.value === 'true';
+		} catch (e) {
+			console.error('Error loading clock visibility:', e);
+		}
 		try {
 			// Get difficulty from URL params
 			const id: number = parseInt(page.url.searchParams.get('id') ?? '-1');
@@ -161,12 +167,12 @@
 
 	let isPowerUpAnimationActive = $state(false);
 
-	function onPowerUpRotateClick() {
+	function onPowerUpRotateClick(iconId: string) {
 		if (isRotateDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
 		isRotated = !isRotated;
 		walletStore.tryAndBuy(powerUpPrices.rotate);
-		const rotateIcon = document.getElementById('rotate-icon');
+		const rotateIcon = document.getElementById(iconId);
 		const finalRotation = isRotated ? '360' : '-360';
 		if (rotateIcon) {
 			animate(rotateIcon, {
@@ -180,7 +186,7 @@
 		}, powerUpCooldownButton);
 	}
 
-	async function onPowerUpFindLetterClick() {
+	async function onPowerUpFindLetterClick(iconId: string) {
 		if (isFindLetterDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
 		hintPositions.length = 0;
@@ -191,7 +197,7 @@
 		const didBuy = await walletStore.tryAndBuy(powerUpPrices.findLetter);
 		if (didBuy) {
 			hintPositions.push(suggestedLetter);
-			const icon = document.getElementById('find-letter-icon');
+			const icon = document.getElementById(iconId);
 			if (icon) {
 				animatePowerUp(suggestedLetter, icon);
 			}
@@ -276,14 +282,14 @@
 		}
 	}
 
-	function onPowerUpFindWordClick() {
+	function onPowerUpFindWordClick(iconId: string) {
 		if (isFindWordDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
 		const suggestedWord = getRandonUndiscoveredWord();
 		hintPositions.length = 0;
 		hintPositions.push(...getWordPositions(suggestedWord));
 		walletStore.tryAndBuy(powerUpPrices.findWord);
-		const findWordIcon = document.getElementById('find-word-icon');
+		const findWordIcon = document.getElementById(iconId);
 		if (findWordIcon) {
 			const suggestedLetter = hintPositions[Math.floor(hintPositions.length / 2)];
 			animatePowerUp(suggestedLetter, findWordIcon);
@@ -316,8 +322,6 @@
 		isFindWordDisabled = balance < powerUpPrices.findWord;
 	});
 
-	walletStore.addCoins(70); // TODO: remove
-
 	let sortDiscoveredWords = false;
 
 	let sortedWords = $derived(
@@ -343,9 +347,9 @@
 	$effect(() => {
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
-			if (!isActive && !showPauseModal && !isGameEnded) {
-				showPauseModal = true;
-			}
+			// if (!isActive && !showPauseModal && !isGameEnded) {
+			// 	showPauseModal = true;
+			// }
 		});
 
 		// Cleanup subscription when component unmounts
@@ -404,6 +408,8 @@
 				duration: animationDuration
 			}).then(() => {
 				setTimeout(() => {
+					console.log('📺📺📺 show end game ad');
+					endGameAdStore.show();
 					goto('/');
 				}, 500);
 			});
@@ -419,6 +425,14 @@
 	}
 
 	let accumulatedCoins = $state(0);
+
+	async function onClockClick(isClockVisible_: boolean) {
+		isClockVisible = isClockVisible_;
+		await Preferences.set({
+			key: clockVisibleKey,
+			value: isClockVisible.toString()
+		});
+	}
 </script>
 
 {#if error}
@@ -442,7 +456,10 @@
 		</div>
 	</div>
 {:else}
-	<div class="fixed inset-0 z-50">
+	<div
+		class="fixed inset-0 z-50 flex max-h-full max-w-full flex-row items-end justify-center sm:items-center"
+		style="padding-left: calc(var(--safe-area-inset-left)"
+	>
 		{#if showPauseModal}
 			<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
 		{/if}
@@ -455,41 +472,64 @@
 			/>
 		{/if}
 
-		<div
-			class="relative flex h-screen flex-col items-center justify-end lg:items-center lg:justify-center lg:pb-24"
-			style="padding-bottom: calc(var(--safe-area-inset-bottom) + {isRemoveAdsActive
-				? '12px'
-				: '64px'}"
-		>
-			<div class="p-4 lg:px-64">
-				<button
-					type="button"
-					class="flex w-full items-end justify-between"
-					onclick={() => (isClockVisible = !isClockVisible)}
+		<div class="flex flex-row items-center gap-2">
+			{#if isSmallScreen}
+				<div
+					class="z-10 flex w-1/2 flex-row p-4
+				portrait:hidden
+				landscape:block"
 				>
-					<span class="pl-1 text-left text-2xl font-bold text-gray-700">{title}</span>
-					<div class="flex h-7 items-center gap-1">
-						{#if isClockVisible}
-							<span class="  text-gray-700">{elapsedTime}</span>
-						{/if}
-						<div class="h-4 w-4">
-							<ClockIcon color="#37385F" />
-						</div>
+					<div class="mb-4">
+						<BoardWords
+							words={sortedWords}
+							showClock={isClockVisible}
+							{elapsedTime}
+							{title}
+							{onClockClick}
+						/>
 					</div>
-				</button>
-				<div class="flex flex-row flex-wrap gap-2 p-2 py-2">
-					{#each sortedWords as word (word.word)}
-						<div animate:flip={{ duration: 450 }}>
-							<Tag
-								tag={toTitleCase(word.word)}
-								isDiscovered={word.isDiscovered}
-								bgColor={word.color}
-								textColor={word.textColor}
-							/>
-						</div>
-					{/each}
+					<GameButtons
+						findWordIconId="fwi-l"
+						findLetterIconId="fli-l"
+						rotateIconId="ri-l"
+						{onPauseClick}
+						{onPowerUpFindWordClick}
+						{onPowerUpFindLetterClick}
+						{onPowerUpRotateClick}
+						{isFindWordDisabled}
+						{isFindLetterDisabled}
+						{isRotateDisabled}
+						findWordPrice={powerUpPrices.findWord.toString()}
+						findLetterPrice={powerUpPrices.findLetter.toString()}
+						rotatePrice={powerUpPrices.rotate.toString()}
+					/>
 				</div>
-				<div class="flex items-center justify-center pt-2">
+			{/if}
+			<div
+				class=" flex h-full w-full flex-col items-center gap-2 sm:gap-8 lg:items-center lg:justify-center
+				{isSmallScreen ? 'landscape:w-1/2' : ''} {isRemoveAdsActive && isSmallScreen
+					? 'portrait:pb-2'
+					: 'portrait:pb-[54px]'} 
+				"
+			>
+				<div
+					class="flex h-full w-full flex-col items-center justify-start gap-2 sm:gap-6 {isSmallScreen
+						? 'landscape:items-start'
+						: ''}"
+				>
+					<div
+						class="px-4 sm:max-w-3/4 sm:px-0
+						{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} "
+					>
+						<BoardWords
+							words={sortedWords}
+							showClock={isClockVisible}
+							{elapsedTime}
+							{title}
+							{onClockClick}
+						/>
+					</div>
+
 					<Board
 						grid={game.grid}
 						{onWordSelect}
@@ -499,25 +539,24 @@
 						{isGameEnded}
 					/>
 				</div>
-			</div>
-			<div class="flex flex-row items-center justify-center gap-6">
-				<PauseButton onclick={onPauseClick} />
-				<!-- <GamePrizeGauge value={accumulatedCoins} /> -->
-				<div class="flex w-full flex-row items-center justify-center gap-2">
-					<FindWordPowerUp
-						onclick={onPowerUpFindWordClick}
-						price={powerUpPrices.findWord.toString()}
-						disabled={isFindWordDisabled}
-					/>
-					<FindLetterPowerUp
-						onclick={onPowerUpFindLetterClick}
-						price={powerUpPrices.findLetter.toString()}
-						disabled={isFindLetterDisabled}
-					/>
-					<RotatePowerUp
-						onclick={onPowerUpRotateClick}
-						price={powerUpPrices.rotate.toString()}
-						disabled={isRotateDisabled}
+				<div
+					class={isSmallScreen ? 'portrait:block landscape:hidden' : ''}
+					style="padding-bottom: calc(var(--safe-area-inset-bottom)"
+				>
+					<GameButtons
+						findWordIconId="fwi-p"
+						findLetterIconId="fli-p"
+						rotateIconId="ri-p"
+						{onPauseClick}
+						{onPowerUpFindWordClick}
+						{onPowerUpFindLetterClick}
+						{onPowerUpRotateClick}
+						{isFindWordDisabled}
+						{isFindLetterDisabled}
+						{isRotateDisabled}
+						findWordPrice={powerUpPrices.findWord.toString()}
+						findLetterPrice={powerUpPrices.findLetter.toString()}
+						rotatePrice={powerUpPrices.rotate.toString()}
 					/>
 				</div>
 			</div>

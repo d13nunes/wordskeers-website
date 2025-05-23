@@ -1,4 +1,5 @@
 import { AdType, type AdProvider } from '$lib/ads/ads-types';
+import { getIsSmallScreen } from '$lib/utils/utils';
 import {
 	AdMob,
 	BannerAdPosition,
@@ -11,6 +12,8 @@ export class AdmobBanner implements AdProvider {
 	adType = AdType.Banner;
 
 	private _isLoaded = writable(false);
+	private orientationChangeHandler: (() => void) | null = null;
+	private isShowing = false;
 
 	constructor(private adId: string) {}
 
@@ -18,8 +21,65 @@ export class AdmobBanner implements AdProvider {
 
 	private getCssVariableValue(variableName: string): number {
 		const value = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-		// Convert from 'px' to number
-		return parseInt(value.replace('px', ''), 10) || 0;
+		console.log('value', value);
+		// Handle CSS max() function
+		if (value.startsWith('max(')) {
+			// Extract values from max() function
+			const values = value
+				.replace('max(', '')
+				.replace(')', '')
+				.split(',')
+				.map((v) => parseInt(v.trim().replace('px', ''), 10) || 0);
+			// Return the maximum value
+			const maxValue = Math.max(...values);
+			console.log('max', maxValue);
+			return maxValue;
+		}
+		// Handle regular pixel value
+		const parsedValue = parseInt(value.replace('px', ''), 10) || 0;
+		console.log('parsed', parsedValue);
+		return parsedValue;
+	}
+
+	private getSafeAreaInsets() {
+		return {
+			top: this.getCssVariableValue('--safe-area-inset-top'),
+			bottom: this.getCssVariableValue('--safe-area-inset-bottom'),
+			left: this.getCssVariableValue('--safe-area-inset-left'),
+			right: this.getCssVariableValue('--safe-area-inset-right')
+		};
+	}
+
+	private async updateBannerPosition() {
+		if (!this.isShowing) {
+			return;
+		}
+
+		const orientation = window.orientation;
+		const isLandscape = Math.abs(orientation) === 90;
+
+		const bannerOptions: BannerAdOptions = {
+			adId: this.adId,
+			adSize: BannerAdSize.BANNER,
+			margin: 0
+		};
+
+		if (isLandscape && getIsSmallScreen()) {
+			bannerOptions.position = BannerAdPosition.TOP_CENTER;
+		} else {
+			bannerOptions.position = BannerAdPosition.BOTTOM_CENTER;
+		}
+
+		try {
+			await AdMob.hideBanner();
+			await AdMob.showBanner(bannerOptions);
+			console.log('📺 BannerAd repositioned for', isLandscape ? 'landscape' : 'portrait', 'mode');
+		} catch (err) {
+			console.warn(
+				'📺 Failed to reposition banner:',
+				err instanceof Error ? err.message : 'Unknown error'
+			);
+		}
 	}
 
 	load(): Promise<boolean> {
@@ -29,44 +89,25 @@ export class AdmobBanner implements AdProvider {
 
 	async show(): Promise<boolean> {
 		console.log('📺 Showing BannerAd');
-		try {
-			// Get the bottom safe area inset from CSS variable
-			// const bottomInset = this.getCssVariableValue('--safe-area-inset-bottom');
-			// Add a small padding to the bottom inset for better visual appearance
-			const margin = 0; // Math.max(bottomInset + 16, 16); // Minimum 16px padding
+		this.isShowing = true;
 
-			const bannerOptions: BannerAdOptions = {
-				adId: this.adId,
-				adSize: BannerAdSize.BANNER,
-				position: BannerAdPosition.BOTTOM_CENTER,
-				margin,
-				isTesting: true
-			};
+		// Set up orientation change listener
+		this.orientationChangeHandler = () => {
+			this.updateBannerPosition();
+		};
+		window.addEventListener('orientationchange', this.orientationChangeHandler);
 
-			await AdMob.showBanner(bannerOptions);
-			console.log('📺 BannerAd shown with margin:', margin);
-			return true;
-		} catch (err) {
-			// Fallback to a default margin if something goes wrong
-			console.warn(
-				'📺 Failed to get safe area insets:',
-				err instanceof Error ? err.message : 'Unknown error'
-			);
-			const bannerOptions: BannerAdOptions = {
-				adId: this.adId,
-				adSize: BannerAdSize.BANNER,
-				position: BannerAdPosition.BOTTOM_CENTER,
-				margin: 16, // Default padding
-				isTesting: true
-			};
-
-			await AdMob.showBanner(bannerOptions);
-			console.log('📺 BannerAd shown with default margin');
-			return true;
-		}
+		// Initial banner positioning
+		await this.updateBannerPosition();
+		return true;
 	}
 
-	hide(): Promise<void> {
+	async hide(): Promise<void> {
+		this.isShowing = false;
+		if (this.orientationChangeHandler) {
+			window.removeEventListener('orientationchange', this.orientationChangeHandler);
+			this.orientationChangeHandler = null;
+		}
 		return AdMob.hideBanner();
 	}
 }

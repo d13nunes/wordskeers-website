@@ -63,15 +63,27 @@ class DatabaseService {
 		}
 		return 'web';
 	}
+	isInitializing = false;
 
 	public async initialize(): Promise<void> {
+		this.isInitializing = true;
 		try {
 			if (this.platform === 'web') {
-				await this.initializeWebDatabase();
+				this.connection = await this.initializeWebDatabase();
 			} else {
-				await this.initializeNativeDatabase();
+				this.connection = await this.initializeNativeDatabase();
 			}
 
+			if (!this.connection) {
+				this.isInitializing = false;
+				console.error(
+					'!!! -> DatabaseService initialize error',
+					'Init mehtod returned no connection'
+				);
+				return;
+			}
+
+			await this.initializeSchema();
 			databaseState.update((state) => ({
 				...state,
 				isInitialized: true,
@@ -89,9 +101,10 @@ class DatabaseService {
 			}));
 			throw error;
 		}
+		this.isInitializing = false;
 	}
 
-	private async initializeWebDatabase(): Promise<void> {
+	private async initializeWebDatabase(): Promise<DatabaseConnection | null> {
 		try {
 			// Initialize SQL.js
 			const SQL = await initSqlJs({
@@ -106,8 +119,8 @@ class DatabaseService {
 				);
 			}
 			const buffer = await response.arrayBuffer();
-			this.connection = new SQL.Database(new Uint8Array(buffer));
-
+			const db = new SQL.Database(new Uint8Array(buffer));
+			return db;
 			// No need to initialize schema for pre-populated DB
 		} catch (error) {
 			throw new Error(
@@ -116,7 +129,7 @@ class DatabaseService {
 		}
 	}
 
-	private async initializeNativeDatabase(): Promise<void> {
+	private async initializeNativeDatabase(): Promise<DatabaseConnection | null> {
 		try {
 			console.log('!!! -> DatabaseService initializeNativeDatabase ✅');
 			this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
@@ -149,10 +162,8 @@ class DatabaseService {
 				DB_VERSION,
 				false
 			);
-
 			await db.open();
-			this.connection = db;
-			await this.initializeSchema();
+			return db;
 		} catch (error) {
 			throw new Error(`Failed to initialize native database📺: ${error}`);
 		}
@@ -206,7 +217,13 @@ class DatabaseService {
 	// Example CRUD methods (to be implemented based on your specific needs)
 	public async executeQuery<T>(query: string, params: SqlValue[] = []): Promise<T[]> {
 		if (!this.connection) {
-			throw new Error('Database not initialized');
+			try {
+				await this.initialize();
+			} catch (error) {
+				throw new Error(
+					`Failed to initialize database: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
+			}
 		}
 
 		try {

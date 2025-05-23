@@ -7,6 +7,7 @@ import { AdmobRewardInterstitial } from './Admob/admob-rewardinterstitial';
 import { AdmobBanner } from './Admob/admob-banner';
 import type { AdProvider } from './ads-types';
 import { walletStore } from '$lib/economy/walletStore';
+import { Capacitor } from '@capacitor/core';
 
 interface AdmobAdIds {
 	interstitial: string;
@@ -22,24 +23,37 @@ const admobAdIdsDebug: AdmobAdIds = {
 	banner: 'ca-app-pub-3940256099942544/2934735716'
 };
 
-// const admobAdIdsProductionIOS: AdmobAdIds = {};
-// const admobAdIdsProductionAndroid: AdmobAdIds = {
-// 	interstitial: 'ca-app-pub-9539843520256562/8306519367',
-// 	rewardInterstitial: 'ca-app-pub-9539843520256562/1328804202',
-// 	reward: 'ca-app-pub-9539843520256562/9667229737',
-// 	banner: 'ca-app-pub-9539843520256562/2262611927'
-// };
-// let admobAdIds: AdmobAdIds;
-// if (Capacitor.getPlatform() === 'ios') {
-// 	console.log('iOS!');
-// 	admobAdIds = admobAdIdsProductionIOS;
-// } else if (Capacitor.getPlatform() === 'android') {
-// 	console.log('Android!');
-// 	admobAdIds = admobAdIdsProductionAndroid;
-// } else {
-// 	console.log('Web!');
-// }
-const admobAdIds = admobAdIdsDebug;
+const admobAdIdsProductionIOS: AdmobAdIds = {
+	banner: 'ca-app-pub-9539843520256562/1015855733',
+	interstitial: 'ca-app-pub-9539843520256562/2545593663',
+	rewardInterstitial: 'ca-app-pub-9539843520256562/5270995200',
+	reward: 'ca-app-pub-9539843520256562/1015855733'
+};
+const admobAdIdsProductionAndroid: AdmobAdIds = {
+	interstitial: 'ca-app-pub-9539843520256562/8306519367',
+	rewardInterstitial: 'ca-app-pub-9539843520256562/1328804202',
+	reward: 'ca-app-pub-9539843520256562/9667229737',
+	banner: 'ca-app-pub-9539843520256562/2262611927'
+};
+let admobAdIds: AdmobAdIds;
+if (Capacitor.getPlatform() === 'ios') {
+	console.log('iOS!');
+	admobAdIds = admobAdIdsProductionIOS;
+} else if (Capacitor.getPlatform() === 'android') {
+	console.log('Android!');
+	admobAdIds = admobAdIdsProductionAndroid;
+} else {
+	console.log('Web!');
+}
+
+let lastTimeAdShown: Record<AdType, Date> = {
+	[AdType.Interstitial]: new Date(),
+	[AdType.Rewarded]: new Date(),
+	[AdType.RewardedInterstitial]: new Date(),
+	[AdType.Banner]: new Date()
+};
+
+admobAdIds = admobAdIdsDebug;
 function createAdStore(adProviders: AdProvider[]) {
 	let canShowInterstitial = false;
 	walletStore.removeAds((removeAds) => {
@@ -80,13 +94,15 @@ function createAdStore(adProviders: AdProvider[]) {
 			const consentInfo = await AdMob.requestConsentInfo();
 			const authorizationStatus = await AdMob.trackingAuthorizationStatus();
 
-			if (
-				authorizationStatus.status === 'authorized' &&
-				consentInfo.isConsentFormAvailable &&
-				consentInfo.status === AdmobConsentStatus.REQUIRED
-			) {
-				await AdMob.showConsentForm();
-			}
+			// if (
+			// authorizationStatus.status === 'authorized' &&
+			// consentInfo.isConsentFormAvailable &&
+			// consentInfo.status === AdmobConsentStatus.REQUIRED
+			// ) {
+			console.log('📺 showing consent form');
+			await AdMob.showConsentForm();
+			// }
+			console.log('📺 consent form shown', consentInfo);
 		} catch (error) {
 			console.error('📺 AdMob initialization error:', error);
 		}
@@ -120,7 +136,19 @@ function createAdStore(adProviders: AdProvider[]) {
 		}
 	}
 
-	async function showAd(adType: AdType): Promise<boolean> {
+	async function canShowBasedOnTime(adType: AdType, maxFrequencyMillis: number): boolean {
+		const lastTime = lastTimeAdShown[adType];
+		if (!lastTime) {
+			return true;
+		}
+		const now = new Date();
+		const diff = now.getTime() - lastTime.getTime();
+		const canShow = diff > maxFrequencyMillis;
+		console.log('📺📺📺 canShowBasedOnTime', adType, canShow, diff, maxFrequencyMillis);
+		return canShow;
+	}
+
+	async function showAd(adType: AdType, maxFrequencyMillis: number | null): Promise<boolean> {
 		const adProvider = adProviders.find((ad) => ad.adType === adType);
 		if (!adProvider) {
 			throw new Error(`📺 Ad provider for ${adType} not found`);
@@ -129,7 +157,12 @@ function createAdStore(adProviders: AdProvider[]) {
 			console.log('📺 not showing ad', adType, 'user has removed ads active');
 			return false;
 		}
+
+		if (maxFrequencyMillis && !canShowBasedOnTime(adType, maxFrequencyMillis)) {
+			return false;
+		}
 		try {
+			lastTimeAdShown[adType] = new Date();
 			const success = await adProvider.show();
 			adProvider.load();
 			return success;
@@ -173,7 +206,7 @@ interface AdStore {
 	isInitialized: Readable<boolean>;
 	initialize: () => Promise<void>;
 	loadAd: (adType: AdType) => Promise<boolean>;
-	showAd: (adType: AdType) => Promise<boolean>;
+	showAd: (adType: AdType, maxFrequencyMillis: number | null) => Promise<boolean>;
 	hideAd: (adType: AdType) => Promise<void>;
 	isAdLoaded: (adType: AdType) => Readable<boolean>;
 	getAdLoadingState: (adType: AdType) => Readable<boolean>;

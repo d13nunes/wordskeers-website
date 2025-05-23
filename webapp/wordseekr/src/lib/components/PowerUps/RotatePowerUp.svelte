@@ -6,9 +6,10 @@
 		onclick: () => void;
 		price: string;
 		disabled?: boolean;
+		id: string;
 	}
 
-	let { onclick, price, disabled = false }: Props = $props();
+	let { onclick, price, disabled = false, id }: Props = $props();
 </script>
 
 <PowerUpButton
@@ -21,6 +22,6 @@
 	{disabled}
 >
 	{#snippet icon()}
-		<RotateIcon color="#007a55" />
+		<RotateIcon {id} color="#007a55" />
 	{/snippet}
 </PowerUpButton>

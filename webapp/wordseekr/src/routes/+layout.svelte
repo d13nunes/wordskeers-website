@@ -10,7 +10,8 @@
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import DatabaseInitializer from '$lib/database/DatabaseInitializer.svelte';
-
+	import { initialize } from '@capacitor-community/safe-area';
+	import { getIsSmallScreen } from '$lib/utils/utils';
 	interface Props {
 		children: Snippet;
 	}
@@ -30,30 +31,37 @@
 		isStoreOpen = false;
 	}
 
+	initialize();
+
+	let isSmallScreen = $state(false);
+
 	onMount(async () => {
+		isSmallScreen = getIsSmallScreen();
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner);
 		console.log('📺 BannerAd shown', success);
 	});
 </script>
 
-<DatabaseInitializer>
-	<main class=" flex flex-col bg-slate-50 select-none">
-		<div class="z-[100] me-2 mt-2 flex flex-row items-center justify-end gap-2">
-			<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
-			<BalanceTag onclick={onStoreClick} />
-		</div>
-		{@render children()}
+<main class="flex flex-col bg-slate-50 select-none">
+	<div
+		class="z-[100] mx-2 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
+			? 'landscape:justify-start'
+			: ''} "
+	>
+		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
+		<BalanceTag onclick={onStoreClick} />
+	</div>
+	{@render children()}
 
-		<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
-			<DailyRewards />
-		</BottomSheet>
-		<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
-			<Store />
-		</BottomSheet>
-		<ModalHost />
-	</main>
-</DatabaseInitializer>
+	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
+		<DailyRewards />
+	</BottomSheet>
+	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
+		<Store />
+	</BottomSheet>
+	<ModalHost />
+</main>
 
 <style>
 	main {

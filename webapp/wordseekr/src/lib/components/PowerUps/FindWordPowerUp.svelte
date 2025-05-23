@@ -3,11 +3,12 @@
 	import FindWordIcon from './Icons/FindWordIcon.svelte';
 	interface Props {
 		onclick: () => void;
+		id: string;
 		price: string;
 		disabled?: boolean;
 	}
 
-	let { onclick, price, disabled = false }: Props = $props();
+	let { onclick, price, disabled = false, id }: Props = $props();
 </script>
 
 <PowerUpButton
@@ -20,6 +21,6 @@
 	{disabled}
 >
 	{#snippet icon()}
-		<FindWordIcon color="#0E7490" />
+		<FindWordIcon {id} color="#0E7490" />
 	{/snippet}
 </PowerUpButton>

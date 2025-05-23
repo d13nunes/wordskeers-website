@@ -1,16 +1,16 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { onMount } from 'svelte';
 	import { databaseService, databaseState } from './database.service';
 	import { goto } from '$app/navigation';
 
-	let isInitializing = $state(true);
+	let isInitializing = $state(false);
 	let error: string | null = $state(null);
 
 	let { children } = $props();
 
 	onMount(async () => {
 		try {
-			await databaseService.initialize();
+			// await databaseService.initialize();
 		} catch (e) {
 			console.error('!!! DatabaseInitializer error', e);
 			error = e instanceof Error ? e.message : 'Failed to initialize database';
@@ -51,4 +51,4 @@
 		</div>
 	</div>
 {/if}
-{@render children()}
+{@render children()} -->

@@ -338,7 +338,7 @@
 		} else if (grid.length <= 10) {
 			factor = 1;
 		} else if (grid.length <= 12) {
-			factor = 0.9;
+			factor = 0.8;
 		}
 		console.log('factor', factor);
 	});
