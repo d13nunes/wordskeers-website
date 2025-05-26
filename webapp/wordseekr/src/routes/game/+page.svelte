@@ -388,7 +388,7 @@
 		} else {
 			didWatchAd = false;
 		}
-		const gameEndedPrize = didWatchAd ? 100 : 50;
+		const gameEndedPrize = didWatchAd ? accumulatedCoins * 2 : accumulatedCoins;
 		const coinPileIconName = 'coin-pile-icon';
 
 		const balanceTag = document.getElementById('balance-tag-icon');

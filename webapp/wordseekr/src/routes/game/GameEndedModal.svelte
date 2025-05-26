@@ -11,11 +11,20 @@
 		onClickContinue: () => void;
 		onClickDouble: () => void;
 	}
-	let doubleButton: HTMLButtonElement;
-	let continueButton: HTMLButtonElement;
 	const { onClickContinue, onClickDouble, message, showDoubleButton }: Props = $props();
 	const base64 =
 		'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABSElEQVR4nO3ZP0oDQRiG8UGwsFKwsLD2AF7AC5hoZesVvIIgAVtLW0tvoOCfTg9gr2BjYaNJYSH+ZEgCi42bqNmZdZ5+v92H9/t2Z3ZCKBQKU4FtXGOgeQa4QndSiUPp0pskidTp1BGJ7ZQ6l3VE+tLntY5IFoQikhihJPKPEuniXu4iYXjtAvbx9ruPPWORSo01nE1bKxmRSq3Ybo/T1kxGZFRvEUd4z1pkDNZxk71IBHPYxXPWImOwjGN8ZC0yBhu4y14kgnnsTbp9CKmJVO67ipO2iJxmK9KK1pL7sGNlNA95vn614YNouES5/alAYyJYyn7RiB08/aZAExur82lrNS7Siq0utvBgRoQ/FJkpoYgkRiiJZJhIX/q81BGJp6epc1FHJP4dTJ3Nb0VGMj3pclBLoiLTiaenicxMP7ZT7SQKhUL4yieOYHQusx8oEQAAAABJRU5ErkJggg==';
+
+	let buttonDisabled = $state(false);
+	async function onClickContinue_() {
+		buttonDisabled = true;
+		onClickDouble();
+	}
+
+	async function onClickDouble_() {
+		buttonDisabled = true;
+		onClickContinue();
+	}
 </script>
 
 <div
@@ -51,22 +60,20 @@
 
 		<div class="mt-2 flex gap-4">
 			<button
-				bind:this={continueButton}
 				class="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
-				onclick={onClickContinue}
+				onclick={onClickDouble_}
 			>
 				New Game
 			</button>
-			<!-- {#if showDoubleButton} -->
-			<button
-				bind:this={doubleButton}
-				class="flex items-center gap-1 rounded bg-emerald-500 px-4 py-2 text-white transition hover:bg-emerald-600"
-				onclick={onClickDouble}
-			>
-				<img class="h-5 w-5" src={base64} alt="" />
-				Double Reward
-			</button>
-			<!-- {/if} -->
+			{#if showDoubleButton}
+				<button
+					class="flex items-center gap-1 rounded bg-emerald-500 px-4 py-2 text-white transition hover:bg-emerald-600"
+					onclick={onClickContinue_}
+				>
+					<img class="h-5 w-5" src={base64} alt="" />
+					Double Reward
+				</button>
+			{/if}
 		</div>
 	</div>
 </div>
