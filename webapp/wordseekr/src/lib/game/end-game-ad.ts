@@ -2,15 +2,27 @@ import { adStore } from '$lib/ads/ads';
 import { AdType } from '$lib/ads/ads-types';
 
 export interface EndGameAd {
-	show(): Promise<void>;
+	show(options: EndGameAdShowOptions): Promise<void>;
 }
 
-const maxFrequencyMillis = 1000 * 5; // 5 seconds
+export interface EndGameAdShowOptions {
+	didWatchRewardAd: boolean;
+}
+
+const maxFrequencyMillis = 1000 * 60 * 2; // 2 minutes
 class AdmobEndGameAd implements EndGameAd {
 	gameCount: number = 0;
 
-	async show(): Promise<void> {
+	async show(options: EndGameAdShowOptions): Promise<void> {
 		this.gameCount++;
+		if (options.didWatchRewardAd) {
+			console.log('📺📺📺 didWatchRewardAd', this.gameCount);
+			return;
+		}
+		if (this.gameCount < 2) {
+			console.log('📺📺📺 gameCount < 2', this.gameCount);
+			return;
+		}
 		console.log('📺📺📺 show', this.gameCount);
 		const didSawAd = await adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
 		console.log('📺📺📺 didSawAd', didSawAd);
