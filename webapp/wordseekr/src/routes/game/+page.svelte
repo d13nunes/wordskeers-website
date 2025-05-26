@@ -334,7 +334,7 @@
 			return a.word.length - b.word.length;
 		})
 	);
-	let isRewardAdReady = false;
+	let isRewardAdReady = $state(false);
 	adStore.isAdLoaded(AdType.Rewarded).subscribe((isLoaded) => {
 		isRewardAdReady = isLoaded;
 	});
@@ -347,9 +347,9 @@
 	$effect(() => {
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
-			// if (!isActive && !showPauseModal && !isGameEnded) {
-			// 	showPauseModal = true;
-			// }
+			if (!isActive && !showPauseModal && !isGameEnded) {
+				showPauseModal = true;
+			}
 		});
 
 		// Cleanup subscription when component unmounts
@@ -384,7 +384,7 @@
 	async function collectReward(showAd: boolean) {
 		let didWatchAd;
 		if (showAd) {
-			didWatchAd = await adStore.showAd(AdType.Rewarded);
+			didWatchAd = await adStore.showAd(AdType.Rewarded, null);
 		} else {
 			didWatchAd = false;
 		}
@@ -409,7 +409,7 @@
 			}).then(() => {
 				setTimeout(() => {
 					console.log('📺📺📺 show end game ad');
-					endGameAdStore.show();
+					endGameAdStore.show({ didWatchRewardAd: didWatchAd });
 					goto('/');
 				}, 500);
 			});
@@ -468,7 +468,7 @@
 				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${accumulatedCoins} coins!`}
 				onClickContinue={() => collectReward(false)}
 				onClickDouble={() => collectReward(true)}
-				showDoubleButton={false}
+				showDoubleButton={isRewardAdReady}
 			/>
 		{/if}
 
@@ -541,7 +541,7 @@
 				</div>
 				<div
 					class={isSmallScreen ? 'portrait:block landscape:hidden' : ''}
-					style="padding-bottom: calc(var(--safe-area-inset-bottom)"
+					style="padding-bottom: calc(var(--safe-area-inset-bottom) + 8px)"
 				>
 					<GameButtons
 						findWordIconId="fwi-p"

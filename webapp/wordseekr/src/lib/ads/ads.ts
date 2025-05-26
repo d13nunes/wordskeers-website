@@ -44,20 +44,20 @@ if (Capacitor.getPlatform() === 'ios') {
 	admobAdIds = admobAdIdsProductionAndroid;
 } else {
 	console.log('Web!');
+	admobAdIds = admobAdIdsDebug; // TODO: replace with web ads
 }
+// admobAdIds = admobAdIdsDebug; // TODO: debug create a fla
 
-let lastTimeAdShown: Record<AdType, Date> = {
+const lastTimeAdShown: Record<AdType, Date> = {
 	[AdType.Interstitial]: new Date(),
 	[AdType.Rewarded]: new Date(),
 	[AdType.RewardedInterstitial]: new Date(),
 	[AdType.Banner]: new Date()
 };
 
-admobAdIds = admobAdIdsDebug;
 function createAdStore(adProviders: AdProvider[]) {
 	let canShowInterstitial = false;
 	walletStore.removeAds((removeAds) => {
-		console.log('🗞️🗞️ removeAds', removeAds);
 		canShowInterstitial = !removeAds;
 		if (removeAds) {
 			// Hide banner ads when removeAds is true
@@ -144,7 +144,6 @@ function createAdStore(adProviders: AdProvider[]) {
 		const now = new Date();
 		const diff = now.getTime() - lastTime.getTime();
 		const canShow = diff > maxFrequencyMillis;
-		console.log('📺📺📺 canShowBasedOnTime', adType, canShow, diff, maxFrequencyMillis);
 		return canShow;
 	}
 
