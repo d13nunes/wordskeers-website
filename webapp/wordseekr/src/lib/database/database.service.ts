@@ -77,13 +77,12 @@ class DatabaseService {
 			if (!this.connection) {
 				this.isInitializing = false;
 				console.error(
-					'!!! -> DatabaseService initialize error',
+					'!!! -> DatabaseService 33 initialize error',
 					'Init mehtod returned no connection'
 				);
 				return;
 			}
 
-			await this.initializeSchema();
 			databaseState.update((state) => ({
 				...state,
 				isInitialized: true,
@@ -91,7 +90,7 @@ class DatabaseService {
 				error: null
 			}));
 		} catch (error) {
-			console.error('!!! -> DatabaseService initialize error', error);
+			console.error('CapacitorSQLite initialize error', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 			databaseState.update((state) => ({
 				...state,
@@ -131,27 +130,17 @@ class DatabaseService {
 
 	private async initializeNativeDatabase(): Promise<DatabaseConnection | null> {
 		try {
-			console.log('!!! -> DatabaseService initializeNativeDatabase ✅');
-			this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
-
-			// Close any existing connection first
-			try {
-				await CapacitorSQLite.closeConnection({ database: DB_NAME });
-			} catch (error) {
-				// Ignore errors if connection doesn't exist
-				console.log(
-					'No existing connection to close:',
-					error instanceof Error ? error.message : 'Unknown error'
-				);
+			console.log('CapacitorSQLite initializeNativeDatabase start');
+			if (!this.sqliteConnection) {
+				this.sqliteConnection = new SQLiteConnection(CapacitorSQLite);
 			}
-
 			// Check if database exists before copying
 			const isDbExists = await CapacitorSQLite.isDatabase({ database: DB_NAME });
 			if (!isDbExists.result) {
-				console.log('Database does not exist, copying from assets...');
+				console.log('CapacitorSQLite Database does not exist, copying from assets...');
 				await CapacitorSQLite.copyFromAssets({});
 			} else {
-				console.log('Database already exists, skipping copy from assets');
+				console.log('CapacitorSQLite Database already exists, skipping copy from assets');
 			}
 
 			// Now create the connection as usual
@@ -162,30 +151,12 @@ class DatabaseService {
 				DB_VERSION,
 				false
 			);
+			console.log('CapacitorSQLite created, opening connection...');
 			await db.open();
+			console.log('CapacitorSQLite opened, returning connection...');
 			return db;
 		} catch (error) {
-			throw new Error(`Failed to initialize native database📺: ${error}`);
-		}
-	}
-
-	private async initializeSchema(): Promise<void> {
-		// TODO: Implement schema initialization
-		// This will be implemented based on your specific database schema requirements
-		const schema = `
-            -- Add your table creation SQL here
-            -- Example:
-            -- CREATE TABLE IF NOT EXISTS games (
-            --     id INTEGER PRIMARY KEY AUTOINCREMENT,
-            --     title TEXT NOT NULL,
-            --     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            -- );
-        `;
-
-		if (this.platform === 'web') {
-			(this.connection as SqlJsDatabase).exec(schema);
-		} else {
-			await (this.connection as SQLiteDBConnection).execute(schema);
+			throw new Error(`CapacitorSQLite Failed to initialize native database📺: ${error}`);
 		}
 	}
 
@@ -221,7 +192,7 @@ class DatabaseService {
 				await this.initialize();
 			} catch (error) {
 				throw new Error(
-					`Failed to initialize database: ${error instanceof Error ? error.message : 'Unknown error'}`
+					`CapacitorSQLite Failed 1 to initialize database: ${error instanceof Error ? error.message : 'Unknown error'}`
 				);
 			}
 		}
@@ -244,7 +215,7 @@ class DatabaseService {
 			}
 		} catch (error) {
 			throw new Error(
-				`Query execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+				`CapacitorSQLite Query execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		}
 	}
