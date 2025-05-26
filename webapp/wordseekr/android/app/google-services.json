@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "344897380896",
+    "project_id": "soup-letter",
+    "storage_bucket": "soup-letter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344897380896:android:91172fed55dbe80b449245",
+        "android_client_info": {
+          "package_name": "com.rhenis.gridwords"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1_wa3GSVWeJzMUTBEyg9ZKqPJqGAfHQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      },
+      "admob_app_id": "ca-app-pub-9539843520256562~5572668529"
+    }
+  ],
+  "configuration_version": "1"
+}
