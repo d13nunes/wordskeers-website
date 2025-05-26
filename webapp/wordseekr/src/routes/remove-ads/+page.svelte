@@ -5,7 +5,7 @@
 	let price = $state('');
 	onMount(() => {
 		// Load the actual price from the store
-		const removeAdsProduct = $productsStore[PRODUCT_IDS.REMOVE_ADS];
+		const removeAdsProduct = $productsStore[PRODUCT_IDS.REMOVE_ADS_DISCOUNT];
 		if (removeAdsProduct) {
 			price = removeAdsProduct.displayPrice;
 		}
