@@ -1,4 +1,4 @@
-import { AdMob, AdmobConsentStatus } from '@capacitor-community/admob';
+import { AdMob } from '@capacitor-community/admob';
 import { writable, type Readable, derived } from 'svelte/store';
 import { AdType } from './ads-types';
 import { AdmobReward } from './Admob/admob-reward';
@@ -27,15 +27,16 @@ const admobAdIdsProductionIOS: AdmobAdIds = {
 	banner: 'ca-app-pub-9539843520256562/1015855733',
 	interstitial: 'ca-app-pub-9539843520256562/2545593663',
 	rewardInterstitial: 'ca-app-pub-9539843520256562/5270995200',
-	reward: 'ca-app-pub-9539843520256562/1015855733'
+	reward: 'ca-app-pub-9539843520256562/3226451648'
 };
 const admobAdIdsProductionAndroid: AdmobAdIds = {
+	banner: 'ca-app-pub-9539843520256562/2262611927',
 	interstitial: 'ca-app-pub-9539843520256562/8306519367',
 	rewardInterstitial: 'ca-app-pub-9539843520256562/1328804202',
-	reward: 'ca-app-pub-9539843520256562/9667229737',
-	banner: 'ca-app-pub-9539843520256562/2262611927'
+	reward: 'ca-app-pub-9539843520256562/9667229737'
 };
 let admobAdIds: AdmobAdIds;
+
 if (Capacitor.getPlatform() === 'ios') {
 	console.log('iOS!');
 	admobAdIds = admobAdIdsProductionIOS;
@@ -92,13 +93,7 @@ function createAdStore(adProviders: AdProvider[]) {
 			}
 
 			const consentInfo = await AdMob.requestConsentInfo();
-			const authorizationStatus = await AdMob.trackingAuthorizationStatus();
 
-			// if (
-			// authorizationStatus.status === 'authorized' &&
-			// consentInfo.isConsentFormAvailable &&
-			// consentInfo.status === AdmobConsentStatus.REQUIRED
-			// ) {
 			console.log('📺 showing consent form');
 			await AdMob.showConsentForm();
 			// }
