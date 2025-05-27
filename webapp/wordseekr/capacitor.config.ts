@@ -7,8 +7,8 @@ const config: CapacitorConfig = {
 	appName: 'WordSeekr',
 	webDir: 'build',
 	server: {
-		url: `http://${address}:5173`,
-		cleartext: true,
+		// url: `http://${address}:5173`,
+		// cleartext: true,
 		androidScheme: 'https'
 	},
 	plugins: {
