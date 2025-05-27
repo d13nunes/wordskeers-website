@@ -41,6 +41,17 @@ export async function getRandomGridForDifficulty(
 	};
 }
 
+export async function getRandomUnplayedGridID(difficulty: Difficulty): Promise<number> {
+	const config = DifficultyConfigMap.config(difficulty);
+	const grids = await databaseService.getWordSearchGrids();
+	const matchingGrids = grids.filter((grid) => grid.size === config.gridSize && !grid.played_at);
+	if (matchingGrids.length > 0) {
+		return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
+	}
+	// if the user already played all the grids for this difficulty, return a random grid
+	return grids[Math.floor(Math.random() * grids.length)].id;
+}
+
 export async function getRandonGridID(difficulty: Difficulty): Promise<number> {
 	const config = DifficultyConfigMap.config(difficulty);
 	console.log('config', config);

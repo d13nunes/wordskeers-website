@@ -3,7 +3,11 @@
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
 	import { Difficulty } from '$lib/game/difficulty';
 	import { DifficultyConfigMap } from '$lib/game/difficulty-config-map';
-	import { getRandonGridID, getUnplayedAndTotalForDifficulty } from '$lib/game/grid-fetcher';
+	import {
+		getRandomUnplayedGridID,
+		getRandonGridID,
+		getUnplayedAndTotalForDifficulty
+	} from '$lib/game/grid-fetcher';
 	import { DirectionPresets } from '$lib/game/direction-presets';
 	import { onMount } from 'svelte';
 	import { Preferences } from '@capacitor/preferences';
@@ -43,7 +47,7 @@
 	async function onPlayClick() {
 		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
 		// const { unplayed, total } = await getUnplayedAndTotalForDifficulty(selectedDifficulty);
-		const id = await getRandonGridID(selectedDifficulty);
+		const id = await getRandomUnplayedGridID(selectedDifficulty);
 		goto(`/game?id=${id}`);
 	}
 
