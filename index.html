@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word Seekr</title>
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon_io/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon_io/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon_io/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="assets/favicon_io/favicon-96x96.png">
     <link rel="manifest" href="assets/favicon_io/site.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon_io/favicon.svg" />
     <style>
         body {
             text-align: center;
@@ -23,6 +23,7 @@
         }
         .store-link {
             display: inline-block;
+            max-height: 40px;
             margin: 10px;
         }
     </style>
@@ -36,9 +37,10 @@
         <a href="https://apps.apple.com/app/id6742027181" class="store-link" onclick="trackClick('App Store')">
             <img src="assets/dl_app_store.svg" alt="Download on the App Store">
         </a>
-        <!-- <a href="https://play.google.com/store/apps/details?id=YOUR_APP_ID" class="store-link" onclick="trackClick('Google Play')">
-            <img src="google-play-badge.png" alt="Get it on Google Play">
-        </a> -->
+        
+        <a href="https://play.google.com/store/apps/details?id=com.rhenis.gridwords" class="store-link" onclick="trackClick('Google Play')">
+            <img src="assets/dl_play_store.png" alt="Get it on Google Play" style="max-height: 40px;">
+        </a>
     </div>
 </body>
 </html>
