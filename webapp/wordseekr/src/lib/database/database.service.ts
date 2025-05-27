@@ -142,16 +142,8 @@ class DatabaseService {
 			} else {
 				console.log('CapacitorSQLite Database already exists, skipping copy from assets');
 			}
-
-			// Now create the connection as usual
-			const db = await this.sqliteConnection.createConnection(
-				DB_NAME,
-				false,
-				'no-encryption',
-				DB_VERSION,
-				false
-			);
-			console.log('CapacitorSQLite created, opening connection...');
+			const db: SQLiteDBConnection = await getConnection(this.sqliteConnection, DB_NAME);
+			console.log('CapacitorSQLite created, opening connection....');
 			await db.open();
 			console.log('CapacitorSQLite opened, returning connection...');
 			return db;
@@ -320,3 +312,35 @@ class DatabaseService {
 
 // Export a singleton instance
 export const databaseService = DatabaseService.getInstance();
+
+async function getConnection(
+	sqliteConnection: SQLiteConnection,
+	dbName: string
+): Promise<SQLiteDBConnection> {
+	try {
+		const isGood = await sqliteConnection.checkConnectionsConsistency();
+		console.debug('CapacitorSQLite checkConnectionsConsistency', isGood);
+		if (isGood.result) {
+			console.debug('CapacitorSQLite retrieveConnection');
+			return await sqliteConnection.retrieveConnection(dbName, false);
+		} else {
+			console.debug('CapacitorSQLite createConnection');
+			return await sqliteConnection.createConnection(
+				dbName,
+				false,
+				'no-encryption',
+				DB_VERSION,
+				false
+			);
+		}
+	} catch (error) {
+		console.error('CapacitorSQLite bd connection is not good, creating a new one', error);
+		return await sqliteConnection.createConnection(
+			dbName,
+			false,
+			'no-encryption',
+			DB_VERSION,
+			false
+		);
+	}
+}
