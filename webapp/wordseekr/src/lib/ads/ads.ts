@@ -131,7 +131,7 @@ function createAdStore(adProviders: AdProvider[]) {
 		}
 	}
 
-	async function canShowBasedOnTime(adType: AdType, maxFrequencyMillis: number): boolean {
+	function canShowBasedOnTime(adType: AdType, maxFrequencyMillis: number): boolean {
 		const lastTime = lastTimeAdShown[adType];
 		if (!lastTime) {
 			return true;
