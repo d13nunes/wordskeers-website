@@ -1,14 +1,14 @@
 import { CapacitorConfig } from '@capacitor/cli';
 const homeIp = '192.168.1.207';
 const localhost = 'localhost';
-const address = localhost;
+const address = homeIp;
 const config: CapacitorConfig = {
 	appId: 'com.wordseekr.app',
 	appName: 'WordSeekr',
 	webDir: 'build',
 	server: {
-		// url: `http://${address}:5173`,
-		// cleartext: true,
+		url: `http://${address}:5173`,
+		cleartext: true,
 		androidScheme: 'https'
 	},
 	plugins: {

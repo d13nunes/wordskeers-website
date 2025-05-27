@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Haptics, ImpactStyle } from '@capacitor/haptics';
 	import GameButtons from './GameButtons.svelte';
 	import { page } from '$app/state';
 	import {
@@ -109,6 +110,9 @@
 				if (!isNaN(gridId)) {
 					databaseService.markGridAsPlayed(gridId, elapsedTime);
 				}
+				Haptics.impact({ style: ImpactStyle.Heavy });
+			} else {
+				Haptics.impact({ style: ImpactStyle.Light });
 			}
 			return path;
 		}

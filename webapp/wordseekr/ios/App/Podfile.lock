@@ -25,6 +25,8 @@ PODS:
     - GoogleAppMeasurementOnDeviceConversion (~> 11.7.0)
   - CapacitorFirebaseAnalytics/Lite (7.2.0):
     - Capacitor
+  - CapacitorHaptics (7.0.1):
+    - Capacitor
   - CapacitorLocalNotifications (7.0.1):
     - Capacitor
   - CapacitorPreferences (7.0.1):
@@ -134,6 +136,7 @@ DEPENDENCIES:
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorFirebaseAnalytics (from `../../node_modules/@capacitor-firebase/analytics`)"
   - "CapacitorFirebaseAnalytics/Analytics (from `../../node_modules/@capacitor-firebase/analytics`)"
+  - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
@@ -171,6 +174,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorFirebaseAnalytics:
     :path: "../../node_modules/@capacitor-firebase/analytics"
+  CapacitorHaptics:
+    :path: "../../node_modules/@capacitor/haptics"
   CapacitorLocalNotifications:
     :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorPreferences:
@@ -187,6 +192,7 @@ SPEC CHECKSUMS:
   CapacitorCommunitySqlite: b11e556cf5d149f9e0b6fbbb47959a6cd718c3d0
   CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
   CapacitorFirebaseAnalytics: e629f012fd863415c4afa49fff22722e36a8ed1e
+  CapacitorHaptics: 1f1e17041f435d8ead9ff2a34edd592c6aa6a8d6
   CapacitorLocalNotifications: c2212755b33d2513b8bb325096ce3a64d4039ae3
   CapacitorPreferences: 6c98117d4d7508034a4af9db64d6b26fc75d7b94
   CordovaPlugins: 1ca8577fbd90aa21fc0a1a4428d24e3aedc3499a
@@ -204,6 +210,6 @@ SPEC CHECKSUMS:
   SQLCipher: 31878d8ebd27e5c96db0b7cb695c96e9f8ad77da
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: e2dc03e0df950dcd81b21b91eb32699b20261173
+PODFILE CHECKSUM: 92aa117b1db4d12535a9603c9b9f5d91d8148ab9
 
 COCOAPODS: 1.16.2
