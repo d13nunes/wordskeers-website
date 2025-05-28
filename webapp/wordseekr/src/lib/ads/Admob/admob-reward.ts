@@ -35,16 +35,18 @@ export class AdmobReward implements AdProvider {
 	}
 
 	show(): Promise<boolean> {
+		let didReward = false;
 		return new Promise((resolve, reject) => {
 			AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
-				resolve(false);
+				resolve(didReward);
 			});
 			AdMob.addListener(RewardAdPluginEvents.FailedToShow, (error: AdMobError) => {
 				reject(error);
 			});
-			AdMob.addListener(RewardAdPluginEvents.Showed, () => {});
+			AdMob.addListener(RewardAdPluginEvents.Showed, () => {
+			});
 			AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
-				resolve(true);
+				didReward = true;
 			});
 			AdMob.showRewardVideoAd();
 		});

@@ -109,9 +109,12 @@
 		console.log('Watch ad for rewards');
 		isLoading = true;
 		try {
-			let watched = await adStore.showAd(AdType.Rewarded);
+			const watched = await adStore.showAd(AdType.Rewarded, null);
+			// const watched = await mockWatchAd(product);
 			if (watched) {
-				walletStore.addCoins(100);
+				setTimeout(() => {
+					walletStore.addCoins(100);
+				}, 150);
 			}
 		} catch (error) {
 			console.error(`Failed to watch ad:`, error);
