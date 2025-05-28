@@ -10,6 +10,7 @@ import android.os.Bundle;
 public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        initialPlugins.add(GetOwnedProductsPlugin.class);
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API Level 30

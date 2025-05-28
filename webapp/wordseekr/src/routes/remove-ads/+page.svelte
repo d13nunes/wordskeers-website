@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
+	import { productsStore, purchasesStore, PRODUCT_IDS } from '$lib/economy/iapStore';
 	import LoadSpinner from '$lib/components/shared/LoadSpinner.svelte';
 	import { Capacitor } from '@capacitor/core';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	let price = $state('');
+	let adsRemoved = $state(false);
+
+	walletStore.removeAds((removeAds) => {
+		adsRemoved = removeAds;
+	});
 
 	onMount(() => {
 		const removeAdsProductId =

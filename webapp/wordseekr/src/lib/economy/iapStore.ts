@@ -1,9 +1,10 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
 import type { Product, TransactionEvent } from '@adplorg/capacitor-in-app-purchase';
 import { walletStore } from './walletStore';
 import { Capacitor } from '@capacitor/core';
 import { RestorePurchases } from '$lib/plugins/RestorePurchases';
+import { GetOwnedProductsPlugin } from '$lib/plugins/GetOwnedProductsPlugin';
 
 // Product IDs as they appear in App Store/Google Play
 export const PRODUCT_IDS = {
@@ -143,12 +144,20 @@ async function restorePurchases(): Promise<boolean> {
 }
 // Store for tracking purchases
 const createPurchasesStore = () => {
-	const { subscribe, update } = writable<Record<string, boolean>>({
-		[PRODUCT_IDS.REMOVE_ADS]: false
-	});
+	async function processOwnedProducts() {
+		try {
+			const ownedProducts = await GetOwnedProductsPlugin.getOwnedProducts();
+			const hasRemoveAds =
+				ownedProducts.productIds.filter((productId: string) => removeAds.includes(productId))
+					.length > 0;
+			console.debug('hasRemoveAds ', hasRemoveAds);
+			walletStore.setRemoveAds(hasRemoveAds);
+		} catch (error) {
+			console.error('Failed to process owned products:', error);
+		}
+	}
 
 	return {
-		subscribe,
 		initializePurchases: async () => {
 			try {
 				// Listen for transaction events
@@ -171,11 +180,7 @@ const createPurchasesStore = () => {
 					}
 				});
 
-				// Check for existing purchases (like remove ads)
-				const activeSubscriptions = await CapacitorInAppPurchase.getActiveSubscriptions();
-				if (activeSubscriptions.subscriptions.includes(PRODUCT_IDS.REMOVE_ADS)) {
-					update((state) => ({ ...state, [PRODUCT_IDS.REMOVE_ADS]: true }));
-				}
+				await processOwnedProducts();
 			} catch (error) {
 				console.error('Failed to initialize IAP:', error);
 			}
@@ -227,12 +232,6 @@ const createPurchasesStore = () => {
 // Create stores
 export const productsStore = createProductsStore();
 export const purchasesStore = createPurchasesStore();
-
-// Derived store for checking if ads are removed
-export const adsRemoved = derived(
-	purchasesStore,
-	($purchasesStore) => $purchasesStore[PRODUCT_IDS.REMOVE_ADS] || false
-);
 
 // Helper function to check if IAP is available
 export async function isIAPAvailable(): Promise<boolean> {
