@@ -30,6 +30,7 @@ export const removeAds = [
 	PRODUCT_IDS.REMOVE_ADS,
 	PRODUCT_IDS.REMOVE_ADS_DISCOUNT,
 	PRODUCT_IDS.REMOVE_ADS_OLD,
+	PRODUCT_IDS.REMOVE_ADS_DISCOUNT_ANDROID,
 	PRODUCT_IDS.REMOVE_ADS_DISCOUNT_OLD
 ];
 // Map product IDs to coin amounts
@@ -113,7 +114,7 @@ const createProductsStore = () => {
 				return {};
 			}
 		},
-		removeAdsIds: PRODUCT_IDS.REMOVE_ADS_DISCOUNT
+		removeAdsIds: removeAds
 	};
 };
 
