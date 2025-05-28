@@ -47,7 +47,7 @@ if (Capacitor.getPlatform() === 'ios') {
 	console.log('Web!');
 	admobAdIds = admobAdIdsDebug; // TODO: replace with web ads
 }
-// admobAdIds = admobAdIdsDebug; // TODO: debug create a fla
+// admobAdIds = admobAdIdsDebug; // TODO: debug create a flag
 
 const lastTimeAdShown: Record<AdType, Date> = {
 	[AdType.Interstitial]: new Date(),
