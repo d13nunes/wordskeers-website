@@ -4,6 +4,7 @@
 	import type { ColorTheme } from './color-generator';
 	import { animate } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
+	import { date } from 'drizzle-orm/mysql-core';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -81,23 +82,27 @@
 		if (isInteracting) {
 			isInteracting = false;
 			const cells = Array.from(selectedCells);
+			try {
+				// Get the selected word by combining the letters from the selected cells
+				const selectedWord = cells
+					.map((cell) => {
+						return grid[cell.row][cell.col];
+					})
+					.join('');
 
-			// Get the selected word by combining the letters from the selected cells
-			const selectedWord = cells
-				.map((cell) => {
-					return grid[cell.row][cell.col];
-				})
-				.join('');
+				// Call the callback with the selected word and path
 
-			// Call the callback with the selected word and path
-			const discoveredPositions = onWordSelect(selectedWord, cells);
-			if (discoveredPositions.length > 0) {
-				setDiscovered(discoveredPositions);
-				animateDiscovered(discoveredPositions);
+				const discoveredPositions = onWordSelect(selectedWord, cells);
+				if (discoveredPositions.length > 0) {
+					setDiscovered(discoveredPositions);
+					animateDiscovered(discoveredPositions);
+					resetSelectedCells();
+					currentColor = getColor();
+				} else {
+					animateWrongWord(cells);
+				}
+			} catch (error) {
 				resetSelectedCells();
-				currentColor = getColor();
-			} else {
-				animateWrongWord(cells);
 			}
 		}
 	}
@@ -132,8 +137,9 @@
 	}
 
 	function handleTouchMove(event: TouchEvent) {
-		event.preventDefault();
-		if (!isInteracting) return;
+		if (!isInteracting) {
+			return;
+		}
 
 		const touch = event.touches[0];
 		const element = document.elementFromPoint(touch.clientX, touch.clientY);
