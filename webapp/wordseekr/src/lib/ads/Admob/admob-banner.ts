@@ -50,11 +50,7 @@ export class AdmobBanner implements AdProvider {
 		};
 	}
 
-	private async updateBannerPosition() {
-		if (!this.isShowing) {
-			return;
-		}
-
+	private getBannerParams(): BannerAdOptions {
 		const orientation = window.orientation;
 		const isLandscape = Math.abs(orientation) === 90;
 
@@ -69,11 +65,25 @@ export class AdmobBanner implements AdProvider {
 		} else {
 			bannerOptions.position = BannerAdPosition.BOTTOM_CENTER;
 		}
+		return bannerOptions;
+	}
+
+	private async updateBannerPosition(params: BannerAdOptions) {
+		console.log('📺 updateBannerPosition', this.isShowing);
+		if (!this.isShowing) {
+			return;
+		}
 
 		try {
-			await AdMob.hideBanner();
-			await AdMob.showBanner(bannerOptions);
-			console.log('📺 BannerAd repositioned for', isLandscape ? 'landscape' : 'portrait', 'mode');
+			await AdMob.removeBanner();
+		} catch (err) {
+			console.warn(
+				'📺 Failed to hide banner:',
+				err instanceof Error ? err.message : 'Unknown error'
+			);
+		}
+		try {
+			await AdMob.showBanner(params);
 		} catch (err) {
 			console.warn(
 				'📺 Failed to reposition banner:',
@@ -89,20 +99,27 @@ export class AdmobBanner implements AdProvider {
 
 	async show(): Promise<boolean> {
 		console.log('📺 Showing BannerAd');
+		if (this.isShowing) {
+			return true;
+		}
 		this.isShowing = true;
-
-		// Set up orientation change listener
 		this.orientationChangeHandler = () => {
-			this.updateBannerPosition();
+			this.updateBannerPosition(this.getBannerParams());
 		};
+
+		await AdMob.showBanner(this.getBannerParams());
+		// Set up orientation change listener
 		window.addEventListener('orientationchange', this.orientationChangeHandler);
 
-		// Initial banner positioning
-		await this.updateBannerPosition();
 		return true;
 	}
 
 	async hide(): Promise<void> {
+		console.log('📺 Hiding BannerAd 1', this.isShowing);
+		if (!this.isShowing) {
+			return;
+		}
+		console.log('📺 Hiding BannerAd');
 		this.isShowing = false;
 		if (this.orientationChangeHandler) {
 			window.removeEventListener('orientationchange', this.orientationChangeHandler);

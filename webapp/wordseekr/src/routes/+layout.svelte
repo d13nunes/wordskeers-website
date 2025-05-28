@@ -38,7 +38,7 @@
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
 		await adStore.initialize();
-		const success = await adStore.showAd(AdType.Banner);
+		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
 	});
 </script>
