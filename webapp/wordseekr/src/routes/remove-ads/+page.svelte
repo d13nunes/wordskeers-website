@@ -9,8 +9,9 @@
 	onMount(() => {
 		const removeAdsProductId =
 			Capacitor.getPlatform() === 'android'
-				? PRODUCT_IDS.REMOVE_ADS_DISCOUNT_OLD
+				? PRODUCT_IDS.REMOVE_ADS_DISCOUNT_ANDROID
 				: PRODUCT_IDS.REMOVE_ADS_DISCOUNT;
+		console.log('!!!! removeAdsProductId', removeAdsProductId);
 		// Load the actual price from the store
 		const removeAdsProduct = $productsStore[removeAdsProductId];
 		if (removeAdsProduct) {
@@ -90,30 +91,29 @@
 
 	<div class=" flex-1 justify-items-center px-4 pt-16 max-[24rem]:pt-10">
 		<p
-			class="text-3xl font-bold max-[24rem]:-mb-1 max-[24rem]:text-center max-[24rem]:text-lg sm:text-xl"
+			class="mb-2 text-3xl font-bold max-[24rem]:-mb-1 max-[24rem]:text-center max-[24rem]:text-lg sm:text-xl"
 		>
 			Ad-Free Experience
 		</p>
-		<p
-			class="mb-4 text-xl text-gray-500 max-[24rem]:mb-2 max-[24rem]:text-center max-[24rem]:text-sm"
-		>
-			Remove all ads permanently
-		</p>
 
 		<!-- Offer Box -->
-		<div class="mb-8 rounded-xl bg-gray-50 p-6 max-[24rem]:p-3">
+		<div class="mb-8 rounded-xl bg-gray-50 px-4 py-3">
 			<div class="">
-				<p class="text-xl font-semibold max-[24rem]:text-lg">🎉 Limited-Time Offer! 🎉</p>
-				<p class="text-base font-normal max-[24rem]:text-sm">
+				<p class="text-xl font-semibold max-[24rem]:text-lg">Remove all ads permanently</p>
+				<p class="text-sm font-normal max-[24rem]:text-sm">
 					Enjoy a seamless, ad-free experience. Now at an exclusive early bird discount!
 				</p>
-				<p class="text-base font-normal">Act now! Offer available for a limited period only.</p>
+				<p class="text-sm font-normal">Act now! Offer available for a limited period only.</p>
 			</div>
 
 			<!-- Benefits Section -->
 			<div class="mt-2">
-				<h3 class="mb-1 text-2xl font-semibold max-[24rem]:text-lg">Benefits</h3>
+				<h3 class="text-xl font-semibold max-[24rem]:text-lg">Benefits</h3>
 				<ul class="space-y-0">
+					<li class="max-[24rem]:text-tiny flex items-center">
+						<span class="mr-2 text-green-500">✓</span>
+						<span class="text-lg">No banner ads</span>
+					</li>
 					<li class="max-[24rem]:text-tiny flex items-center">
 						<span class="mr-2 text-green-500">✓</span>
 						<span class="text-lg">No more interruptions</span>
