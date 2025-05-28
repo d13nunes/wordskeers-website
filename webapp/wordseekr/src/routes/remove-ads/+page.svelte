@@ -2,10 +2,17 @@
 	import { onMount } from 'svelte';
 	import { productsStore, purchasesStore, PRODUCT_IDS, adsRemoved } from '$lib/economy/iapStore';
 	import LoadSpinner from '$lib/components/shared/LoadSpinner.svelte';
+	import { Capacitor } from '@capacitor/core';
+
 	let price = $state('');
+
 	onMount(() => {
+		const removeAdsProductId =
+			Capacitor.getPlatform() === 'android'
+				? PRODUCT_IDS.REMOVE_ADS_DISCOUNT_OLD
+				: PRODUCT_IDS.REMOVE_ADS_DISCOUNT;
 		// Load the actual price from the store
-		const removeAdsProduct = $productsStore[PRODUCT_IDS.REMOVE_ADS_DISCOUNT];
+		const removeAdsProduct = $productsStore[removeAdsProductId];
 		if (removeAdsProduct) {
 			price = removeAdsProduct.displayPrice;
 		}

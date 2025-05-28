@@ -14,6 +14,7 @@ export const PRODUCT_IDS = {
 	REMOVE_ADS_OLD: 'com.wordseekr.coinpack.removeads',
 	REMOVE_ADS_DISCOUNT_OLD: 'com.wordseekr.coinpack.removeads60',
 	REMOVE_ADS: 'com.wordseekr.removeads',
+	REMOVE_ADS_DISCOUNT_ANDROID: 'com.wordseekr.removeads.60',
 	REMOVE_ADS_DISCOUNT: 'com.wordseekr.removeads60'
 };
 
