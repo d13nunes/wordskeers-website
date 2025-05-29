@@ -28,7 +28,12 @@
     "copy-sql-wasm": "node scripts/copy-sql-wasm.js",
     "copy-database": "node scripts/copy-database.js",
     "migrate": "node scripts/run-migration.js",
-    "generate-assets": "bunx capacitor-assets generate"
+    "generate-assets": "bunx capacitor-assets generate",
+    "build:ios:ci": "bun run build && bunx cap sync ios && cd ios/App && pod install && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath ../build/App.xcarchive archive && xcodebuild -exportArchive -archivePath ../build/App.xcarchive -exportOptionsPlist ../../ci/exportOptions.plist -exportPath ../build",
+    "build:ios:ci:export": " cd ios/App && xcodebuild -exportArchive -archivePath ../build/App.xcarchive -exportOptionsPlist ../../ci/exportOptions.plist -exportPath ../build",
+    "build:ios:ci:upload": "node scripts/ci/upload-ios.js ios/build/App.ipa G4L8LU7C98 11ce2dc0-2d90-49c8-8ca1-f086155754ae",
+    "build:droid:ci": "bun run build && bunx cap sync android && cd android && ./gradlew assembleRelease -x test -x testDebugUnitTest -x testReleaseUnitTest",
+    "build:mobile:ci": "bun run build:ios:ci && bun run build:android:ci"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
