@@ -1,16 +1,27 @@
 import { CapacitorConfig } from '@capacitor/cli';
-const homeIp = '192.168.1.207';
-const localhost = 'localhost';
-const address = homeIp;
+
+const isLocal = process.env.CAPACITOR_IS_LOCAL === 'true';
+const isDev = process.env.CAPACITOR_IS_DEV === 'true';
+const address = isLocal ? 'localhost' : '192.168.1.207';
+
+const server: {
+	url?: string;
+	cleartext?: boolean;
+	androidScheme: string;
+} = {
+	androidScheme: 'https'
+};
+
+if (isDev) {
+	server.url = `http://${address}:5173/?isDev=true`;
+	server.cleartext = true;
+}
+
 const config: CapacitorConfig = {
 	appId: 'com.wordseekr.app',
 	appName: 'WordSeekr',
 	webDir: 'build',
-	server: {
-		// url: `http://${address}:5173`,
-		// cleartext: true,
-		androidScheme: 'https'
-	},
+	server: server,
 	plugins: {
 		SQLite: {
 			iosDatabaseLocation: 'Library/WordSeekrDatabase',

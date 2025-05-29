@@ -35,19 +35,24 @@ const admobAdIdsProductionAndroid: AdmobAdIds = {
 	rewardInterstitial: 'ca-app-pub-9539843520256562/1328804202',
 	reward: 'ca-app-pub-9539843520256562/9667229737'
 };
-let admobAdIds: AdmobAdIds;
+// Initialize with debug ads by default
+let admobAdIds: AdmobAdIds = admobAdIdsDebug;
 
-if (Capacitor.getPlatform() === 'ios') {
-	console.log('iOS!');
-	admobAdIds = admobAdIdsProductionIOS;
-} else if (Capacitor.getPlatform() === 'android') {
-	console.log('Android!');
-	admobAdIds = admobAdIdsProductionAndroid;
+// Access query parameters
+const isDev = import.meta.env.VITE_CAPACITOR_IS_DEV;
+
+if (!isDev) {
+	if (Capacitor.getPlatform() === 'ios') {
+		console.log('Loaded Ads Production iOS config');
+		admobAdIds = admobAdIdsProductionIOS;
+	} else if (Capacitor.getPlatform() === 'android') {
+		console.log('Loaded Ads Production Android config');
+		admobAdIds = admobAdIdsProductionAndroid;
+	}
 } else {
-	console.log('Web!');
-	admobAdIds = admobAdIdsDebug; // TODO: replace with web ads
+	console.log('Loaded Ads Debug config');
 }
-// admobAdIds = admobAdIdsDebug; // TODO: debug create a flag
+console.log('AdmobAdIds', admobAdIds);
 
 const lastTimeAdShown: Record<AdType, Date> = {
 	[AdType.Interstitial]: new Date(),

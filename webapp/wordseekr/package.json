@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "npm run copy-sql-wasm && npm run copy-database && vite dev",
+    "dev:local": "VITE_CAPACITOR_IS_LOCAL=true VITE_CAPACITOR_IS_DEV=true bun run dev",
+    "dev:home": "VITE_CAPACITOR_IS_LOCAL=false VITE_CAPACITOR_IS_DEV=true bun run dev",
+    "dev:mobile:local": "VITE_CAPACITOR_IS_LOCAL=true VITE_CAPACITOR_IS_DEV=true bun run mobile-sync && bun run dev",
+    "dev:mobile:home": "VITE_CAPACITOR_IS_LOCAL=false VITE_CAPACITOR_IS_DEV=true bun run mobile-sync && bun run dev",
     "build": "npm run copy-sql-wasm && npm run copy-database && vite build",
     "ios": "bun run build && bunx cap run ios",
     "droid": "bun run build && bunx cap run android",
