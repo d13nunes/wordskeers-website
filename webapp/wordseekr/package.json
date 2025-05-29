@@ -1,7 +1,8 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "0.0.1",
+  "version": "2.1.4",
+  "build": 11,
   "type": "module",
   "scripts": {
     "dev": "npm run copy-sql-wasm && npm run copy-database && vite dev",
@@ -29,11 +30,18 @@
     "copy-database": "node scripts/copy-database.js",
     "migrate": "node scripts/run-migration.js",
     "generate-assets": "bunx capacitor-assets generate",
-    "build:ios:ci": "bun run build && bunx cap sync ios && cd ios/App && pod install && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath ../build/App.xcarchive archive && xcodebuild -exportArchive -archivePath ../build/App.xcarchive -exportOptionsPlist ../../ci/exportOptions.plist -exportPath ../build",
-    "build:ios:ci:export": " cd ios/App && xcodebuild -exportArchive -archivePath ../build/App.xcarchive -exportOptionsPlist ../../ci/exportOptions.plist -exportPath ../build",
-    "build:ios:ci:upload": "node scripts/ci/upload-ios.js ios/build/App.ipa G4L8LU7C98 11ce2dc0-2d90-49c8-8ca1-f086155754ae",
-    "build:droid:ci": "bun run build && bunx cap sync android && cd android && ./gradlew assembleRelease -x test -x testDebugUnitTest -x testReleaseUnitTest",
-    "build:mobile:ci": "bun run build:ios:ci && bun run build:android:ci"
+    "build:ios": "bun run version:build && bun run build && bunx cap sync ios && bun run build:ios:archive",
+    "build:ios:archive": "cd ios/App && pod install && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath ../build/App.xcarchive archive && xcodebuild -exportArchive -archivePath ../build/App.xcarchive -exportOptionsPlist ../../ci/exportOptions.plist -exportPath ../build",
+    "upload:ios:": "node scripts/ci/upload-ios.js ios/build/App.ipa G4L8LU7C98 11ce2dc0-2d90-49c8-8ca1-f086155754ae",
+    "build:ios:full": "bun run build:ios && bun run upload:ios:",
+    "build:droid:ci": "bun run version:build && bun run build && bunx cap sync android && bun run build:droid:ci:archive",
+    "build:droid:ci:archive": "cd android && ./gradlew assembleRelease -x test -x testDebugUnitTest -x testReleaseUnitTest",
+    "build:droid:ci:upload": "echo todo",
+    "build:mobile:ci:full": "bun run version:build && bun run mobile-sync && bun run build:ios:archive && bun run upload:ios: && bun run build:android:ci:archive && bun run build:android:ci:upload",
+    "version:build": "node scripts/update-version.js",
+    "version:major": "node scripts/update-version.js --major",
+    "version:minor": "node scripts/update-version.js --minor",
+    "version:patch": "node scripts/update-version.js --patch"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
