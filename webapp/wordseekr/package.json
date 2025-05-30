@@ -1,8 +1,8 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "2.1.4",
-  "build": 14,
+  "version": "2.1.5",
+  "build": 3,
   "type": "module",
   "scripts": {
     "dev": "npm run copy-sql-wasm && npm run copy-database && vite dev",
