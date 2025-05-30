@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
-const isLocal = process.env.CAPACITOR_IS_LOCAL === 'true';
-const isDev = process.env.CAPACITOR_IS_DEV === 'true';
+const isLocal = process.env.VITE_CAPACITOR_IS_LOCAL === 'true';
+const isDev = process.env.VITE_CAPACITOR_IS_DEV === 'true';
 const address = isLocal ? 'localhost' : '192.168.1.207';
 
 const server: {
