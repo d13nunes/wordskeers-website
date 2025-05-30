@@ -75,7 +75,7 @@
 				id="magnifierglass"
 				src={magnifierglass}
 				alt="Logo"
-				class="mb-2 h-16 w-16 lg:h-24 lg:w-24"
+				class="mb-2 h-16 w-16 lg:h-32 lg:w-32"
 			/>
 			<div class="flex flex-col items-center justify-center gap-0">
 				<span class="text-4xl font-bold lg:text-6xl">Classic</span>
@@ -88,12 +88,12 @@
 					: 'mt-8'} flex flex-col items-center gap-0"
 			>
 				<div class="flex flex-row items-center justify-center gap-1">
-					<span class="text-black-500 text-sm font-normal">Search for words in</span>
-					<span class="text-black-500 text-sm font-bold">{gridSize}x{gridSize}</span>
-					<span class="text-black-500 text-sm font-normal">grid</span>
+					<span class="text-black-500 text-base font-normal">Search for words in</span>
+					<span class="text-black-500 text-base font-bold">{gridSize}x{gridSize}</span>
+					<span class="text-black-500 text-base font-normal">grid</span>
 				</div>
 				<div class="flex flex-col items-center justify-center gap-0.5">
-					<span class="text-black-500 text-sm font-normal">Words can be found in</span>
+					<span class="text-black-500 text-base font-normal">Words can be found in</span>
 					<span class="text-black-500 min-h-5 text-sm font-bold">
 						{directionsSymbols}
 					</span>
