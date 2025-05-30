@@ -12,11 +12,20 @@
 	let displayBalance = $state(0);
 	let balanceTagIcon: HTMLElement | null = null;
 
+	let isFirstUpdate = true;
+
 	onMount(() => {
 		balanceTagIcon = document.getElementById('balance-tag-icon');
 	});
 
 	walletStore.coins((newBalance) => {
+		if (isFirstUpdate) {
+			isFirstUpdate = false;
+			balance = newBalance;
+			displayBalance = balance;
+			return;
+		}
+
 		if (balance !== newBalance) {
 			const oldDisplayBalance = displayBalance;
 			balance = newBalance;
@@ -43,7 +52,6 @@
 
 	onMount(async () => {
 		isActive = await isIAPAvailable();
-		displayBalance = balance;
 	});
 </script>
 
@@ -56,7 +64,9 @@
 	<div class="h-4 w-4 lg:h-6 lg:w-6">
 		<CoinsPileIcon id="balance-tag-icon" />
 	</div>
-	<span class="text-black-500 font-mono text-sm font-medium lg:text-lg">{displayBalance}</span>
+	<span class="text-black-500 min-w-8 font-mono text-sm font-medium lg:text-lg"
+		>{displayBalance}</span
+	>
 
 	{#if isActive}
 		<div class="h-4 w-4 lg:h-6 lg:w-6">

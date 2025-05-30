@@ -454,8 +454,8 @@
 {:else if !game}
 	<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white">
 		<div class="text-center">
-			<div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
-			<p class="mt-4 text-gray-700">Loading game...</p>
+			<!-- <div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
+			<p class="mt-4 text-gray-700">Loading game...</p> -->
 		</div>
 	</div>
 {:else}
@@ -513,16 +513,16 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-8 sm:px-0 md:max-w-2/4 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
 				"
 			>
+				<!-- Board & Words -->
 				<div
-					class="flex h-full w-full flex-col items-center justify-start gap-2 px-4 sm:gap-6 {isSmallScreen
-						? 'landscape:items-start '
-						: ''}"
+					class="flex h-full w-full flex-col items-center justify-start gap-2 px-4 sm:gap-6 md:gap-1
+					{isSmallScreen ? 'landscape:items-start ' : ''}"
 				>
 					<div class="{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} ">
 						<BoardWords
@@ -543,9 +543,12 @@
 						{isGameEnded}
 					/>
 				</div>
+				<!-- Game Buttons -->
 				<div
 					class={isSmallScreen ? 'portrait:block landscape:hidden' : ''}
-					style="padding-bottom: calc(var(--safe-area-inset-bottom) + 8px)"
+					style="padding-bottom: {isSmallScreen
+						? 'calc(var(--safe-area-inset-bottom) + 8px)'
+						: '0px'}"
 				>
 					<GameButtons
 						findWordIconId="fwi-p"

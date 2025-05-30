@@ -5,6 +5,7 @@
 	import { animate } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
 	import { onMount } from 'svelte';
+	import { getIsSmallScreen } from '$lib/utils/utils';
 
 	interface Cell {
 		letter: string;
@@ -21,6 +22,11 @@
 		onWordSelect: (word: string, path: Position[]) => Position[];
 		getColor: () => ColorTheme;
 	}
+
+	// Add some constraints to prevent cells from getting too small or too large
+
+	const minFactor = 0.6;
+	const maxFactor = getIsSmallScreen() ? 2 : 1.4;
 
 	let discoveredColorMapping: Record<string, string> = $state({});
 	let selectedCells: Position[] = $state([]);
@@ -296,11 +302,16 @@
 		letterSize: 30,
 		fontSize: 20
 	};
+
 	let factor = $state(0.5);
 	let boardElement: HTMLElement | null = null;
 	let boardWidth: number = $state(0);
 	let isInitialized = $state(false);
 	let resizeTimeout: number | null = null;
+
+	const squareSize = $derived(cellBaseValues.squareSize * factor);
+	const letterSize = $derived(cellBaseValues.letterSize * factor);
+	const fontSize = $derived(cellBaseValues.fontSize * factor);
 
 	function updateFactor(width: number) {
 		// Calculate the total width needed for the grid without padding
@@ -310,9 +321,6 @@
 		// Calculate the factor needed to fit the grid in the available width
 		let newFactor = availableWidth / totalGridWidth;
 
-		// Add some constraints to prevent cells from getting too small or too large
-		const maxFactor = 1.5;
-		const minFactor = 0.6;
 		if (newFactor > maxFactor) newFactor = maxFactor;
 		if (newFactor < minFactor) newFactor = minFactor;
 
@@ -332,6 +340,23 @@
 				updateFactor(newWidth);
 			}
 			resizeTimeout = null;
+		});
+	}
+
+	function fixBoardRotation() {
+		let angle = isRotated ? 180 : 0;
+		let elements = [];
+		const board = document.getElementById('board');
+		if (board) {
+			elements.push(board);
+		}
+		const cells = Array.from(board?.children || []);
+		elements.push(...cells);
+
+		animate(elements, {
+			rotate: [angle, angle],
+
+			onComplete: () => {}
 		});
 	}
 
@@ -355,8 +380,7 @@
 		// Initial fade-in animation
 		animate(boardElement, {
 			opacity: [0, 1],
-			delay: 100,
-			duration: 300,
+			duration: 500,
 			ease: 'inOutQuad'
 		});
 
@@ -366,24 +390,6 @@
 			}
 			resizeObserver.disconnect();
 		};
-	});
-
-	$effect(() => {
-		isAnimatingIsDiscovered = true;
-		let angle = isRotated ? 180 : 0;
-		let elements = [];
-		const board = document.getElementById('board');
-		if (board) {
-			elements.push(board);
-		}
-		const cells = Array.from(board?.children || []);
-		elements.push(...cells);
-		animate(elements, {
-			rotate: [angle, angle],
-			onComplete: () => {
-				isAnimatingIsDiscovered = false;
-			}
-		});
 	});
 
 	$effect(() => {
@@ -402,16 +408,13 @@
 		previousHints = [...hintPositions];
 	});
 
-	const squareSize = $derived(cellBaseValues.squareSize * factor);
-	const letterSize = $derived(cellBaseValues.letterSize * factor);
-	const fontSize = $derived(cellBaseValues.fontSize * factor);
-
 	// Add CSS variables for dynamic sizing
 	$effect(() => {
 		if (boardElement) {
 			boardElement.style.setProperty('--square-size', `${squareSize}px`);
 			boardElement.style.setProperty('--letter-size', `${letterSize}px`);
 			boardElement.style.setProperty('--font-size', `${fontSize}px`);
+			fixBoardRotation();
 		}
 	});
 </script>
@@ -438,7 +441,7 @@
 			{#each row as cell}
 				<div
 					style="height: var(--square-size); width: var(--square-size)"
-					class="flex items-center justify-center transition-all duration-300 ease-in-out"
+					class="flex items-center justify-center ease-in-out"
 				>
 					<div
 						id={getPositionId(cell.row, cell.col)}

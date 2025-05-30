@@ -8,6 +8,8 @@
 	import { onMount } from 'svelte';
 	import { Preferences } from '@capacitor/preferences';
 	import { getIsSmallScreen } from '$lib/utils/utils';
+	import magnifierglass from '$lib/assets/magnifierglass.webp';
+	import { animate } from 'animejs';
 
 	const currentDifficultyKey = 'currentDifficulty';
 
@@ -21,11 +23,7 @@
 	let selectedDifficultyIndex = $state(0);
 	let directionsSymbols = $state('');
 	let gridSize = $state(0);
-	let isSmallScreen = $state(false);
-
-	onMount(() => {
-		isSmallScreen = getIsSmallScreen();
-	});
+	let isSmallScreen = $state(getIsSmallScreen());
 
 	function updateDifficulty(index: number) {
 		selectedDifficultyIndex = index;
@@ -52,6 +50,14 @@
 		if (currentDifficulty) {
 			updateDifficulty(parseInt(currentDifficulty.value ?? '0'));
 		}
+
+		const magnifierglass = document.getElementById('magnifierglass');
+		if (magnifierglass) {
+			animate(magnifierglass, {
+				rotate: [0, -5, 5, -5, 0],
+				duration: 1000
+			});
+		}
 	});
 
 	$effect(() => {
@@ -63,11 +69,14 @@
 </script>
 
 <div class="fixed inset-0 z-50 bg-slate-50">
-	<div
-		class="} relative flex h-full items-end justify-center sm:items-center lg:items-center lg:pb-0"
-		style="padding-bottom: calc(var(--safe-area-inset-bottom))"
-	>
+	<div class="flex h-full items-center justify-center sm:items-center lg:items-center lg:pb-0">
 		<div class="flex max-w-2xl flex-col items-center justify-center">
+			<img
+				id="magnifierglass"
+				src={magnifierglass}
+				alt="Logo"
+				class="mb-2 h-16 w-16 lg:h-24 lg:w-24"
+			/>
 			<div class="flex flex-col items-center justify-center gap-0">
 				<span class="text-4xl font-bold lg:text-6xl">Classic</span>
 				<span class="text-sm text-gray-500 lg:text-base">Game Mode</span>
@@ -85,7 +94,7 @@
 				</div>
 				<div class="flex flex-col items-center justify-center gap-0.5">
 					<span class="text-black-500 text-sm font-normal">Words can be found in</span>
-					<span class="text-black-500 text-sm font-bold">
+					<span class="text-black-500 min-h-5 text-sm font-bold">
 						{directionsSymbols}
 					</span>
 				</div>
@@ -99,9 +108,7 @@
 				/>
 			</div>
 			<button
-				class="button-active mt-8 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white {isSmallScreen
-					? 'portrait:mb-[104px]'
-					: 'mt-8'} "
+				class="button-active mt-6 w-full rounded-md bg-red-800 py-2 text-xl font-bold text-white lg:mt-8"
 				onclick={onPlayClick}
 			>
 				Play
