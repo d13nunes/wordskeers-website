@@ -10,7 +10,12 @@ export enum DirectionSymbol {
 }
 
 export const DirectionPresets = {
-	veryEasy: [DirectionSymbol.HORIZONTAL, DirectionSymbol.VERTICAL],
+	veryEasy: [
+		DirectionSymbol.HORIZONTAL,
+		DirectionSymbol.VERTICAL,
+		DirectionSymbol.DIAGONAL_DOWN_RIGHT,
+		DirectionSymbol.DIAGONAL_UP_LEFT
+	],
 	easy: [
 		DirectionSymbol.HORIZONTAL,
 		DirectionSymbol.VERTICAL,
