@@ -214,7 +214,7 @@ interface AdStore {
 const adProviders: AdProvider[] = [
 	new AdmobInterstitial(admobAdIds.interstitial),
 	new AdmobReward(admobAdIds.reward),
-	new AdmobRewardInterstitial(admobAdIds.rewardInterstitial),
+	// new AdmobRewardInterstitial(admobAdIds.rewardInterstitial), not in use
 	new AdmobBanner(admobAdIds.banner)
 ];
 export const adStore: AdStore = createAdStore(adProviders);
