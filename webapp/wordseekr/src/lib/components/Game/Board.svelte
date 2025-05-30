@@ -5,6 +5,8 @@
 	import { animate } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
 	import { date } from 'drizzle-orm/mysql-core';
+	import { onMount } from 'svelte';
+
 	interface Cell {
 		letter: string;
 		row: number;
@@ -140,7 +142,6 @@
 		if (!isInteracting) {
 			return;
 		}
-
 		const touch = event.touches[0];
 		const element = document.elementFromPoint(touch.clientX, touch.clientY);
 		if (!element) return;
@@ -337,27 +338,63 @@
 	let factor = $state(1);
 
 	$effect(() => {
-		if (grid.length <= 6) {
-			factor = 1.5;
-		} else if (grid.length <= 8) {
-			factor = 1.1;
-		} else if (grid.length <= 10) {
-			factor = 1;
-		} else if (grid.length <= 12) {
-			factor = 0.8;
-		}
-		console.log('factor', factor);
+		console.log('😂 boardWidth', boardWidth);
+		if (!boardWidth) return;
+
+		// Calculate the total width needed for the grid without padding
+		const totalGridWidth = numColumns * cellBaseValues.squareSize;
+		// Calculate the available width (subtract padding)
+		const availableWidth = boardWidth - 16; // 16px for padding
+		// Calculate the factor needed to fit the grid in the available width
+		factor = availableWidth / totalGridWidth;
+
+		// Add some constraints to prevent cells from getting too small or too large
+		const maxFactor = 1.5;
+		const minFactor = 0.6;
+		if (factor > maxFactor) factor = maxFactor;
+		if (factor < minFactor) factor = minFactor;
 	});
 
 	const squareSize = $derived(cellBaseValues.squareSize * factor);
 	const letterSize = $derived(cellBaseValues.letterSize * factor);
 	const fontSize = $derived(cellBaseValues.fontSize * factor);
+
+	let boardElement: HTMLElement;
+	let boardWidth: number | null = $state(null);
+
+	function measureBoard(element: HTMLElement) {
+		boardElement = element;
+		boardWidth = element.getBoundingClientRect().width;
+	}
+	$inspect('boardWidth', boardWidth);
+
+	onMount(() => {
+		// Initial measurement
+		if (boardElement) {
+			boardWidth = boardElement.getBoundingClientRect().width;
+		}
+
+		// Optional: Update measurements on window resize
+		const resizeObserver = new ResizeObserver(() => {
+			if (boardElement) {
+				boardWidth = boardElement.getBoundingClientRect().width;
+			}
+		});
+
+		if (boardElement) {
+			resizeObserver.observe(boardElement);
+		}
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	});
 </script>
 
-<div class="flex flex-col items-center justify-center">
+<div class="flex w-full flex-col items-center justify-center" use:measureBoard>
 	<div
 		id="board"
-		class=" grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
+		class="grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
 		style="grid-template-columns: repeat({numColumns}, minmax(0, 1fr));"
 		onmouseleave={handleMouseLeave}
 		onmouseup={handleMouseUp}

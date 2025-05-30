@@ -3,11 +3,7 @@
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
 	import { Difficulty } from '$lib/game/difficulty';
 	import { DifficultyConfigMap } from '$lib/game/difficulty-config-map';
-	import {
-		getRandomUnplayedGridID,
-		getRandonGridID,
-		getUnplayedAndTotalForDifficulty
-	} from '$lib/game/grid-fetcher';
+	import { getRandomUnplayedGridID } from '$lib/game/grid-fetcher';
 	import { DirectionPresets } from '$lib/game/direction-presets';
 	import { onMount } from 'svelte';
 	import { Preferences } from '@capacitor/preferences';

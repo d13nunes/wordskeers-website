@@ -460,7 +460,7 @@
 	</div>
 {:else}
 	<div
-		class="fixed inset-0 z-50 flex max-h-full max-w-full flex-row items-end justify-center sm:items-center"
+		class="fixed inset-0 z-50 flex max-h-full flex-row items-end justify-center sm:items-center"
 		style="padding-left: calc(var(--safe-area-inset-left)"
 	>
 		{#if showPauseModal}
@@ -475,12 +475,16 @@
 			/>
 		{/if}
 
-		<div class="flex flex-row items-center gap-2">
+		<div
+			class="flex min-w-full flex-row items-center gap-2 sm:justify-center {isSmallScreen
+				? 'landscape:px-8'
+				: ''}"
+		>
 			{#if isSmallScreen}
 				<div
-					class="z-10 flex w-1/2 flex-row p-4
-				portrait:hidden
-				landscape:block"
+					class="z-10 flex w-1/2 flex-row p-4 portrait:hidden
+				landscape:block
+				"
 				>
 					<div class="mb-4">
 						<BoardWords
@@ -509,21 +513,18 @@
 				</div>
 			{/if}
 			<div
-				class=" flex h-full w-full flex-col items-center gap-2 sm:gap-8 lg:items-center lg:justify-center
-				{isSmallScreen ? 'landscape:w-1/2' : ''} {isRemoveAdsActive && isSmallScreen
+				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-8 sm:px-0 lg:items-center lg:justify-center
+				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
 				"
 			>
 				<div
-					class="flex h-full w-full flex-col items-center justify-start gap-2 sm:gap-6 {isSmallScreen
-						? 'landscape:items-start'
+					class="flex h-full w-full flex-col items-center justify-start gap-2 px-4 sm:gap-6 {isSmallScreen
+						? 'landscape:items-start '
 						: ''}"
 				>
-					<div
-						class="px-4 sm:max-w-3/4 sm:px-0
-						{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} "
-					>
+					<div class="{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} ">
 						<BoardWords
 							words={sortedWords}
 							showClock={isClockVisible}
