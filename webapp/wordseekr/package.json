@@ -2,7 +2,7 @@
   "name": "wordseekr",
   "private": true,
   "version": "2.1.6",
-  "build": 2,
+  "build": 3,
   "type": "module",
   "scripts": {
     "dev": "npm run copy-sql-wasm && npm run copy-database && vite dev",
@@ -37,7 +37,7 @@
     "build:droid": "bun run version:build && bun run build && bunx cap sync android && bun run build:droid:archive",
     "build:droid:archive": "export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.7/libexec/openjdk.jdk/Contents/Home && node scripts/ci/android-build.js",
     "upload:droid:": "echo todo",
-    "build:mobile:full": "bun run version:build && bun run mobile-sync && bun run build:ios:archive && bun run upload:ios: && bun run build:android:archive && bun run upload:android:",
+    "build:mobile:full": "bun run version:build && bun run mobile-sync && bun run build:ios:archive && bun run upload:ios: && bun run build:droid:archive && bun run upload:android:",
     "version:build": "node scripts/update-version.js",
     "version:check": "node scripts/update-version.js --check",
     "version:major": "node scripts/update-version.js --major",
