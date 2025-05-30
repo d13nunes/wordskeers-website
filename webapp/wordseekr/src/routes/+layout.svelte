@@ -9,7 +9,6 @@
 	import ModalHost from '$lib/components/shared/ModalHost.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import DatabaseInitializer from '$lib/database/DatabaseInitializer.svelte';
 	import { initialize } from '@capacitor-community/safe-area';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	interface Props {

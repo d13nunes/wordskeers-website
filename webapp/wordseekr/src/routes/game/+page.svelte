@@ -513,7 +513,7 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-8 sm:px-0 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-8 sm:px-0 md:max-w-2/4 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 

@@ -4,7 +4,6 @@
 	import type { ColorTheme } from './color-generator';
 	import { animate } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
-	import { date } from 'drizzle-orm/mysql-core';
 	import { onMount } from 'svelte';
 
 	interface Cell {
@@ -27,7 +26,6 @@
 	let selectedCells: Position[] = $state([]);
 	let firstSelectedCell: Position | null = null;
 	let isAnimatingIsDiscovered = false;
-	// let discoveredCells: Set<Position> = new Set();
 	let pathValidator = new PathValidator();
 	let {
 		grid,
@@ -60,6 +58,7 @@
 	);
 	let currentColor: ColorTheme = getColor();
 	let previousHints: Position[] = [];
+	const defaultColor = '#FEE2E2';
 
 	$effect(() => {
 		currentColor = getColor();
@@ -71,8 +70,6 @@
 		updateSelectedCells([position]);
 		firstSelectedCell = position;
 	}
-
-	const defaultColor = '#FEE2E2';
 
 	function setDiscovered(position: Position[]) {
 		position.forEach((pos) => {
@@ -110,7 +107,6 @@
 	}
 
 	function handleInteractionMove(rowIndex: number, colIndex: number) {
-		console.log('handleInteractionMove', rowIndex, colIndex);
 		if (isInteracting) {
 			const newCell = { row: rowIndex, col: colIndex };
 			if (firstSelectedCell) {
@@ -118,7 +114,6 @@
 				const isValid = pathValidator.isValidPath(firstSelectedCell, newCell);
 				if (isValid) {
 					const positions = pathValidator.getPositionsInPath(firstSelectedCell, newCell);
-					console.log('positions', positions);
 					updateSelectedCells(positions);
 				}
 			} else {
@@ -290,6 +285,89 @@
 		});
 	}
 
+	interface CellBaseValues {
+		squareSize: number;
+		letterSize: number;
+		fontSize: number;
+	}
+
+	const cellBaseValues: CellBaseValues = {
+		squareSize: 34,
+		letterSize: 30,
+		fontSize: 20
+	};
+	let factor = $state(0.5);
+	let boardElement: HTMLElement | null = null;
+	let boardWidth: number = $state(0);
+	let isInitialized = $state(false);
+	let resizeTimeout: number | null = null;
+
+	function updateFactor(width: number) {
+		// Calculate the total width needed for the grid without padding
+		const totalGridWidth = numColumns * cellBaseValues.squareSize;
+		// Calculate the available width (subtract padding)
+		const availableWidth = width - 16; // 16px for padding
+		// Calculate the factor needed to fit the grid in the available width
+		let newFactor = availableWidth / totalGridWidth;
+
+		// Add some constraints to prevent cells from getting too small or too large
+		const maxFactor = 1.5;
+		const minFactor = 0.6;
+		if (newFactor > maxFactor) newFactor = maxFactor;
+		if (newFactor < minFactor) newFactor = minFactor;
+
+		// Only update if the factor has changed significantly
+		if (Math.abs(newFactor - factor) > 0.01) {
+			factor = newFactor;
+		}
+	}
+
+	function debouncedUpdate(newWidth: number) {
+		if (resizeTimeout) {
+			window.cancelAnimationFrame(resizeTimeout);
+		}
+		resizeTimeout = window.requestAnimationFrame(() => {
+			if (Math.abs(newWidth - boardWidth) > 1) {
+				boardWidth = newWidth;
+				updateFactor(newWidth);
+			}
+			resizeTimeout = null;
+		});
+	}
+
+	onMount(() => {
+		if (!boardElement) return;
+
+		const resizeObserver = new ResizeObserver((entries) => {
+			if (!isInitialized) return;
+			const entry = entries[0];
+			if (entry && entry.target === boardElement) {
+				debouncedUpdate(entry.contentRect.width);
+			}
+		});
+
+		// Initial setup
+		boardWidth = boardElement.getBoundingClientRect().width;
+		updateFactor(boardWidth);
+		resizeObserver.observe(boardElement);
+		isInitialized = true;
+
+		// Initial fade-in animation
+		animate(boardElement, {
+			opacity: [0, 1],
+			delay: 100,
+			duration: 300,
+			ease: 'inOutQuad'
+		});
+
+		return () => {
+			if (resizeTimeout) {
+				window.cancelAnimationFrame(resizeTimeout);
+			}
+			resizeObserver.disconnect();
+		};
+	});
+
 	$effect(() => {
 		isAnimatingIsDiscovered = true;
 		let angle = isRotated ? 180 : 0;
@@ -324,78 +402,30 @@
 		previousHints = [...hintPositions];
 	});
 
-	interface CellBaseValues {
-		squareSize: number;
-		letterSize: number;
-		fontSize: number;
-	}
-
-	const cellBaseValues: CellBaseValues = {
-		squareSize: 34,
-		letterSize: 30,
-		fontSize: 20
-	};
-	let factor = $state(1);
-
-	$effect(() => {
-		console.log('😂 boardWidth', boardWidth);
-		if (!boardWidth) return;
-
-		// Calculate the total width needed for the grid without padding
-		const totalGridWidth = numColumns * cellBaseValues.squareSize;
-		// Calculate the available width (subtract padding)
-		const availableWidth = boardWidth - 16; // 16px for padding
-		// Calculate the factor needed to fit the grid in the available width
-		factor = availableWidth / totalGridWidth;
-
-		// Add some constraints to prevent cells from getting too small or too large
-		const maxFactor = 1.5;
-		const minFactor = 0.6;
-		if (factor > maxFactor) factor = maxFactor;
-		if (factor < minFactor) factor = minFactor;
-	});
-
 	const squareSize = $derived(cellBaseValues.squareSize * factor);
 	const letterSize = $derived(cellBaseValues.letterSize * factor);
 	const fontSize = $derived(cellBaseValues.fontSize * factor);
 
-	let boardElement: HTMLElement;
-	let boardWidth: number | null = $state(null);
-
-	function measureBoard(element: HTMLElement) {
-		boardElement = element;
-		boardWidth = element.getBoundingClientRect().width;
-	}
-	$inspect('boardWidth', boardWidth);
-
-	onMount(() => {
-		// Initial measurement
+	// Add CSS variables for dynamic sizing
+	$effect(() => {
 		if (boardElement) {
-			boardWidth = boardElement.getBoundingClientRect().width;
+			boardElement.style.setProperty('--square-size', `${squareSize}px`);
+			boardElement.style.setProperty('--letter-size', `${letterSize}px`);
+			boardElement.style.setProperty('--font-size', `${fontSize}px`);
 		}
-
-		// Optional: Update measurements on window resize
-		const resizeObserver = new ResizeObserver(() => {
-			if (boardElement) {
-				boardWidth = boardElement.getBoundingClientRect().width;
-			}
-		});
-
-		if (boardElement) {
-			resizeObserver.observe(boardElement);
-		}
-
-		return () => {
-			resizeObserver.disconnect();
-		};
 	});
 </script>
 
-<div class="flex w-full flex-col items-center justify-center" use:measureBoard>
+<div bind:this={boardElement} class="flex w-full flex-col items-center justify-center">
 	<div
 		id="board"
-		class="grid rounded-md bg-white p-2 shadow-sm transition-transform duration-500 ease-in-out"
-		style="grid-template-columns: repeat({numColumns}, minmax(0, 1fr));"
+		class="grid rounded-md bg-white p-2 shadow-sm transition-all ease-in-out"
+		style="
+			grid-template-columns: repeat({numColumns}, minmax(0, 1fr));
+			--square-size: {squareSize}px;
+			--letter-size: {letterSize}px;
+			--font-size: {fontSize}px;
+		"
 		onmouseleave={handleMouseLeave}
 		onmouseup={handleMouseUp}
 		ontouchend={handleTouchEnd}
@@ -407,15 +437,15 @@
 		{#each cells as row}
 			{#each row as cell}
 				<div
-					style="height: {squareSize}px; width: {squareSize}px"
-					class="flex items-center justify-center"
+					style="height: var(--square-size); width: var(--square-size)"
+					class="flex items-center justify-center transition-all duration-300 ease-in-out"
 				>
 					<div
 						id={getPositionId(cell.row, cell.col)}
-						style="height: {letterSize}px; width: {letterSize}px; font-size: {fontSize}px"
+						style="height: var(--letter-size); width: var(--letter-size); font-size: var(--font-size) "
 						class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
 						onmousedown={() => handleMouseDown(cell.row, cell.col)}
-						onmouseenter={() => handleMouseEnter(cell.row, cell.col)}
+						onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
 						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
 						ontouchend={handleTouchEnd}
 						data-row={cell.row}
