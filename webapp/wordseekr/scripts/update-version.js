@@ -6,11 +6,20 @@ const args = process.argv.slice(2);
 const bumpMajor = args.includes('--major');
 const bumpMinor = args.includes('--minor');
 const bumpPatch = args.includes('--patch');
+const checkOnly = args.includes('--check');
+
 
 // Read package.json
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
 let [major, minor, patch] = packageJson.version.split('.').map(Number);
 let buildCounter = packageJson.build ?? 0
+
+
+if (checkOnly) {
+    console.log('Current version:', packageJson.version);
+    console.log('Current build:', packageJson.build);
+    process.exit(0);
+}
 
 // Apply version bumps
 if (bumpMajor) {
