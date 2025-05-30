@@ -3,9 +3,20 @@ export function toTitleCase(str: string) {
 }
 
 export function getFormatedTime(elapsedTime: number) {
-	const minutes = Math.floor(elapsedTime / 60);
+	let time = '';
+	const hours = Math.floor(elapsedTime / 3600);
+	if (hours > 0) {
+		time += `${hours.toString().padStart(2, '0')}:`;
+	}
+	const minutes = Math.floor((elapsedTime % 3600) / 60);
+	if (minutes > 0) {
+		time += `${minutes.toString().padStart(2, '0')}:`;
+	}
 	const seconds = elapsedTime % 60;
-	return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+	time += `${seconds.toString().padStart(2, '0')}`;
+
+	return time;
 }
 
 export function getPositionId(row: number, col: number) {

@@ -28,6 +28,11 @@
 	import PauseMenu from './PauseMenu.svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { endGameAdStore } from '$lib/game/end-game-ad';
+
+	const powerUpCooldownButton = 2000;
+	const clockVisibleKey = 'isClockVisible';
+	let colorGenerator = new ColorGenerator();
+
 	let isSmallScreen = $state(true);
 	let progressCircle = $state<SVGCircleElement | null>(null);
 	let isRotated = $state(false);
@@ -35,14 +40,14 @@
 	let isRotateDisabled = $state(false);
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
-	const powerUpCooldownButton = 2000;
-
 	let isClockVisible = $state(false);
-	const clockVisibleKey = 'isClockVisible';
-
 	let game = $state<Game | null>(null);
 	let words = $state<Word[]>([]);
 	let error: string | null = $state(null);
+	let hintPositions: Position[] = $state([]);
+	let showPauseModal = $state(false);
+	let isPowerUpAnimationActive = $state(false);
+
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
 		try {
@@ -67,8 +72,6 @@
 		}
 	});
 
-	let colorGenerator = new ColorGenerator();
-	let hintPositions: Position[] = $state([]);
 	function getColor() {
 		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
 	}
@@ -163,13 +166,9 @@
 		}
 	}
 
-	let showPauseModal = $state(false);
-
 	function onPauseClick() {
 		showPauseModal = true;
 	}
-
-	let isPowerUpAnimationActive = $state(false);
 
 	function onPowerUpRotateClick(iconId: string) {
 		if (isRotateDisabled || isPowerUpAnimationActive) return;
