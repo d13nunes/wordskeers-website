@@ -17,7 +17,6 @@
 			Capacitor.getPlatform() === 'android'
 				? PRODUCT_IDS.REMOVE_ADS_DISCOUNT_ANDROID
 				: PRODUCT_IDS.REMOVE_ADS_DISCOUNT;
-		console.log('!!!! removeAdsProductId', removeAdsProductId);
 		// Load the actual price from the store
 		const removeAdsProduct = $productsStore[removeAdsProductId];
 		if (removeAdsProduct) {
@@ -147,7 +146,7 @@
 
 	<!-- Purchase Button -->
 	<div class="p-4 max-[24rem]:p-2">
-		{#if $adsRemoved}
+		{#if adsRemoved}
 			<button class="w-full rounded-xl bg-green-700 py-4 text-white max-[24rem]:py-2">
 				<span class="text-xl font-semibold">✓ Ads Removed!</span>
 			</button>

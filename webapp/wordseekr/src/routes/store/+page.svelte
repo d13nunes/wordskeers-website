@@ -85,13 +85,11 @@
 	}
 
 	function buyProduct(product: Product) {
-		console.log('!!!! buyProduct', product);
 		const productId = product.productId;
 		isLoading = true;
 		purchasesStore
 			.makePurchase(productId)
 			.then((success) => {
-				console.log('!!!! buyProduct success', success);
 				if (success) {
 					walletStore.addCoins(product.coins);
 				}
