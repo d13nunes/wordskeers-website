@@ -23,7 +23,7 @@
 
 <div class="flex flex-col items-center justify-center gap-2 py-2">
 	<button type="button" class="flex w-full items-end justify-between" onclick={onClockClick_}>
-		<span class=" text-2xl font-bold text-gray-700">{title}</span>
+		<span class="text-start text-2xl font-bold text-gray-700">{title}</span>
 		<div class="flex h-7 min-w-18 items-center justify-end gap-1">
 			{#if isClockVisible}
 				<span class="font-mono text-gray-700">{getFormatedTime(elapsedTime)}</span>
