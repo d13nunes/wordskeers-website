@@ -12,6 +12,7 @@
 	import { initialize } from '@capacitor-community/safe-area';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { animate } from 'animejs';
+	import { analytics } from '$lib/analytics/analytics';
 	interface Props {
 		children: Snippet;
 	}
@@ -22,11 +23,17 @@
 	let isStoreOpen = $state(false);
 
 	function onStoreClick() {
+		if (!isStoreOpen) {
+			analytics.storedOpen();
+		}
 		isStoreOpen = true;
 		isDailyRewardsOpen = false;
 	}
 
 	function onDailyRewardClick() {
+		if (!isDailyRewardsOpen) {
+			analytics.rewardsOpen();
+		}
 		isDailyRewardsOpen = true;
 		isStoreOpen = false;
 	}

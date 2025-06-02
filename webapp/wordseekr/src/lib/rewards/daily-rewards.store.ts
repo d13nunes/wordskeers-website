@@ -25,13 +25,9 @@ function setRefreshTimer(state: DailyRewardsState) {
 }
 // Function to initialize the store by loading state via the service
 async function initializeStore(): Promise<void> {
-	console.log('📨📨 error initializeStore');
 	const initialState = await DailyRewardsService.initialize();
-	console.log('📨📨 error initialState', initialState);
 	setRefreshTimer(initialState);
-	console.log('📨📨 error setRefreshTimer', initialState);
 	_dailyRewardsState.set(initialState);
-	console.log('📨📨 error _dailyRewardsState.set', initialState);
 }
 
 // Call initialize when the store module is loaded

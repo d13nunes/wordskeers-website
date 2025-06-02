@@ -6,12 +6,11 @@
 	import { getRandomUnplayedGridID } from '$lib/game/grid-fetcher';
 	import { DirectionPresets } from '$lib/game/direction-presets';
 	import { onMount } from 'svelte';
-	import { Preferences } from '@capacitor/preferences';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import magnifierglass from '$lib/assets/magnifierglass.webp';
 	import { animate } from 'animejs';
-
-	const currentDifficultyKey = 'currentDifficulty';
+	import { analytics } from '$lib/analytics/analytics';
+	import { myLocalStorage, completionTracker } from '$lib/storage/local-storage';
 
 	const difficulties = [
 		{ value: Difficulty.VeryEasy, label: 'Very Easy' },
@@ -35,22 +34,22 @@
 
 	function onDifficultyChange(index: number) {
 		updateDifficulty(index);
-		Preferences.set({ key: currentDifficultyKey, value: index.toString() });
+		myLocalStorage.set(myLocalStorage.CurrentDifficulty, index.toString());
 	}
 
 	async function onPlayClick() {
 		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
 		// const { unplayed, total } = await getUnplayedAndTotalForDifficulty(selectedDifficulty);
 		const id = await getRandomUnplayedGridID(selectedDifficulty);
-		goto(`/game?id=${id}`);
+		analytics.startGame(selectedDifficulty, id.toString());
+		goto(`/game?id=${id}&difficulty=${selectedDifficulty}`);
 	}
 
 	onMount(async () => {
-		const currentDifficulty = await Preferences.get({ key: currentDifficultyKey });
+		const currentDifficulty = await myLocalStorage.get(myLocalStorage.CurrentDifficulty);
 		if (currentDifficulty) {
-			updateDifficulty(parseInt(currentDifficulty.value ?? '0'));
+			updateDifficulty(parseInt(currentDifficulty ?? '0'));
 		}
-
 		const magnifierglass = document.getElementById('magnifierglass');
 		if (magnifierglass) {
 			animate(magnifierglass, {
@@ -58,6 +57,7 @@
 				duration: 1000
 			});
 		}
+		await completionTracker.trackCompletionPercentageOfAllDifficulties();
 	});
 
 	$effect(() => {

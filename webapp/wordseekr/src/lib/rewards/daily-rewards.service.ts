@@ -12,6 +12,7 @@ import {
 import { adStore } from '$lib/ads/ads';
 import { AdType } from '$lib/ads/ads-types';
 import { walletStore } from '$lib/economy/walletStore';
+import { analytics } from '$lib/analytics/analytics';
 
 // Helper to get random int in range (inclusive)
 function getRandomInt(min: number, max: number): number {
@@ -180,15 +181,17 @@ async function claimReward(
 		if (!isAdLoaded) {
 			return { state, success: false, noAdsAvailable: true };
 		}
-		const didWatchAd = await adStore.showAd(AdType.Rewarded);
+		const didWatchAd = await adStore.showAd(AdType.Rewarded, null);
 		if (!didWatchAd) {
 			return { state, success: false };
 		}
+		analytics.rewardCollectedAd();
 		canReward = true;
 	} else {
 		state.resetRewardDate = new Date(Date.now() + RESET_WINDOW_MS);
 		await scheduleNotifications(state);
 		canReward = true;
+		analytics.rewardCollected();
 	}
 
 	if (!canReward) {

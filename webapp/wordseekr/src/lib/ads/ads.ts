@@ -3,7 +3,6 @@ import { writable, type Readable, derived } from 'svelte/store';
 import { AdType } from './ads-types';
 import { AdmobReward } from './Admob/admob-reward';
 import { AdmobInterstitial } from './Admob/admob-interstitial';
-import { AdmobRewardInterstitial } from './Admob/admob-rewardinterstitial';
 import { AdmobBanner } from './Admob/admob-banner';
 import type { AdProvider } from './ads-types';
 import { walletStore } from '$lib/economy/walletStore';

@@ -15,6 +15,12 @@
 	import { closeModal, openModal } from '$lib/components/shared/ModalHost';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
+	import { onDestroy } from 'svelte';
+	import { analytics } from '$lib/analytics/analytics';
+
+	onDestroy(() => {
+		analytics.storedClosed();
+	});
 
 	function handleRemoveAds() {
 		openModal(RemoveAdsPage, {

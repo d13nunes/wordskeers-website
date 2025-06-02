@@ -23,14 +23,16 @@
 	import { getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
 	import { databaseService } from '$lib/database/database.service';
-	import { Preferences } from '@capacitor/preferences';
 	import BoardWords from './BoardWords.svelte';
 	import PauseMenu from './PauseMenu.svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { endGameAdStore } from '$lib/game/end-game-ad';
+	import { analytics } from '$lib/analytics/analytics';
+	import type { Difficulty } from '$lib/game/difficulty';
+	import { myLocalStorage } from '$lib/storage/local-storage';
 
-	const powerUpCooldownButton = 2000;
-	const clockVisibleKey = 'isClockVisible';
+	const powerUpCooldownButton = 1500;
+
 	let colorGenerator = new ColorGenerator();
 
 	let isSmallScreen = $state(true);
@@ -47,25 +49,28 @@
 	let hintPositions: Position[] = $state([]);
 	let showPauseModal = $state(false);
 	let isPowerUpAnimationActive = $state(false);
+	// Get difficulty from URL params
+	const gridID: number = parseInt(page.url.searchParams.get('id') ?? '-1');
+	if (!gridID) {
+		throw new Error('Invalid id');
+	}
+
+	let difficulty: Difficulty | undefined = undefined;
 
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
 		try {
-			const isClockVisibleResult = await Preferences.get({ key: clockVisibleKey });
-			isClockVisible = isClockVisibleResult.value === 'true';
+			const isClockVisibleResult = await myLocalStorage.get(myLocalStorage.ClockVisible);
+			isClockVisible = isClockVisibleResult === 'true';
 		} catch (e) {
 			console.error('Error loading clock visibility:', e);
 		}
 		try {
-			// Get difficulty from URL params
-			const id: number = parseInt(page.url.searchParams.get('id') ?? '-1');
-			if (!id) {
-				throw new Error('Invalid id');
-			}
 			// Get a random grid for the selected difficulty
-			const configuration = await getGridWithID(id);
+			const configuration = await getGridWithID(gridID);
 			game = createGameForConfiguration(configuration);
 			words = game.words;
+			difficulty = page.url.searchParams.get('difficulty') as Difficulty;
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load game';
 			console.error('Error loading game:', e);
@@ -91,14 +96,14 @@
 
 	let onWordSelect = (word: string, path: Position[]): Position[] => {
 		const wordIndex = getWordIndex(word);
-		console.log(
+		console.debug(
 			'wordIndex',
 			wordIndex,
 			word,
 			words.map((w) => w.word)
 		);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
-			console.log('wordIndex', words[wordIndex], word);
+			console.debug('wordIndex', words[wordIndex], word);
 			words[wordIndex].color = 'bg-slate-200';
 			words[wordIndex].textColor = 'text-gray-700';
 			words[wordIndex].isDiscovered = true;
@@ -108,6 +113,8 @@
 			const discoveredWords = words.filter((w) => w.isDiscovered).length;
 			if (discoveredWords === totalWords) {
 				isGameEnded = true;
+				const gridID = game?.config.id.toString() ?? 'undefined';
+				analytics.completeGame(difficulty ?? 'undefined', gridID);
 				// Mark grid as played when game ends
 				const gridId = parseInt(game?.config.id ?? '-1');
 				if (!isNaN(gridId)) {
@@ -170,11 +177,19 @@
 		showPauseModal = true;
 	}
 
-	function onPowerUpRotateClick(iconId: string) {
+	async function onPowerUpRotateClick(iconId: string) {
 		if (isRotateDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
 		isRotated = !isRotated;
-		walletStore.tryAndBuy(powerUpPrices.rotate);
+		const powerUpId = 'rotate';
+		analytics.tryUsePowerUp(powerUpId);
+		const didBuy = await walletStore.tryAndBuy(powerUpPrices.rotate);
+		if (!didBuy) {
+			analytics.failedToUsePowerUp(powerUpId);
+			return;
+		}
+
+		analytics.usePowerUp(powerUpId);
 		const rotateIcon = document.getElementById(iconId);
 		const finalRotation = isRotated ? '360' : '-360';
 		if (rotateIcon) {
@@ -197,15 +212,21 @@
 		const suggestedPositions = getWordPositions(suggestedWord);
 		const suggestedLetterIndex = randomInt(suggestedPositions.length - 1);
 		const suggestedLetter = suggestedPositions[suggestedLetterIndex];
+		const powerUpId = 'find_letter';
+		analytics.tryUsePowerUp(powerUpId);
 		const didBuy = await walletStore.tryAndBuy(powerUpPrices.findLetter);
-		if (didBuy) {
-			hintPositions.push(suggestedLetter);
-			const icon = document.getElementById(iconId);
-			if (icon) {
-				animatePowerUp(suggestedLetter, icon);
-			}
-			setBGColorTag(suggestedWord.word, getColor().bg);
+		if (!didBuy) {
+			analytics.failedToUsePowerUp(powerUpId);
+			return;
 		}
+		analytics.usePowerUp(powerUpId);
+		hintPositions.push(suggestedLetter);
+		const icon = document.getElementById(iconId);
+		if (icon) {
+			animatePowerUp(suggestedLetter, icon);
+		}
+		setBGColorTag(suggestedWord.word, getColor().bg);
+
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
@@ -285,13 +306,19 @@
 		}
 	}
 
-	function onPowerUpFindWordClick(iconId: string) {
+	async function onPowerUpFindWordClick(iconId: string) {
 		if (isFindWordDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
 		const suggestedWord = getRandonUndiscoveredWord();
 		hintPositions.length = 0;
 		hintPositions.push(...getWordPositions(suggestedWord));
-		walletStore.tryAndBuy(powerUpPrices.findWord);
+		const powerUpId = 'find_word';
+		analytics.tryUsePowerUp(powerUpId);
+		const didBuy = await walletStore.tryAndBuy(powerUpPrices.findWord);
+		if (!didBuy) {
+			analytics.failedToUsePowerUp(powerUpId);
+			return;
+		}
 		const findWordIcon = document.getElementById(iconId);
 		if (findWordIcon) {
 			const suggestedLetter = hintPositions[Math.floor(hintPositions.length / 2)];
@@ -431,10 +458,12 @@
 
 	async function onClockClick(isClockVisible_: boolean) {
 		isClockVisible = isClockVisible_;
-		await Preferences.set({
-			key: clockVisibleKey,
-			value: isClockVisible.toString()
-		});
+		await myLocalStorage.set(myLocalStorage.ClockVisible, isClockVisible.toString());
+	}
+
+	function pauseMenuNewGameClick() {
+		analytics.quitGame(difficulty ?? 'undefined', gridID.toString());
+		goto('/');
 	}
 </script>
 
@@ -464,7 +493,10 @@
 		style="padding-left: calc(var(--safe-area-inset-left)"
 	>
 		{#if showPauseModal}
-			<PauseMenu onClickResume={() => (showPauseModal = false)} onClickNewGame={() => goto('/')} />
+			<PauseMenu
+				onClickResume={() => (showPauseModal = false)}
+				onClickNewGame={pauseMenuNewGameClick}
+			/>
 		{/if}
 		{#if isGameEnded}
 			<GameEndedModal

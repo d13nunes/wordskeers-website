@@ -1,13 +1,10 @@
 import { writable } from 'svelte/store';
-import { Preferences } from '@capacitor/preferences';
-
-const COIN_BALANCE_KEY = 'coinBalance';
-const REMOVE_ADS_KEY = 'removeAds';
+import { myLocalStorage } from '$lib/storage/local-storage';
 
 async function loadInitialBalance(): Promise<number> {
 	try {
-		const { value } = await Preferences.get({ key: COIN_BALANCE_KEY });
-		return value ? parseInt(value, 10) : 0;
+		const balance = await myLocalStorage.get(myLocalStorage.CoinBalance);
+		return balance ? parseInt(balance, 10) : 0;
 	} catch (error) {
 		console.error('Failed to load coin balance from preferences:', error);
 		return 0; // Default to 0 if loading fails
@@ -16,10 +13,7 @@ async function loadInitialBalance(): Promise<number> {
 
 async function saveBalance(balance: number): Promise<void> {
 	try {
-		await Preferences.set({
-			key: COIN_BALANCE_KEY,
-			value: balance.toString()
-		});
+		await myLocalStorage.set(myLocalStorage.CoinBalance, balance.toString());
 	} catch (error) {
 		console.error('Failed to save coin balance to preferences:', error);
 	}
@@ -27,10 +21,7 @@ async function saveBalance(balance: number): Promise<void> {
 
 async function saveRemoveAds(removeAds: boolean): Promise<void> {
 	try {
-		await Preferences.set({
-			key: REMOVE_ADS_KEY,
-			value: removeAds.toString()
-		});
+		await myLocalStorage.set(myLocalStorage.RemoveAds, removeAds.toString());
 	} catch (error) {
 		console.error('Failed to save remove ads to preferences:', error);
 	}
@@ -38,8 +29,8 @@ async function saveRemoveAds(removeAds: boolean): Promise<void> {
 
 async function getRemoveAds(): Promise<boolean> {
 	try {
-		const { value } = await Preferences.get({ key: REMOVE_ADS_KEY });
-		return value ? value === 'true' : false;
+		const removeAds = await myLocalStorage.get(myLocalStorage.RemoveAds);
+		return removeAds ? removeAds === 'true' : false;
 	} catch (error) {
 		console.error('Failed to get remove ads from preferences:', error);
 		return false;
@@ -47,8 +38,8 @@ async function getRemoveAds(): Promise<boolean> {
 }
 
 async function getBalance(): Promise<number> {
-	const { value } = await Preferences.get({ key: COIN_BALANCE_KEY });
-	return value ? parseInt(value, 10) : 0;
+	const balance = await myLocalStorage.get(myLocalStorage.CoinBalance);
+	return balance ? parseInt(balance, 10) : 0;
 }
 
 function createWalletStore(): Wallet {
