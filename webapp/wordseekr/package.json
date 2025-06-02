@@ -36,13 +36,17 @@
     "build:ios:full": "bun run build:ios && bun run upload:ios:",
     "build:droid": "bun run version:build && bun run build && bunx cap sync android && bun run build:droid:archive",
     "build:droid:archive": "export JAVA_HOME=/opt/homebrew/Cellar/openjdk@21/21.0.7/libexec/openjdk.jdk/Contents/Home && node scripts/ci/android-build.js",
-    "upload:droid:": "echo todo",
-    "build:mobile:full": "bun run version:build && bun run mobile-sync && bun run build:ios:archive && bun run upload:ios: && bun run build:droid:archive && bun run upload:android:",
+    "upload:droid": "echo 'todo'",
+    "build:mobile:full": "bun run version:build && bun run mobile-sync && bun run build:ios:archive && bun run upload:ios: && bun run build:droid:archive && bun run upload:droid",
     "version:build": "node scripts/update-version.js",
     "version:check": "node scripts/update-version.js --check",
     "version:major": "node scripts/update-version.js --major",
     "version:minor": "node scripts/update-version.js --minor",
-    "version:patch": "node scripts/update-version.js --patch"
+    "version:patch": "node scripts/update-version.js --patch",
+    "release:build": "build:mobile:full",
+    "release:patch": "bun run version:patch && bun run build:mobile:full",
+    "release:minor": "bun run version:minor && bun run build:mobile:full",
+    "release:major": "bun run version:major && bun run build:mobile:full"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
