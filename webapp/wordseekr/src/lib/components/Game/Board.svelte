@@ -442,19 +442,19 @@
 				<div
 					style="height: var(--square-size); width: var(--square-size)"
 					class="flex items-center justify-center ease-in-out"
+					onmousedown={() => handleMouseDown(cell.row, cell.col)}
+					onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
+					ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
+					ontouchend={handleTouchEnd}
+					role="button"
+					tabindex="0"
 				>
 					<div
 						id={getPositionId(cell.row, cell.col)}
 						style="height: var(--letter-size); width: var(--letter-size); font-size: var(--font-size) "
 						class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
-						onmousedown={() => handleMouseDown(cell.row, cell.col)}
-						onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
-						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
-						ontouchend={handleTouchEnd}
 						data-row={cell.row}
 						data-col={cell.col}
-						role="button"
-						tabindex="0"
 					>
 						{cell.letter}
 					</div>
