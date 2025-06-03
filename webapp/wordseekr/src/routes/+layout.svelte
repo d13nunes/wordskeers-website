@@ -64,7 +64,7 @@
 	<!-- {#if showBadge} -->
 	<div
 		id="badges"
-		class="z-[100] mx-2 mt-2 flex flex-row items-center justify-end gap-2 opacity-0 md:mx-4 {isSmallScreen
+		class="z-[100] mx-4 mt-2 flex flex-row items-center justify-end gap-2 opacity-0 md:mx-4 {isSmallScreen
 			? 'landscape:justify-start'
 			: ''} "
 	>
