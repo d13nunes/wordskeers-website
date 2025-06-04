@@ -59,7 +59,7 @@
 <button class="card-button relative flex flex-row items-center justify-center" {onclick}>
 	<div
 		bind:this={badge}
-		class="absolute -top-1 -right-1.5 min-h-4 min-w-4 rounded-full bg-red-500 text-white opacity-0 lg:min-h-6 lg:min-w-6"
+		class="absolute -top-1 -right-1.5 min-h-4 min-w-4 rounded-full bg-red-500 text-white opacity-0 lg:min-h-5 lg:min-w-5"
 	></div>
 	<div bind:this={icon} class="h-4 w-4 lg:h-6 lg:w-6">
 		<DailyRewardIcon fill="#c10007" />
