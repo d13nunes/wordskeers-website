@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import {
 		createGameForConfiguration,
+		createGameFromDailyChallenge,
 		getWordPositions,
 		type Game,
 		type Word
@@ -30,6 +31,9 @@
 	import { analytics } from '$lib/analytics/analytics';
 	import type { Difficulty } from '$lib/game/difficulty';
 	import { myLocalStorage } from '$lib/storage/local-storage';
+	import { mockDailyChallenge, type DailyChallenge } from '$lib/daily-challenge/models';
+	import DailyChallengeBoardWords from '$lib/daily-challenge/DailyChallengeBoardWords.svelte';
+	import ClassicBoardWords from './ClassicBoardWords.svelte';
 
 	const powerUpCooldownButton = 1500;
 
@@ -44,36 +48,54 @@
 	let isFindWordDisabled = $state(false);
 	let isClockVisible = $state(false);
 	let game = $state<Game | null>(null);
-	let words = $state<Word[]>([]);
+	let words = $derived<Word[]>(game?.words ?? []);
 	let error: string | null = $state(null);
 	let hintPositions: Position[] = $state([]);
 	let showPauseModal = $state(false);
 	let isPowerUpAnimationActive = $state(false);
-	// Get difficulty from URL params
-	const gridID: number = parseInt(page.url.searchParams.get('id') ?? '-1');
-	if (!gridID) {
-		throw new Error('Invalid id');
-	}
+
+	let dailyChallenge = $state<DailyChallenge | null>(null);
 
 	let difficulty: Difficulty | undefined = undefined;
 
+	async function loadGridFromDatabase(gridID: number) {
+		try {
+			// Get a random grid for the selected difficulty
+			const configuration = await getGridWithID(gridID);
+			game = createGameForConfiguration(configuration);
+
+			difficulty = page.url.searchParams.get('difficulty') as Difficulty;
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Failed to load game';
+			console.error('Error loading game:', e);
+		}
+	}
+
+	function loadGridFromDailyChallenge(dailyChallengeID: number) {
+		dailyChallenge = mockDailyChallenge;
+		game = createGameFromDailyChallenge(dailyChallenge);
+	}
+
+	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
+	let isDailyChallenge = dailyChallengeID !== -1;
+	let gridID: number;
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
+		if (isDailyChallenge) {
+			gridID = dailyChallengeID;
+			loadGridFromDailyChallenge(dailyChallengeID);
+		} else {
+			const gridID: number = parseInt(page.url.searchParams.get('id') ?? '-1');
+			if (!gridID) {
+				throw new Error('Invalid id');
+			}
+			loadGridFromDatabase(gridID);
+		}
 		try {
 			const isClockVisibleResult = await myLocalStorage.get(myLocalStorage.ClockVisible);
 			isClockVisible = isClockVisibleResult === 'true';
 		} catch (e) {
 			console.error('Error loading clock visibility:', e);
-		}
-		try {
-			// Get a random grid for the selected difficulty
-			const configuration = await getGridWithID(gridID);
-			game = createGameForConfiguration(configuration);
-			words = game.words;
-			difficulty = page.url.searchParams.get('difficulty') as Difficulty;
-		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to load game';
-			console.error('Error loading game:', e);
 		}
 	});
 
@@ -364,6 +386,7 @@
 			return a.word.length - b.word.length;
 		})
 	);
+
 	let isRewardAdReady = $state(false);
 	adStore.isAdLoaded(AdType.Rewarded).subscribe((isLoaded) => {
 		isRewardAdReady = isLoaded;
@@ -378,7 +401,7 @@
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
 			if (!isActive && !showPauseModal && !isGameEnded) {
-				showPauseModal = true;
+				showPauseModal = false;
 			}
 		});
 
@@ -462,7 +485,7 @@
 	}
 
 	function pauseMenuNewGameClick() {
-		analytics.quitGame(difficulty ?? 'undefined', gridID.toString());
+		analytics.quitGame(difficulty ?? 'undefined', game?.config.id.toString() ?? 'undefined');
 		goto('/');
 	}
 </script>
@@ -519,13 +542,24 @@
 				"
 				>
 					<div class="mb-4">
-						<BoardWords
-							words={sortedWords}
-							showClock={isClockVisible}
-							{elapsedTime}
-							{title}
-							{onClockClick}
-						/>
+						{#if dailyChallenge}
+							<DailyChallengeBoardWords
+								{dailyChallenge}
+								words={sortedWords}
+								showClock={isClockVisible}
+								{elapsedTime}
+								{title}
+								{onClockClick}
+							/>
+						{:else}
+							<ClassicBoardWords
+								words={sortedWords}
+								showClock={isClockVisible}
+								{elapsedTime}
+								{title}
+								{onClockClick}
+							/>
+						{/if}
 					</div>
 					<GameButtons
 						findWordIconId="fwi-l"
@@ -557,13 +591,24 @@
 					{isSmallScreen ? 'landscape:items-start ' : ''}"
 				>
 					<div class="{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} ">
-						<BoardWords
-							words={sortedWords}
-							showClock={isClockVisible}
-							{elapsedTime}
-							{title}
-							{onClockClick}
-						/>
+						{#if dailyChallenge}
+							<DailyChallengeBoardWords
+								{dailyChallenge}
+								words={sortedWords}
+								showClock={isClockVisible}
+								{elapsedTime}
+								{title}
+								{onClockClick}
+							/>
+						{:else}
+							<ClassicBoardWords
+								words={sortedWords}
+								showClock={isClockVisible}
+								{elapsedTime}
+								{title}
+								{onClockClick}
+							/>
+						{/if}
 					</div>
 
 					<Board

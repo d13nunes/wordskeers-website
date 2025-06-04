@@ -2,6 +2,7 @@ import type { Direction } from './Direction';
 import type { Position } from './Position';
 import { directionMap } from './Direction';
 import { randomFromStringArray } from '$lib/utils/random-utils';
+import type { DailyChallenge } from '$lib/daily-challenge/models';
 
 export interface Word {
 	word: string;
@@ -114,6 +115,26 @@ export function createGameForConfiguration(config: GameConfiguration): Game {
 			isDiscovered: false
 		})),
 		config: config
+	};
+}
+
+export function createGameFromDailyChallenge(dailyChallenge: DailyChallenge): Game {
+	const wordsLocation: WordLocation[] = dailyChallenge.words;
+	return {
+		grid: createGridFor(wordsLocation, dailyChallenge.size),
+		title: dailyChallenge.title,
+		words: wordsLocation.map((w) => ({
+			word: w.word,
+			position: w.initialPosition,
+			direction: w.direction,
+			isDiscovered: false
+		})),
+		config: {
+			id: dailyChallenge.id,
+			wordsLocation: wordsLocation,
+			size: dailyChallenge.size,
+			title: dailyChallenge.title
+		}
 	};
 }
 
