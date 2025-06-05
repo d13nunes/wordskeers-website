@@ -19,8 +19,9 @@
 		isRotated: boolean;
 		hintPositions: Position[];
 		isGameEnded: boolean;
-		onWordSelect: (word: string, path: Position[]) => Position[];
+		onWordSelect: (word: string, path: Position[], letterSize: number) => Position[];
 		getColor: () => ColorTheme;
+		class?: string;
 	}
 
 	// Add some constraints to prevent cells from getting too small or too large
@@ -39,7 +40,8 @@
 		getColor,
 		isRotated = false,
 		hintPositions = [],
-		isGameEnded = false
+		isGameEnded = false,
+		class: classProp = ''
 	}: Props = $props();
 
 	// Calculate number of columns dynamically
@@ -97,7 +99,7 @@
 
 				// Call the callback with the selected word and path
 
-				const discoveredPositions = onWordSelect(selectedWord, cells);
+				const discoveredPositions = onWordSelect(selectedWord, cells, fontSize);
 				if (discoveredPositions.length > 0) {
 					setDiscovered(discoveredPositions);
 					animateDiscovered(discoveredPositions);
@@ -419,7 +421,7 @@
 	});
 </script>
 
-<div bind:this={boardElement} class="flex w-full flex-col items-center justify-center">
+<div bind:this={boardElement} class="flex w-full flex-col items-center justify-center {classProp}">
 	<div
 		id="board"
 		class="grid rounded-md bg-white p-2 shadow-sm transition-all ease-in-out"

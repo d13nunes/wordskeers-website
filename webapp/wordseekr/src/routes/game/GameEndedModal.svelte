@@ -28,20 +28,6 @@
 </script>
 
 <div
-	style="
- position: fixed;
- top: -50px;
- left: 0;
- height: 100vh;
- width: 100vw;
- display: flex;
- justify-content: center;
- overflow: hidden;
- pointer-events: none;"
->
-	<Confetti x={[-5, 5]} y={[0, 0.1]} infinite duration={5000} amount={200} fallDistance="100vh" />
-</div>
-<div
 	in:fade={{ delay: 300, duration: 300, easing: cubicOut }}
 	out:fade={{ delay: 500, duration: 300, easing: cubicIn }}
 	class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"

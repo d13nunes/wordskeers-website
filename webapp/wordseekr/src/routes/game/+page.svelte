@@ -14,7 +14,7 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { animate, utils } from 'animejs';
+	import { animate, stagger, utils } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
@@ -24,8 +24,6 @@
 	import { getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
 	import { databaseService } from '$lib/database/database.service';
-	import BoardWords from './BoardWords.svelte';
-	import PauseMenu from './PauseMenu.svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { endGameAdStore } from '$lib/game/end-game-ad';
 	import { analytics } from '$lib/analytics/analytics';
@@ -34,15 +32,16 @@
 	import { mockDailyChallenge, type DailyChallenge } from '$lib/daily-challenge/models';
 	import DailyChallengeBoardWords from '$lib/daily-challenge/DailyChallengeBoardWords.svelte';
 	import ClassicBoardWords from './ClassicBoardWords.svelte';
+	import Confetti from 'svelte-confetti';
+	import PauseMenu from './PauseMenu.svelte';
 
 	const powerUpCooldownButton = 1500;
 
 	let colorGenerator = new ColorGenerator();
-
 	let isSmallScreen = $state(true);
+	let isLandscape = $derived(window.innerWidth > window.innerHeight);
 	let progressCircle = $state<SVGCircleElement | null>(null);
 	let isRotated = $state(false);
-	let isGameEnded = $state(false);
 	let isRotateDisabled = $state(false);
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
@@ -53,8 +52,10 @@
 	let hintPositions: Position[] = $state([]);
 	let showPauseModal = $state(false);
 	let isPowerUpAnimationActive = $state(false);
+	let isGameEnded = $state(false);
 
 	let dailyChallenge = $state<DailyChallenge | null>(null);
+	let showGameEnded = $state(false);
 
 	let difficulty: Difficulty | undefined = undefined;
 
@@ -103,53 +104,147 @@
 		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
 	}
 
-	function getWordIndex(word: string): number | undefined {
+	function getWordIndex(word: string): { index: number; isReversed: boolean } | undefined {
 		const wordDirection = words.findIndex((w) => w.word === word);
 		if (wordDirection !== -1) {
-			return wordDirection;
+			return { index: wordDirection, isReversed: false };
 		}
 		const reverseWord = word.split('').reverse().join('');
 		const reverseWordDirection = words.findIndex((w) => w.word === reverseWord);
 		if (reverseWordDirection !== -1) {
-			return reverseWordDirection;
+			return { index: reverseWordDirection, isReversed: true };
 		}
 		return undefined;
 	}
 
-	let onWordSelect = (word: string, path: Position[]): Position[] => {
-		const wordIndex = getWordIndex(word);
+	function setWordDiscovered(index: number, path: Position[]) {
+		if (index !== -1) {
+			words[index].color = 'bg-slate-200';
+			words[index].textColor = 'text-gray-700';
+			words[index].isDiscovered = true;
+			words[index].discoveredPositions = path;
+		}
+		checkIfGameEnded();
+	}
+
+	let onWordSelect = (word: string, path: Position[], letterSize: number): Position[] => {
+		const { index: wordIndex, isReversed } = getWordIndex(word) ?? {
+			index: -1,
+			isReversed: false
+		};
+		const wordToDiscover = isReversed ? word.split('').reverse().join('') : word;
 		console.debug(
 			'wordIndex',
 			wordIndex,
-			word,
+			wordToDiscover,
 			words.map((w) => w.word)
 		);
 		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
-			console.debug('wordIndex', words[wordIndex], word);
-			words[wordIndex].color = 'bg-slate-200';
-			words[wordIndex].textColor = 'text-gray-700';
-			words[wordIndex].isDiscovered = true;
-			addCoinsToPiggyBank(word);
+			const normalizedPath = isReversed ? path.reverse() : path;
+			addCoinsToPiggyBank(wordToDiscover);
 			hintPositions.length = 0;
-			const totalWords = words.length;
-			const discoveredWords = words.filter((w) => w.isDiscovered).length;
-			if (discoveredWords === totalWords) {
-				isGameEnded = true;
-				const gridID = game?.config.id.toString() ?? 'undefined';
-				analytics.completeGame(difficulty ?? 'undefined', gridID);
-				// Mark grid as played when game ends
-				const gridId = parseInt(game?.config.id ?? '-1');
-				if (!isNaN(gridId)) {
-					databaseService.markGridAsPlayed(gridId, elapsedTime);
-				}
-				Haptics.impact({ style: ImpactStyle.Heavy });
+			const wordsDiscoveredCells = normalizedPath.map((p) =>
+				document.getElementById(getPositionId(p.row, p.col))
+			);
+			const prefixForOrientation = isSmallScreen && isLandscape ? 'l-' : 'p-';
+			const wordElement = document.getElementById(
+				prefixForOrientation + wordToDiscover.toLowerCase()
+			);
+
+			const wordElementRect = wordElement?.getBoundingClientRect();
+			if (wordElement && wordElementRect && wordsDiscoveredCells.length > 0) {
+				const totalCells = wordsDiscoveredCells.length - 1;
+				const duration = 500;
+				wordsDiscoveredCells.forEach((cell, index) => {
+					if (cell) {
+						const rect = cell.getBoundingClientRect();
+						const clone = cell.cloneNode(true) as HTMLElement;
+						clone.removeAttribute('id');
+						Object.assign(clone.style, {
+							position: 'fixed',
+							left: `${rect.left}px`,
+							top: `${rect.top}px`,
+							width: `${rect.width}px`,
+							height: `${rect.height}px`,
+							margin: 0,
+							zIndex: 9999,
+
+							pointerEvents: 'none' // prevent accidental clicks
+						});
+						utils.set(clone, {
+							opacity: 0
+						});
+						document.body.appendChild(clone);
+
+						const offsetX = Math.min(
+							Math.max(10, (wordElementRect.width * index) / totalCells),
+							wordElementRect.width - 10
+						);
+						const offsetY = wordElementRect.height / 2;
+						const translateX = wordElementRect.x + offsetX - (rect.x + rect.width / 2);
+						const translateY = wordElementRect.y + offsetY - (rect.y + rect.height / 2);
+
+						animate(clone, {
+							translateX: [0, translateX],
+							translateY: [0, translateY],
+							opacity: [1, 0.5, 0],
+
+							fontSize: [letterSize + 'px', '6px'],
+							delay: 50,
+							duration: duration,
+							easing: 'inOut',
+
+							onBegin: () => {
+								utils.set(clone, {
+									opacity: 1,
+									backgroundColor: 'rgba(255, 255, 255, 0)'
+								});
+							}
+						}).then(() => {
+							clone.remove();
+						});
+					}
+				});
+
+				setTimeout(() => {
+					setWordDiscovered(wordIndex, normalizedPath);
+				}, duration);
+
+				animate(wordElement, {
+					scale: [1, 1.2, 1],
+					delay: duration - 100,
+					duration: 300,
+					easing: 'inOut'
+				}).then(() => {});
 			} else {
-				Haptics.impact({ style: ImpactStyle.Light });
+				setWordDiscovered(wordIndex, normalizedPath);
 			}
+			Haptics.impact({ style: ImpactStyle.Light });
+
 			return path;
 		}
 		return [];
 	};
+
+	function checkIfGameEnded() {
+		const foundAllWords = words.every((w) => w.isDiscovered);
+		if (foundAllWords) {
+			isGameEnded = true;
+
+			setTimeout(() => {
+				showGameEnded = true;
+			}, 1000);
+			Haptics.impact({ style: ImpactStyle.Heavy });
+			const gridID = game?.config.id.toString() ?? 'undefined';
+			analytics.completeGame(difficulty ?? 'undefined', gridID);
+			// Mark grid as played when game ends
+			const gridId = parseInt(game?.config.id ?? '-1');
+			if (!isNaN(gridId)) {
+				databaseService.markGridAsPlayed(gridId, elapsedTime);
+			}
+			Haptics.impact({ style: ImpactStyle.Heavy });
+		}
+	}
 
 	function addCoinsToPiggyBank(word: string) {
 		const totalToAdd = calculateWordCoins(word);
@@ -255,9 +350,9 @@
 	}
 
 	function setBGColorTag(word: string, color: string) {
-		const wordIndex = getWordIndex(word);
-		if (wordIndex !== undefined) {
-			words[wordIndex].color = color;
+		const { index } = getWordIndex(word) ?? { index: -1 };
+		if (index !== undefined) {
+			words[index].color = color;
 		}
 	}
 
@@ -521,7 +616,7 @@
 				onClickNewGame={pauseMenuNewGameClick}
 			/>
 		{/if}
-		{#if isGameEnded}
+		{#if showGameEnded}
 			<GameEndedModal
 				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${accumulatedCoins} coins!`}
 				onClickContinue={() => collectReward(false)}
@@ -553,6 +648,7 @@
 							/>
 						{:else}
 							<ClassicBoardWords
+								idPrefix="l-"
 								words={sortedWords}
 								showClock={isClockVisible}
 								{elapsedTime}
@@ -602,6 +698,7 @@
 							/>
 						{:else}
 							<ClassicBoardWords
+								idPrefix="p-"
 								words={sortedWords}
 								showClock={isClockVisible}
 								{elapsedTime}
@@ -611,6 +708,18 @@
 						{/if}
 					</div>
 
+					{#if isGameEnded}
+						<div class="fixed inset-0 z-10 flex items-center justify-center">
+							<Confetti
+								x={[-1.5, 1.5]}
+								y={[-1.5, 1.5]}
+								iterationCount={5}
+								amount={400}
+								duration={2000}
+								noGravity={true}
+							/>
+						</div>
+					{/if}
 					<Board
 						grid={game.grid}
 						{onWordSelect}
@@ -618,6 +727,7 @@
 						{isRotated}
 						{hintPositions}
 						{isGameEnded}
+						class="board-container"
 					/>
 				</div>
 				<!-- Game Buttons -->

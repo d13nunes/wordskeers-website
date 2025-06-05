@@ -9,6 +9,7 @@ export interface Word {
 	position: Position;
 	direction: Direction;
 
+	discoveredPositions?: Position[];
 	color?: string;
 	textColor?: string;
 	isDiscovered: boolean;
