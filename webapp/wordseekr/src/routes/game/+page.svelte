@@ -28,7 +28,7 @@
 	import { endGameAdStore } from '$lib/game/end-game-ad';
 	import { analytics } from '$lib/analytics/analytics';
 	import type { Difficulty } from '$lib/game/difficulty';
-	import { myLocalStorage } from '$lib/storage/local-storage';
+	import { gameCounter, myLocalStorage } from '$lib/storage/local-storage';
 	import { type DailyChallenge } from '$lib/daily-challenge/models';
 	import DailyChallengeBoardWords from '$lib/daily-challenge/DailyChallengeBoardWords.svelte';
 	import ClassicBoardWords from './ClassicBoardWords.svelte';
@@ -39,7 +39,7 @@
 
 	let colorGenerator = new ColorGenerator();
 	let isSmallScreen = $state(true);
-	let isLandscape = $derived(window.innerWidth > window.innerHeight);
+	let isLandscape = $state(false);
 	let progressCircle = $state<SVGCircleElement | null>(null);
 	let isRotated = $state(false);
 	let isRotateDisabled = $state(false);
@@ -79,9 +79,22 @@
 	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
-
-	onMount(async () => {
+	const handleResize = () => {
+		console.log('!!!!-! handleResize');
+		isLandscape = window.innerWidth > window.innerHeight;
+	};
+	async function loadClockVisibility() {
+		try {
+			const isClockVisibleResult = await myLocalStorage.get(myLocalStorage.ClockVisible);
+			isClockVisible = isClockVisibleResult === 'true';
+		} catch (e) {
+			console.error('Error loading clock visibility:', e);
+		}
+	}
+	onMount(() => {
 		isSmallScreen = getIsSmallScreen();
+		window.addEventListener('resize', handleResize);
+
 		if (isDailyChallenge) {
 			gridID = dailyChallengeID;
 			loadGridFromDailyChallenge(dailyChallengeID);
@@ -92,12 +105,10 @@
 			}
 			loadGridFromDatabase(gridID);
 		}
-		try {
-			const isClockVisibleResult = await myLocalStorage.get(myLocalStorage.ClockVisible);
-			isClockVisible = isClockVisibleResult === 'true';
-		} catch (e) {
-			console.error('Error loading clock visibility:', e);
-		}
+		loadClockVisibility();
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		};
 	});
 
 	function getColor() {
@@ -238,6 +249,7 @@
 			if (!isNaN(gridId)) {
 				databaseService.markGridAsPlayed(gridId, elapsedTime);
 			}
+			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });
 		}
 	}

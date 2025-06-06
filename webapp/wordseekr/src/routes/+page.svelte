@@ -12,6 +12,8 @@
 	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
 	import { myLocalStorage, completionTracker } from '$lib/storage/local-storage';
+	import { OnAppearAction, onGameSelectionAppear } from '$lib/logic/on-game-selection-actions';
+	import { modalPresenter } from './modal-presenter';
 
 	const difficulties = [
 		{ value: Difficulty.VeryEasy, label: 'Very Easy' },
@@ -61,6 +63,20 @@
 			});
 		}
 		await completionTracker.trackCompletionPercentageOfAllDifficulties();
+
+		const onAppearAction = await onGameSelectionAppear();
+		console.log('🔍ℹ onAppearAction', onAppearAction);
+		switch (onAppearAction) {
+			case OnAppearAction.ShowQuoteModal:
+				console.log('🔍ℹ showQuoteModal');
+				modalPresenter.showQuoteModal();
+				break;
+			case OnAppearAction.ShowRewardModal:
+				console.log('🔍ℹ showRewardsModal');
+				modalPresenter.showRewardsModal();
+				break;
+			default:
+		}
 	});
 
 	$effect(() => {

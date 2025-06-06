@@ -8,6 +8,7 @@ class LocalStorage {
 	CoinBalance = 'coinBalance';
 	RemoveAds = 'removeAds';
 	ClockVisible = 'isClockVisible';
+	TotalPlayedGamesCount = 'totalPlayedGamesCount';
 
 	constructor() {}
 
@@ -22,6 +23,23 @@ class LocalStorage {
 
 	async remove(key: string): Promise<void> {
 		return await Preferences.remove({ key });
+	}
+}
+
+class GameCounter {
+	private localStorage: LocalStorage;
+	constructor(localStorage: LocalStorage) {
+		this.localStorage = localStorage;
+	}
+
+	async getCount(): Promise<number> {
+		const count = await this.localStorage.get(this.localStorage.TotalPlayedGamesCount);
+		return count ? parseInt(count) : 0;
+	}
+
+	async increment(): Promise<void> {
+		const count = await this.getCount();
+		await this.localStorage.set(this.localStorage.TotalPlayedGamesCount, (count + 1).toString());
 	}
 }
 
@@ -83,3 +101,4 @@ class CompletionTracker {
 
 export const myLocalStorage = new LocalStorage();
 export const completionTracker = new CompletionTracker(myLocalStorage);
+export const gameCounter = new GameCounter(myLocalStorage);

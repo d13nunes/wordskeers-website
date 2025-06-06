@@ -8,26 +8,17 @@
 	import { onDestroy, onMount } from 'svelte';
 	import DailyRewardCardClaimed from '$lib/components/DailyRewards/DailyRewardCardClaimed.svelte';
 	import { DailyRewardStatus } from '$lib/rewards/daily-reward.model';
-	import { Confetti } from 'svelte-confetti';
-	import { DailyRewardsNotifications } from '$lib/rewards/daily-rewards.notifications';
 	import { analytics } from '$lib/analytics/analytics';
-	// Store subscriptions
+
 	let rewards = $derived($dailyRewardsStore?.currentRewards ?? []);
 	let claimedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimed));
 	let lockedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Locked));
 	let claimableRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimable));
 	let resetRewardTimestamp = $derived($dailyRewardsStore?.resetRewardDate);
-	let showConfetti = $state(false);
 
 	let showEnableNotification = $derived(!$dailyRewardsStore?.notificationsEnabled);
 	async function handleClaimDailyReward(rewardId: string, requiresAd: boolean) {
-		console.log('📨📨 !!!!!! Claiming daily reward...', rewardId, requiresAd);
 		const result = await dailyRewardsStore.claimReward(rewardId);
-
-		showConfetti = true;
-		setTimeout(() => {
-			showConfetti = false;
-		}, 1000);
 		if (result.success) {
 			// TODO Animation
 		} else if (result.noAdsAvailable) {

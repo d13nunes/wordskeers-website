@@ -74,6 +74,15 @@ async function claimRewardAction(
 	}
 }
 
+// Free reward is the reward that doesnt require an ad to be claimed
+async function isFreeRewardAvailableAction(): Promise<boolean> {
+	const currentState = get(_dailyRewardsState);
+	if (!currentState) {
+		return false;
+	}
+	return currentState.rewardsCollectedToday === 0;
+}
+
 async function setEnableNotificationsAction(enable: boolean): Promise<void> {
 	const currentState = get(_dailyRewardsState);
 	if (!currentState) {
@@ -95,5 +104,6 @@ export const dailyRewardsStore = {
 	// Actions:
 	claimReward: claimRewardAction,
 	setEnableNotifications: setEnableNotificationsAction,
-	refresh: refreshStateAction
+	refresh: refreshStateAction,
+	isFreeRewardAvailable: isFreeRewardAvailableAction
 };

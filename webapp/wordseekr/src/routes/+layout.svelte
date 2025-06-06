@@ -18,6 +18,7 @@
 	import { fade } from 'svelte/transition';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import { page } from '$app/state';
+	import { modalPresenter } from './modal-presenter';
 
 	interface Props {
 		children: Snippet;
@@ -62,12 +63,19 @@
 				delay: 300
 			});
 		}
+
+		modalPresenter.isQuoteModalVisible.subscribe((visible: boolean) => {
+			showQuoteModal = visible;
+		});
+		modalPresenter.isRewardsModalVisible.subscribe((visible: boolean) => {
+			isDailyRewardsOpen = visible;
+		});
 	});
 	let showQuoteModal = $state(false);
 	let showBadge = $state(false);
 	let isDailyQuoteVisible = $derived(page.url.pathname === '/');
 
-	function onDailyQuoteClick() {
+	export function onDailyQuoteClick() {
 		showQuoteModal = true;
 	}
 </script>
