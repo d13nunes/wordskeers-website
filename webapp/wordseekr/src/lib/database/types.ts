@@ -44,6 +44,20 @@ export interface Grid {
 	created_at: string;
 }
 
+export interface QuoteSegmentDB {
+	text: string;
+	isHidden: boolean;
+}
+
+export interface DailyChallengeDB {
+	id: string;
+	title: string;
+	size: number;
+	date: Date;
+	quotes: QuoteSegmentDB[];
+	words: WordPlacement[];
+}
+
 export interface Listing {
 	id: number;
 	name: string;

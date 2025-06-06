@@ -5,6 +5,7 @@
 	import { isIAPAvailable } from '$lib/economy/iapStore';
 	import { onMount } from 'svelte';
 	import { animate, utils } from 'animejs';
+	import BaseTag from '../BaseTag.svelte';
 
 	let balance = $state(0);
 	let isActive = $state(false);
@@ -55,12 +56,7 @@
 	});
 </script>
 
-<button
-	id="balance-tag"
-	class="card-button flex flex-row items-center justify-center"
-	disabled={!isActive}
-	{onclick}
->
+<BaseTag {onclick} disabled={!isActive} id="balance-tag">
 	<div class="h-4 w-4 lg:h-6 lg:w-6">
 		<CoinsPileIcon id="balance-tag-icon" />
 	</div>
@@ -73,4 +69,4 @@
 			<PlusCircleIcon fillColor="#00c951" />
 		</div>
 	{/if}
-</button>
+</BaseTag>

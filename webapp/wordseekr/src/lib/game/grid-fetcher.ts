@@ -4,6 +4,7 @@ import { DifficultyConfigMap } from './difficulty-config-map';
 import type { GameConfiguration, WordLocation } from '../components/Game/game';
 import { convertDatabaseDirection } from '../components/Game/Direction';
 import type { WordPlacement } from '$lib/database/types';
+import type { DailyChallenge } from '$lib/daily-challenge/models';
 
 export async function getRandomGridForDifficulty(
 	difficulty: Difficulty
@@ -58,6 +59,21 @@ export async function getRandonGridID(difficulty: Difficulty): Promise<number> {
 	const grids = await databaseService.getWordSearchGrids();
 	const matchingGrids = grids.filter((grid) => grid.size === config.gridSize);
 	return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
+}
+
+export async function getDailyChallenge(id: number): Promise<DailyChallenge> {
+	const grid = await databaseService.getDailyChallengeById(id);
+	if (!grid) {
+		throw new Error(`Grid with id ${id} not found`);
+	}
+	return {
+		id: grid.id.toString(),
+		title: grid.title,
+		size: grid.size,
+		date: grid.date,
+		quotes: grid.quotes,
+		words: grid.words.map(convertWordPlacement)
+	};
 }
 
 export async function getGridWithID(id: number): Promise<GameConfiguration> {

@@ -10,7 +10,8 @@ import type {
 	Theme,
 	Grid,
 	Listing,
-	ListingWord
+	ListingWord,
+	DailyChallengeDB
 } from './types';
 
 // Database configuration
@@ -307,6 +308,43 @@ class DatabaseService {
 	public async getGridById(id: number): Promise<Grid | null> {
 		const results = await this.executeQuery<Grid>('SELECT * FROM grids WHERE id = ?', [id]);
 		return results[0] || null;
+	}
+
+	public async getDailyChallengeById(id: number): Promise<DailyChallengeDB | null> {
+		// TODO: Implement this
+		return {
+			id: '' + id,
+			title: 'Albert Einstein',
+			size: 7,
+			date: new Date('2025-06-05T15:58:13.383Z'),
+			quotes: [
+				{ text: 'LIFE', isHidden: true },
+				{ text: 'IS', isHidden: false },
+				{ text: 'LIKE', isHidden: false },
+				{ text: 'RIDING', isHidden: false },
+				{ text: 'A', isHidden: false },
+				{ text: 'BICYCLE', isHidden: true },
+				{ text: '.', isHidden: false },
+				{ text: 'TO', isHidden: false },
+				{ text: 'KEEP', isHidden: true },
+				{ text: 'YOUR', isHidden: false },
+				{ text: 'BALANCE', isHidden: true },
+				{ text: ',', isHidden: false },
+				{ text: 'YOU', isHidden: false },
+				{ text: 'MUST', isHidden: true },
+				{ text: 'KEEP', isHidden: false },
+				{ text: 'MOVING', isHidden: true },
+				{ text: '.', isHidden: false }
+			],
+			words: [
+				{ word: 'KEEP', row: 0, col: 5, direction: 'vertical', id: 1, grid_id: 1 },
+				{ word: 'MUST', row: 2, col: 3, direction: 'diagonal-dl', id: 2, grid_id: 1 },
+				{ word: 'LIFE', row: 1, col: 0, direction: 'horizontal', id: 3, grid_id: 1 },
+				{ word: 'MOVING', row: 6, col: 0, direction: 'horizontal', id: 4, grid_id: 1 },
+				{ word: 'BALANCE', row: 0, col: 6, direction: 'vertical', id: 5, grid_id: 1 },
+				{ word: 'BICYCLE', row: 0, col: 0, direction: 'diagonal-dr', id: 6, grid_id: 1 }
+			]
+		};
 	}
 }
 

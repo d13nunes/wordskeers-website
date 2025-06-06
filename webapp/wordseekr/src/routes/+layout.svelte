@@ -13,6 +13,12 @@
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
+	import DailyQuoteTag from '$lib/daily-challenge/DailyQuoteTag.svelte';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import { fade } from 'svelte/transition';
+	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
+	import { page } from '$app/state';
+
 	interface Props {
 		children: Snippet;
 	}
@@ -57,10 +63,22 @@
 			});
 		}
 	});
+	let showQuoteModal = $state(false);
 	let showBadge = $state(false);
+	let isDailyQuoteVisible = $derived(page.url.pathname === '/');
+
+	function onDailyQuoteClick() {
+		showQuoteModal = true;
+	}
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
+	{#if showQuoteModal}
+		<QuotePage
+			onClickPlay={() => (showQuoteModal = false)}
+			onClickClose={() => (showQuoteModal = false)}
+		/>
+	{/if}
 	<!-- {#if showBadge} -->
 	<div
 		id="badges"
@@ -68,6 +86,11 @@
 			? 'landscape:justify-start'
 			: ''} "
 	>
+		{#if isDailyQuoteVisible}
+			<div in:fade>
+				<DailyQuoteTag onclick={onDailyQuoteClick} />
+			</div>
+		{/if}
 		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
 		<BalanceTag onclick={onStoreClick} />
 	</div>

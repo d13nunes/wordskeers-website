@@ -1,4 +1,5 @@
 <script lang="ts">
+	import GameModeIconTitle from '$lib/components/GameModeIconTitle.svelte';
 	import { goto } from '$app/navigation';
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
 	import { Difficulty } from '$lib/game/difficulty';
@@ -23,6 +24,8 @@
 	let directionsSymbols = $state('');
 	let gridSize = $state(0);
 	let isSmallScreen = $state(getIsSmallScreen());
+
+	const magnifierglassId = 'magnifierglass';
 
 	function updateDifficulty(index: number) {
 		selectedDifficultyIndex = index;
@@ -50,7 +53,7 @@
 		if (currentDifficulty) {
 			updateDifficulty(parseInt(currentDifficulty ?? '0'));
 		}
-		const magnifierglass = document.getElementById('magnifierglass');
+		const magnifierglass = document.getElementById(magnifierglassId);
 		if (magnifierglass) {
 			animate(magnifierglass, {
 				rotate: [0, -5, 5, -5, 0],
@@ -71,16 +74,12 @@
 <div class="fixed inset-0 z-50 bg-slate-50">
 	<div class="flex h-full items-center justify-center sm:items-center lg:items-center lg:pb-0">
 		<div class="flex max-w-2xl flex-col items-center justify-center">
-			<img
-				id="magnifierglass"
-				src={magnifierglass}
-				alt="Logo"
-				class="mb-2 h-16 w-16 lg:h-32 lg:w-32"
+			<GameModeIconTitle
+				icon={magnifierglass}
+				iconId={magnifierglassId}
+				title="Classic"
+				subtitle="Game Mode"
 			/>
-			<div class="flex flex-col items-center justify-center gap-0">
-				<span class="text-4xl font-bold lg:text-6xl">Classic</span>
-				<span class="text-sm text-gray-500 lg:text-base">Game Mode</span>
-			</div>
 			<!-- Game Configuration Display -->
 			<div
 				class="{isSmallScreen

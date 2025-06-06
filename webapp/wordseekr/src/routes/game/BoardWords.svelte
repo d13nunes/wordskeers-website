@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		showClock: boolean;
 		elapsedTime: number;
 		title: string;
 		onClockClick: (isVisible: boolean) => void;
-		children: () => any;
+		children: Snippet;
 	}
 
 	const { showClock, elapsedTime, title, onClockClick, children }: Props = $props();

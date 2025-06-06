@@ -10,10 +10,12 @@
 		showClock: boolean;
 		elapsedTime: number;
 		title: string;
+		idPrefix: string;
 		onClockClick: (isClockVisible: boolean) => void;
 	}
 
-	const { dailyChallenge, words, showClock, elapsedTime, title, onClockClick }: Props = $props();
+	const { dailyChallenge, words, showClock, elapsedTime, title, idPrefix, onClockClick }: Props =
+		$props();
 
 	$effect(() => {
 		words
@@ -29,12 +31,12 @@
 </script>
 
 <BoardWords {showClock} {elapsedTime} {title} {onClockClick}>
-	<div class="flex flex-row flex-wrap gap-2 font-mono text-gray-700">
-		{#each dailyChallenge.quotes as quote}
+	<div class="flex flex-row flex-wrap gap-2 font-mono text-base text-gray-700">
+		{#each dailyChallenge.quotes as quote, index}
 			{#if quote.isHidden}
-				<div id={quote.text.toLowerCase()} class="flex flex-row gap-[7px] pe-1.5">
+				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px] pe-1.5">
 					{#each quote.text.split('') as char, index}
-						<span class="relative min-w-[0.5ch]">
+						<span class="relative min-h-[18px] min-w-[0.5ch]">
 							{#if quote.isDiscovered}
 								<span
 									in:fade={{ delay: 200 * index, duration: 200 }}

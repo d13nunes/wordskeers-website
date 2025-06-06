@@ -14,14 +14,14 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { animate, stagger, utils } from 'animejs';
+	import { animate, utils } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { getFormatedTime, getPositionId } from '$lib/utils/string-utils';
 	import { appStateManager } from '$lib/utils/app-state';
-	import { getGridWithID } from '$lib/game/grid-fetcher';
+	import { getDailyChallenge, getGridWithID } from '$lib/game/grid-fetcher';
 	import { onMount } from 'svelte';
 	import { databaseService } from '$lib/database/database.service';
 	import { getIsSmallScreen } from '$lib/utils/utils';
@@ -29,7 +29,7 @@
 	import { analytics } from '$lib/analytics/analytics';
 	import type { Difficulty } from '$lib/game/difficulty';
 	import { myLocalStorage } from '$lib/storage/local-storage';
-	import { mockDailyChallenge, type DailyChallenge } from '$lib/daily-challenge/models';
+	import { type DailyChallenge } from '$lib/daily-challenge/models';
 	import DailyChallengeBoardWords from '$lib/daily-challenge/DailyChallengeBoardWords.svelte';
 	import ClassicBoardWords from './ClassicBoardWords.svelte';
 	import Confetti from 'svelte-confetti';
@@ -72,21 +72,21 @@
 		}
 	}
 
-	function loadGridFromDailyChallenge(dailyChallengeID: number) {
-		dailyChallenge = mockDailyChallenge;
+	async function loadGridFromDailyChallenge(dailyChallengeID: number) {
+		dailyChallenge = await getDailyChallenge(dailyChallengeID);
 		game = createGameFromDailyChallenge(dailyChallenge);
 	}
-
 	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
 	let isDailyChallenge = dailyChallengeID !== -1;
-	let gridID: number;
+	let gridID: number = -1;
+
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
 		if (isDailyChallenge) {
 			gridID = dailyChallengeID;
 			loadGridFromDailyChallenge(dailyChallengeID);
 		} else {
-			const gridID: number = parseInt(page.url.searchParams.get('id') ?? '-1');
+			gridID = parseInt(page.url.searchParams.get('id') ?? '-1');
 			if (!gridID) {
 				throw new Error('Invalid id');
 			}
@@ -147,14 +147,13 @@
 				document.getElementById(getPositionId(p.row, p.col))
 			);
 			const prefixForOrientation = isSmallScreen && isLandscape ? 'l-' : 'p-';
-			const wordElement = document.getElementById(
-				prefixForOrientation + wordToDiscover.toLowerCase()
-			);
+			const wordElementId = prefixForOrientation + wordToDiscover.toLowerCase();
+			const wordElement = document.getElementById(wordElementId);
 
 			const wordElementRect = wordElement?.getBoundingClientRect();
 			if (wordElement && wordElementRect && wordsDiscoveredCells.length > 0) {
 				const totalCells = wordsDiscoveredCells.length - 1;
-				const duration = 500;
+				const duration = 750;
 				wordsDiscoveredCells.forEach((cell, index) => {
 					if (cell) {
 						const rect = cell.getBoundingClientRect();
@@ -181,19 +180,16 @@
 							wordElementRect.width - 10
 						);
 						const offsetY = wordElementRect.height / 2;
-						const translateX = wordElementRect.x + offsetX - (rect.x + rect.width / 2);
+						const translateX =
+							wordElementRect.x + wordElementRect.width / 2 - (rect.x + rect.width / 2);
 						const translateY = wordElementRect.y + offsetY - (rect.y + rect.height / 2);
-
 						animate(clone, {
 							translateX: [0, translateX],
 							translateY: [0, translateY],
 							opacity: [1, 0.5, 0],
-
 							fontSize: [letterSize + 'px', '6px'],
-							delay: 50,
 							duration: duration,
 							easing: 'inOut',
-
 							onBegin: () => {
 								utils.set(clone, {
 									opacity: 1,
@@ -458,11 +454,6 @@
 		findWord: 200
 	};
 
-	// Add progress calculation
-	let progressPercentage = $derived(
-		words.length > 0 ? (words.filter((w) => w.isDiscovered).length / words.length) * 100 : 0
-	);
-
 	walletStore.coins((balance) => {
 		isRotateDisabled = balance < powerUpPrices.rotate;
 		isFindLetterDisabled = balance < powerUpPrices.findLetter;
@@ -495,9 +486,7 @@
 	$effect(() => {
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
-			if (!isActive && !showPauseModal && !isGameEnded) {
-				showPauseModal = false;
-			}
+			showPauseModal = !isActive && !isGameEnded;
 		});
 
 		// Cleanup subscription when component unmounts
@@ -639,6 +628,7 @@
 					<div class="mb-4">
 						{#if dailyChallenge}
 							<DailyChallengeBoardWords
+								idPrefix="l-"
 								{dailyChallenge}
 								words={sortedWords}
 								showClock={isClockVisible}
@@ -689,6 +679,7 @@
 					<div class="{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} ">
 						{#if dailyChallenge}
 							<DailyChallengeBoardWords
+								idPrefix="p-"
 								{dailyChallenge}
 								words={sortedWords}
 								showClock={isClockVisible}
