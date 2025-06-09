@@ -9,13 +9,15 @@
 		backgroundOpacity?: number;
 		onClose?: () => void;
 	}
-	let { children, onClose, backgroundOpacity = 100 }: Props = $props();
+	let { children, onClose, backgroundOpacity }: Props = $props();
 </script>
 
 <div
 	in:fade={{ duration: 300, easing: cubicOut }}
 	out:fade={{ delay: 100, duration: 300, easing: cubicIn }}
-	class="bg-opacity-50 fixed inset-0 z-100 flex items-center justify-center bg-black/{backgroundOpacity}"
+	class="fixed inset-0 z-100 flex items-center justify-center {backgroundOpacity
+		? `bg-black/${backgroundOpacity}`
+		: 'bg-black'}"
 >
 	<div
 		in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
