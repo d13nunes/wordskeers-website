@@ -9,7 +9,8 @@ export interface QuoteSegment {
 export interface DailyChallenge {
 	id: string;
 	title: string;
-	size: number;
+	rows: number;
+	columns: number;
 	date: Date;
 	quotes: QuoteSegment[];
 	words: WordLocation[];

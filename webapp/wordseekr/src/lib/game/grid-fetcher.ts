@@ -17,7 +17,10 @@ export async function getRandomGridForDifficulty(
 
 	// Filter grids that match the difficulty criteria
 	const matchingGrids = grids.filter(
-		(grid) => grid.size === config.gridSize && grid.words_count >= (config.wordsCount ?? 0)
+		(grid) =>
+			grid.rows === config.rows &&
+			grid.columns === config.columns &&
+			grid.words_count >= (config.wordsCount ?? 0)
 	);
 
 	if (matchingGrids.length === 0) {
@@ -37,7 +40,8 @@ export async function getRandomGridForDifficulty(
 	return {
 		id: randomGrid.id.toString(),
 		wordsLocation,
-		size: randomGrid.size,
+		rows: randomGrid.rows,
+		columns: randomGrid.columns,
 		title: randomGrid.name
 	};
 }
@@ -45,7 +49,9 @@ export async function getRandomGridForDifficulty(
 export async function getRandomUnplayedGridID(difficulty: Difficulty): Promise<number> {
 	const config = DifficultyConfigMap.config(difficulty);
 	const grids = await databaseService.getWordSearchGrids();
-	const matchingGrids = grids.filter((grid) => grid.size === config.gridSize && !grid.played_at);
+	const matchingGrids = grids.filter(
+		(grid) => grid.rows === config.rows && grid.columns === config.columns && !grid.played_at
+	);
 	if (matchingGrids.length > 0) {
 		return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
 	}
@@ -57,7 +63,9 @@ export async function getRandonGridID(difficulty: Difficulty): Promise<number> {
 	const config = DifficultyConfigMap.config(difficulty);
 	console.log('config', config);
 	const grids = await databaseService.getWordSearchGrids();
-	const matchingGrids = grids.filter((grid) => grid.size === config.gridSize);
+	const matchingGrids = grids.filter(
+		(grid) => grid.rows === config.rows && grid.columns === config.columns
+	);
 	return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
 }
 
@@ -69,7 +77,8 @@ export async function getDailyChallenge(id: number): Promise<DailyChallenge> {
 	return {
 		id: grid.id.toString(),
 		title: grid.title,
-		size: grid.size,
+		rows: grid.rows,
+		columns: grid.columns,
 		date: grid.date,
 		quotes: grid.quotes,
 		words: grid.words.map(convertWordPlacement)
@@ -90,7 +99,8 @@ export async function getGridWithID(id: number): Promise<GameConfiguration> {
 	return {
 		id: grid.id.toString(),
 		wordsLocation,
-		size: grid.size,
+		rows: grid.rows,
+		columns: grid.columns,
 		title: grid.name
 	};
 }
@@ -102,8 +112,11 @@ export async function getUnplayedAndTotalForDifficulty(difficulty: Difficulty): 
 	const config = DifficultyConfigMap.config(difficulty);
 	const grids = await databaseService.getWordSearchGrids();
 	const result = {
-		unplayed: grids.filter((grid) => grid.size === config.gridSize && !grid.played_at).length,
-		total: grids.filter((grid) => grid.size === config.gridSize).length
+		unplayed: grids.filter(
+			(grid) => grid.rows === config.rows && grid.columns === config.columns && !grid.played_at
+		).length,
+		total: grids.filter((grid) => grid.rows === config.rows && grid.columns === config.columns)
+			.length
 	};
 	console.log('result', result);
 	return result;
@@ -112,7 +125,8 @@ export async function getUnplayedAndTotalForDifficulty(difficulty: Difficulty): 
 export async function getTotalGridCountForDifficulty(difficulty: Difficulty): Promise<number> {
 	const config = DifficultyConfigMap.config(difficulty);
 	const grids = await databaseService.getWordSearchGrids();
-	return grids.filter((grid) => grid.size === config.gridSize).length;
+	return grids.filter((grid) => grid.rows === config.rows && grid.columns === config.columns)
+		.length;
 }
 
 export async function getTotalGridCountUnplayedForDifficulty(
@@ -120,7 +134,9 @@ export async function getTotalGridCountUnplayedForDifficulty(
 ): Promise<number> {
 	const config = DifficultyConfigMap.config(difficulty);
 	const grids = await databaseService.getWordSearchGrids();
-	return grids.filter((grid) => grid.size === config.gridSize && !grid.played_at).length;
+	return grids.filter(
+		(grid) => grid.rows === config.rows && grid.columns === config.columns && !grid.played_at
+	).length;
 }
 
 function convertWordPlacement(placement: WordPlacement): WordLocation {

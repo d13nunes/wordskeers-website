@@ -31,15 +31,20 @@ export interface WordLocation {
 export interface GameConfiguration {
 	id: string;
 	wordsLocation: WordLocation[];
-	size: number;
+	rows: number;
+	columns: number;
 	title: string;
 }
 
-export function createGridFor(wordsLocation: WordLocation[], size: number): string[][] {
+export function createGrid(
+	wordsLocation: WordLocation[],
+	rowCount: number,
+	columnCount: number
+): string[][] {
 	const filler = '';
-	const grid: string[][] = Array(size)
+	const grid: string[][] = Array(rowCount)
 		.fill(null)
-		.map(() => Array(size).fill(filler));
+		.map(() => Array(columnCount).fill(filler));
 
 	for (const wordLocation of wordsLocation) {
 		const word = wordLocation.word;
@@ -107,7 +112,7 @@ export function getWordPositions(word: Word): Position[] {
 export function createGameForConfiguration(config: GameConfiguration): Game {
 	console.log('config', config);
 	return {
-		grid: createGridFor(config.wordsLocation, config.size),
+		grid: createGrid(config.wordsLocation, config.rows, config.columns),
 		title: config.title,
 		words: config.wordsLocation.map((w) => ({
 			word: w.word,
@@ -122,7 +127,7 @@ export function createGameForConfiguration(config: GameConfiguration): Game {
 export function createGameFromDailyChallenge(dailyChallenge: DailyChallenge): Game {
 	const wordsLocation: WordLocation[] = dailyChallenge.words;
 	return {
-		grid: createGridFor(wordsLocation, dailyChallenge.size),
+		grid: createGrid(wordsLocation, dailyChallenge.rows, dailyChallenge.columns),
 		title: dailyChallenge.title,
 		words: wordsLocation.map((w) => ({
 			word: w.word,
@@ -133,7 +138,8 @@ export function createGameFromDailyChallenge(dailyChallenge: DailyChallenge): Ga
 		config: {
 			id: dailyChallenge.id,
 			wordsLocation: wordsLocation,
-			size: dailyChallenge.size,
+			rows: dailyChallenge.rows,
+			columns: dailyChallenge.columns,
 			title: dailyChallenge.title
 		}
 	};
@@ -239,7 +245,8 @@ export function mockGameConfiguration(): GameConfiguration {
 				direction: directionMap.RIGHT
 			}
 		],
-		size: 10,
+		rows: 10,
+		columns: 10,
 		title: 'Ocean Words'
 	};
 }

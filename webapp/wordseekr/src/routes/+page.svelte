@@ -15,16 +15,17 @@
 	import { OnAppearAction, onGameSelectionAppear } from '$lib/logic/on-game-selection-actions';
 	import { modalPresenter } from './modal-presenter';
 
-	const difficulties = [
-		{ value: Difficulty.VeryEasy, label: 'Very Easy' },
-		{ value: Difficulty.Easy, label: 'Easy' },
-		{ value: Difficulty.Medium, label: 'Medium' },
-		{ value: Difficulty.Hard, label: 'Hard' }
+	let gridSize = $state(0);
+	let directionsSymbols = $state('');
+	let selectedDifficultyIndex = $state(0);
+	let difficulties = [
+		{ label: 'Very Easy', value: Difficulty.VeryEasy },
+		{ label: 'Easy', value: Difficulty.Easy },
+		{ label: 'Medium', value: Difficulty.Medium },
+		{ label: 'Hard', value: Difficulty.Hard },
+		{ label: 'Very Hard', value: Difficulty.VeryHard }
 	];
 
-	let selectedDifficultyIndex = $state(0);
-	let directionsSymbols = $state('');
-	let gridSize = $state(0);
 	let isSmallScreen = $state(getIsSmallScreen());
 
 	const magnifierglassId = 'magnifierglass';
@@ -32,9 +33,9 @@
 	function updateDifficulty(index: number) {
 		selectedDifficultyIndex = index;
 		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
-		directionsSymbols = DirectionPresets[selectedDifficulty].join(', ');
 		const config = DifficultyConfigMap.config(selectedDifficulty);
-		gridSize = config.gridSize;
+		gridSize = config.rows;
+		directionsSymbols = config.validDirections.join(', ');
 	}
 
 	function onDifficultyChange(index: number) {
@@ -80,10 +81,9 @@
 	});
 
 	$effect(() => {
-		const selectedDifficulty = difficulties[selectedDifficultyIndex].value;
-		directionsSymbols = DirectionPresets[selectedDifficulty].join(' ');
-		const config = DifficultyConfigMap.config(selectedDifficulty);
-		gridSize = config.gridSize;
+		const config = DifficultyConfigMap.config(difficulties[selectedDifficultyIndex].value);
+		gridSize = config.rows;
+		directionsSymbols = config.validDirections.join(', ');
 	});
 </script>
 

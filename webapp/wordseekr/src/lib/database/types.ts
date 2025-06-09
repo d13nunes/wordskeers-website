@@ -1,7 +1,7 @@
 export interface WordSearchGrid {
 	id: number;
 	name: string;
-	size: number;
+	rows: number;
 	words_count: number;
 	directions: string;
 	grid_hash: string;
@@ -52,7 +52,8 @@ export interface QuoteSegmentDB {
 export interface DailyChallengeDB {
 	id: string;
 	title: string;
-	size: number;
+	rows: number;
+	columns: number;
 	date: Date;
 	quotes: QuoteSegmentDB[];
 	words: WordPlacement[];

@@ -1,20 +1,23 @@
-import type { Direction } from '../components/Game/Direction';
+import type { DirectionSymbol } from './direction-presets';
 
 export class GameConfigurationSetting {
 	constructor(config: {
-		gridSize: number;
+		rows: number;
+		columns: number;
 		wordsCount: number | null;
-		validDirections: Direction[];
+		validDirections: DirectionSymbol[];
 		gameMode: string;
 	}) {
-		this.gridSize = config.gridSize;
+		this.rows = config.rows;
+		this.columns = config.columns;
 		this.wordsCount = config.wordsCount;
 		this.validDirections = config.validDirections;
 		this.gameMode = config.gameMode;
 	}
 
-	gridSize: number;
+	rows: number;
+	columns: number;
 	wordsCount: number | null;
-	validDirections: Direction[];
+	validDirections: DirectionSymbol[];
 	gameMode: string;
 }
