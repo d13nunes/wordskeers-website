@@ -80,7 +80,11 @@ export async function getDailyChallenge(id: number): Promise<DailyChallenge> {
 		rows: grid.rows,
 		columns: grid.columns,
 		date: grid.date,
-		quotes: grid.quotes,
+		quotes: grid.quotes.map((quote) => ({
+			text: quote.text,
+			isHidden: quote.isHidden,
+			isDiscovered: false
+		})),
 		words: grid.words.map(convertWordPlacement)
 	};
 }

@@ -5,7 +5,6 @@
 	import { Difficulty } from '$lib/game/difficulty';
 	import { DifficultyConfigMap } from '$lib/game/difficulty-config-map';
 	import { getRandomUnplayedGridID } from '$lib/game/grid-fetcher';
-	import { DirectionPresets } from '$lib/game/direction-presets';
 	import { onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import magnifierglass from '$lib/assets/magnifierglass.webp';
@@ -14,6 +13,8 @@
 	import { myLocalStorage, completionTracker } from '$lib/storage/local-storage';
 	import { OnAppearAction, onGameSelectionAppear } from '$lib/logic/on-game-selection-actions';
 	import { modalPresenter } from './modal-presenter';
+	import { page } from '$app/state';
+	import { appStateManager } from '$lib/utils/app-state';
 
 	let gridSize = $state(0);
 	let directionsSymbols = $state('');
@@ -22,8 +23,8 @@
 		{ label: 'Very Easy', value: Difficulty.VeryEasy },
 		{ label: 'Easy', value: Difficulty.Easy },
 		{ label: 'Medium', value: Difficulty.Medium },
-		{ label: 'Hard', value: Difficulty.Hard },
-		{ label: 'Very Hard', value: Difficulty.VeryHard }
+		{ label: 'Hard', value: Difficulty.Hard }
+		// { label: 'Very Hard', value: Difficulty.VeryHard }
 	];
 
 	let isSmallScreen = $state(getIsSmallScreen());
@@ -63,21 +64,8 @@
 				duration: 1000
 			});
 		}
-		await completionTracker.trackCompletionPercentageOfAllDifficulties();
 
-		const onAppearAction = await onGameSelectionAppear();
-		console.log('🔍ℹ onAppearAction', onAppearAction);
-		switch (onAppearAction) {
-			case OnAppearAction.ShowQuoteModal:
-				console.log('🔍ℹ showQuoteModal');
-				modalPresenter.showQuoteModal();
-				break;
-			case OnAppearAction.ShowRewardModal:
-				console.log('🔍ℹ showRewardsModal');
-				modalPresenter.showRewardsModal();
-				break;
-			default:
-		}
+		completionTracker.trackCompletionPercentageOfAllDifficulties();
 	});
 
 	$effect(() => {

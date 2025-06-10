@@ -5,11 +5,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+
 // Source and destination paths
-const sourceFile = join(__dirname, '../database/grids.sqlite');
+const sourceFile = join(__dirname, '../../../../wordseerk-generator/data/game.sqlite');
 console.log('sourceFile', sourceFile);
-const destDir = join(__dirname, '../static/assets/databases');
-const destFile = join(destDir, 'wordseekr_v2.db');
+const destDir = join(__dirname, '../database');
+const destFile = join(destDir, '/grids.sqlite');
 
 // Create assets directory if it doesn't exist
 if (!existsSync(destDir)) {

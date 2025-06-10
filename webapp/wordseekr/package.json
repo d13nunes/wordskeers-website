@@ -25,6 +25,7 @@
     "test:e2e": "playwright test",
     "copy-sql-wasm": "node scripts/copy-sql-wasm.js",
     "copy-database": "node scripts/copy-database.js",
+    "import-database": "node scripts/import-database.js",
     "migrate": "node scripts/run-migration.js",
     "migrate:schema": "node scripts/migrate-to-new-schema.js",
     "generate-assets": "bunx capacitor-assets generate",

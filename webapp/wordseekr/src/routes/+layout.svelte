@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, type Snippet } from 'svelte';
+	import { onDestroy, onMount, type Snippet } from 'svelte';
 	import '../app.css';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
 	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
@@ -14,21 +14,33 @@
 	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
 	import DailyQuoteTag from '$lib/daily-challenge/DailyQuoteTag.svelte';
-	import { beforeNavigate, goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import { page } from '$app/state';
 	import { modalPresenter } from './modal-presenter';
-
+	import {
+		getIsTodaysQuoteAvailableStore,
+		getTodaysQuote
+	} from '$lib/daily-challenge/quote-fetcher';
+	import { beforeNavigate, goto } from '$app/navigation';
+	import type { Unsubscriber } from 'svelte/store';
+	import { appStateManager } from '$lib/utils/app-state';
+	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
 	interface Props {
 		children: Snippet;
 	}
 
 	const { children }: Props = $props();
-
 	let isDailyRewardsOpen = $state(false);
 	let isStoreOpen = $state(false);
+	let isSmallScreen = $state(false);
+	let isQuoteAvailable = $state(false);
+	let showQuoteModal = $state(false);
+	let showBadge = $state(false);
+	let isRootPage = $state(false);
+	let isDailyQuoteVisible = $derived(isRootPage && isQuoteAvailable);
 
+	initialize();
 	function onStoreClick() {
 		if (!isStoreOpen) {
 			analytics.storedOpen();
@@ -45,12 +57,23 @@
 		isStoreOpen = false;
 	}
 
-	initialize();
+	export async function onDailyQuoteClick() {
+		const todaysQuote = await getTodaysQuote();
+		if (!todaysQuote) {
+			return;
+		}
+		goto(`/game?dailyChallengeId=${todaysQuote.id}&difficulty=challenge`);
+	}
 
-	let isSmallScreen = $state(false);
+	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
+	let unsubscribeAppState: (() => void) | undefined;
 
+	onDestroy(() => {
+		unsubscribeQuoteAvailable?.();
+	});
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
+
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
@@ -63,21 +86,52 @@
 				delay: 300
 			});
 		}
+		isRootPage = page.route?.id === '/';
 
-		modalPresenter.isQuoteModalVisible.subscribe((visible: boolean) => {
-			showQuoteModal = visible;
-		});
-		modalPresenter.isRewardsModalVisible.subscribe((visible: boolean) => {
-			isDailyRewardsOpen = visible;
-		});
+		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
+			(isAvailable: boolean) => {
+				isQuoteAvailable = isAvailable;
+			}
+		);
 	});
-	let showQuoteModal = $state(false);
-	let showBadge = $state(false);
-	let isDailyQuoteVisible = $derived(page.url.pathname === '/');
 
-	export function onDailyQuoteClick() {
-		showQuoteModal = true;
+	function showOnAppearPopup(delay: number = 300) {
+		setTimeout(async () => {
+			const onAppearAction = await onGameSelectionAppear();
+			console.log('🔍🔍🔍ℹ onAppearAction', onAppearAction);
+			switch (onAppearAction) {
+				case OnAppearAction.ShowQuoteModal:
+					showQuoteModal = true;
+					break;
+				case OnAppearAction.ShowRewardModal:
+					isDailyRewardsOpen = true;
+					break;
+				default:
+			}
+		}, delay);
 	}
+
+	$effect(() => {
+		// Subscribe to app state changes
+		unsubscribeAppState = appStateManager.subscribe((isActive: boolean) => {
+			if (isActive && isRootPage) {
+				showOnAppearPopup();
+			}
+		});
+
+		// Cleanup subscription when component unmounts
+		return () => {
+			if (unsubscribeAppState) {
+				unsubscribeAppState();
+			}
+		};
+	});
+	beforeNavigate((navigation) => {
+		isRootPage = navigation.to?.route?.id === '/';
+		if (isRootPage) {
+			showOnAppearPopup(500);
+		}
+	});
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
@@ -95,7 +149,7 @@
 			: ''} "
 	>
 		{#if isDailyQuoteVisible}
-			<div in:fade>
+			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
 			</div>
 		{/if}

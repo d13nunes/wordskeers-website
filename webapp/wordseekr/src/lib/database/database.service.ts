@@ -6,16 +6,14 @@ import { writable, type Writable } from 'svelte/store';
 import type {
 	WordSearchGrid,
 	WordPlacement,
-	Category,
-	Theme,
-	Grid,
-	Listing,
-	ListingWord,
-	DailyChallengeDB
+	DailyChallenge,
+	Score,
+	Quote,
+	QuoteSegment
 } from './types';
 
 // Database configuration
-const DB_NAME = 'wordseekr.db';
+const DB_NAME = 'wordseekr_v2.db';
 const DB_VERSION = 1;
 
 // Platform types
@@ -112,10 +110,10 @@ class DatabaseService {
 			});
 
 			// Fetch the pre-populated database from assets
-			const response = await fetch('/assets/databases/wordseekr.db');
+			const response = await fetch('/assets/databases/wordseekr_v2.db');
 			if (!response.ok) {
 				throw new Error(
-					'Failed to fetch pre-populated database from /assets/databases/wordseekr.db'
+					'Failed to fetch pre-populated database from /assets/databases/wordseekr_v2.db'
 				);
 			}
 			const buffer = await response.arrayBuffer();
@@ -232,118 +230,87 @@ class DatabaseService {
 		]);
 	}
 
-	public async markGridAsPlayed(gridId: number, timeTaken: number): Promise<void> {
-		await this.executeQuery(
-			'UPDATE word_search_grids SET played_at = CURRENT_TIMESTAMP, time_taken = ? WHERE id = ?',
-			[timeTaken, gridId]
-		);
-	}
-
-	// Theme methods
-	public async getThemes(): Promise<Theme[]> {
-		return this.executeQuery<Theme>('SELECT * FROM themes ORDER BY name');
-	}
-
-	public async getThemeById(id: number): Promise<Theme | null> {
-		const results = await this.executeQuery<Theme>('SELECT * FROM themes WHERE id = ?', [id]);
-		return results[0] || null;
-	}
-
-	// Category methods
-	public async getCategories(): Promise<Category[]> {
-		return this.executeQuery<Category>('SELECT * FROM categories ORDER BY name');
-	}
-
-	public async getCategoriesByTheme(themeId: number): Promise<Category[]> {
-		return this.executeQuery<Category>(
-			'SELECT * FROM categories WHERE theme_id = ? ORDER BY name',
-			[themeId]
-		);
-	}
-
-	// Listing methods
-	public async getListings(): Promise<Listing[]> {
-		return this.executeQuery<Listing>('SELECT * FROM listings ORDER BY name');
-	}
-
-	public async getListingWords(listingId: number): Promise<ListingWord[]> {
-		return this.executeQuery<ListingWord>(
-			'SELECT * FROM listing_words WHERE listing_id = ? ORDER BY word',
-			[listingId]
-		);
-	}
-
-	// Complex queries
-	public async getGridWithWords(gridId: number): Promise<{
-		grid: Grid | null;
-		placements: WordPlacement[];
-	}> {
-		const grid = await this.getGridById(gridId);
-		const placements = await this.getWordPlacements(gridId);
-		return { grid, placements };
-	}
-
-	public async getThemeWithCategories(themeId: number): Promise<{
-		theme: Theme | null;
-		categories: Category[];
-	}> {
-		const theme = await this.getThemeById(themeId);
-		const categories = await this.getCategoriesByTheme(themeId);
-		return { theme, categories };
-	}
-
-	public async getListingWithWords(listingId: number): Promise<{
-		listing: Listing | null;
-		words: ListingWord[];
-	}> {
-		const results = await this.executeQuery<Listing>('SELECT * FROM listings WHERE id = ?', [
-			listingId
+	public async markQuoteAsPlayed(quoteId: number, played_at: Date): Promise<void> {
+		console.log('🔍🔍🔍ℹ markQuoteAsPlayed', quoteId, played_at);
+		const result = await this.executeQuery('UPDATE quotes SET played_at = ? WHERE id = ?', [
+			played_at.toISOString(),
+			quoteId
 		]);
-		const listing = results[0] || null;
-		const words = await this.getListingWords(listingId);
-		return { listing, words };
+		console.log('🔍🔍🔍ℹ markQuoteAsPlayed result', result);
 	}
 
-	// Add missing getGridById method
-	public async getGridById(id: number): Promise<Grid | null> {
-		const results = await this.executeQuery<Grid>('SELECT * FROM grids WHERE id = ?', [id]);
+	public async markGridAsPlayed(
+		gridId: number,
+		played_at: Date,
+		time_taken: number
+	): Promise<void> {
+		await this.executeQuery('UPDATE word_search_grids SET played_at = ? WHERE id = ?', [
+			played_at.toISOString(),
+			gridId
+		]);
+		await this.executeQuery(
+			'INSERT INTO scores (grid_id, played_at, time_taken) VALUES (?, ?, ?)',
+			[gridId, played_at.toISOString(), time_taken]
+		);
+	}
+
+	public async getAllScores(): Promise<Score[]> {
+		return this.executeQuery<Score>('SELECT * FROM scores');
+	}
+
+	public async getAllQuotes(): Promise<Quote[]> {
+		console.log('🔍🔍🔍ℹ getAllQuotes');
+		return this.executeQuery<Quote>('SELECT * FROM quotes');
+	}
+
+	public async getQuoteById(id: number): Promise<Quote | null> {
+		const results = await this.executeQuery<Record<string, unknown>>(
+			'SELECT * FROM quotes WHERE id = ?',
+			[id]
+		);
+		const result = results[0];
+		if (!result) {
+			return null;
+		}
+
+		return {
+			id: result.id,
+			grid_id: result.grid_id,
+			author: result.author,
+			quote: JSON.parse(result.quote as string) as QuoteSegment[],
+			playable_at: result.playable_at
+		} as Quote;
+	}
+
+	public async getQuoteForDate(date: Date): Promise<Quote | null> {
+		const results = await this.executeQuery<Quote>('SELECT * FROM quotes WHERE playable_at = ?', [
+			date.toISOString().split('T')[0]
+		]);
 		return results[0] || null;
 	}
 
-	public async getDailyChallengeById(id: number): Promise<DailyChallengeDB | null> {
-		// TODO: Implement this
+	public async getDailyChallengeById(id: number): Promise<DailyChallenge | null> {
+		const quote = await this.getQuoteById(id);
+		console.log('quote', quote);
+		if (!quote) {
+			return null;
+		}
+		const grid = await this.getWordSearchGridById(quote.grid_id);
+		if (!grid) {
+			return null;
+		}
+		const words = await this.getWordPlacements(grid.id);
+		if (!words) {
+			return null;
+		}
 		return {
 			id: '' + id,
-			title: 'Albert Einstein',
-			size: 7,
-			date: new Date('2025-06-05T15:58:13.383Z'),
-			quotes: [
-				{ text: 'LIFE', isHidden: true },
-				{ text: 'IS', isHidden: false },
-				{ text: 'LIKE', isHidden: false },
-				{ text: 'RIDING', isHidden: false },
-				{ text: 'A', isHidden: false },
-				{ text: 'BICYCLE', isHidden: true },
-				{ text: '.', isHidden: false },
-				{ text: 'TO', isHidden: false },
-				{ text: 'KEEP', isHidden: true },
-				{ text: 'YOUR', isHidden: false },
-				{ text: 'BALANCE', isHidden: true },
-				{ text: ',', isHidden: false },
-				{ text: 'YOU', isHidden: false },
-				{ text: 'MUST', isHidden: true },
-				{ text: 'KEEP', isHidden: false },
-				{ text: 'MOVING', isHidden: true },
-				{ text: '.', isHidden: false }
-			],
-			words: [
-				{ word: 'KEEP', row: 0, col: 5, direction: 'vertical', id: 1, grid_id: 1 },
-				{ word: 'MUST', row: 2, col: 3, direction: 'diagonal-dl', id: 2, grid_id: 1 },
-				{ word: 'LIFE', row: 1, col: 0, direction: 'horizontal', id: 3, grid_id: 1 },
-				{ word: 'MOVING', row: 6, col: 0, direction: 'horizontal', id: 4, grid_id: 1 },
-				{ word: 'BALANCE', row: 0, col: 6, direction: 'vertical', id: 5, grid_id: 1 },
-				{ word: 'BICYCLE', row: 0, col: 0, direction: 'diagonal-dr', id: 6, grid_id: 1 }
-			]
+			title: grid.name,
+			rows: grid.rows,
+			columns: grid.columns,
+			date: new Date(quote.playable_at),
+			quotes: quote.quote,
+			words: words
 		};
 	}
 }

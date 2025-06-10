@@ -34,6 +34,7 @@
 	import ClassicBoardWords from './ClassicBoardWords.svelte';
 	import Confetti from 'svelte-confetti';
 	import PauseMenu from './PauseMenu.svelte';
+	import { markQuoteAsPlayed } from '$lib/daily-challenge/quote-fetcher';
 
 	const powerUpCooldownButton = 1500;
 
@@ -80,7 +81,6 @@
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
 	const handleResize = () => {
-		console.log('!!!!-! handleResize');
 		isLandscape = window.innerWidth > window.innerHeight;
 	};
 	async function loadClockVisibility() {
@@ -233,7 +233,7 @@
 		return [];
 	};
 
-	function checkIfGameEnded() {
+	async function checkIfGameEnded() {
 		const foundAllWords = words.every((w) => w.isDiscovered);
 		if (foundAllWords) {
 			isGameEnded = true;
@@ -247,7 +247,10 @@
 			// Mark grid as played when game ends
 			const gridId = parseInt(game?.config.id ?? '-1');
 			if (!isNaN(gridId)) {
-				databaseService.markGridAsPlayed(gridId, elapsedTime);
+				databaseService.markGridAsPlayed(gridId, new Date(), elapsedTime);
+			}
+			if (isDailyChallenge && dailyChallengeID) {
+				await markQuoteAsPlayed(dailyChallengeID);
 			}
 			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });
@@ -498,7 +501,9 @@
 	$effect(() => {
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
-			showPauseModal = !isActive && !isGameEnded;
+			if (!isActive) {
+				showPauseModal = !isGameEnded;
+			}
 		});
 
 		// Cleanup subscription when component unmounts

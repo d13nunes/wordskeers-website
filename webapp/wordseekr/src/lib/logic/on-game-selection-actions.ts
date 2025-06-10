@@ -1,3 +1,4 @@
+import { isTodaysQuoteAvailable } from '$lib/daily-challenge/quote-fetcher';
 import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 import { gameCounter } from '$lib/storage/local-storage';
 
@@ -12,8 +13,8 @@ export async function onGameSelectionAppear(): Promise<OnAppearAction> {
 	if (isNewUser) {
 		return OnAppearAction.DoNothing;
 	}
-	const isQuoteChallengeAvailable = true;
-	if (isQuoteChallengeAvailable) {
+	const isQuoteAvailable = await isTodaysQuoteAvailable();
+	if (isQuoteAvailable) {
 		return OnAppearAction.ShowQuoteModal;
 	}
 	const isFreeRewardAvailable = await dailyRewardsStore.isFreeRewardAvailable();
