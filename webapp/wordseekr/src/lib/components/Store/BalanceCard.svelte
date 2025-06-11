@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
+	import { formatedBalance } from '$lib/utils/string-utils';
 	import Confetti from 'svelte-confetti';
 
 	let balance = $state(0);
@@ -31,7 +32,7 @@
 		<div class="w-6">
 			<CoinsPileIcon />
 		</div>
-		<span class="text-3xl font-bold text-gray-800">{balance}</span>
+		<span class="text-3xl font-bold text-gray-800">{formatedBalance(balance)}</span>
 	</div>
 	<span class="text-xs font-light text-gray-500">Current Balance</span>
 </div>

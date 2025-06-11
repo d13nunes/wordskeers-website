@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { animate, utils } from 'animejs';
 	import BaseTag from '../BaseTag.svelte';
+	import { formatedBalance } from '$lib/utils/string-utils';
 
 	let balance = $state(0);
 	let isActive = $state(false);
@@ -57,15 +58,15 @@
 </script>
 
 <BaseTag {onclick} disabled={!isActive} id="balance-tag">
-	<div class="h-4 w-4 lg:h-6 lg:w-6">
+	<div class="h-4 w-4">
 		<CoinsPileIcon id="balance-tag-icon" />
 	</div>
-	<span class="text-black-500 min-w-8 font-mono text-sm font-medium lg:text-lg"
-		>{displayBalance}</span
+	<span class="text-black-500 min-w-8 font-mono text-sm font-medium lg:text-base"
+		>{formatedBalance(displayBalance)}</span
 	>
 
 	{#if isActive}
-		<div class="h-4 w-4 lg:h-6 lg:w-6">
+		<div class="h-4 w-4">
 			<PlusCircleIcon fillColor="#00c951" />
 		</div>
 	{/if}

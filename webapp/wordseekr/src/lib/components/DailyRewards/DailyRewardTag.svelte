@@ -38,8 +38,8 @@
 </script>
 
 <BaseTag {onclick}>
-	<div bind:this={icon} class="h-4 w-4 lg:h-6 lg:w-6">
+	<div bind:this={icon} class="h-4 w-4">
 		<DailyRewardIcon fill="#c10007" />
 	</div>
-	<span class="text-black-500 text-sm font-medium lg:text-lg">{tag}</span>
+	<span class="text-black-500 text-sm font-medium lg:text-base">{tag}</span>
 </BaseTag>

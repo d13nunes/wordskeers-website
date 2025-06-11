@@ -43,7 +43,7 @@
 
 <div class="h-svh bg-white select-none">
 	<div class="relative flex flex-col gap-2 px-4 pt-5">
-		<h1 class="mb-2 self-center text-2xl font-bold">Daily Rewards</h1>
+		<h1 class="mb-2 self-center text-2xl font-bold">Rewards</h1>
 
 		<BalanceCard />
 

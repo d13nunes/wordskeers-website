@@ -11,7 +11,7 @@
 </script>
 
 <button
-	class="card-button flex h-8 flex-row items-center justify-center lg:h-12"
+	class="card-button flex h-8 flex-row items-center justify-center lg:h-10"
 	{onclick}
 	{disabled}
 	{id}

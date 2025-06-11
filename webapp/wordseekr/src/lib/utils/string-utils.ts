@@ -19,6 +19,21 @@ export function getFormatedTime(elapsedTime: number) {
 	return time;
 }
 
+export function formatedBalance(balance: number) {
+	// if balance is less than 1000, return the balance
+	if (balance < 1000) {
+		return balance.toString();
+	}
+	// each 1000 add a space
+	const balanceString = balance.toString().split('').reverse().join('');
+	let formattedBalance = balanceString.slice(0, 3);
+	for (let i = 3; i < balanceString.length; i += 3) {
+		formattedBalance += ' ' + balanceString.slice(i, i + 3);
+	}
+	formattedBalance = formattedBalance.split('').reverse().join('');
+	return formattedBalance;
+}
+
 export function getPositionId(row: number, col: number) {
 	return `${row}.${col}`;
 }
