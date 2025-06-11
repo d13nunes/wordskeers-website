@@ -14,7 +14,7 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { animate, utils } from 'animejs';
+	import { animate, JSAnimation, utils } from 'animejs';
 	import { goto } from '$app/navigation';
 	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
@@ -308,7 +308,7 @@
 	async function onPowerUpRotateClick(iconId: string) {
 		if (isRotateDisabled || isPowerUpAnimationActive) return;
 		isPowerUpAnimationActive = true;
-		isRotated = !isRotated;
+
 		const powerUpId = 'rotate';
 		analytics.tryUsePowerUp(powerUpId);
 		const didBuy = await walletStore.tryAndBuy(powerUpPrices.rotate);
@@ -319,14 +319,24 @@
 
 		analytics.usePowerUp(powerUpId);
 		const rotateIcon = document.getElementById(iconId);
-		const finalRotation = isRotated ? '360' : '-360';
-		if (rotateIcon) {
-			animate(rotateIcon, {
-				rotate: ['0', finalRotation],
-				duration: 1000,
-				ease: 'inOutQuad'
-			});
+		const board = document.getElementById('board');
+		if (board && rotateIcon) {
+			animatePowerUp(
+				board,
+				rotateIcon,
+				{
+					rotationClockwise: isRotated
+				},
+				{
+					onTranslationCompleted: () => {
+						setTimeout(() => {
+							isRotated = !isRotated;
+						}, 100);
+					}
+				}
+			);
 		}
+
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
 		}, powerUpCooldownButton);
@@ -350,8 +360,11 @@
 		analytics.usePowerUp(powerUpId);
 		hintPositions.push(suggestedLetter);
 		const icon = document.getElementById(iconId);
-		if (icon) {
-			animatePowerUp(suggestedLetter, icon);
+		const suggestedCell = document.getElementById(
+			getPositionId(suggestedLetter.row, suggestedLetter.col)
+		);
+		if (icon && suggestedCell) {
+			animatePowerUp(suggestedCell, icon);
 		}
 		setBGColorTag(suggestedWord.word, getColor().bg);
 
@@ -373,9 +386,19 @@
 		return undiscoveredWord[randomIndex];
 	}
 
-	function animatePowerUp(position: Position, icon: HTMLElement) {
-		const board = document.getElementById(getPositionId(position.row, position.col));
-		const boardRect = board?.getBoundingClientRect();
+	function animatePowerUp(
+		board: HTMLElement,
+		icon: HTMLElement,
+		options?: {
+			rotationClockwise?: boolean;
+		},
+		onAnimationCompletion?: {
+			onTranslationCompleted?: () => void;
+			onRotationCompleted?: () => void;
+			onResetCompleted?: () => void;
+		}
+	) {
+		const boardRect = board.getBoundingClientRect();
 		const findWordIconRect = icon.getBoundingClientRect();
 
 		if (boardRect && findWordIconRect) {
@@ -393,28 +416,29 @@
 			const translateY = targetY - findWordIconRect.y;
 
 			// First animation: move to center and scale up
-			const moveToCenter = animate(icon, {
+			animate(icon, {
 				translateX,
 				translateY,
 				duration: 700,
 				opacity: [1, 1, 0.8],
 				scale: 1.5,
-				easing: 'easeInOut'
-			});
-
-			// Chain the animations
-			moveToCenter.then(() => {
+				easing: 'easeInOut',
+				onComplete: () => {
+					onAnimationCompletion?.onTranslationCompleted?.();
+				}
+			}).then(() => {
 				// Second animation: fade out
-				const fadeOut = animate(icon, {
+				animate(icon, {
 					delay: 100,
 					opacity: [0.8, 0],
-					rotate: [0, 360],
+					rotate: [0, options?.rotationClockwise ? -360 : 360],
 					scale: [1.5, 0.0],
 					duration: 500,
-					easing: 'easeOutQuad'
-				});
-
-				fadeOut.then(() => {
+					easing: 'easeOutQuad',
+					onComplete: () => {
+						onAnimationCompletion?.onRotationCompleted?.();
+					}
+				}).then(() => {
 					// Reset position and scale instantly
 					animate(icon, {
 						translateX: 0,
@@ -427,7 +451,10 @@
 					animate(icon, {
 						opacity: 1,
 						duration: 500,
-						easing: 'easeInOut'
+						easing: 'easeInOut',
+						onComplete: () => {
+							onAnimationCompletion?.onResetCompleted?.();
+						}
 					});
 				});
 			});
@@ -450,7 +477,12 @@
 		const findWordIcon = document.getElementById(iconId);
 		if (findWordIcon) {
 			const suggestedLetter = hintPositions[Math.floor(hintPositions.length / 2)];
-			animatePowerUp(suggestedLetter, findWordIcon);
+			const suggestedCell = document.getElementById(
+				getPositionId(suggestedLetter.row, suggestedLetter.col)
+			);
+			if (suggestedCell) {
+				animatePowerUp(suggestedCell, findWordIcon);
+			}
 			setBGColorTag(suggestedWord.word, getColor().bg);
 		}
 		setTimeout(() => {
