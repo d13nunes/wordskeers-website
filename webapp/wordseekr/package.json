@@ -1,8 +1,8 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "2.2.0",
-  "build": 4,
+  "version": "2.3.0",
+  "build": 2,
   "type": "module",
   "scripts": {
     "dev": "npm run copy-sql-wasm && npm run copy-database && vite dev",
@@ -63,7 +63,6 @@
     "@types/bun": "latest",
     "@types/jest": "^29.5.14",
     "@types/sql.js": "^1.4.9",
-
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-svelte": "^3.9.0",
