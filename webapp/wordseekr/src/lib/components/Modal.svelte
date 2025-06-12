@@ -7,14 +7,28 @@
 	interface Props {
 		children: Snippet;
 		backgroundOpacity?: number;
+		canDismissOnBackground?: boolean;
 		onClose?: () => void;
 	}
-	let { children, onClose, backgroundOpacity }: Props = $props();
+
+	let { children, onClose, backgroundOpacity, canDismissOnBackground = true }: Props = $props();
+
+	const handleBackgroundClick = canDismissOnBackground
+		? () => {
+				if (onClose) {
+					onClose();
+				}
+			}
+		: undefined;
 </script>
 
 <div
 	in:fade={{ duration: 300, easing: cubicOut }}
 	out:fade={{ delay: 100, duration: 300, easing: cubicIn }}
+	onclick={handleBackgroundClick}
+	onkeydown={handleBackgroundClick}
+	role="button"
+	tabindex="-1"
 	class="fixed inset-0 z-100 flex items-center justify-center {backgroundOpacity
 		? `bg-black/${backgroundOpacity}`
 		: 'bg-black'}"
