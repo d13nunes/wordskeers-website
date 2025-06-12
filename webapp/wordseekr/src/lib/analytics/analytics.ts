@@ -14,7 +14,9 @@ export enum AnalyticsEvent {
 	RewardsOpen = 'rewards_open',
 	RewardsCollected = 'rewards_collected',
 	RewardsCollectedAd = 'rewards_collected_ad',
-	RewardsClosed = 'rewards_closed'
+	RewardsClosed = 'rewards_closed',
+	MarkQuoteAsPlayed = 'mark_quote_as_played',
+	StartedPlayingQuote = 'started_playing_quote'
 }
 
 class Analytics {
@@ -28,6 +30,14 @@ class Analytics {
 	startGame(difficulty: Difficulty, grid_id: string) {
 		const eventName = AnalyticsEvent.StartGame + '_' + difficulty.toLowerCase();
 		this.track(eventName, { difficulty, grid_id });
+	}
+
+	startedPlayingQuote(id: number) {
+		this.track(AnalyticsEvent.StartedPlayingQuote, { id });
+	}
+
+	markQuoteAsPlayed(id: number) {
+		this.track(AnalyticsEvent.MarkQuoteAsPlayed, { id });
 	}
 
 	completeGame(difficulty: string, grid_id: string) {

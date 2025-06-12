@@ -76,6 +76,7 @@
 	async function loadGridFromDailyChallenge(dailyChallengeID: number) {
 		dailyChallenge = await getDailyChallenge(dailyChallengeID);
 		game = createGameFromDailyChallenge(dailyChallenge);
+		analytics.startedPlayingQuote(dailyChallengeID);
 	}
 	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
 	let isDailyChallenge = dailyChallengeID !== -1;
@@ -250,6 +251,7 @@
 				databaseService.markGridAsPlayed(gridId, new Date(), elapsedTime);
 			}
 			if (isDailyChallenge && dailyChallengeID) {
+				analytics.markQuoteAsPlayed(dailyChallengeID);
 				await markQuoteAsPlayed(dailyChallengeID);
 			}
 			gameCounter.increment();
