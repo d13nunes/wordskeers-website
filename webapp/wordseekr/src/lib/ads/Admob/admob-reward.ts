@@ -17,19 +17,20 @@ export class AdmobReward implements AdProvider {
 			return Promise.resolve(false);
 		}
 		this.isLoading = true;
-		AdMob.prepareRewardVideoAd({
+		const result = await AdMob.prepareRewardVideoAd({
 			adId: this.adId
 		});
+		console.log('📺 prepareRewardVideoAd result', result);
 		return new Promise((resolve, reject) => {
 			AdMob.addListener(RewardAdPluginEvents.Loaded, () => {
 				this._isLoaded.set(true);
 				this.isLoading = false;
 				resolve(true);
 			});
-			AdMob.addListener(RewardAdPluginEvents.FailedToLoad, () => {
+			AdMob.addListener(RewardAdPluginEvents.FailedToLoad, (error) => {
 				this._isLoaded.set(false);
 				this.isLoading = false;
-				reject(new Error('Failed to load rewarded ad'));
+				reject(new Error('Failed to load rewarded ad' + JSON.stringify(error)));
 			});
 		});
 	}
@@ -43,8 +44,7 @@ export class AdmobReward implements AdProvider {
 			AdMob.addListener(RewardAdPluginEvents.FailedToShow, (error: AdMobError) => {
 				reject(error);
 			});
-			AdMob.addListener(RewardAdPluginEvents.Showed, () => {
-			});
+			AdMob.addListener(RewardAdPluginEvents.Showed, () => {});
 			AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
 				didReward = true;
 			});

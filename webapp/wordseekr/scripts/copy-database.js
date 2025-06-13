@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const sourceFile = join(__dirname, '../database/grids.sqlite');
 console.log('sourceFile', sourceFile);
 const destDir = join(__dirname, '../static/assets/databases');
-const destFile = join(destDir, 'wordseekr_v2.db');
+const destFile = join(destDir, 'wordseekr_v3.db');
 
 // Create assets directory if it doesn't exist
 if (!existsSync(destDir)) {

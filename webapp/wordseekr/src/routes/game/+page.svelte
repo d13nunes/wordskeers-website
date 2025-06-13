@@ -35,6 +35,7 @@
 	import Confetti from 'svelte-confetti';
 	import PauseMenu from './PauseMenu.svelte';
 	import { markQuoteAsPlayed } from '$lib/daily-challenge/quote-fetcher';
+	import { levelsManager } from '$lib/levels/levels';
 
 	const powerUpCooldownButton = 1500;
 
@@ -79,6 +80,7 @@
 		analytics.startedPlayingQuote(dailyChallengeID);
 	}
 	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
+	let isLevel = parseInt(page.url.searchParams.get('level') ?? '-1') !== -1;
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
 	const handleResize = () => {
@@ -253,6 +255,9 @@
 			if (isDailyChallenge && dailyChallengeID) {
 				analytics.markQuoteAsPlayed(dailyChallengeID);
 				await markQuoteAsPlayed(dailyChallengeID);
+			}
+			if (isLevel) {
+				levelsManager.markGridAsCompleted(gridId);
 			}
 			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });

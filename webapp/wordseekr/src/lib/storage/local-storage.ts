@@ -3,7 +3,7 @@ import { Difficulty } from '$lib/game/difficulty';
 import { getUnplayedAndTotalForDifficulty } from '$lib/game/grid-fetcher';
 import { Preferences } from '@capacitor/preferences';
 
-class LocalStorage {
+class MyLocalStorage {
 	CurrentDifficulty = 'currentDifficultyKey';
 	CoinBalance = 'coinBalance';
 	RemoveAds = 'removeAds';
@@ -27,8 +27,8 @@ class LocalStorage {
 }
 
 class GameCounter {
-	private localStorage: LocalStorage;
-	constructor(localStorage: LocalStorage) {
+	private localStorage: MyLocalStorage;
+	constructor(localStorage: MyLocalStorage) {
 		this.localStorage = localStorage;
 	}
 
@@ -44,13 +44,13 @@ class GameCounter {
 }
 
 class CompletionTracker {
-	private localStorage: LocalStorage;
+	private localStorage: MyLocalStorage;
 	private completed25 = 'completed25';
 	private completed50 = 'completed50';
 	private completed75 = 'completed75';
 	private completed100 = 'completed100';
 
-	constructor(localStorage: LocalStorage) {
+	constructor(localStorage: MyLocalStorage) {
 		this.localStorage = localStorage;
 	}
 
@@ -99,6 +99,51 @@ class CompletionTracker {
 	}
 }
 
-export const myLocalStorage = new LocalStorage();
+export class LevelsStorage {
+	private localStorage: MyLocalStorage;
+
+	CurrentLevelId = 'currentLevelId';
+	GridIdsCompleted = 'gridIdsCompleted';
+
+	constructor(localStorage: MyLocalStorage) {
+		this.localStorage = localStorage;
+	}
+	async setCurrentLevelNumber(levelId: number): Promise<void> {
+		return await this.localStorage.set(this.CurrentLevelId, levelId.toString());
+	}
+
+	async getCurrentLevelNumber(): Promise<number> {
+		const levelId = await this.localStorage.get(this.CurrentLevelId);
+		return levelId ? parseInt(levelId) : 0;
+	}
+
+	async setGridIdsCompletedForLevel(levelNumber: number, gridId: number[]): Promise<void> {
+		const key = `${this.GridIdsCompleted}_${levelNumber}`;
+		const currentGridIds = await this.localStorage.get(key);
+		if (currentGridIds) {
+			const gridIds = currentGridIds.split(',');
+			gridIds.push(gridId.toString());
+			return await this.localStorage.set(key, gridIds.join(','));
+		} else {
+			return await this.localStorage.set(key, gridId.toString());
+		}
+	}
+
+	async getGridIdsCompletedForLevel(levelNumber: number): Promise<number[]> {
+		const key = `${this.GridIdsCompleted}_${levelNumber}`;
+		const gridIds = await this.localStorage.get(key);
+		console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel', key, gridIds);
+		if (!gridIds) {
+			console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel no gridIds');
+			return [];
+		}
+		const re = gridIds.split(',').map((id) => parseInt(id));
+		console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel result', re);
+		return re;
+	}
+}
+
+export const myLocalStorage = new MyLocalStorage();
 export const completionTracker = new CompletionTracker(myLocalStorage);
 export const gameCounter = new GameCounter(myLocalStorage);
+export const levelsStorage = new LevelsStorage(myLocalStorage);

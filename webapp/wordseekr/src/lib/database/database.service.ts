@@ -9,11 +9,13 @@ import type {
 	DailyChallenge,
 	Score,
 	Quote,
-	QuoteSegment
+	QuoteSegment,
+	Level,
+	LevelDB
 } from './types';
 
 // Database configuration
-const DB_NAME = 'wordseekr_v2.db';
+const DB_NAME = 'wordseekr_v3.db';
 const DB_VERSION = 1;
 
 // Platform types
@@ -110,10 +112,10 @@ class DatabaseService {
 			});
 
 			// Fetch the pre-populated database from assets
-			const response = await fetch('/assets/databases/wordseekr_v2.db');
+			const response = await fetch('/assets/databases/wordseekr_v3.db');
 			if (!response.ok) {
 				throw new Error(
-					'Failed to fetch pre-populated database from /assets/databases/wordseekr_v2.db'
+					'Failed to fetch pre-populated database from /assets/databases/wordseekr_v3.db'
 				);
 			}
 			const buffer = await response.arrayBuffer();
@@ -312,6 +314,26 @@ class DatabaseService {
 			quotes: quote.quote,
 			words: words
 		};
+	}
+
+	public async getAllLevels(): Promise<Level[]> {
+		return this.executeQuery<Level>('SELECT * FROM levels ORDER BY order_index ASC');
+	}
+
+	// Levels methods
+	public async getLevel(levelNumber: number): Promise<Level | null> {
+		const results = await this.executeQuery<LevelDB>('SELECT * FROM levels WHERE order_index = ?', [
+			levelNumber
+		]);
+		const level = results[0] as LevelDB;
+		if (level) {
+			return {
+				orderIndex: level.order_index,
+				gridIds: level.grid_ids.split(',').map(Number),
+				name: level.name
+			} as Level;
+		}
+		return null;
 	}
 }
 

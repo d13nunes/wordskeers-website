@@ -87,7 +87,9 @@ function createAdStore(adProviders: AdProvider[]) {
 
 	async function initialize(): Promise<void> {
 		try {
-			await AdMob.initialize();
+			await AdMob.initialize({
+				initializeForTesting: true
+			});
 			console.log('📺 AdMob initialized');
 			isInitialized.set(true);
 
@@ -95,12 +97,13 @@ function createAdStore(adProviders: AdProvider[]) {
 			if (trackingInfo.status === 'notDetermined') {
 				await AdMob.requestTrackingAuthorization();
 			}
-
 			const consentInfo = await AdMob.requestConsentInfo();
-
-			console.log('📺 showing consent form');
-			await AdMob.showConsentForm();
-			// }
+			if (!consentInfo.isConsentFormAvailable) {
+				console.log('📺 consent form not available');
+			} else {
+				console.log('📺 showing consent form');
+				await AdMob.showConsentForm();
+			}
 			console.log('📺 consent form shown', consentInfo);
 		} catch (error) {
 			console.error('📺 AdMob initialization error:', error);

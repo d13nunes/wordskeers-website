@@ -49,3 +49,16 @@ export interface Score {
 	played_at: string;
 	time_taken: number;
 }
+export interface Level {
+	id?: number;
+	name: string;
+	gridIds: number[];
+	orderIndex: number;
+}
+
+export interface LevelDB {
+	id: number;
+	name: string;
+	grid_ids: string;
+	order_index: number;
+}

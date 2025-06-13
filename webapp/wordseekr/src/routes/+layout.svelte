@@ -17,7 +17,6 @@
 	import { fade } from 'svelte/transition';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import { page } from '$app/state';
-	import { modalPresenter } from './modal-presenter';
 	import {
 		getIsTodaysQuoteAvailableStore,
 		getTodaysQuote
@@ -26,6 +25,7 @@
 	import type { Unsubscriber } from 'svelte/store';
 	import { appStateManager } from '$lib/utils/app-state';
 	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
+	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
 	interface Props {
 		children: Snippet;
 	}
@@ -39,6 +39,7 @@
 	let showBadge = $state(false);
 	let isRootPage = $state(false);
 	let isDailyQuoteVisible = $derived(isRootPage && isQuoteAvailable);
+	let isLevelsVisible = $derived(isRootPage);
 
 	initialize();
 	function onStoreClick() {
@@ -71,9 +72,9 @@
 	onDestroy(() => {
 		unsubscribeQuoteAvailable?.();
 	});
+
 	onMount(async () => {
 		isSmallScreen = getIsSmallScreen();
-
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
@@ -87,7 +88,6 @@
 			});
 		}
 		isRootPage = page.route?.id === '/';
-
 		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
 			(isAvailable: boolean) => {
 				isQuoteAvailable = isAvailable;
@@ -151,6 +151,11 @@
 		{#if isDailyQuoteVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
+			</div>
+		{/if}
+		{#if isLevelsVisible}
+			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
+				<LevelsTag />
 			</div>
 		{/if}
 		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
