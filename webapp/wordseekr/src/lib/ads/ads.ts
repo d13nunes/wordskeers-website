@@ -36,10 +36,8 @@ const admobAdIdsProductionAndroid: AdmobAdIds = {
 };
 // Initialize with debug ads by default
 let admobAdIds: AdmobAdIds = admobAdIdsDebug;
-
 // Access query parameters
-const isDev = import.meta.env.VITE_CAPACITOR_IS_DEV;
-
+const isDev = import.meta.env.DEV;
 if (!isDev) {
 	if (Capacitor.getPlatform() === 'ios') {
 		console.log('Loaded Ads Production iOS config');
@@ -88,7 +86,8 @@ function createAdStore(adProviders: AdProvider[]) {
 	async function initialize(): Promise<void> {
 		try {
 			await AdMob.initialize({
-				initializeForTesting: true
+				initializeForTesting: isDev,
+				testingDevices: ['d7ede148874b25ba659bae00e86d4b08']
 			});
 			console.log('📺 AdMob initialized');
 			isInitialized.set(true);
@@ -97,7 +96,10 @@ function createAdStore(adProviders: AdProvider[]) {
 			if (trackingInfo.status === 'notDetermined') {
 				await AdMob.requestTrackingAuthorization();
 			}
-			const consentInfo = await AdMob.requestConsentInfo();
+
+			const consentInfo = await AdMob.requestConsentInfo({
+				testDeviceIdentifiers: ['1FDD0459-EEB7-4159-B950-432E05F7260B']
+			});
 			if (!consentInfo.isConsentFormAvailable) {
 				console.log('📺 consent form not available');
 			} else {
