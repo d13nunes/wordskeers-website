@@ -423,14 +423,7 @@
 
 <div bind:this={boardElement} class="flex w-full flex-col items-center justify-center {classProp}">
 	<div
-		id="board"
-		class="grid rounded-md bg-white p-2 shadow-sm transition-all ease-in-out"
-		style="
-			grid-template-columns: repeat({numColumns}, minmax(0, 1fr));
-			--square-size: {squareSize}px;
-			--letter-size: {letterSize}px;
-			--font-size: {fontSize}px;
-		"
+		class="rounded-md bg-white p-2 shadow-sm"
 		onmouseleave={handleMouseLeave}
 		onmouseup={handleMouseUp}
 		ontouchend={handleTouchEnd}
@@ -439,29 +432,40 @@
 		role="grid"
 		tabindex="0"
 	>
-		{#each cells as row}
-			{#each row as cell}
-				<div
-					style="height: var(--square-size); width: var(--square-size)"
-					class="flex items-center justify-center ease-in-out"
-					onmousedown={() => handleMouseDown(cell.row, cell.col)}
-					onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
-					ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
-					ontouchend={handleTouchEnd}
-					role="button"
-					tabindex="0"
-				>
+		<div
+			id="board"
+			class="grid transition-all ease-in-out"
+			style="
+				grid-template-columns: repeat({numColumns}, minmax(0, 1fr));
+				--square-size: {squareSize}px;
+				--letter-size: {letterSize}px;
+				--font-size: {fontSize}px;
+			"
+		>
+			{#each cells as row}
+				{#each row as cell}
 					<div
-						id={getPositionId(cell.row, cell.col)}
-						style="height: var(--letter-size); width: var(--letter-size); font-size: var(--font-size) "
-						class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
-						data-row={cell.row}
-						data-col={cell.col}
+						style="height: var(--square-size); width: var(--square-size)"
+						class="flex items-center justify-center ease-in-out"
+						onmousedown={() => handleMouseDown(cell.row, cell.col)}
+						onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
+						ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
+						ontouchend={handleTouchEnd}
+						role="button"
+						tabindex="0"
 					>
-						{cell.letter}
+						<div
+							id={getPositionId(cell.row, cell.col)}
+							style="height: var(--letter-size); width: var(--letter-size); font-size: var(--font-size) "
+							class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
+							data-row={cell.row}
+							data-col={cell.col}
+						>
+							{cell.letter}
+						</div>
 					</div>
-				</div>
+				{/each}
 			{/each}
-		{/each}
+		</div>
 	</div>
 </div>

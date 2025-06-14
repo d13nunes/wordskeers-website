@@ -26,6 +26,7 @@
 	import { appStateManager } from '$lib/utils/app-state';
 	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
 	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
+	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
 	interface Props {
 		children: Snippet;
 	}
@@ -132,6 +133,7 @@
 			showOnAppearPopup(500);
 		}
 	});
+	let isGameEndedModalVisible = $state(true);
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">

@@ -36,6 +36,8 @@
 	import PauseMenu from './PauseMenu.svelte';
 	import { markQuoteAsPlayed } from '$lib/daily-challenge/quote-fetcher';
 	import { levelsManager } from '$lib/levels/levels';
+	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
+	import type { Level } from '$lib/database/types';
 
 	const powerUpCooldownButton = 1500;
 
@@ -55,6 +57,14 @@
 	let showPauseModal = $state(false);
 	let isPowerUpAnimationActive = $state(false);
 	let isGameEnded = $state(false);
+	let isRemoveAdsActive = $state(false);
+
+	let title = $derived(game?.title ?? '');
+	let level = $state<Level | null>(null);
+	let levelName = $derived(level?.name ?? '');
+	let stageName = $derived(title ?? '');
+	let previousProgressValue: number | null = $state(null);
+	let currentProgressValue: number | null = $state(null);
 
 	let dailyChallenge = $state<DailyChallenge | null>(null);
 	let showGameEnded = $state(false);
@@ -79,10 +89,12 @@
 		game = createGameFromDailyChallenge(dailyChallenge);
 		analytics.startedPlayingQuote(dailyChallengeID);
 	}
-	let dailyChallengeID = parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1');
-	let isLevel = parseInt(page.url.searchParams.get('level') ?? '-1') !== -1;
+	let dailyChallengeID = $state(parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1'));
+	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
+
+	let pages;
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
 	};
@@ -94,20 +106,29 @@
 			console.error('Error loading clock visibility:', e);
 		}
 	}
-	onMount(() => {
-		isSmallScreen = getIsSmallScreen();
-		window.addEventListener('resize', handleResize);
-
+	async function createBoard() {
 		if (isDailyChallenge) {
 			gridID = dailyChallengeID;
 			loadGridFromDailyChallenge(dailyChallengeID);
 		} else {
+			if (isLevel) {
+				level = await levelsManager.getCurrentLevel();
+				const currentProgress = await levelsManager.getCurrentProgress();
+				previousProgressValue = currentProgress;
+			}
 			gridID = parseInt(page.url.searchParams.get('id') ?? '-1');
 			if (!gridID) {
 				throw new Error('Invalid id');
 			}
 			loadGridFromDatabase(gridID);
 		}
+	}
+
+	onMount(() => {
+		console.log('!!!🔍🔍🔍ℹ game page mounted');
+		isSmallScreen = getIsSmallScreen();
+		window.addEventListener('resize', handleResize);
+		createBoard();
 		loadClockVisibility();
 		return () => {
 			window.removeEventListener('resize', handleResize);
@@ -240,10 +261,8 @@
 		const foundAllWords = words.every((w) => w.isDiscovered);
 		if (foundAllWords) {
 			isGameEnded = true;
+			console.log('!!!🔍🔍🔍ℹ game ended', previousProgressValue, currentProgressValue);
 
-			setTimeout(() => {
-				showGameEnded = true;
-			}, 1000);
 			Haptics.impact({ style: ImpactStyle.Heavy });
 			const gridID = game?.config.id.toString() ?? 'undefined';
 			analytics.completeGame(difficulty ?? 'undefined', gridID);
@@ -258,9 +277,14 @@
 			}
 			if (isLevel) {
 				levelsManager.markGridAsCompleted(gridId);
+				const currentProgress = await levelsManager.getCurrentProgress();
+				currentProgressValue = currentProgress;
 			}
 			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });
+			setTimeout(() => {
+				showGameEnded = true;
+			}, 1000);
 		}
 	}
 
@@ -497,8 +521,6 @@
 		}, powerUpCooldownButton);
 	}
 
-	let title = $derived(game?.title ?? '');
-	let isRemoveAdsActive = $state(false);
 	walletStore.removeAds((removeAds) => {
 		isRemoveAdsActive = removeAds;
 	});
@@ -661,12 +683,20 @@
 				onClickNewGame={pauseMenuNewGameClick}
 			/>
 		{/if}
-		{#if showGameEnded}
+		{#if showGameEnded && !isLevel}
 			<GameEndedModal
 				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${accumulatedCoins} coins!`}
 				onClickContinue={() => collectReward(false)}
 				onClickDouble={() => collectReward(true)}
 				showDoubleButton={isRewardAdReady}
+			/>
+		{:else if showGameEnded && isLevel && previousProgressValue && currentProgressValue}
+			<LevelsEndGameModal
+				{levelName}
+				{stageName}
+				previousProgressValue={previousProgressValue * 100}
+				currentProgressValue={currentProgressValue * 100}
+				onClose={() => (showGameEnded = false)}
 			/>
 		{/if}
 

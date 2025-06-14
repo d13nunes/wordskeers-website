@@ -11,13 +11,14 @@ export interface LevelProgress {
 
 class LevelsManager {
 	private _currentLevelNumber: Writable<number> = writable(0);
-	currentLevelNumber: Readable<number> = this._currentLevelNumber;
-	gridIdsCompleted: number[] = [];
 	private __isInitialized: boolean = false;
 	private _isInitialized: Writable<boolean> = writable(false);
-	isInitialized: Readable<boolean> = this._isInitialized;
-	storage: LevelsStorage;
 	private _progress: Writable<number> = writable(0);
+	private storage: LevelsStorage;
+
+	currentLevelNumber: Readable<number> = this._currentLevelNumber;
+	gridIdsCompleted: number[] = [];
+	isInitialized: Readable<boolean> = this._isInitialized;
 	progress: Readable<number> = this._progress;
 	currentLevel: Level | null = null;
 
@@ -56,6 +57,17 @@ class LevelsManager {
 		return level;
 	}
 
+	async getCurrentLevel(): Promise<Level> {
+		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
+		const level = await this.getLevel(currentLevelNumber);
+		return level;
+	}
+	async getCurrentLevelProgress(): Promise<number> {
+		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
+		const level = await this.getLevel(currentLevelNumber);
+		return level.progress;
+	}
+
 	async getNextGridId(): Promise<number> {
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		const level = await this.getLevel(currentLevelNumber);
@@ -64,9 +76,14 @@ class LevelsManager {
 		return nextGridId;
 	}
 
-	private updateProgress(): number {
+	getCurrentProgress(): number {
 		const totalGrids = this.currentLevel?.gridIds.length ?? 0;
 		const progress = totalGrids > 0 ? this.gridIdsCompleted.length / totalGrids : 0;
+		return progress;
+	}
+
+	private updateProgress(): number {
+		const progress = this.getCurrentProgress();
 		this._progress.set(progress);
 		return progress;
 	}
