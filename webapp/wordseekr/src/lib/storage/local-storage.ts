@@ -117,16 +117,9 @@ export class LevelsStorage {
 		return levelId ? parseInt(levelId) : 0;
 	}
 
-	async setGridIdsCompletedForLevel(levelNumber: number, gridId: number[]): Promise<void> {
+	async setGridIdsCompletedForLevel(levelNumber: number, gridIds: number[]): Promise<void> {
 		const key = `${this.GridIdsCompleted}_${levelNumber}`;
-		const currentGridIds = await this.localStorage.get(key);
-		if (currentGridIds) {
-			const gridIds = currentGridIds.split(',');
-			gridIds.push(gridId.toString());
-			return await this.localStorage.set(key, gridIds.join(','));
-		} else {
-			return await this.localStorage.set(key, gridId.toString());
-		}
+		await this.localStorage.set(key, gridIds.join(','));
 	}
 
 	async getGridIdsCompletedForLevel(levelNumber: number): Promise<number[]> {
@@ -140,6 +133,15 @@ export class LevelsStorage {
 		const re = gridIds.split(',').map((id) => parseInt(id));
 		console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel result', re);
 		return re;
+	}
+
+	async clearStorage() {
+		let currentLevelId = await this.getCurrentLevelNumber();
+		while (currentLevelId > 0) {
+			this.localStorage.remove(`${this.GridIdsCompleted}_${currentLevelId}`);
+			this.localStorage.remove(this.CurrentLevelId);
+			currentLevelId--;
+		}
 	}
 }
 

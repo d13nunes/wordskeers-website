@@ -40,7 +40,6 @@
 	let showBadge = $state(false);
 	let isRootPage = $state(false);
 	let isDailyQuoteVisible = $derived(isRootPage && isQuoteAvailable);
-	let isLevelsVisible = $derived(isRootPage);
 
 	initialize();
 	function onStoreClick() {
@@ -155,12 +154,14 @@
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
 			</div>
 		{/if}
-		{#if isLevelsVisible}
+		{#if isRootPage}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<LevelsTag />
 			</div>
+			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
+				<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
+			</div>
 		{/if}
-		<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
 		<BalanceTag onclick={onStoreClick} />
 	</div>
 	<!-- {/if} -->

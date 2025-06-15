@@ -2,10 +2,11 @@
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { walletStore } from '$lib/economy/walletStore';
+	import { levelsStorage } from '$lib/storage/local-storage';
 
 	async function handleAdClick(adType: AdType) {
 		console.log(`Showing ${adType} ad...`);
-		const success = await adStore.showAd(adType);
+		const success = await adStore.showAd(adType, null);
 		console.log(`${adType} ad ${success ? 'shown successfully' : 'failed to show'}`);
 		showAdResult = `${adType} ad ${success ? 'shown successfully' : 'failed to show'}`;
 	}

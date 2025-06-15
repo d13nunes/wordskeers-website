@@ -261,7 +261,6 @@
 		const foundAllWords = words.every((w) => w.isDiscovered);
 		if (foundAllWords) {
 			isGameEnded = true;
-			console.log('!!!🔍🔍🔍ℹ game ended', previousProgressValue, currentProgressValue);
 
 			Haptics.impact({ style: ImpactStyle.Heavy });
 			const gridID = game?.config.id.toString() ?? 'undefined';
@@ -276,10 +275,11 @@
 				await markQuoteAsPlayed(dailyChallengeID);
 			}
 			if (isLevel) {
-				levelsManager.markGridAsCompleted(gridId);
-				const currentProgress = await levelsManager.getCurrentProgress();
+				const currentProgress = await levelsManager.markGridAsCompleted(gridId);
+				console.log('!!!🔍🔍🔍ℹ currentProgress', currentProgress);
 				currentProgressValue = currentProgress;
 			}
+
 			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });
 			setTimeout(() => {
@@ -690,15 +690,14 @@
 				onClickDouble={() => collectReward(true)}
 				showDoubleButton={isRewardAdReady}
 			/>
-		{:else if showGameEnded && isLevel && previousProgressValue && currentProgressValue}
-			<LevelsEndGameModal
-				{levelName}
-				{stageName}
-				previousProgressValue={previousProgressValue * 100}
-				currentProgressValue={currentProgressValue * 100}
-				onClose={() => (showGameEnded = false)}
-			/>
-		{/if}
+		{:else if showGameEnded && isLevel && previousProgressValue !== null && currentProgressValue !== null}{/if}
+		<LevelsEndGameModal
+			{levelName}
+			{stageName}
+			previousProgressValue={0.8 * 100}
+			currentProgressValue={1 * 100}
+			onClose={() => goto('/')}
+		/>
 
 		<div
 			class="flex min-w-full flex-row items-center gap-2 sm:justify-center {isSmallScreen

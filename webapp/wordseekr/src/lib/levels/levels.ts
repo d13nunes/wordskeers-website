@@ -45,14 +45,21 @@ class LevelsManager {
 			this.updateProgress();
 			this._isInitialized.set(true);
 		} catch (error) {
-			console.error('levelsManager init error', JSON.stringify(error));
+			console.error('🙏 levelsManager init error', JSON.stringify(error));
 		}
+
+		console.log(
+			'🙏 !!! levelsManager init. current level ',
+			this.currentLevel?.orderIndex,
+			' progress:',
+			this.getCurrentProgress()
+		);
 	}
 
 	private async getLevel(levelNumber: number): Promise<Level> {
 		const level = await databaseService.getLevel(levelNumber);
 		if (!level) {
-			throw new Error('Level not found');
+			throw new Error(`Level not found ${levelNumber}`);
 		}
 		return level;
 	}
@@ -61,11 +68,6 @@ class LevelsManager {
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		const level = await this.getLevel(currentLevelNumber);
 		return level;
-	}
-	async getCurrentLevelProgress(): Promise<number> {
-		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
-		const level = await this.getLevel(currentLevelNumber);
-		return level.progress;
 	}
 
 	async getNextGridId(): Promise<number> {
@@ -78,6 +80,7 @@ class LevelsManager {
 
 	getCurrentProgress(): number {
 		const totalGrids = this.currentLevel?.gridIds.length ?? 0;
+		console.log('🙏 !!! getCurrentProgress', totalGrids, this.gridIdsCompleted.length);
 		const progress = totalGrids > 0 ? this.gridIdsCompleted.length / totalGrids : 0;
 		return progress;
 	}
@@ -91,6 +94,7 @@ class LevelsManager {
 	private async progressLevel() {
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		const nextLevelNumber = currentLevelNumber + 1;
+		console.log('🙏 !!! progressLevel', currentLevelNumber, nextLevelNumber);
 		const nextLevel = await databaseService.getLevel(nextLevelNumber);
 		if (nextLevel) {
 			await this.storage.setCurrentLevelNumber(nextLevel.orderIndex);
@@ -101,14 +105,19 @@ class LevelsManager {
 		}
 	}
 
-	async markGridAsCompleted(gridId: number) {
+	async markGridAsCompleted(gridId: number): Promise<number> {
+		console.log('🙏 !!! markGridAsCompleted', gridId);
 		this.gridIdsCompleted.push(gridId);
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		await this.storage.setGridIdsCompletedForLevel(currentLevelNumber, this.gridIdsCompleted);
+		const savedGridIds = await this.storage.getGridIdsCompletedForLevel(currentLevelNumber);
+		console.log('🙏 !!! markGridAsCompleted 2', this.gridIdsCompleted, savedGridIds);
 		const currentProgress = this.updateProgress();
+		console.log('🙏 !!! markGridAsCompleted 3', currentProgress);
 		if (currentProgress >= 1) {
 			this.progressLevel();
 		}
+		return currentProgress;
 	}
 }
 

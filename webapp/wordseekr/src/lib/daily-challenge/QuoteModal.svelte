@@ -6,6 +6,7 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { getTodaysQuote } from './quote-fetcher';
 	import { databaseService } from '$lib/database/database.service';
+	import { levelsStorage } from '$lib/storage/local-storage';
 
 	const quoteIconId = 'quoteIconID';
 
@@ -27,6 +28,7 @@
 	});
 
 	function onPlayClick() {
+		levelsStorage.clearStorage();
 		goto(`/game?dailyChallengeId=${id}&difficulty=challenge`);
 		onClickPlay();
 	}

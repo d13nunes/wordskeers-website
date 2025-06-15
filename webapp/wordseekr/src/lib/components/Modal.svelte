@@ -37,6 +37,15 @@
 		in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
 		out:scale={{ duration: 300, easing: cubicInOut }}
 		class="relative mx-4 flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg"
+		onclick={(e) => e.stopPropagation()}
+		ontouchstart={(e) => e.stopPropagation()}
+		ontouchmove={(e) => e.stopPropagation()}
+		ontouchend={(e) => e.stopPropagation()}
+		onpointerdown={(e) => e.stopPropagation()}
+		onpointerup={(e) => e.stopPropagation()}
+		onpointermove={(e) => e.stopPropagation()}
+		role="none"
+		tabindex="-1"
 	>
 		{#if onClose}
 			<button class="absolute top-4 right-4 h-6 w-6" onclick={() => onClose()}>
