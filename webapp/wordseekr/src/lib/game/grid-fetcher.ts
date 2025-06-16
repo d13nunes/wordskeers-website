@@ -50,7 +50,11 @@ export async function getRandomUnplayedGridID(difficulty: Difficulty): Promise<n
 	const config = DifficultyConfigMap.config(difficulty);
 	const grids = await databaseService.getWordSearchGrids();
 	const matchingGrids = grids.filter(
-		(grid) => grid.rows === config.rows && grid.columns === config.columns && !grid.played_at
+		(grid) =>
+			grid.rows === config.rows &&
+			grid.columns === config.columns &&
+			!grid.played_at &&
+			!grid.is_challenge
 	);
 	if (matchingGrids.length > 0) {
 		return matchingGrids[Math.floor(Math.random() * matchingGrids.length)].id;
