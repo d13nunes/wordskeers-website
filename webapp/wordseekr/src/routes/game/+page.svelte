@@ -641,7 +641,7 @@
 
 	// Add coin calculation function and state
 	function calculateWordCoins(word: string): number {
-		return 10; // Default reward per word
+		return 2; // Default reward per word
 	}
 
 	let accumulatedCoins = $state(0);
