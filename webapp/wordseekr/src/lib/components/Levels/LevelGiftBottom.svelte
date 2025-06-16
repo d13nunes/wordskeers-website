@@ -1,31 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 161 87" fill="none"
-	><path fill="#C0382B" fill-rule="evenodd" d="M61 0h39v20H61V0Z" clip-rule="evenodd" /><path
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 155 87"
+	><path
+		fill="#C0382B"
+		fill-rule="evenodd"
+		d="M53.9993 0h41.5v20h-41.5V0Z"
+		clip-rule="evenodd"
+	/><path
 		fill="#F29B12"
 		fill-rule="evenodd"
-		d="M7 6h53v14H7V6ZM154 6v14h-53V6h53Z"
+		d="M.9993 6h53v14h-53V6ZM147.999 6v14H94.9993V6h52.9997Z"
 		clip-rule="evenodd"
 	/><path
 		fill="#F0C30E"
 		fill-rule="evenodd"
-		d="M7 20h53v60c-15 .17-30 0-45-.5A19.6 19.6 0 0 1 7 71V20Z"
+		d="M.9993 20h53v60c-15.0037.167-30.0037 0-45-.5-3.6028-2.098-6.2695-4.932-8-8.5V20Z"
 		clip-rule="evenodd"
-	/><path fill="#E64B3C" fill-rule="evenodd" d="M61 20h39v60H61V20Z" clip-rule="evenodd" /><path
+	/><path
+		fill="#E64B3C"
+		fill-rule="evenodd"
+		d="M53.9993 20h41v60h-41V20Z"
+		clip-rule="evenodd"
+	/><path
 		fill="#F0C30E"
 		fill-rule="evenodd"
-		d="M101 20h53v51a19.6 19.6 0 0 1-8 8.5c-15 .5-30 .67-45 .5V20Z"
+		d="M94.9993 20h52.9997v51c-1.73 3.568-4.397 6.402-8 8.5-14.996.5-29.996.667-44.9997.5V20Z"
 		clip-rule="evenodd"
 	/><path
 		fill="#F39C15"
 		fill-rule="evenodd"
-		d="M7 71a19.6 19.6 0 0 0 8 8.5c15 .5 30 .67 45 .5v7H17C9.67 84.36 6.33 79.03 7 71Z"
+		d="M.9993 71c1.7305 3.568 4.3972 6.402 8 8.5 14.9963.5 29.9963.667 45 .5 0 2.333-.0007 4.667-.0007 7h-43C3.6656 84.362.3329 79.029.9993 71Z"
 		clip-rule="evenodd"
 	/><path
 		fill="#F39C14"
 		fill-rule="evenodd"
-		d="M154 71c.75 8.54-2.92 13.87-11 16h-42v-7c15 .17 30 0 45-.5a19.6 19.6 0 0 0 8-8.5Z"
+		d="M147.999 71c.746 8.541-2.92 13.874-11 16H94.9993v-7c15.0037.167 30.0037 0 44.9997-.5 3.603-2.098 6.27-4.932 8-8.5Z"
 		clip-rule="evenodd"
-	/><path fill="#C0392B" fill-rule="evenodd" d="M61 80h39v7H61v-7Z" clip-rule="evenodd" /><path
-		fill="#E57D23"
-		d="M60 0h1v87h-1zM100 0h1v87h-1zM7 0h53v6H7zM101 0h53v6h-53z"
-	/></svg
+	/><path
+		fill="#C0392B"
+		fill-rule="evenodd"
+		d="M53.9993 80h41v7H53.9986c0-2.333.0007-4.667.0007-7Z"
+		clip-rule="evenodd"
+	/><path fill="#E57D23" d="M.9993 0h53v6h-53V0ZM94.9993 0h52.9997v6H94.9993V0Z" /></svg
 >

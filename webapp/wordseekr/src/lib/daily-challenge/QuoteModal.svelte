@@ -34,7 +34,7 @@
 	}
 </script>
 
-<Modal onClose={onClickClose} backgroundOpacity={50}>
+<Modal onClose={onClickClose} onDismiss={onClickClose} backgroundOpacity={50}>
 	<div class="mt-2 flex flex-col items-center justify-center gap-0">
 		<GameModeIconTitle
 			icon={QuoteIcon}

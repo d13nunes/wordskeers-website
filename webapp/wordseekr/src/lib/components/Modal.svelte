@@ -1,25 +1,38 @@
 <script lang="ts">
 	import { cubicOut, cubicIn, cubicInOut } from 'svelte/easing';
 	import { fade, scale } from 'svelte/transition';
-	import type { Snippet } from 'svelte';
+	import { onMount, type Snippet } from 'svelte';
 	import CloseX from './CloseX.svelte';
 
 	interface Props {
 		children: Snippet;
 		backgroundOpacity?: number;
 		canDismissOnBackground?: boolean;
+		onDismiss?: () => void;
 		onClose?: () => void;
 	}
 
-	let { children, onClose, backgroundOpacity, canDismissOnBackground = true }: Props = $props();
+	let { children, backgroundOpacity, onDismiss, onClose }: Props = $props();
+	let canDismissOnBackground = false;
 
-	const handleBackgroundClick = canDismissOnBackground
-		? () => {
-				if (onClose) {
-					onClose();
-				}
-			}
-		: undefined;
+	onMount(() => {
+		const timeout = setTimeout(() => {
+			canDismissOnBackground = true;
+		}, 500);
+		return () => {
+			clearTimeout(timeout);
+		};
+	});
+
+	const handleBackgroundClick = () => {
+		console.log('!!!🔍🔍🔍ℹ canDismissOnBackground', canDismissOnBackground);
+		if (!canDismissOnBackground) {
+			return;
+		}
+		if (onDismiss) {
+			onDismiss();
+		}
+	};
 </script>
 
 <div

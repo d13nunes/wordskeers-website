@@ -434,7 +434,7 @@
 	>
 		<div
 			id="board"
-			class="grid transition-all ease-in-out"
+			class="grid"
 			style="
 				grid-template-columns: repeat({numColumns}, minmax(0, 1fr));
 				--square-size: {squareSize}px;

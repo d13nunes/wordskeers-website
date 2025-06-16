@@ -69,8 +69,12 @@
 	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
 	let unsubscribeAppState: (() => void) | undefined;
 
+	let onAppearTimeout: NodeJS.Timeout | null = null;
 	onDestroy(() => {
 		unsubscribeQuoteAvailable?.();
+		if (onAppearTimeout) {
+			clearTimeout(onAppearTimeout);
+		}
 	});
 
 	onMount(async () => {
@@ -94,9 +98,8 @@
 			}
 		);
 	});
-
 	function showOnAppearPopup(delay: number = 300) {
-		setTimeout(async () => {
+		onAppearTimeout = setTimeout(async () => {
 			const onAppearAction = await onGameSelectionAppear();
 			console.log('🔍🔍🔍ℹ onAppearAction', onAppearAction);
 			switch (onAppearAction) {

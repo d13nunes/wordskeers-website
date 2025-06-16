@@ -19,7 +19,9 @@
 	});
 
 	async function onclick() {
-		goto(`/levels`);
+		const id = await levelsManager.getNextGridId();
+		const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
+		goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`);
 	}
 	let icon: HTMLDivElement | null = null;
 </script>

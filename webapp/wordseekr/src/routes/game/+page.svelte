@@ -93,7 +93,7 @@
 	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
-
+	console.log('!!!🔍🔍🔍ℹ isLevel', isLevel);
 	let pages;
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
@@ -123,6 +123,11 @@
 			loadGridFromDatabase(gridID);
 		}
 	}
+
+	let pageParams = $state(page.url.searchParams);
+	$effect(() => {
+		console.log('!!!🔍🔍🔍ℹ pageParams', pageParams);
+	});
 
 	onMount(() => {
 		console.log('!!!🔍🔍🔍ℹ game page mounted');
@@ -650,6 +655,22 @@
 		analytics.quitGame(difficulty ?? 'undefined', game?.config.id.toString() ?? 'undefined');
 		goto('/');
 	}
+
+	async function navigateToNextLevel() {
+		clearInterval(timerInterval);
+		showGameEnded = false;
+		// const id = await levelsManager.getNextGridId();
+		// const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
+		// setTimeout(() => {
+		// 	goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`, {
+		// 		replaceState: true
+		// 	});
+		// }, 500);
+
+		setTimeout(() => {
+			goto(`/levels`, { replaceState: true });
+		}, 500);
+	}
 </script>
 
 {#if error}
@@ -690,14 +711,17 @@
 				onClickDouble={() => collectReward(true)}
 				showDoubleButton={isRewardAdReady}
 			/>
-		{:else if showGameEnded && isLevel && previousProgressValue !== null && currentProgressValue !== null}{/if}
-		<LevelsEndGameModal
-			{levelName}
-			{stageName}
-			previousProgressValue={0.8 * 100}
-			currentProgressValue={1 * 100}
-			onClose={() => goto('/')}
-		/>
+		{:else if showGameEnded && isLevel && previousProgressValue !== null && currentProgressValue !== null}
+			<LevelsEndGameModal
+				{levelName}
+				{stageName}
+				previousProgressValue={previousProgressValue * 100}
+				currentProgressValue={currentProgressValue * 100}
+				onDismiss={navigateToNextLevel}
+				{navigateToNextLevel}
+				onClose={() => goto('/')}
+			/>
+		{/if}
 
 		<div
 			class="flex min-w-full flex-row items-center gap-2 sm:justify-center {isSmallScreen

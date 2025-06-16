@@ -9,7 +9,7 @@
 	const { onClickResume, onClickNewGame }: Props = $props();
 </script>
 
-<Modal>
+<Modal onDismiss={onClickResume}>
 	<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
 	<div class="flex flex-row gap-4">
 		<button
