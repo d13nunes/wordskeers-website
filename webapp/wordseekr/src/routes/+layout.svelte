@@ -106,7 +106,17 @@
 			console.log('📨 Notifications are disabled');
 		}
 	});
+	let lastTimePermissionPrompted: Date | null = null;
+	const popupCooldown = 1000 * 60 * 10; // 2 minutes
+
 	function showOnAppearPopup(delay: number = 300) {
+		if (
+			lastTimePermissionPrompted &&
+			lastTimePermissionPrompted.getTime() + popupCooldown > Date.now()
+		) {
+			return;
+		}
+		lastTimePermissionPrompted = new Date();
 		onAppearTimeout = setTimeout(async () => {
 			const onAppearAction = await onGameSelectionAppear();
 			switch (onAppearAction) {
