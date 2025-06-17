@@ -62,6 +62,7 @@
 	let title = $derived(game?.title ?? '');
 	let level = $state<Level | null>(null);
 	let levelName = $derived(level?.name ?? '');
+	let levelNumber = $derived(level?.orderIndex ?? 0);
 	let stageName = $derived(title ?? '');
 	let previousProgressValue: number | null = $state(null);
 	let currentProgressValue: number | null = $state(null);
@@ -666,6 +667,9 @@
 		// 		replaceState: true
 		// 	});
 		// }, 500);
+		if (currentProgressValue && currentProgressValue >= 1) {
+			adStore.showAd(AdType.Interstitial, null);
+		}
 
 		setTimeout(() => {
 			goto(`/levels`, { replaceState: true });
@@ -715,9 +719,9 @@
 			<LevelsEndGameModal
 				{levelName}
 				{stageName}
+				{levelNumber}
 				previousProgressValue={previousProgressValue * 100}
 				currentProgressValue={currentProgressValue * 100}
-				onDismiss={navigateToNextLevel}
 				{navigateToNextLevel}
 				onClose={() => goto('/')}
 			/>

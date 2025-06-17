@@ -21,6 +21,7 @@
 	async function onclick() {
 		const id = await levelsManager.getNextGridId();
 		const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
+		// goto(`/tests/endlevelmodal`);
 		goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`);
 	}
 	let icon: HTMLDivElement | null = null;

@@ -1,41 +1,71 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
-	import { goto } from '$app/navigation';
+
 	import { onDestroy, onMount } from 'svelte';
 	import { animate, eases, JSAnimation, utils } from 'animejs';
 	import Confetti from 'svelte-confetti';
 	import CoinsPileIcon from '../Icons/CoinsPileIcon.svelte';
-	import LevelGiftBottom from '$lib/assets/level-gift-bottom.png';
-	import LevelGiftTop from '$lib/assets/level-gift-top.png';
+	// import LevelGiftBottom from '$lib/assets/level-gift-bottom.png';
+	// import LevelGiftTop from '$lib/assets/level-gift-top.png';
+	import LevelGiftTop from './LevelGiftTop.svelte';
+	import LevelGiftBottom from './LevelGiftBottom.svelte';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	interface Props {
 		previousProgressValue: number;
 		currentProgressValue: number;
+		levelNumber: number;
 		levelName: string;
 		stageName: string;
 		navigateToNextLevel: () => void;
-		onDismiss: () => void;
 		onClose: () => void;
 	}
 
 	const {
 		previousProgressValue,
 		currentProgressValue,
+		levelNumber,
 		levelName,
 		stageName,
-		onDismiss,
 		navigateToNextLevel,
 		onClose
 	}: Props = $props();
 	let rewardIcon: HTMLDivElement | null = null;
 	let showConfetti = $state(true);
 
-	let levelNumber = $state(1);
-	let title = $state('Levels');
 	let progress = $state(previousProgressValue);
 	let isLevelCompleted = currentProgressValue >= 100;
 	let didFinishAnimating = false;
 	let navigateToNextLevelTimeout: NodeJS.Timeout | null = null;
+	const initialCountdown = isLevelCompleted ? 5 : 3;
+
+	let rewardIconScaleInitial = Math.max(Math.min(1 + (previousProgressValue / 100) * 4, 2), 1.5);
+	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 2;
+
+	let title = $state('Levels' + rewardIconScaleInitial + ' ' + rewardIconScaleFinal);
+	let shakeAnimation: JSAnimation | null = null;
+	let nextLevelIn = $state(initialCountdown);
+	let nextLevelTimeText = $state(`Next level in ${initialCountdown}`);
+	let timerInterval = setInterval(() => {
+		nextLevelIn--;
+		nextLevelTimeText = `Next level in ${nextLevelIn}`;
+		if (nextLevelIn <= 0) {
+			nextLevelTimeText = `Have Fun!`;
+			clearInterval(timerInterval);
+			if (!didFinishAnimating) {
+				navigateToNextLevelTimeout = setTimeout(() => {
+					playNextLevel();
+				}, 1000);
+			}
+		}
+	}, 500);
+	function getRewardAmount() {
+		return Math.min(20 * levelNumber, 200 + 1 * levelNumber);
+	}
+
+	function giveReward() {
+		walletStore.addCoins(getRewardAmount());
+	}
 
 	function playNextLevel() {
 		if (didFinishAnimating) {
@@ -56,12 +86,14 @@
 				const translateX = balanceTagRect.x - coinPileIconRect.x - coinPileIconRect.width / 4;
 				const translateY = balanceTagRect.y - coinPileIconRect.y - coinPileIconRect.height / 4;
 				const levelGiftBottomRect = levelGiftBottom.getBoundingClientRect();
-				const levelGiftBottomTranslateX = (coinPileIconRect.width / 5) * 2;
-				const levelGiftBottomTranslateY = coinPileIconRect.height / 4 + 2;
+				const levelGiftTopRect = levelGiftTop.getBoundingClientRect();
+				const levelGiftBottomTranslateX = levelGiftBottomRect.width / 6 - 1;
+				const levelGiftBottomTranslateY = levelGiftBottomRect.height / 4 + 1;
 				const animationDuration = 750;
 				shakeAnimation?.revert();
 				const delay = 200;
 
+				showConfetti = false;
 				animate(coinsPileIcon, {
 					opacity: [0, 1],
 					translateY: -55,
@@ -81,7 +113,7 @@
 					ease: eases.inElastic(0.5, 2),
 					delay: delay
 				}).then(() => {
-					showConfetti = false;
+					giveReward();
 					animate(coinsPileIcon, {
 						translateX,
 						ease: 'in',
@@ -94,7 +126,7 @@
 					});
 					animate(coinsPileIcon, {
 						opacity: [1, 1],
-						scale: [1, 0.25],
+						scale: [1, 0.5, 0],
 						ease: 'inOut',
 						duration: animationDuration
 					}).then(() => {
@@ -117,9 +149,9 @@
 	async function onPlayClick() {
 		playNextLevel();
 	}
-	let rewardIconScaleInitial = 1.5 + previousProgressValue / 100 / 2;
-	let rewardIconScaleFinal = 1.5 + currentProgressValue / 100 / 2;
-	let shakeAnimation: JSAnimation | null = null;
+	async function onDismiss() {
+		await playNextLevel();
+	}
 	onMount(() => {
 		let counter = { value: previousProgressValue };
 		animate(counter, {
@@ -134,7 +166,7 @@
 		});
 		if (rewardIcon) {
 			animate(rewardIcon, {
-				scale: rewardIconScaleFinal,
+				scale: [rewardIconScaleInitial, rewardIconScaleFinal],
 				delay: 0,
 				duration: 2500,
 				ease: 'linear'
@@ -152,22 +184,6 @@
 			});
 		}
 	});
-	const initialCountdown = isLevelCompleted ? 5 : 3;
-	let nextLevelIn = $state(initialCountdown);
-	let nextLevelTimeText = $state(`Next level in ${initialCountdown}`);
-	let timerInterval = setInterval(() => {
-		nextLevelIn--;
-		nextLevelTimeText = `Next level in ${nextLevelIn}`;
-		if (nextLevelIn <= 0) {
-			nextLevelTimeText = `Have Fun!`;
-			clearInterval(timerInterval);
-			if (!didFinishAnimating) {
-				navigateToNextLevelTimeout = setTimeout(() => {
-					playNextLevel();
-				}, 1000);
-			}
-		}
-	}, 500);
 
 	onDestroy(() => {
 		clearInterval(timerInterval);
@@ -197,30 +213,26 @@
 									y={[-0.3, 0.25]}
 									iterationCount={13}
 									amount={100}
-									delay={[1500, 1500]}
 									duration={1000}
 									noGravity={true}
 								/>
 							{/if}
 						</div>
 					{/if}
-					<div
-						bind:this={rewardIcon}
-						class="relative z-60 h-[25px] w-[25px]"
-						style="scale: {rewardIconScaleInitial}"
-					>
-						<img
-							src={LevelGiftTop}
-							alt="Logo"
+					<div bind:this={rewardIcon} class="relative z-60 h-[25px] w-[26px]">
+						<LevelGiftTop
 							id="level-gift-top"
-							class="pointer-events-none absolute top-0 z-100 w-[25px] shadow-lg select-none"
-							style="transform-origin: 0% 100%;"
+							class="pointer-events-none absolute  z-100  w-[32px] shadow-lg select-none"
+							style="
+							transform-origin: 0% 100%;
+							margin-left: -5%;
+							margin-top: -13%;
+							"
 						/>
-						<img
-							src={LevelGiftBottom}
-							alt="Logo"
+						<LevelGiftBottom
 							id="level-gift-bottom"
-							class="pointer-events-none z-100 w-[25px] pt-[8px] select-none"
+							class="pointer-events-none z-100 w-[30px] pt-[8px] select-none"
+							style=""
 						/>
 					</div></button
 				>

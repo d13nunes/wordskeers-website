@@ -7,6 +7,7 @@
 	import { getTodaysQuote } from './quote-fetcher';
 	import { databaseService } from '$lib/database/database.service';
 	import { levelsStorage } from '$lib/storage/local-storage';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	const quoteIconId = 'quoteIconID';
 
@@ -29,6 +30,7 @@
 
 	function onPlayClick() {
 		levelsStorage.clearStorage();
+		walletStore.reset();
 		goto(`/game?dailyChallengeId=${id}&difficulty=challenge`);
 		onClickPlay();
 	}
