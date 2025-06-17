@@ -1,12 +1,10 @@
 <script lang="ts">
+	import LevelsProgressBar from './LevelsProgressBar.svelte';
 	import Modal from '$lib/components/Modal.svelte';
-
 	import { onDestroy, onMount } from 'svelte';
 	import { animate, eases, JSAnimation, utils } from 'animejs';
 	import Confetti from 'svelte-confetti';
 	import CoinsPileIcon from '../Icons/CoinsPileIcon.svelte';
-	// import LevelGiftBottom from '$lib/assets/level-gift-bottom.png';
-	// import LevelGiftTop from '$lib/assets/level-gift-top.png';
 	import LevelGiftTop from './LevelGiftTop.svelte';
 	import LevelGiftBottom from './LevelGiftBottom.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
@@ -42,7 +40,7 @@
 	let rewardIconScaleInitial = Math.max(Math.min(1 + (previousProgressValue / 100) * 4, 2), 1.5);
 	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 2;
 
-	let title = $state('Levels' + rewardIconScaleInitial + ' ' + rewardIconScaleFinal);
+	let title = $state('Levels');
 	let shakeAnimation: JSAnimation | null = null;
 	let nextLevelIn = $state(initialCountdown);
 	let nextLevelTimeText = $state(`Next level in ${initialCountdown}`);
@@ -222,11 +220,10 @@
 					<div bind:this={rewardIcon} class="relative z-60 h-[25px] w-[26px]">
 						<LevelGiftTop
 							id="level-gift-top"
-							class="pointer-events-none absolute  z-100  w-[32px] shadow-lg select-none"
+							class="pointer-events-none absolute  z-100  w-[30px] shadow-lg select-none"
 							style="
 							transform-origin: 0% 100%;
-							margin-left: -5%;
-							margin-top: -13%;
+							margin-top: -8%;
 							"
 						/>
 						<LevelGiftBottom
@@ -237,15 +234,12 @@
 					</div></button
 				>
 			</div>
-			<div class="mt-2 self-start ps-2 text-sm text-gray-500">Level progress {progress}%</div>
-			<div class="relative w-full">
-				<div class=" min-h-4 w-full overflow-hidden rounded-md bg-gray-300">
-					<div
-						class="progress-bar-fill h-4 rounded-e-md bg-green-800"
-						style="width: {progress}%;"
-					></div>
-				</div>
-			</div>
+			<LevelsProgressBar
+				class="mt-2"
+				{currentProgressValue}
+				startAnimation={true}
+				{previousProgressValue}
+			/>
 		</div>
 		<div class="mt-8 flex w-full flex-col gap-2">
 			<div class=" ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">

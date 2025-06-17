@@ -94,7 +94,7 @@
 	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
-	console.log('!!!🔍🔍🔍ℹ isLevel', isLevel);
+
 	let pages;
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
@@ -125,13 +125,7 @@
 		}
 	}
 
-	let pageParams = $state(page.url.searchParams);
-	$effect(() => {
-		console.log('!!!🔍🔍🔍ℹ pageParams', pageParams);
-	});
-
 	onMount(() => {
-		console.log('!!!🔍🔍🔍ℹ game page mounted');
 		isSmallScreen = getIsSmallScreen();
 		window.addEventListener('resize', handleResize);
 		createBoard();
@@ -282,7 +276,7 @@
 			}
 			if (isLevel) {
 				const currentProgress = await levelsManager.markGridAsCompleted(gridId);
-				console.log('!!!🔍🔍🔍ℹ currentProgress', currentProgress);
+
 				currentProgressValue = currentProgress;
 			}
 

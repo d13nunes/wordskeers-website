@@ -10,22 +10,29 @@ export interface LevelProgress {
 }
 
 class LevelsManager {
+	private storage: LevelsStorage;
 	private _currentLevelNumber: Writable<number> = writable(0);
 	private __isInitialized: boolean = false;
 	private _isInitialized: Writable<boolean> = writable(false);
 	private _progress: Writable<number> = writable(0);
-	private storage: LevelsStorage;
+	private __currentLevel: Level | undefined = undefined;
+	private _currentLevel: Writable<Level | undefined> = writable(this.__currentLevel);
 
 	currentLevelNumber: Readable<number> = this._currentLevelNumber;
 	gridIdsCompleted: number[] = [];
 	isInitialized: Readable<boolean> = this._isInitialized;
 	progress: Readable<number> = this._progress;
-	currentLevel: Level | null = null;
+	currentLevel: Readable<Level | undefined> = this._currentLevel;
+	level: Level | undefined = undefined;
 
 	constructor(storage: LevelsStorage) {
 		this.storage = storage;
 		this._isInitialized.subscribe((value) => {
 			this.__isInitialized = value;
+		});
+		this._currentLevel.subscribe((level) => {
+			this.__currentLevel = level;
+			this.level = level;
 		});
 	}
 
@@ -41,7 +48,8 @@ class LevelsManager {
 			this._currentLevelNumber.set(currentLevelNumber);
 			await this.storage.setCurrentLevelNumber(currentLevelNumber);
 			this.gridIdsCompleted = await this.storage.getGridIdsCompletedForLevel(currentLevelNumber);
-			this.currentLevel = await this.getLevel(currentLevelNumber);
+			const level = await this.getLevel(currentLevelNumber);
+			this._currentLevel.set(level);
 			this.updateProgress();
 			this._isInitialized.set(true);
 		} catch (error) {
@@ -50,7 +58,7 @@ class LevelsManager {
 
 		console.log(
 			'🙏 !!! levelsManager init. current level ',
-			this.currentLevel?.orderIndex,
+			this.__currentLevel?.orderIndex,
 			' progress:',
 			this.getCurrentProgress()
 		);
@@ -79,7 +87,7 @@ class LevelsManager {
 	}
 
 	getCurrentProgress(): number {
-		const totalGrids = this.currentLevel?.gridIds.length ?? 0;
+		const totalGrids = this.__currentLevel?.gridIds.length ?? 0;
 		console.log('🙏 !!! getCurrentProgress', totalGrids, this.gridIdsCompleted.length);
 		const progress = totalGrids > 0 ? this.gridIdsCompleted.length / totalGrids : 0;
 		return progress;
@@ -99,7 +107,7 @@ class LevelsManager {
 		if (nextLevel) {
 			await this.storage.setCurrentLevelNumber(nextLevel.orderIndex);
 			this._currentLevelNumber.set(nextLevel.orderIndex);
-			this.currentLevel = nextLevel;
+			this.__currentLevel = nextLevel;
 			this.gridIdsCompleted = [];
 			this.updateProgress();
 		}

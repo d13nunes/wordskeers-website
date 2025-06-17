@@ -7,9 +7,6 @@
 
 	let isInitialized = $state(false);
 
-	let progress = $derived(levelsManager.progress);
-	let currentLevelNumber = $derived(levelsManager.currentLevelNumber);
-
 	onMount(() => {
 		levelsManager.isInitialized.subscribe((value) => {
 			isInitialized = value;
@@ -24,12 +21,11 @@
 		// goto(`/tests/endlevelmodal`);
 		goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`);
 	}
-	let icon: HTMLDivElement | null = null;
 </script>
 
 <BaseTag {onclick}>
 	{#if isInitialized}
-		<div bind:this={icon} class="h-4 w-4">
+		<div class="h-4 w-4">
 			<LevelsIcon />
 		</div>
 		<span class="text-black-500 text-sm font-medium lg:text-base">Levels</span>

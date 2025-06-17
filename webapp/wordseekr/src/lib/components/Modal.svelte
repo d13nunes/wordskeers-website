@@ -25,7 +25,6 @@
 	});
 
 	const handleBackgroundClick = () => {
-		console.log('!!!🔍🔍🔍ℹ canDismissOnBackground', canDismissOnBackground);
 		if (!canDismissOnBackground) {
 			return;
 		}
