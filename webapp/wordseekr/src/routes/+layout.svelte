@@ -11,7 +11,6 @@
 	import { AdType } from '$lib/ads/ads-types';
 	import { initialize } from '@capacitor-community/safe-area';
 	import { getIsSmallScreen } from '$lib/utils/utils';
-	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
 	import DailyQuoteTag from '$lib/daily-challenge/DailyQuoteTag.svelte';
 	import { fade, fly, slide } from 'svelte/transition';
@@ -28,6 +27,7 @@
 	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
 	import ClassicTag from '$lib/components/Classic/ClassicTag.svelte';
 	import { isGameModeSelectionClassic, toggleGameMode, updateTagState } from '$lib/tag-store';
+	import { DailyRewardsNotifications } from '$lib/rewards/daily-rewards.notifications';
 
 	interface Props {
 		children: Snippet;
@@ -96,6 +96,15 @@
 		isGameModeSelectionClassic.subscribe((value) => {
 			showClassicTag = value;
 		});
+
+		// Check if notifications are enabled
+		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
+		console.log('📨 permissionStatus', permissionStatus);
+		if (permissionStatus?.display === 'prompt') {
+			DailyRewardsNotifications.requestPermissions();
+		} else {
+			console.log('📨 Notifications are disabled');
+		}
 	});
 	function showOnAppearPopup(delay: number = 300) {
 		onAppearTimeout = setTimeout(async () => {
