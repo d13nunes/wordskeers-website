@@ -4,42 +4,27 @@
 	import DailyRewardIcon from './DailyRewardIcon.svelte';
 	import { onMount } from 'svelte';
 	import BaseTag from '../BaseTag.svelte';
-	import { rotateIconAnimation } from '$lib/utils/animation-utils';
+	import { animateRewardsTag, expandRewardsTag } from '$lib/tag-store';
 	interface Props {
-		tag: string;
 		onclick: () => void;
 	}
-	let { tag, onclick }: Props = $props();
+	let { onclick }: Props = $props();
 
-	let icon: HTMLDivElement | null = null;
-	let iconAnimation: JSAnimation | null = null;
+	let isAnimating = $state(false);
+	let isExpanded = $state(false);
 
 	onMount(() => {
-		if (icon) {
-			iconAnimation = rotateIconAnimation(icon, true, 1000, 1000);
-		}
-		dailyRewardsStore.subscribe((state) => {
-			if (!state) {
-				return;
+		expandRewardsTag.subscribe((value) => {
+			if (value !== isExpanded) {
+				isExpanded = value;
 			}
-			const showBadge = state.rewardsCollectedToday === 0;
-
-			if (iconAnimation) {
-				if (showBadge) {
-					if (!iconAnimation.began) {
-						iconAnimation.play();
-					}
-				} else {
-					iconAnimation.revert().cancel();
-				}
-			}
+		});
+		animateRewardsTag.subscribe((value) => {
+			isAnimating = value;
 		});
 	});
 </script>
 
-<BaseTag {onclick}>
-	<div bind:this={icon} class="h-4 w-4">
-		<DailyRewardIcon fill="#c10007" />
-	</div>
-	<span class="text-black-500 text-sm font-medium lg:text-base">{tag}</span>
+<BaseTag {onclick} title="Rewards" {isExpanded} {isAnimating}>
+	<DailyRewardIcon fill="#c10007" />
 </BaseTag>

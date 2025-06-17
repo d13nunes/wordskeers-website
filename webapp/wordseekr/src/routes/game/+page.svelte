@@ -276,7 +276,7 @@
 			}
 			if (isLevel) {
 				const currentProgress = await levelsManager.markGridAsCompleted(gridId);
-
+				console.log('🔍🔍🔍ℹ currentProgress', currentProgress);
 				currentProgressValue = currentProgress;
 			}
 
@@ -551,6 +551,7 @@
 
 	let isRewardAdReady = $state(false);
 	adStore.isAdLoaded(AdType.Rewarded).subscribe((isLoaded) => {
+		console.log('🔍🔍🔍ℹ isRewardAdReady', isLoaded);
 		isRewardAdReady = isLoaded;
 	});
 
@@ -563,7 +564,7 @@
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
 			if (!isActive) {
-				showPauseModal = !isGameEnded;
+				showPauseModal = !isLevel && !isGameEnded;
 			}
 		});
 
@@ -654,14 +655,8 @@
 	async function navigateToNextLevel() {
 		clearInterval(timerInterval);
 		showGameEnded = false;
-		// const id = await levelsManager.getNextGridId();
-		// const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
-		// setTimeout(() => {
-		// 	goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`, {
-		// 		replaceState: true
-		// 	});
-		// }, 500);
-		if (currentProgressValue && currentProgressValue >= 1) {
+		const canShowAdLevel = level && level.orderIndex > 3;
+		if (canShowAdLevel && currentProgressValue && currentProgressValue >= 1) {
 			adStore.showAd(AdType.Interstitial, null);
 		}
 
@@ -685,12 +680,7 @@
 		</div>
 	</div>
 {:else if !game}
-	<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white">
-		<div class="text-center">
-			<!-- <div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
-			<p class="mt-4 text-gray-700">Loading game...</p> -->
-		</div>
-	</div>
+	<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white"></div>
 {:else}
 	<div
 		class="fixed inset-0 z-50 flex max-h-full flex-row items-end justify-center sm:items-center"
@@ -747,7 +737,8 @@
 							<ClassicBoardWords
 								idPrefix="l-"
 								words={sortedWords}
-								showClock={isClockVisible}
+								showClockTime={isClockVisible}
+								hideClock={isLevel}
 								{elapsedTime}
 								{title}
 								{onClockClick}
@@ -772,7 +763,7 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-2 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-6 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
@@ -780,10 +771,14 @@
 			>
 				<!-- Board & Words -->
 				<div
-					class="flex h-full w-full flex-col items-center justify-start gap-2 px-4 sm:gap-6 md:gap-1
+					class="flex h-full w-full flex-col items-center justify-start gap-4 px-4 sm:gap-6 md:gap-1
 					{isSmallScreen ? 'landscape:items-start ' : ''}"
 				>
-					<div class="{isSmallScreen ? 'portrait:block portrait:w-full landscape:hidden' : ''} ">
+					<div
+						class="{isSmallScreen
+							? 'portrait:block portrait:w-full landscape:hidden'
+							: 'min-w-xs'} px-1"
+					>
 						{#if dailyChallenge}
 							<DailyChallengeBoardWords
 								idPrefix="p-"
@@ -798,7 +793,8 @@
 							<ClassicBoardWords
 								idPrefix="p-"
 								words={sortedWords}
-								showClock={isClockVisible}
+								showClockTime={isClockVisible}
+								hideClock={isLevel}
 								{elapsedTime}
 								{title}
 								{onClockClick}

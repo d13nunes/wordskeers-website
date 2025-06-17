@@ -6,16 +6,25 @@
 	interface Props {
 		idPrefix: string;
 		words: Word[];
-		showClock: boolean;
+		showClockTime: boolean;
+		hideClock: boolean;
 		elapsedTime: number;
 		title: string;
 		onClockClick: (isVisible: boolean) => void;
 	}
 
-	const { idPrefix, words, showClock, elapsedTime, title, onClockClick }: Props = $props();
+	const {
+		idPrefix,
+		words,
+		showClockTime: showClock,
+		elapsedTime,
+		title,
+		hideClock,
+		onClockClick
+	}: Props = $props();
 </script>
 
-<BoardWords {showClock} {elapsedTime} {title} {onClockClick}>
+<BoardWords {showClock} {hideClock} {elapsedTime} {title} {onClockClick}>
 	<div class="flex w-full flex-row flex-wrap items-start justify-start gap-2">
 		{#each words as word (word.word)}
 			<Tag

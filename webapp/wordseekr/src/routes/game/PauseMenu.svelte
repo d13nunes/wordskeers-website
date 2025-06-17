@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
+	import { gameCounter } from '$lib/storage/local-storage';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		onClickResume: () => void;
@@ -7,22 +9,29 @@
 	}
 
 	const { onClickResume, onClickNewGame }: Props = $props();
+	let showMainButton = $state(false);
+	onMount(async () => {
+		const isNewUser = (await gameCounter.getCount()) === 0;
+		showMainButton = !isNewUser;
+	});
 </script>
 
 <Modal onDismiss={onClickResume}>
 	<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
 	<div class="flex flex-row gap-4">
+		{#if showMainButton}
+			<button
+				class="rounded bg-red-700 px-4 py-2 text-white hover:bg-red-800"
+				onclick={onClickNewGame}
+			>
+				Main Menu
+			</button>
+		{/if}
 		<button
-			class="rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-			onclick={onClickNewGame}
-		>
-			New Game
-		</button>
-		<button
-			class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+			class="rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
 			onclick={onClickResume}
 		>
-			Resume Game
+			Resume
 		</button>
 	</div>
 </Modal>

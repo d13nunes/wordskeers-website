@@ -9,7 +9,6 @@ export enum OnAppearAction {
 }
 
 export async function onGameSelectionAppear(): Promise<OnAppearAction> {
-	return OnAppearAction.DoNothing;
 	const isNewUser = (await gameCounter.getCount()) === 0;
 	if (isNewUser) {
 		return OnAppearAction.DoNothing;

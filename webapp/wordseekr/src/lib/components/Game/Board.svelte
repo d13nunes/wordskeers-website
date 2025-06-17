@@ -6,6 +6,7 @@
 	import { getPositionId } from '$lib/utils/string-utils';
 	import { onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	interface Cell {
 		letter: string;
@@ -27,7 +28,7 @@
 	// Add some constraints to prevent cells from getting too small or too large
 
 	const minFactor = 0.6;
-	const maxFactor = getIsSmallScreen() ? 2 : 1.4;
+	const maxFactor = getIsSmallScreen() ? 2.5 : 1.8;
 
 	let discoveredColorMapping: Record<string, string> = $state({});
 	let selectedCells: Position[] = $state([]);
@@ -301,8 +302,8 @@
 
 	const cellBaseValues: CellBaseValues = {
 		squareSize: 34,
-		letterSize: 30,
-		fontSize: 20
+		letterSize: 32,
+		fontSize: 22
 	};
 
 	let factor = $state(0.5);
@@ -345,26 +346,34 @@
 		});
 	}
 
-	function fixBoardRotation() {
-		let angle = isRotated ? 180 : 0;
+	let ignoredFirstRotationUpdate = false;
+	function fixBoardRotation(newRotation: boolean) {
+		console.log('🔍🔍🔍ℹ fixBoardRotation', newRotation, ignoredFirstRotationUpdate);
+		if (!ignoredFirstRotationUpdate) {
+			ignoredFirstRotationUpdate = true;
+			return;
+		}
+		let previousAngle = !newRotation ? 180 : 0;
+		let angle = newRotation ? 180 : 0;
+
 		let elements = [];
 		const board = document.getElementById('board');
-		if (board) {
-			elements.push(board);
+		if (!board) {
+			return;
 		}
-		const cells = Array.from(board?.children || []);
+		elements.push(board);
+		const cells = Array.from(board.children);
 		elements.push(...cells);
-
+		const duration = 300;
 		animate(elements, {
-			rotate: [angle, angle],
-
-			onComplete: () => {}
+			rotate: [previousAngle, angle],
+			scale: [1, 0.8, 1],
+			duration: duration
 		});
 	}
 
 	onMount(() => {
 		if (!boardElement) return;
-
 		const resizeObserver = new ResizeObserver((entries) => {
 			if (!isInitialized) return;
 			const entry = entries[0];
@@ -372,20 +381,17 @@
 				debouncedUpdate(entry.contentRect.width);
 			}
 		});
-
 		// Initial setup
 		boardWidth = boardElement.getBoundingClientRect().width;
 		updateFactor(boardWidth);
 		resizeObserver.observe(boardElement);
 		isInitialized = true;
-
 		// Initial fade-in animation
 		animate(boardElement, {
 			opacity: [0, 1],
 			duration: 500,
 			ease: 'inOutQuad'
 		});
-
 		return () => {
 			if (resizeTimeout) {
 				window.cancelAnimationFrame(resizeTimeout);
@@ -416,8 +422,10 @@
 			boardElement.style.setProperty('--square-size', `${squareSize}px`);
 			boardElement.style.setProperty('--letter-size', `${letterSize}px`);
 			boardElement.style.setProperty('--font-size', `${fontSize}px`);
-			fixBoardRotation();
 		}
+	});
+	$effect(() => {
+		fixBoardRotation(isRotated);
 	});
 </script>
 
@@ -440,6 +448,7 @@
 				--square-size: {squareSize}px;
 				--letter-size: {letterSize}px;
 				--font-size: {fontSize}px;
+				transform: rotate({isRotated ? 180 : 0}deg);
 			"
 		>
 			{#each cells as row}

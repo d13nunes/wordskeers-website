@@ -1,7 +1,5 @@
 <script lang="ts">
 	import BigCoinPile from '$lib/components/Icons/BigCoinPile.svelte';
-	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
-	import Confetti from 'svelte-confetti';
 	import { cubicOut, cubicIn, cubicInOut } from 'svelte/easing';
 	import { fade, scale } from 'svelte/transition';
 

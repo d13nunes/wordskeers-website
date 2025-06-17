@@ -57,17 +57,16 @@
 	});
 </script>
 
-<BaseTag {onclick} disabled={!isActive} id="balance-tag">
+<button class="card-button flex h-8 flex-row items-center justify-center lg:h-10" {onclick}>
 	<div class="h-4 w-4">
 		<CoinsPileIcon id="balance-tag-icon" />
 	</div>
-	<span class="text-black-500 min-w-8 font-mono text-sm font-medium lg:text-base"
+	<span class="text-black-500 text-end font-mono text-sm font-medium lg:text-base"
 		>{formatedBalance(displayBalance)}</span
 	>
-
 	{#if isActive}
 		<div class="h-4 w-4">
 			<PlusCircleIcon fillColor="#00c951" />
 		</div>
 	{/if}
-</BaseTag>
+</button>

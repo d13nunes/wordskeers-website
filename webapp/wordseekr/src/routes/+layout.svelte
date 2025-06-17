@@ -14,7 +14,7 @@
 	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
 	import DailyQuoteTag from '$lib/daily-challenge/DailyQuoteTag.svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import { page } from '$app/state';
 	import {
@@ -26,7 +26,9 @@
 	import { appStateManager } from '$lib/utils/app-state';
 	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
 	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
-	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
+	import ClassicTag from '$lib/components/Classic/ClassicTag.svelte';
+	import { isGameModeSelectionClassic, toggleGameMode, updateTagState } from '$lib/tag-store';
+
 	interface Props {
 		children: Snippet;
 	}
@@ -70,6 +72,8 @@
 	let unsubscribeAppState: (() => void) | undefined;
 
 	let onAppearTimeout: NodeJS.Timeout | null = null;
+	let showClassicTag = $state(false);
+
 	onDestroy(() => {
 		unsubscribeQuoteAvailable?.();
 		if (onAppearTimeout) {
@@ -83,25 +87,19 @@
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
 		showBadge = true;
-		const badges = document.getElementById('badges');
-		if (badges) {
-			animate(badges, {
-				opacity: [0, 1],
-				duration: 300,
-				delay: 300
-			});
-		}
 		isRootPage = page.route?.id === '/';
 		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
 			(isAvailable: boolean) => {
 				isQuoteAvailable = isAvailable;
 			}
 		);
+		isGameModeSelectionClassic.subscribe((value) => {
+			showClassicTag = value;
+		});
 	});
 	function showOnAppearPopup(delay: number = 300) {
 		onAppearTimeout = setTimeout(async () => {
 			const onAppearAction = await onGameSelectionAppear();
-			console.log('🔍🔍🔍ℹ onAppearAction', onAppearAction);
 			switch (onAppearAction) {
 				case OnAppearAction.ShowQuoteModal:
 					showQuoteModal = true;
@@ -118,6 +116,7 @@
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive: boolean) => {
 			if (isActive && isRootPage) {
+				updateTagState();
 				showOnAppearPopup();
 			}
 		});
@@ -131,11 +130,12 @@
 	});
 	beforeNavigate((navigation) => {
 		isRootPage = navigation.to?.route?.id === '/';
+		showBadge = true;
+
 		if (isRootPage) {
 			showOnAppearPopup(500);
 		}
 	});
-	let isGameEndedModalVisible = $state(true);
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
@@ -145,10 +145,8 @@
 			onClickClose={() => (showQuoteModal = false)}
 		/>
 	{/if}
-	<!-- {#if showBadge} -->
 	<div
-		id="badges"
-		class="z-[100] mx-4 mt-2 flex flex-row items-center justify-end gap-2 opacity-0 md:mx-4 {isSmallScreen
+		class="z-[100] mx-4 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
 			? 'landscape:justify-start'
 			: ''} "
 	>
@@ -159,15 +157,32 @@
 		{/if}
 		{#if isRootPage}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
-				<LevelsTag />
+				<DailyRewardTag onclick={onDailyRewardClick} />
 			</div>
-			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
-				<DailyRewardTag tag="Rewards" onclick={onDailyRewardClick} />
+			<div
+				class="flex h-8 flex-row lg:h-10"
+				in:slide={{ duration: 200, axis: 'x' }}
+				out:fade={{ duration: 200 }}
+			>
+				{#if !showClassicTag}
+					<div
+						in:slide={{ duration: 200, delay: 250, axis: 'x' }}
+						out:slide={{ duration: 200, axis: 'x' }}
+					>
+						<ClassicTag onclick={toggleGameMode} />
+					</div>
+				{:else}
+					<div
+						in:slide={{ duration: 200, delay: 250, axis: 'x' }}
+						out:slide={{ duration: 200, axis: 'x' }}
+					>
+						<LevelsTag onclick={toggleGameMode} />
+					</div>
+				{/if}
 			</div>
 		{/if}
 		<BalanceTag onclick={onStoreClick} />
 	</div>
-	<!-- {/if} -->
 	{@render children()}
 
 	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>

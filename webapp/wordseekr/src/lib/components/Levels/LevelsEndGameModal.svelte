@@ -35,7 +35,7 @@
 	let isLevelCompleted = currentProgressValue >= 100;
 	let didFinishAnimating = false;
 	let navigateToNextLevelTimeout: NodeJS.Timeout | null = null;
-	const initialCountdown = isLevelCompleted ? 5 : 3;
+	const initialCountdown = isLevelCompleted ? 5 : 5;
 
 	let rewardIconScaleInitial = Math.max(Math.min(1 + (previousProgressValue / 100) * 4, 2), 1.5);
 	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 2;
@@ -204,7 +204,7 @@
 						<div id="coins-pile-icon" class="absolute -left-[10px] z-50 h-12 w-12 opacity-0">
 							<CoinsPileIcon />
 						</div>
-						<div class="absolute top-2 right-2.5">
+						<!-- <div class="absolute top-2 right-2.5">
 							{#if showConfetti}
 								<Confetti
 									x={[-0.5, 0.5]}
@@ -215,7 +215,7 @@
 									noGravity={true}
 								/>
 							{/if}
-						</div>
+						</div> -->
 					{/if}
 					<div bind:this={rewardIcon} class="relative z-60 h-[25px] w-[26px]">
 						<LevelGiftTop

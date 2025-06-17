@@ -29,8 +29,6 @@
 	});
 
 	function onPlayClick() {
-		levelsStorage.clearStorage();
-		walletStore.reset();
 		goto(`/game?dailyChallengeId=${id}&difficulty=challenge`);
 		onClickPlay();
 	}

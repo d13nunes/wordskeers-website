@@ -1,16 +1,25 @@
 <script lang="ts">
 	import BaseTag from '$lib/components/BaseTag.svelte';
 	import DailyQuoteIcon from './DailyQuoteIcon.svelte';
-
+	import { onMount } from 'svelte';
+	import { animateQuoteTag, expandQuoteTag } from '$lib/tag-store';
 	interface Props {
 		onclick: () => void;
 	}
 	let { onclick }: Props = $props();
+	let isExpanded = $state(false);
+	let isAnimating = $state(false);
+
+	onMount(() => {
+		expandQuoteTag.subscribe((value: boolean) => {
+			isExpanded = value;
+		});
+		animateQuoteTag.subscribe((value: boolean) => {
+			isAnimating = value;
+		});
+	});
 </script>
 
-<BaseTag {onclick}>
-	<div class="mt-0 flex h-4 max-h-4 w-4 max-w-4 flex-row gap-1 lg:h-8 lg:w-8">
-		<DailyQuoteIcon />
-	</div>
-	<span class="text-black-500 text-sm font-medium lg:text-base">Quotes</span>
+<BaseTag {onclick} {isExpanded} {isAnimating} title="Quotes">
+	<DailyQuoteIcon />
 </BaseTag>

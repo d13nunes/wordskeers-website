@@ -22,7 +22,6 @@
 	let progressAnimation: JSAnimation | null = null;
 
 	function animateProgress(previous: number, current: number) {
-		console.log('🙏🙏🙏🙏🙏🙏 lvl 0', previous, current);
 		let counter = { value: previous };
 		progressAnimation = animate(counter, {
 			value: current,
@@ -37,15 +36,12 @@
 	}
 
 	$effect(() => {
-		console.log('🙏🙏🙏🙏🙏🙏 lvl 1', startAnimation, progressAnimation);
 		if (startAnimation) {
-			console.log('🙏 animating progress');
 			animateProgress(previousProgressValue, currentProgressValue);
 		}
 	});
-	$inspect('🙏🙏🙏🙏🙏🙏 ss', currentProgressValue);
+
 	onMount(() => {
-		console.log('🙏🙏🙏🙏🙏🙏 lvl onMount', startAnimation, !!progressAnimation);
 		if (startAnimation && !progressAnimation) {
 			animateProgress(previousProgressValue, currentProgressValue);
 		}

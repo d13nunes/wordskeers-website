@@ -17,17 +17,19 @@ export class AdmobReward implements AdProvider {
 			return Promise.resolve(false);
 		}
 		this.isLoading = true;
-		const result = await AdMob.prepareRewardVideoAd({
+		AdMob.prepareRewardVideoAd({
 			adId: this.adId
 		});
-		console.log('📺 prepareRewardVideoAd result', result);
+		console.log('📺 prepareRewardVideoAd result');
 		return new Promise((resolve, reject) => {
 			AdMob.addListener(RewardAdPluginEvents.Loaded, () => {
+				console.log('📺 prepareRewardVideoAd 2 result', RewardAdPluginEvents.Loaded);
 				this._isLoaded.set(true);
 				this.isLoading = false;
 				resolve(true);
 			});
 			AdMob.addListener(RewardAdPluginEvents.FailedToLoad, (error) => {
+				console.log('📺 prepareRewardVideoAd 3 result', RewardAdPluginEvents.FailedToLoad);
 				this._isLoaded.set(false);
 				this.isLoading = false;
 				reject(new Error('Failed to load rewarded ad' + JSON.stringify(error)));

@@ -94,7 +94,9 @@ class LevelsManager {
 	}
 
 	private updateProgress(): number {
+		console.log('🙏 !!! updateProgress');
 		const progress = this.getCurrentProgress();
+		console.log('🙏 !!! updateProgress 2', progress);
 		this._progress.set(progress);
 		return progress;
 	}
@@ -117,6 +119,7 @@ class LevelsManager {
 		console.log('🙏 !!! markGridAsCompleted', gridId);
 		this.gridIdsCompleted.push(gridId);
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
+		this._currentLevel.set(await this.getLevel(currentLevelNumber));
 		await this.storage.setGridIdsCompletedForLevel(currentLevelNumber, this.gridIdsCompleted);
 		const savedGridIds = await this.storage.getGridIdsCompletedForLevel(currentLevelNumber);
 		console.log('🙏 !!! markGridAsCompleted 2', this.gridIdsCompleted, savedGridIds);
