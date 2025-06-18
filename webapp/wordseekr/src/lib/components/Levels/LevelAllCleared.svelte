@@ -36,7 +36,7 @@
 
 		<div class="flex flex-col gap-10 px-8">
 			<!-- Thank you message -->
-			<div class="text-center">
+			<div class="">
 				<div class=" flex w-full items-center justify-center text-center">
 					<Confetti
 						x={[-1, 1]}
@@ -47,9 +47,9 @@
 						rounded={true}
 					/>
 				</div>
-				<p class="mb-1 px-3 text-justify text-xl font-semibold text-gray-800">
-					Thank you for playing through all {totalLevels} levels! We are creating more levels, stay tuned!
-					Play the classic mode while you wait!
+				<p class="text- mb-1 px-3 text-center text-xl leading-[1.2] font-medium text-gray-800">
+					Congratulations!<br />You’ve completed all levels!<br />We’re working on exciting new
+					levels! In the meantime, try <b>Classic Mode</b> and keep the fun going!
 				</p>
 			</div>
 
