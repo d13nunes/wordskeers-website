@@ -844,7 +844,7 @@
 							<Confetti
 								x={[-1.5, 1.5]}
 								y={[-1.5, 1.5]}
-								iterationCount={5}
+								iterationCount={1}
 								amount={400}
 								duration={2000}
 								noGravity={true}
