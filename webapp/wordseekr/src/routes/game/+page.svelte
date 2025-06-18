@@ -102,9 +102,9 @@
 	let isDailyChallenge = dailyChallengeID !== -1;
 	let gridID: number = -1;
 
-	let pages;
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
+		console.log('🤷‍♂️ℹ isLandscape', isLandscape);
 	};
 	async function loadClockVisibility() {
 		try {
@@ -135,6 +135,7 @@
 
 	onMount(() => {
 		isSmallScreen = getIsSmallScreen();
+		handleResize();
 		window.addEventListener('resize', handleResize);
 		createBoard();
 		loadClockVisibility();
@@ -190,6 +191,13 @@
 				document.getElementById(getPositionId(p.row, p.col))
 			);
 			const prefixForOrientation = isSmallScreen && isLandscape ? 'l-' : 'p-';
+			console.log(
+				'🤷‍♂️ℹ prefixForOrientation',
+				prefixForOrientation,
+
+				isSmallScreen,
+				isLandscape
+			);
 			const wordElementId = prefixForOrientation + wordToDiscover.toLowerCase();
 			const wordElement = document.getElementById(wordElementId);
 
@@ -284,7 +292,6 @@
 			}
 			if (isLevel) {
 				const currentProgress = await levelsManager.markGridAsCompleted(gridId);
-				console.log('🔍🔍🔍ℹ currentProgress', currentProgress);
 				currentProgressValue = currentProgress;
 			}
 
@@ -559,7 +566,6 @@
 
 	let isRewardAdReady = $state(false);
 	adStore.isAdLoaded(AdType.Rewarded).subscribe((isLoaded) => {
-		console.log('🔍🔍🔍ℹ isRewardAdReady', isLoaded);
 		isRewardAdReady = isLoaded;
 	});
 
