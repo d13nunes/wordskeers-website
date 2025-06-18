@@ -22,8 +22,11 @@ const config: CapacitorConfig = {
 	appName: 'WordSeekr',
 	webDir: 'build',
 	server: server,
+	android: {
+		backgroundColor: '#F8FAFC'
+	},
 	ios: {
-		backgroundColor: '#FFFFFF'
+		backgroundColor: '#F8FAFC'
 	},
 	plugins: {
 		SQLite: {

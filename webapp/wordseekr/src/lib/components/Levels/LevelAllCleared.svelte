@@ -1,19 +1,27 @@
 <script>
-	import { goto } from '$app/navigation';
 	import { analytics } from '$lib/analytics/analytics';
+	import { levelsManager } from '$lib/levels/levels';
+	import { setGameModeSelectionClassic } from '$lib/tag-store';
 	import { onMount } from 'svelte';
 	import Confetti from 'svelte-confetti';
+	import { gotoMainMenu } from '../../../routes/utils/naviation';
+
+	let totalLevels = $state('');
 
 	function handleRateGame() {
 		// Handle rating functionality
 		console.log('Rate game clicked');
 	}
 	function handleMainMenu() {
-		goto('/?classic=true');
+		setGameModeSelectionClassic(true);
+		gotoMainMenu();
 	}
 
 	onMount(() => {
 		analytics.track('levels_allcleared', {});
+		levelsManager.currentLevelNumber.subscribe((value) => {
+			totalLevels = value + '';
+		});
 	});
 </script>
 
@@ -23,7 +31,7 @@
 	<div class="flex h-96 flex-col items-center justify-between">
 		<!-- Title -->
 		<h1 class=" text-center text-4xl font-bold text-gray-800 drop-shadow-md">
-			MASTER<br /> WORD SEEKER
+			MASTER<br />WORD SEEKER
 		</h1>
 
 		<div class="flex flex-col gap-10 px-8">
@@ -39,8 +47,10 @@
 						rounded={true}
 					/>
 				</div>
-				<p class="mb-1 text-xl font-semibold text-gray-800">Thank you for playing through</p>
-				<p class="text-xl font-semibold text-gray-800">our entire collection of puzzles!</p>
+				<p class="mb-1 px-3 text-justify text-xl font-semibold text-gray-800">
+					Thank you for playing through all {totalLevels} levels! We are creating more levels, stay tuned!
+					Play the classic mode while you wait!
+				</p>
 			</div>
 
 			<!-- Rating section -->
@@ -80,7 +90,7 @@
 		</div>
 		<!-- Coming soon message -->
 		<div class="flex w-2xs flex-col gap-2">
-			<p class="px-2 text-base text-gray-500 italic">New puzzle packs coming soon...</p>
+			<p class="px-2 text-base text-gray-500 italic">New levels coming soon...</p>
 			<!-- Main menu button -->
 			<button
 				class="  rounded bg-red-800 px-4 py-2 text-white hover:bg-red-800"

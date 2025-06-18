@@ -9,6 +9,7 @@
 	import DailyRewardCardClaimed from '$lib/components/DailyRewards/DailyRewardCardClaimed.svelte';
 	import { DailyRewardStatus } from '$lib/rewards/daily-reward.model';
 	import { analytics } from '$lib/analytics/analytics';
+	import { updateTagState } from '$lib/tag-store';
 
 	let rewards = $derived($dailyRewardsStore?.currentRewards ?? []);
 	let claimedRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimed));
@@ -20,6 +21,7 @@
 	async function handleClaimDailyReward(rewardId: string, requiresAd: boolean) {
 		const result = await dailyRewardsStore.claimReward(rewardId);
 		if (result.success) {
+			updateTagState();
 			// TODO Animation
 		} else if (result.noAdsAvailable) {
 			// TODO Show no ads available

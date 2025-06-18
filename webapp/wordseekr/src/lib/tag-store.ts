@@ -9,6 +9,7 @@ export function toggleGameMode() {
 }
 
 export function setGameModeSelectionClassic(value: boolean) {
+	console.log('!!! showClassicTag 11', value);
 	isGameModeSelectionClassic.update(() => {
 		return value;
 	});

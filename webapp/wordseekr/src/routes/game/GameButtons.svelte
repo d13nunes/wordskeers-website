@@ -37,9 +37,10 @@
 	}: Props = $props();
 </script>
 
-<div class="flex flex-row items-center gap-6">
+<div class="flex w-full flex-row items-end justify-between">
 	<PauseButton onclick={onPauseClick} />
-	<div class="flex w-full flex-row items-center justify-center gap-2">
+	<div class="flex w-full"></div>
+	<div class="flex w-full flex-row items-center justify-end gap-2">
 		<FindWordPowerUp
 			id={findWordIconId}
 			onclick={() => onPowerUpFindWordClick(findWordIconId)}

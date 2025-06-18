@@ -431,7 +431,7 @@
 
 <div bind:this={boardElement} class="flex w-full flex-col items-center justify-center {classProp}">
 	<div
-		class="rounded-md bg-white p-2 shadow-sm"
+		class="rounded-md bg-white p-2 shadow-md"
 		onmouseleave={handleMouseLeave}
 		onmouseup={handleMouseUp}
 		ontouchend={handleTouchEnd}

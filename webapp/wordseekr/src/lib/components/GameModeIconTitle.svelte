@@ -16,7 +16,7 @@
 			id={iconId}
 			src={icon}
 			alt="Logo"
-			class="mb-1 aspect-square h-24 w-24 object-contain lg:h-32 lg:w-32"
+			class="pointer-events-none mb-1 aspect-square h-24 w-24 object-contain lg:h-32 lg:w-32"
 		/>
 	{/if}
 	<div class="flex flex-col items-center justify-center gap-1 lg:gap-1">

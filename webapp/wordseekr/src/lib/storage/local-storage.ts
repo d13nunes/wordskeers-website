@@ -9,6 +9,7 @@ class MyLocalStorage {
 	RemoveAds = 'removeAds';
 	ClockVisible = 'isClockVisible';
 	TotalPlayedGamesCount = 'totalPlayedGamesCount';
+	WelcomeModalGiftClaimed = 'welcomeModalGiftClaimed';
 
 	constructor() {}
 

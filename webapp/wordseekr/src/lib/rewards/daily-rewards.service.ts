@@ -136,23 +136,17 @@ function resetRewardsState(currentState: DailyRewardsState): DailyRewardsState {
 
 async function initialize(): Promise<DailyRewardsState> {
 	let state = await loadState();
-	console.log('📨📨 error initialize state', state.currentRewards);
 	state = checkAndApplyResets(state); // Apply resets based on loaded time data
-	console.log('📨📨 error initialize state after checkAndApplyResets', state);
 	await saveState(state); // Save potentially reset state
 	// Initial notification setup check (permissions, schedule if needed)
 	return state;
 }
 
 async function scheduleNotifications(state: DailyRewardsState): Promise<void> {
-	console.log('📨 !!!!!! Scheduling notifications... enabled:', state.notificationsEnabled);
 	if (state.notificationsEnabled) {
 		await DailyRewardsNotifications.initializeNotifications();
 		if (state.resetRewardDate) {
-			console.log('📨Scheduling next reward notification... fcfcfc', state.resetRewardDate);
 			const lastRewardCollectionDate = new Date(state.resetRewardDate);
-
-			console.log('📨Scheduling next reward notification..1.', lastRewardCollectionDate);
 			await DailyRewardsNotifications.scheduleNextRewardNotification(lastRewardCollectionDate);
 		}
 	}
@@ -173,9 +167,7 @@ async function claimReward(
 		console.warn('Cannot claim reward. Not claimable.', rewardId);
 		return null;
 	}
-
 	let canReward = false;
-
 	if (reward.requiresAd) {
 		const isAdLoaded = await adStore.isAdLoaded(AdType.Rewarded);
 		if (!isAdLoaded) {

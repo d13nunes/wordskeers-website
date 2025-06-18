@@ -90,7 +90,6 @@ function createAdStore(adProviders: AdProvider[]) {
 				testingDevices: ['d7ede148874b25ba659bae00e86d4b08']
 			});
 			console.log('📺 AdMob initialized');
-			isInitialized.set(true);
 
 			const trackingInfo = await AdMob.trackingAuthorizationStatus();
 			if (trackingInfo.status === 'notDetermined') {
@@ -111,6 +110,7 @@ function createAdStore(adProviders: AdProvider[]) {
 			console.error('📺 AdMob initialization error:', error);
 		}
 		await loadAllAds();
+		isInitialized.set(true);
 	}
 
 	async function loadAllAds(): Promise<void> {

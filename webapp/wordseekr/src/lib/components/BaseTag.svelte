@@ -49,7 +49,7 @@
 	{disabled}
 	{id}
 >
-	<div bind:this={icon} class="h-4 w-4">
+	<div bind:this={icon} class="pointer-events-none h-4 w-4 overflow-visible">
 		{@render children()}
 	</div>
 

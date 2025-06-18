@@ -8,6 +8,7 @@
 	import LevelGiftTop from './LevelGiftTop.svelte';
 	import LevelGiftBottom from './LevelGiftBottom.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
+	import { slide } from 'svelte/transition';
 
 	interface Props {
 		previousProgressValue: number;
@@ -33,12 +34,12 @@
 
 	let progress = $state(previousProgressValue);
 	let isLevelCompleted = currentProgressValue >= 100;
-	let didFinishAnimating = false;
+	let didFinishAnimating = $state(false);
 	let navigateToNextLevelTimeout: NodeJS.Timeout | null = null;
 	const initialCountdown = isLevelCompleted ? 5 : 5;
 
 	let rewardIconScaleInitial = Math.max(Math.min(1 + (previousProgressValue / 100) * 4, 2), 1.5);
-	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 2;
+	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 1.5;
 
 	let title = $state('Levels');
 	let shakeAnimation: JSAnimation | null = null;
@@ -76,17 +77,20 @@
 			const levelGiftTop = document.getElementById('level-gift-top');
 			const levelGiftBottom = document.getElementById('level-gift-bottom');
 			console.log('!!! coinsPileIcon', coinsPileIcon);
-			if (coinsPileIcon && balanceTag && levelGiftTop && levelGiftBottom) {
+			if (coinsPileIcon && balanceTag && levelGiftTop && levelGiftBottom && rewardIcon) {
 				console.log('!!! levelGiftTop', levelGiftTop);
 				console.log('!!! levelGiftBottom', levelGiftBottom);
 				const balanceTagRect = balanceTag.getBoundingClientRect();
 				const coinPileIconRect = coinsPileIcon.getBoundingClientRect();
 				const translateX = balanceTagRect.x - coinPileIconRect.x - coinPileIconRect.width / 4;
-				const translateY = balanceTagRect.y - coinPileIconRect.y - coinPileIconRect.height / 4;
+				const translateY = balanceTagRect.y - coinPileIconRect.y - balanceTagRect.height * 4;
 				const levelGiftBottomRect = levelGiftBottom.getBoundingClientRect();
 				const levelGiftTopRect = levelGiftTop.getBoundingClientRect();
-				const levelGiftBottomTranslateX = levelGiftBottomRect.width / 6 - 1;
-				const levelGiftBottomTranslateY = levelGiftBottomRect.height / 4 + 1;
+				const rewardIconScale = parseFloat(utils.get(rewardIcon, 'scale'));
+				const levelGiftBottomRectWidth = levelGiftBottomRect.width / rewardIconScale;
+				const levelGiftBottomTranslateX = (levelGiftBottomRectWidth / 4) * 3;
+
+				const levelGiftBottomTranslateY = levelGiftBottomRect.height / rewardIconScale;
 				const animationDuration = 750;
 				shakeAnimation?.revert();
 				const delay = 200;
@@ -231,8 +235,8 @@
 							class="pointer-events-none z-100 w-[30px] pt-[8px] select-none"
 							style=""
 						/>
-					</div></button
-				>
+					</div>
+				</button>
 			</div>
 			<LevelsProgressBar
 				class="mt-2"
@@ -241,16 +245,18 @@
 				{previousProgressValue}
 			/>
 		</div>
-		<div class="mt-8 flex w-full flex-col gap-2">
-			<div class=" ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
-				{nextLevelTimeText}
+		{#if !didFinishAnimating}
+			<div out:slide={{ duration: 200, axis: 'y' }} class="mt-8 flex w-full flex-col gap-2">
+				<div class=" ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
+					{nextLevelTimeText}
+				</div>
+				<button
+					class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-red-800 px-4 py-2 text-xl font-bold text-white"
+					onclick={onPlayClick}
+				>
+					<div class="w-full text-xl font-bold text-white">Play Now</div>
+				</button>
 			</div>
-			<button
-				class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-red-800 px-4 py-2 text-xl font-bold text-white"
-				onclick={onPlayClick}
-			>
-				<div class="w-full text-xl font-bold text-white">Play Now</div>
-			</button>
-		</div>
+		{/if}
 	</div>
 </Modal>

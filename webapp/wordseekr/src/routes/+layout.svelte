@@ -28,6 +28,9 @@
 	import ClassicTag from '$lib/components/Classic/ClassicTag.svelte';
 	import { isGameModeSelectionClassic, toggleGameMode, updateTagState } from '$lib/tag-store';
 	import { DailyRewardsNotifications } from '$lib/rewards/daily-rewards.notifications';
+	import { myLocalStorage } from '$lib/storage/local-storage';
+	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
+	import { walletStore } from '$lib/economy/walletStore';
 
 	interface Props {
 		children: Snippet;
@@ -40,10 +43,20 @@
 	let isQuoteAvailable = $state(false);
 	let showQuoteModal = $state(false);
 	let showBadge = $state(false);
-	let isRootPage = $state(false);
-	let isDailyQuoteVisible = $derived(isRootPage && isQuoteAvailable);
+	let isMainMenu = $state(false);
+	let isDailyQuoteVisible = $derived(isMainMenu && isQuoteAvailable);
+	let isWelcomeModalVisible = $state(false);
+	let showBalanceTag = $state(false);
+	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
+	let unsubscribeAppState: (() => void) | undefined;
 
+	let onAppearTimeout: NodeJS.Timeout | null = null;
+	let showClassicTag = $state(false);
+
+	let lastTimePermissionPrompted: Date | null = null;
+	const popupCooldown = 1000 * 60 * 10; // 2 minutes
 	initialize();
+
 	function onStoreClick() {
 		if (!isStoreOpen) {
 			analytics.storedOpen();
@@ -68,43 +81,18 @@
 		goto(`/game?dailyChallengeId=${todaysQuote.id}&difficulty=challenge`);
 	}
 
-	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
-	let unsubscribeAppState: (() => void) | undefined;
-
-	let onAppearTimeout: NodeJS.Timeout | null = null;
-	let showClassicTag = $state(false);
-
-	onDestroy(() => {
-		unsubscribeQuoteAvailable?.();
-		if (onAppearTimeout) {
-			clearTimeout(onAppearTimeout);
-		}
-	});
-
-	onMount(async () => {
-		isSmallScreen = getIsSmallScreen();
-		await adStore.initialize();
-		const success = await adStore.showAd(AdType.Banner, null);
-		console.log('📺 BannerAd shown', success);
-		showBadge = true;
-		isRootPage = page.route?.id === '/';
-		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
-			(isAvailable: boolean) => {
-				isQuoteAvailable = isAvailable;
-			}
-		);
-		isGameModeSelectionClassic.subscribe((value) => {
-			showClassicTag = value;
-		});
-
+	function onGiveWelcomeReward() {
+		walletStore.addCoins(350);
+	}
+	async function onWelcomeCoinAnimationCompleted() {
+		isWelcomeModalVisible = false;
 		// Check if notifications are enabled
 		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
 		if (permissionStatus?.display === 'prompt') {
 			DailyRewardsNotifications.requestPermissions();
 		}
-	});
-	let lastTimePermissionPrompted: Date | null = null;
-	const popupCooldown = 1000 * 60 * 10; // 2 minutes
+		myLocalStorage.set(myLocalStorage.WelcomeModalGiftClaimed, 'true');
+	}
 
 	function showOnAppearPopup(delay: number = 300) {
 		if (
@@ -131,7 +119,7 @@
 	$effect(() => {
 		// Subscribe to app state changes
 		unsubscribeAppState = appStateManager.subscribe((isActive: boolean) => {
-			if (isActive && isRootPage) {
+			if (isActive && isMainMenu) {
 				updateTagState();
 				showOnAppearPopup();
 			}
@@ -144,17 +132,53 @@
 			}
 		};
 	});
+
 	beforeNavigate((navigation) => {
-		isRootPage = navigation.to?.route?.id === '/';
+		isMainMenu = navigation.to?.route?.id === '/main-menu';
 		showBadge = true;
 
-		if (isRootPage) {
+		if (isMainMenu) {
 			showOnAppearPopup(500);
 		}
+	});
+
+	onDestroy(() => {
+		unsubscribeQuoteAvailable?.();
+		if (onAppearTimeout) {
+			clearTimeout(onAppearTimeout);
+		}
+	});
+
+	onMount(async () => {
+		const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
+		if (!welcomeModalClaimed) {
+			isWelcomeModalVisible = true;
+		}
+		showBalanceTag = true;
+		isSmallScreen = getIsSmallScreen();
+		await adStore.initialize();
+		const success = await adStore.showAd(AdType.Banner, null);
+		console.log('📺 BannerAd shown', success);
+		showBadge = true;
+		isMainMenu = page.route?.id === '/main-menu';
+		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
+			(isAvailable: boolean) => {
+				isQuoteAvailable = isAvailable;
+			}
+		);
+		isGameModeSelectionClassic.subscribe((value) => {
+			showClassicTag = value;
+		});
 	});
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
+	{#if isWelcomeModalVisible}
+		<WecolmeModal
+			onGiveReward={onGiveWelcomeReward}
+			onCoinAnimationCompleted={onWelcomeCoinAnimationCompleted}
+		/>
+	{/if}
 	{#if showQuoteModal}
 		<QuotePage
 			onClickPlay={() => (showQuoteModal = false)}
@@ -166,12 +190,12 @@
 			? 'landscape:justify-start'
 			: ''} "
 	>
-		{#if isDailyQuoteVisible}
+		{#if isDailyQuoteVisible && !isWelcomeModalVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
 			</div>
 		{/if}
-		{#if isRootPage}
+		{#if isMainMenu && !isWelcomeModalVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyRewardTag onclick={onDailyRewardClick} />
 			</div>
@@ -197,8 +221,11 @@
 				{/if}
 			</div>
 		{/if}
-		<BalanceTag onclick={onStoreClick} />
+		{#if showBalanceTag}
+			<BalanceTag onclick={onStoreClick} />
+		{/if}
 	</div>
+
 	{@render children()}
 
 	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>

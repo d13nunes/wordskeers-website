@@ -7,6 +7,7 @@ export interface EndGameAd {
 
 export interface EndGameAdShowOptions {
 	didWatchRewardAd: boolean;
+	isDailyChallenge: boolean;
 }
 
 const maxFrequencyMillis = 1000 * 60 * 2; // 2 minutes
@@ -17,6 +18,11 @@ class AdmobEndGameAd implements EndGameAd {
 		this.gameCount++;
 		if (options.didWatchRewardAd) {
 			console.log('📺📺📺 didWatchRewardAd', this.gameCount);
+			return;
+		}
+		if (options.isDailyChallenge) {
+			console.log('📺📺📺 isDailyChallenge - show ad', this.gameCount, options);
+			await adStore.showAd(AdType.Interstitial, null);
 			return;
 		}
 		if (this.gameCount < 2) {

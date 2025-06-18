@@ -30,7 +30,7 @@
 	});
 </script>
 
-<BoardWords {showClock} {elapsedTime} {title} {onClockClick}>
+<BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
 	<div class="flex flex-row flex-wrap gap-2 font-mono text-base text-gray-700">
 		{#each dailyChallenge.quotes as quote, index}
 			{#if quote.isHidden}

@@ -1,40 +1,43 @@
 <script lang="ts">
-	import ClassicGameModeSelection from './ClassicGameModeSelection.svelte';
-	import LevelsGameModeSelection from './LevelsGameModeSelection.svelte';
-	import { isGameModeSelectionClassic, setGameModeSelectionClassic } from '$lib/tag-store';
 	import { onMount } from 'svelte';
+	import { gotoMainMenu } from './utils/naviation';
+	import magnifyingGlass from '$lib/assets/magnifier-glass.webp';
+	import { fade } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 	import { levelsManager } from '$lib/levels/levels';
 	import { gameCounter } from '$lib/storage/local-storage';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/state';
 
-	const startWithClassic = page.url.searchParams.get('classic') === 'true';
-
-	let isClassicGameMode = $state(false);
-	console.log('isClassicGameMode', startWithClassic, page.url.searchParams);
+	let isVisible = $state(false);
 
 	onMount(async () => {
-		isGameModeSelectionClassic.subscribe((value) => {
-			isClassicGameMode = value;
-		});
 		const isNewUser = (await gameCounter.getCount()) === 0;
 		if (isNewUser) {
-			onPlayClick();
+			playFirstLevel();
+		} else {
+			gotoMainMenu();
 		}
 	});
-	async function onPlayClick() {
+
+	async function playFirstLevel() {
+		await levelsManager.init();
 		const id = await levelsManager.getNextGridId();
 		const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
-		setGameModeSelectionClassic(true);
 		goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`);
 	}
 </script>
 
-<div class="fixed inset-0 z-50 bg-slate-50">
-	{#if isClassicGameMode}
-		<!-- Classic Game Mode -->
-		<ClassicGameModeSelection />
-	{:else}
-		<LevelsGameModeSelection {onPlayClick} />
-	{/if}
-</div>
+{#if isVisible}
+	<div
+		in:fade
+		out:fade
+		class="fixed inset-0 mb-20 flex flex-col items-center justify-center gap-10"
+	>
+		<img
+			src={magnifyingGlass}
+			alt="Logo"
+			class="mb-1 aspect-square h-42 w-42 object-contain lg:h-32 lg:w-32"
+		/>
+
+		<span class="text-5xl font-bold drop-shadow-md lg:text-6xl">WORD SEEKER</span>
+	</div>
+{/if}

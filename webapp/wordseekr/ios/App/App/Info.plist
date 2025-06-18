@@ -252,8 +252,6 @@
 	<dict>
 		<key>UIColorName</key>
 		<string>SplashScreenColor</string>
-		<key>UIImageName</key>
-		<string>SpashIcon</string>
 	</dict>
 </dict>
 </plist>

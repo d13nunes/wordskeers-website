@@ -1,4 +1,6 @@
 <script lang="ts">
+	import ClassicGameEndedModal from './ClassicGameEndedModal.svelte';
+
 	import { Haptics, ImpactStyle } from '@capacitor/haptics';
 	import GameButtons from './GameButtons.svelte';
 	import { page } from '$app/state';
@@ -14,9 +16,8 @@
 	import { ColorGenerator } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { animate, JSAnimation, utils } from 'animejs';
+	import { animate, utils } from 'animejs';
 	import { goto } from '$app/navigation';
-	import GameEndedModal from './GameEndedModal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { getFormatedTime, getPositionId } from '$lib/utils/string-utils';
@@ -39,6 +40,8 @@
 	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
 	import type { Level } from '$lib/database/types';
 	import LevelAllCleared from '$lib/components/Levels/LevelAllCleared.svelte';
+	import { gotoMainMenu } from '../utils/naviation';
+	import QuoteGameEndedModal from './QuoteGameEndedModal.svelte';
 
 	const powerUpCooldownButton = 1500;
 
@@ -68,6 +71,8 @@
 	let stageName = $derived(title ?? '');
 	let previousProgressValue: number | null = $state(null);
 	let currentProgressValue: number | null = $state(null);
+
+	let didWatchAd = false;
 
 	let dailyChallenge = $state<DailyChallenge | null>(null);
 	let showGameEnded = $state(false);
@@ -600,42 +605,29 @@
 		}
 	});
 
-	async function collectReward(showAd: boolean) {
-		let didWatchAd;
+	async function collectReward(showAd: boolean): Promise<void> {
 		if (showAd) {
 			didWatchAd = await adStore.showAd(AdType.Rewarded, null);
 		} else {
 			didWatchAd = false;
 		}
-		const gameEndedPrize = didWatchAd ? accumulatedCoins * 2 : accumulatedCoins;
-		const coinPileIconName = 'coin-pile-icon';
+	}
 
-		const balanceTag = document.getElementById('balance-tag-icon');
-		const coinPileIcon = document.getElementById(coinPileIconName);
-
-		if (balanceTag && coinPileIcon) {
-			const balanceTagRect = balanceTag.getBoundingClientRect();
-			const coinPileIconRect = coinPileIcon.getBoundingClientRect();
-			const translateX = balanceTagRect.x - coinPileIconRect.x - coinPileIconRect.width / 2;
-			const translateY = balanceTagRect.y - coinPileIconRect.y - coinPileIconRect.height / 2;
-			const animationDuration = 1000;
-			animate(coinPileIcon, {
-				translateX,
-				translateY,
-				scale: [1, 1, 1, 0.5, 0],
-				ease: 'inOut',
-				duration: animationDuration
-			}).then(() => {
-				setTimeout(() => {
-					console.log('📺📺📺 show end game ad');
-					endGameAdStore.show({ didWatchRewardAd: didWatchAd });
-					goto('/');
-				}, 500);
-			});
-			setTimeout(() => {
-				walletStore.addCoins(gameEndedPrize);
-			}, animationDuration * 0.75);
+	function onRewardGiven() {
+		if (isDailyChallenge) {
+			const quoteDailyChallengeReward = 100;
+			walletStore.addCoins(quoteDailyChallengeReward);
+		} else {
+			const gameEndedPrize = didWatchAd ? accumulatedCoins * 2 : accumulatedCoins;
+			walletStore.addCoins(gameEndedPrize);
 		}
+	}
+
+	function onRewardAnimationCompleted() {
+		console.log('📺📺📺 show end game ad');
+
+		endGameAdStore.show({ didWatchRewardAd: didWatchAd, isDailyChallenge: isDailyChallenge });
+		gotoMainMenu();
 	}
 
 	// Add coin calculation function and state
@@ -652,7 +644,7 @@
 
 	function pauseMenuNewGameClick() {
 		analytics.quitGame(difficulty ?? 'undefined', game?.config.id.toString() ?? 'undefined');
-		goto('/');
+		gotoMainMenu();
 	}
 
 	async function navigateToNextLevel() {
@@ -676,7 +668,7 @@
 			<p class="mt-2 text-sm text-red-700">{error}</p>
 			<button
 				class="mt-4 rounded-md bg-red-100 px-4 py-2 text-red-700 transition-colors hover:bg-red-200"
-				onclick={() => goto('/')}
+				onclick={() => gotoMainMenu()}
 			>
 				Return to Home
 			</button>
@@ -707,12 +699,15 @@
 				onClickNewGame={pauseMenuNewGameClick}
 			/>
 		{/if}
-		{#if showGameEnded && !isLevel}
-			<GameEndedModal
-				message={`You found all the words in ${getFormatedTime(elapsedTime)}\nYou've earned ${accumulatedCoins} coins!`}
-				onClickContinue={() => collectReward(false)}
-				onClickDouble={() => collectReward(true)}
-				showDoubleButton={isRewardAdReady}
+		{#if showGameEnded && !isLevel && isDailyChallenge && dailyChallenge}
+			<QuoteGameEndedModal
+				quoteChallenge={dailyChallenge}
+				{accumulatedCoins}
+				{onRewardAnimationCompleted}
+				{onRewardGiven}
+				collectReward={() => collectReward(false)}
+				doubleReward={() => collectReward(true)}
+				{isRewardAdReady}
 			/>
 		{:else if showGameEnded && isLevel && previousProgressValue !== null && currentProgressValue !== null}
 			<LevelsEndGameModal
@@ -722,7 +717,17 @@
 				previousProgressValue={previousProgressValue * 100}
 				currentProgressValue={currentProgressValue * 100}
 				{navigateToNextLevel}
-				onClose={() => goto('/')}
+				onClose={() => gotoMainMenu()}
+			/>
+		{:else if showGameEnded && !isLevel && !isDailyChallenge}
+			<ClassicGameEndedModal
+				elapsedTime={getFormatedTime(elapsedTime)}
+				{accumulatedCoins}
+				{onRewardAnimationCompleted}
+				{onRewardGiven}
+				collectReward={() => collectReward(false)}
+				doubleReward={() => collectReward(true)}
+				{isRewardAdReady}
 			/>
 		{/if}
 
@@ -778,7 +783,7 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-6 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-4 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
@@ -841,7 +846,7 @@
 				</div>
 				<!-- Game Buttons -->
 				<div
-					class={isSmallScreen ? 'portrait:block landscape:hidden' : ''}
+					class="{isSmallScreen ? 'portrait:block landscape:hidden' : ''} w-full px-4"
 					style="padding-bottom: {isSmallScreen
 						? 'calc(var(--safe-area-inset-bottom) + 8px)'
 						: '0px'}"

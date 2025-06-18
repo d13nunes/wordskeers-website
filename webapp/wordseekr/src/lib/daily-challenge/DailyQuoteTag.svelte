@@ -1,6 +1,6 @@
 <script lang="ts">
 	import BaseTag from '$lib/components/BaseTag.svelte';
-	import DailyQuoteIcon from './DailyQuoteIcon.svelte';
+	import dailyQuoteIcon from '$lib/assets/quote-icon.png';
 	import { onMount } from 'svelte';
 	import { animateQuoteTag, expandQuoteTag } from '$lib/tag-store';
 	interface Props {
@@ -21,5 +21,7 @@
 </script>
 
 <BaseTag {onclick} {isExpanded} {isAnimating} title="Quotes">
-	<DailyQuoteIcon />
+	<div class="pt-[2px]">
+		<img src={dailyQuoteIcon} alt="Daily Quote" />
+	</div>
 </BaseTag>
