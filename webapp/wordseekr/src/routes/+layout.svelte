@@ -91,6 +91,7 @@
 
 	function onGiveWelcomeReward() {
 		walletStore.addCoins(350);
+		myLocalStorage.set(myLocalStorage.WelcomeModalGiftClaimed, 'true');
 	}
 	async function onWelcomeCoinAnimationCompleted() {
 		isWelcomeModalVisible = false;
@@ -100,7 +101,6 @@
 		if (permissionStatus?.display === 'prompt') {
 			DailyRewardsNotifications.requestPermissions();
 		}
-		myLocalStorage.set(myLocalStorage.WelcomeModalGiftClaimed, 'true');
 	}
 
 	function showOnAppearPopup(delay: number = 300) {
