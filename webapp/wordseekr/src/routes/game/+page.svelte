@@ -13,7 +13,7 @@
 	} from '$lib/components/Game/game';
 	import Board from '$lib/components/Game/Board.svelte';
 	import { type Position } from '$lib/components/Game/Position';
-	import { ColorGenerator } from '$lib/components/Game/color-generator';
+	import { ColorGenerator, type ColorTheme } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { animate, utils } from 'animejs';
@@ -144,8 +144,11 @@
 		};
 	});
 
-	function getColor() {
-		return colorGenerator.getColor(words.filter((w) => w.isDiscovered).length);
+	let currentColorIndex = 0;
+	let currentColor: ColorTheme = $state(colorGenerator.getColor(0));
+	function loadNextColor() {
+		currentColorIndex++;
+		currentColor = colorGenerator.getColor(currentColorIndex);
 	}
 
 	function getWordIndex(word: string): { index: number; isReversed: boolean } | undefined {
@@ -183,7 +186,7 @@
 			wordToDiscover,
 			words.map((w) => w.word)
 		);
-		if (wordIndex !== undefined && !words[wordIndex].isDiscovered) {
+		if (wordIndex !== undefined && wordIndex !== -1 && !words[wordIndex].isDiscovered) {
 			const normalizedPath = isReversed ? path.reverse() : path;
 			addCoinsToPiggyBank(wordToDiscover);
 			hintPositions.length = 0;
@@ -268,8 +271,14 @@
 			}
 			Haptics.impact({ style: ImpactStyle.Light });
 
+			setTimeout(() => {
+				loadNextColor();
+			}, 1);
 			return path;
 		}
+		setTimeout(() => {
+			loadNextColor();
+		}, 1);
 		return [];
 	};
 
@@ -412,7 +421,8 @@
 		if (icon && suggestedCell) {
 			animatePowerUp(suggestedCell, icon);
 		}
-		setBGColorTag(suggestedWord.word, getColor().bg);
+		loadNextColor();
+		setBGColorTag(suggestedWord.word, currentColor.bg);
 
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
@@ -529,7 +539,8 @@
 			if (suggestedCell) {
 				animatePowerUp(suggestedCell, findWordIcon);
 			}
-			setBGColorTag(suggestedWord.word, getColor().bg);
+			loadNextColor();
+			setBGColorTag(suggestedWord.word, currentColor.bg);
 		}
 		setTimeout(() => {
 			isPowerUpAnimationActive = false;
@@ -843,10 +854,9 @@
 					<Board
 						grid={game.grid}
 						{onWordSelect}
-						{getColor}
+						{currentColor}
 						{isRotated}
 						{hintPositions}
-						{isGameEnded}
 						class="board-container"
 					/>
 				</div>

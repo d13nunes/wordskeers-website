@@ -42,7 +42,6 @@
 	let isSmallScreen = $state(false);
 	let isQuoteAvailable = $state(false);
 	let showQuoteModal = $state(false);
-	let showBadge = $state(false);
 	let isMainMenu = $state(false);
 	let isWelcomeModalVisible = $state(false);
 	let isDailyQuoteVisible = $derived(isMainMenu && isQuoteAvailable && !isWelcomeModalVisible);
@@ -58,6 +57,8 @@
 	initialize();
 
 	function onStoreClick() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
 		if (isWelcomeModalVisible) {
 			return;
 		}
@@ -69,6 +70,8 @@
 	}
 
 	function onDailyRewardClick() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
 		if (!isDailyRewardsOpen) {
 			analytics.rewardsOpen();
 		}
@@ -77,6 +80,8 @@
 	}
 
 	export async function onDailyQuoteClick() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
 		const todaysQuote = await getTodaysQuote();
 		if (!todaysQuote) {
 			return;
@@ -139,7 +144,6 @@
 
 	beforeNavigate((navigation) => {
 		isMainMenu = navigation.to?.route?.id === '/main-menu';
-		showBadge = true;
 
 		if (isMainMenu) {
 			showOnAppearPopup(500);
@@ -157,7 +161,6 @@
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
-		showBadge = true;
 	}
 
 	onMount(async () => {
@@ -179,6 +182,11 @@
 			showClassicTag = value;
 		});
 	});
+	function onGameTagModeClick() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
+		toggleGameMode();
+	}
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
@@ -218,14 +226,14 @@
 						in:slide={{ duration: 200, delay: 250, axis: 'x' }}
 						out:slide={{ duration: 200, axis: 'x' }}
 					>
-						<ClassicTag onclick={toggleGameMode} />
+						<ClassicTag onclick={onGameTagModeClick} />
 					</div>
 				{:else}
 					<div
 						in:slide={{ duration: 200, delay: 250, axis: 'x' }}
 						out:slide={{ duration: 200, axis: 'x' }}
 					>
-						<LevelsTag onclick={toggleGameMode} />
+						<LevelsTag onclick={onGameTagModeClick} />
 					</div>
 				{/if}
 			</div>

@@ -6,8 +6,6 @@
 	import { getPositionId } from '$lib/utils/string-utils';
 	import { onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
-	import { walletStore } from '$lib/economy/walletStore';
-
 	interface Cell {
 		letter: string;
 		row: number;
@@ -19,14 +17,12 @@
 		grid: string[][];
 		isRotated: boolean;
 		hintPositions: Position[];
-		isGameEnded: boolean;
 		onWordSelect: (word: string, path: Position[], letterSize: number) => Position[];
-		getColor: () => ColorTheme;
+		currentColor: ColorTheme;
 		class?: string;
 	}
 
 	// Add some constraints to prevent cells from getting too small or too large
-
 	const minFactor = 0.6;
 	const maxFactor = getIsSmallScreen() ? 2.5 : 1.8;
 
@@ -38,10 +34,9 @@
 	let {
 		grid,
 		onWordSelect,
-		getColor,
+		currentColor,
 		isRotated = false,
 		hintPositions = [],
-		isGameEnded = false,
 		class: classProp = ''
 	}: Props = $props();
 
@@ -65,13 +60,9 @@
 			});
 		})
 	);
-	let currentColor: ColorTheme = getColor();
-	let previousHints: Position[] = [];
-	const defaultColor = '#FEE2E2';
 
-	$effect(() => {
-		currentColor = getColor();
-	});
+	let previousHints: Position[] = [];
+	const defaultColor = '#FE0000';
 
 	function handleInteractionStart(rowIndex: number, colIndex: number) {
 		isInteracting = true;
@@ -105,11 +96,11 @@
 					setDiscovered(discoveredPositions);
 					animateDiscovered(discoveredPositions);
 					resetSelectedCells();
-					currentColor = getColor();
 				} else {
 					animateWrongWord(cells);
 				}
 			} catch (error) {
+				console.error('🔍🔍🔍ℹ handleInteractionEnd', error);
 				resetSelectedCells();
 			}
 		}
@@ -242,9 +233,6 @@
 				backgroundColor: [backgroundColor, colorTheme.hintHex, colorTheme.hintHex],
 				ease: 'inOutQuad',
 				delay: 900
-				// onComplete: (animation) => {
-				// 	animation.target.style.backgroundColor = currentColor.isDiscoveredColorHex;
-				// }
 			});
 		}
 	}
@@ -284,7 +272,7 @@
 						colorTheme.bgHex
 					],
 					ease: 'linear',
-					onComplete: (animation) => {
+					onComplete: () => {
 						if (isLast) {
 							isAnimatingIsDiscovered = false;
 						}
