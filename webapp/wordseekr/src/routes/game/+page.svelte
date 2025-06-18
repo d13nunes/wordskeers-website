@@ -38,6 +38,7 @@
 	import { levelsManager } from '$lib/levels/levels';
 	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
 	import type { Level } from '$lib/database/types';
+	import LevelAllCleared from '$lib/components/Levels/LevelAllCleared.svelte';
 
 	const powerUpCooldownButton = 1500;
 
@@ -58,6 +59,7 @@
 	let isPowerUpAnimationActive = $state(false);
 	let isGameEnded = $state(false);
 	let isRemoveAdsActive = $state(false);
+	let showAllLevelCleared = $state(false);
 
 	let title = $derived(game?.title ?? '');
 	let level = $state<Level | null>(null);
@@ -119,9 +121,10 @@
 			}
 			gridID = parseInt(page.url.searchParams.get('id') ?? '-1');
 			if (!gridID) {
-				throw new Error('Invalid id');
+				showAllLevelCleared = true;
+			} else {
+				loadGridFromDatabase(gridID);
 			}
-			loadGridFromDatabase(gridID);
 		}
 	}
 
@@ -680,7 +683,19 @@
 		</div>
 	</div>
 {:else if !game}
-	<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white"></div>
+	{#if showAllLevelCleared}
+		<div
+			class="fixed inset-0 z-50 flex max-h-full items-center justify-center bg-white"
+			style="	padding-top: var(--safe-area-inset-top);
+		padding-right: var(--safe-area-inset-right);
+		padding-bottom: var(--safe-area-inset-bottom);
+		padding-left: var(--safe-area-inset-left);"
+		>
+			<LevelAllCleared />
+		</div>
+	{:else}
+		<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white"></div>
+	{/if}
 {:else}
 	<div
 		class="fixed inset-0 z-50 flex max-h-full flex-row items-end justify-center sm:items-center"

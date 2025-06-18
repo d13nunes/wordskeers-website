@@ -8,6 +8,12 @@ export function toggleGameMode() {
 	isGameModeSelectionClassic.update((value) => !value);
 }
 
+export function setGameModeSelectionClassic(value: boolean) {
+	isGameModeSelectionClassic.update(() => {
+		return value;
+	});
+}
+
 export const expandRewardsTag = writable(false);
 export const animateRewardsTag = writable(false);
 export const expandQuoteTag = writable(false);

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import GameModeIconTitle from '$lib/components/GameModeIconTitle.svelte';
 	import type { Snippet } from 'svelte';
+	import { fade, slide } from 'svelte/transition';
 
 	interface Props {
 		children: Snippet;
@@ -15,7 +16,7 @@
 </script>
 
 <div class="flex h-full items-center justify-center sm:items-center lg:items-center lg:pb-0">
-	<div class="flex w-2xs flex-col items-center justify-center">
+	<div class="flex w-[293px] flex-col items-center justify-center">
 		<GameModeIconTitle {icon} {iconId} {title} {subtitle} />
 
 		{@render children()}
