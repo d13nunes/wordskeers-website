@@ -44,8 +44,8 @@
 	let showQuoteModal = $state(false);
 	let showBadge = $state(false);
 	let isMainMenu = $state(false);
-	let isDailyQuoteVisible = $derived(isMainMenu && isQuoteAvailable);
 	let isWelcomeModalVisible = $state(false);
+	let isDailyQuoteVisible = $derived(isMainMenu && isQuoteAvailable && !isWelcomeModalVisible);
 	let showBalanceTag = $state(false);
 	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
 	let unsubscribeAppState: (() => void) | undefined;
@@ -58,6 +58,9 @@
 	initialize();
 
 	function onStoreClick() {
+		if (isWelcomeModalVisible) {
+			return;
+		}
 		if (!isStoreOpen) {
 			analytics.storedOpen();
 		}
@@ -87,6 +90,7 @@
 	async function onWelcomeCoinAnimationCompleted() {
 		isWelcomeModalVisible = false;
 		// Check if notifications are enabled
+		await initAds();
 		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
 		if (permissionStatus?.display === 'prompt') {
 			DailyRewardsNotifications.requestPermissions();
@@ -106,10 +110,10 @@
 			const onAppearAction = await onGameSelectionAppear();
 			switch (onAppearAction) {
 				case OnAppearAction.ShowQuoteModal:
-					showQuoteModal = true;
+					showQuoteModal = !isWelcomeModalVisible;
 					break;
 				case OnAppearAction.ShowRewardModal:
-					isDailyRewardsOpen = true;
+					isDailyRewardsOpen = !isWelcomeModalVisible;
 					break;
 				default:
 			}
@@ -149,17 +153,22 @@
 		}
 	});
 
-	onMount(async () => {
-		const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
-		if (!welcomeModalClaimed) {
-			isWelcomeModalVisible = true;
-		}
-		showBalanceTag = true;
-		isSmallScreen = getIsSmallScreen();
+	async function initAds() {
 		await adStore.initialize();
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
 		showBadge = true;
+	}
+
+	onMount(async () => {
+		const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
+		if (!welcomeModalClaimed) {
+			isWelcomeModalVisible = true;
+		} else {
+			initAds();
+		}
+		showBalanceTag = true;
+		isSmallScreen = getIsSmallScreen();
 		isMainMenu = page.route?.id === '/main-menu';
 		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
 			(isAvailable: boolean) => {
