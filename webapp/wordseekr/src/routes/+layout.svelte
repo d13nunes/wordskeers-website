@@ -99,11 +99,8 @@
 
 		// Check if notifications are enabled
 		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
-		console.log('📨 permissionStatus', permissionStatus);
 		if (permissionStatus?.display === 'prompt') {
 			DailyRewardsNotifications.requestPermissions();
-		} else {
-			console.log('📨 Notifications are disabled');
 		}
 	});
 	let lastTimePermissionPrompted: Date | null = null;
