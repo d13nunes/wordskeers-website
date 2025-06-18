@@ -22,6 +22,9 @@ const config: CapacitorConfig = {
 	appName: 'WordSeekr',
 	webDir: 'build',
 	server: server,
+	ios: {
+		backgroundColor: '#FFFFFF'
+	},
 	plugins: {
 		SQLite: {
 			iosDatabaseLocation: 'Library/WordSeekrDatabase',
