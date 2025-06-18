@@ -52,14 +52,9 @@
 	});
 </script>
 
-<div class="flex w-full flex-col items-center justify-center {className}">
+<div class="flex w-full flex-col items-center justify-center gap-1 {className}">
 	<div class="self-start ps-2 text-sm text-gray-500">{label} {progress}%</div>
-	<div class="relative w-full">
-		<div class=" min-h-4 w-full overflow-hidden rounded-md bg-gray-300">
-			<div
-				class="progress-bar-fill h-4 rounded-e-md bg-green-800"
-				style="width: {progress}%;"
-			></div>
-		</div>
+	<div class=" min-h-4 w-full overflow-hidden rounded-md bg-gray-300">
+		<div class="progress-bar-fill h-4 rounded-e-md bg-green-800" style="width: {progress}%;"></div>
 	</div>
 </div>

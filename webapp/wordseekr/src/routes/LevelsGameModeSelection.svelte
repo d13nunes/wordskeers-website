@@ -51,7 +51,7 @@
 	</div>
 
 	<LevelsProgressBar
-		class="w-full px-4 pb-1.5 {isSmallScreen ? 'landscape:pb-0' : ''}"
+		class="w-full px-4 pb-0.5 {isSmallScreen ? 'landscape:pb-0' : ''}"
 		startAnimation={true}
 		currentProgressValue={currentProgressPercentage}
 		previousProgressValue={previousProgressPercentage}
