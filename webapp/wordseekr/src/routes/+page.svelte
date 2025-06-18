@@ -11,11 +11,13 @@
 
 	onMount(async () => {
 		const isNewUser = (await gameCounter.getCount()) === 0;
-		if (isNewUser) {
-			playFirstLevel();
-		} else {
-			gotoMainMenu();
-		}
+		setTimeout(() => {
+			if (isNewUser) {
+				playFirstLevel();
+			} else {
+				gotoMainMenu();
+			}
+		}, 200);
 	});
 
 	async function playFirstLevel() {
