@@ -89,7 +89,7 @@ function createAdStore(adProviders: AdProvider[]) {
 				initializeForTesting: isDev,
 				testingDevices: ['d7ede148874b25ba659bae00e86d4b08']
 			});
-			console.log('📺 AdMob initialized');
+			console.log('📺 AdMob initialized', isDev);
 
 			const trackingInfo = await AdMob.trackingAuthorizationStatus();
 			if (trackingInfo.status === 'notDetermined') {
@@ -109,14 +109,25 @@ function createAdStore(adProviders: AdProvider[]) {
 		} catch (error) {
 			console.error('📺 AdMob initialization error:', error);
 		}
-		await loadAllAds();
+		try {
+			await loadAllAds();
+		} catch (error) {
+			console.error('📺 AdMob loadAllAds error:', error);
+		}
+		console.log('📺 AdMob initialized - completed');
 		isInitialized.set(true);
 	}
 
 	async function loadAllAds(): Promise<void> {
-		adProviders.forEach(async (adProvider) => {
-			loadAd(adProvider.adType);
-		});
+		await Promise.all(
+			adProviders.map(async (adProvider) => {
+				try {
+					await loadAd(adProvider.adType);
+				} catch (error) {
+					console.error('📺 AdMob loadAd error:', adProvider.adType, error);
+				}
+			})
+		);
 	}
 
 	const removeAdAdType: AdType[] = [AdType.Interstitial, AdType.Banner];

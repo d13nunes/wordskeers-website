@@ -144,7 +144,7 @@
 
 	beforeNavigate((navigation) => {
 		isMainMenu = navigation.to?.route?.id === '/main-menu';
-
+		console.log('🔍🔍🔍🔍 beforeNavigate', isMainMenu, navigation.to?.route?.id);
 		if (isMainMenu) {
 			showOnAppearPopup(500);
 		}
@@ -158,9 +158,22 @@
 	});
 
 	async function initAds() {
+		console.log('📺 initAds');
 		await adStore.initialize();
+		console.log('📺 initAds layout - completed');
 		const success = await adStore.showAd(AdType.Banner, null);
 		console.log('📺 BannerAd shown', success);
+	}
+
+	async function subscribeToQuoteAvailable() {
+		if (unsubscribeQuoteAvailable) {
+			unsubscribeQuoteAvailable();
+		}
+		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
+			(isAvailable: boolean) => {
+				isQuoteAvailable = isAvailable;
+			}
+		);
 	}
 
 	onMount(async () => {
@@ -172,15 +185,10 @@
 		}
 		showBalanceTag = true;
 		isSmallScreen = getIsSmallScreen();
-		isMainMenu = page.route?.id === '/main-menu';
-		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
-			(isAvailable: boolean) => {
-				isQuoteAvailable = isAvailable;
-			}
-		);
 		isGameModeSelectionClassic.subscribe((value) => {
 			showClassicTag = value;
 		});
+		subscribeToQuoteAvailable();
 	});
 	function onGameTagModeClick() {
 		showQuoteModal = false;

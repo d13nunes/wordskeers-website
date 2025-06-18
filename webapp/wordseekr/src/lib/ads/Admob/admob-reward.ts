@@ -20,16 +20,16 @@ export class AdmobReward implements AdProvider {
 		AdMob.prepareRewardVideoAd({
 			adId: this.adId
 		});
-		console.log('📺 prepareRewardVideoAd result');
+		console.log('📺 rewardad load result');
 		return new Promise((resolve, reject) => {
 			AdMob.addListener(RewardAdPluginEvents.Loaded, () => {
-				console.log('📺 prepareRewardVideoAd 2 result', RewardAdPluginEvents.Loaded);
+				console.log('📺 rewardad load 2 result', RewardAdPluginEvents.Loaded);
 				this._isLoaded.set(true);
 				this.isLoading = false;
 				resolve(true);
 			});
 			AdMob.addListener(RewardAdPluginEvents.FailedToLoad, (error) => {
-				console.log('📺 prepareRewardVideoAd 3 result', RewardAdPluginEvents.FailedToLoad);
+				console.log('📺 rewardad load 3 result', RewardAdPluginEvents.FailedToLoad, error);
 				this._isLoaded.set(false);
 				this.isLoading = false;
 				reject(new Error('Failed to load rewarded ad' + JSON.stringify(error)));
