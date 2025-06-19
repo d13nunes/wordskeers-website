@@ -110,6 +110,7 @@ class LevelsManager {
 			await this.storage.setCurrentLevelNumber(nextLevel.orderIndex);
 			this._currentLevelNumber.set(nextLevel.orderIndex);
 			this.__currentLevel = nextLevel;
+			this._currentLevel.set(nextLevel);
 			this.gridIdsCompleted = [];
 			this.updateProgress();
 		}
