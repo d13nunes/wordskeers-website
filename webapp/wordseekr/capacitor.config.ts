@@ -44,13 +44,7 @@ const config: CapacitorConfig = {
 			}
 		},
 		SafeArea: {
-			enabled: true,
-			customColorsForSystemBars: true,
-			statusBarColor: '#000000',
-			statusBarContent: 'light',
-			navigationBarColor: '#000000',
-			navigationBarContent: 'light',
-			offset: 0
+			enabled: true
 		}
 	}
 };
