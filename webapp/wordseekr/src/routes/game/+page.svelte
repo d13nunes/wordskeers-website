@@ -785,7 +785,7 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-4 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-6 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
@@ -847,7 +847,7 @@
 				</div>
 				<!-- Game Buttons -->
 				<div
-					class="{isSmallScreen ? 'portrait:block landscape:hidden' : ''} w-full px-4"
+					class="{isSmallScreen ? 'w-full portrait:block landscape:hidden' : 'mt-4 w-xs'}  px-4"
 					style="padding-bottom: {isSmallScreen
 						? 'calc(var(--safe-area-inset-bottom) + 8px)'
 						: '0px'}"
