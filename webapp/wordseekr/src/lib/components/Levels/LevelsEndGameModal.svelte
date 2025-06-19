@@ -34,7 +34,7 @@
 
 	let progress = $state(previousProgressValue);
 	let isLevelCompleted = currentProgressValue >= 100;
-	let didFinishAnimating = $state(false);
+	let isFinishingLastAnimation = $state(false);
 	let navigateToNextLevelTimeout: NodeJS.Timeout | null = null;
 	const initialCountdown = isLevelCompleted ? 5 : 5;
 
@@ -52,7 +52,7 @@
 		if (nextLevelIn <= 0) {
 			nextLevelTimeText = ''; //`Have Fun!`;
 			clearInterval(timerInterval);
-			if (!didFinishAnimating) {
+			if (!isFinishingLastAnimation) {
 				navigateToNextLevelTimeout = setTimeout(() => {
 					playNextLevel();
 				}, 1000);
@@ -72,10 +72,10 @@
 	}
 
 	function playNextLevel() {
-		if (didFinishAnimating) {
+		if (isFinishingLastAnimation) {
 			return;
 		}
-		didFinishAnimating = true;
+		isFinishingLastAnimation = true;
 		if (isLevelCompleted) {
 			const balanceTag = document.getElementById('balance-tag-icon');
 			const coinsPileIcon = document.getElementById('coins-pile-icon');
@@ -162,12 +162,14 @@
 	async function onDismiss() {
 		await playNextLevel();
 	}
-	function onClose_() {
+	function onClose__() {
 		if (!rewardGiven && isLevelCompleted) {
 			giveReward();
 		}
 		onClose();
 	}
+
+	let onClose_ = $derived(!isFinishingLastAnimation ? onClose__ : undefined);
 
 	onDestroy(() => {
 		clearInterval(timerInterval);
@@ -197,7 +199,7 @@
 			});
 			scaleAnimation.then(() => {
 				if (isLevelCompleted) {
-					if (rewardIcon && !didFinishAnimating) {
+					if (rewardIcon && !isFinishingLastAnimation) {
 						shakeAnimation = animate(rewardIcon, {
 							rotate: [0, -5, 10, -10, 10, -10, 5, 0],
 							duration: 500,
@@ -249,7 +251,7 @@
 				{previousProgressValue}
 			/>
 		</div>
-		{#if !didFinishAnimating}
+		{#if !isFinishingLastAnimation}
 			<div out:slide={{ duration: 200, axis: 'y' }} class="mt-8 flex w-full flex-col gap-2">
 				<div class=" ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
 					{nextLevelTimeText}
