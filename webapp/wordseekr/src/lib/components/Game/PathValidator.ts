@@ -81,7 +81,6 @@ export class PathValidator {
 
 		for (const dir of allDirections) {
 			const diff = Math.abs(this.normalizeAngle(angleDeg - dir.angle));
-			// console.log('📺 angleDegdiff', dir.name, dir.angle, diff);
 			if (diff < minDiff) {
 				minDiff = diff;
 				closest = dir;
