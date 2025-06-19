@@ -64,7 +64,11 @@
 	}
 
 	function giveReward() {
+		if (rewardGiven) {
+			return;
+		}
 		walletStore.addCoins(getRewardAmount());
+		rewardGiven = true;
 	}
 
 	function playNextLevel() {
@@ -145,6 +149,8 @@
 		}
 	}
 
+	let rewardGiven = false;
+
 	function onRewardClick() {
 		playNextLevel();
 	}
@@ -155,6 +161,12 @@
 
 	async function onDismiss() {
 		await playNextLevel();
+	}
+	function onClose_() {
+		if (!rewardGiven && isLevelCompleted) {
+			giveReward();
+		}
+		onClose();
 	}
 
 	onDestroy(() => {
@@ -199,7 +211,7 @@
 	});
 </script>
 
-<Modal {onClose} {onDismiss} backgroundOpacity={50}>
+<Modal onClose={onClose_} {onDismiss} backgroundOpacity={50}>
 	<div class="mt-2 flex w-3xs flex-col items-center justify-center">
 		<div class="mt-0 text-center text-4xl font-bold text-gray-900">{title}</div>
 		<div class="mt-1 text-center text-2xl font-bold text-gray-600">
