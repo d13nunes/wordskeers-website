@@ -43,6 +43,7 @@
 
 	let title = $state('Levels');
 	let shakeAnimation: JSAnimation | null = null;
+	let scaleAnimation: JSAnimation | null = null;
 	let nextLevelIn = $state(initialCountdown);
 	let nextLevelTimeText = $state(`Next level in ${initialCountdown}`);
 	let timerInterval = setInterval(() => {
@@ -76,23 +77,22 @@
 			const coinsPileIcon = document.getElementById('coins-pile-icon');
 			const levelGiftTop = document.getElementById('level-gift-top');
 			const levelGiftBottom = document.getElementById('level-gift-bottom');
-			console.log('!!! coinsPileIcon', coinsPileIcon);
 			if (coinsPileIcon && balanceTag && levelGiftTop && levelGiftBottom && rewardIcon) {
-				console.log('!!! levelGiftTop', levelGiftTop);
-				console.log('!!! levelGiftBottom', levelGiftBottom);
 				const balanceTagRect = balanceTag.getBoundingClientRect();
 				const coinPileIconRect = coinsPileIcon.getBoundingClientRect();
 				const translateX = balanceTagRect.x - coinPileIconRect.x - coinPileIconRect.width / 4;
 				const translateY = balanceTagRect.y - coinPileIconRect.y - balanceTagRect.height * 4;
 				const levelGiftBottomRect = levelGiftBottom.getBoundingClientRect();
-				const levelGiftTopRect = levelGiftTop.getBoundingClientRect();
 				const rewardIconScale = parseFloat(utils.get(rewardIcon, 'scale'));
 				const levelGiftBottomRectWidth = levelGiftBottomRect.width / rewardIconScale;
 				const levelGiftBottomTranslateX = (levelGiftBottomRectWidth / 4) * 3;
 
 				const levelGiftBottomTranslateY = levelGiftBottomRect.height / rewardIconScale;
 				const animationDuration = 750;
+
 				shakeAnimation?.revert();
+				scaleAnimation?.complete();
+
 				const delay = 200;
 
 				showConfetti = false;
@@ -148,12 +148,22 @@
 	function onRewardClick() {
 		playNextLevel();
 	}
+
 	async function onPlayClick() {
 		playNextLevel();
 	}
+
 	async function onDismiss() {
 		await playNextLevel();
 	}
+
+	onDestroy(() => {
+		clearInterval(timerInterval);
+		if (navigateToNextLevelTimeout) {
+			clearTimeout(navigateToNextLevelTimeout);
+		}
+	});
+
 	onMount(() => {
 		let counter = { value: previousProgressValue };
 		animate(counter, {
@@ -167,16 +177,17 @@
 			}
 		});
 		if (rewardIcon) {
-			animate(rewardIcon, {
+			scaleAnimation = animate(rewardIcon, {
 				scale: [rewardIconScaleInitial, rewardIconScaleFinal],
 				delay: 0,
 				duration: 2500,
 				ease: 'linear'
-			}).then(() => {
+			});
+			scaleAnimation.then(() => {
 				if (isLevelCompleted) {
 					if (rewardIcon && !didFinishAnimating) {
 						shakeAnimation = animate(rewardIcon, {
-							rotate: [0, -5, 10, -10, 5, 0],
+							rotate: [0, -5, 10, -10, 10, -10, 5, 0],
 							duration: 500,
 							loop: true,
 							loopDelay: 1000
@@ -184,13 +195,6 @@
 					}
 				}
 			});
-		}
-	});
-
-	onDestroy(() => {
-		clearInterval(timerInterval);
-		if (navigateToNextLevelTimeout) {
-			clearTimeout(navigateToNextLevelTimeout);
 		}
 	});
 </script>
@@ -208,18 +212,6 @@
 						<div id="coins-pile-icon" class="absolute -left-[10px] z-50 h-12 w-12 opacity-0">
 							<CoinsPileIcon />
 						</div>
-						<!-- <div class="absolute top-2 right-2.5">
-							{#if showConfetti}
-								<Confetti
-									x={[-0.5, 0.5]}
-									y={[-0.3, 0.25]}
-									iterationCount={13}
-									amount={100}
-									duration={1000}
-									noGravity={true}
-								/>
-							{/if}
-						</div> -->
 					{/if}
 					<div bind:this={rewardIcon} class="relative z-60 h-[25px] w-[26px]">
 						<LevelGiftTop
