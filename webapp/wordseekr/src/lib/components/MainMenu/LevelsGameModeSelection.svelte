@@ -41,7 +41,9 @@
 	{onPlayClick}
 >
 	<button
-		class="mt-6 mb-2 {isSmallScreen ? 'landscape:mt-0 landscape:mb-0' : ''}"
+		class="mt-6 mb-2 {isSmallScreen
+			? 'landscape:mt-0 landscape:mb-0 lg:landscape:mt-6 lg:landscape:mb-2'
+			: ''}"
 		onclick={onPlayClick}
 	>
 		<LevelsGiftIcon isAnimating={isGiftAnimating} />
