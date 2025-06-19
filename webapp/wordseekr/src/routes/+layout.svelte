@@ -224,7 +224,7 @@
 				<DailyRewardTag onclick={onDailyRewardClick} />
 			</div>
 			<div
-				class="flex h-8 flex-row lg:h-10"
+				class="flex h-8 flex-row lg:h-9"
 				in:slide={{ duration: 200, axis: 'x' }}
 				out:fade={{ duration: 200 }}
 			>

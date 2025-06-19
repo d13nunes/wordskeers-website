@@ -21,7 +21,7 @@
 </script>
 
 <BaseTag {onclick} {isExpanded} {isAnimating} title="Quotes">
-	<div class="pt-[2px]">
+	<div class="pt-[2px] lg:pt-[3px]">
 		<img src={dailyQuoteIcon} alt="Daily Quote" />
 	</div>
 </BaseTag>

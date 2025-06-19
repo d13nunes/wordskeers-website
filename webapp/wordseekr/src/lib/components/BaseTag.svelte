@@ -44,12 +44,12 @@
 </script>
 
 <button
-	class="card-button flex h-8 flex-row items-center justify-center lg:h-10"
+	class="card-button flex h-8 flex-row items-center justify-center lg:h-9"
 	{onclick}
 	{disabled}
 	{id}
 >
-	<div bind:this={icon} class="pointer-events-none h-4 w-4 overflow-visible">
+	<div bind:this={icon} class="pointer-events-none h-4 w-4 overflow-visible lg:h-5 lg:w-5">
 		{@render children()}
 	</div>
 

@@ -12,5 +12,5 @@
 </script>
 
 <BaseTag {onclick} title="Classic" {isExpanded} {isAnimating}>
-	<img src={classicModeIcon} alt="Classic Mode" class="h-4 w-4" />
+	<img src={classicModeIcon} alt="Classic Mode" />
 </BaseTag>
