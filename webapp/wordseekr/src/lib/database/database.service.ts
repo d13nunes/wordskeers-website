@@ -233,12 +233,10 @@ class DatabaseService {
 	}
 
 	public async markQuoteAsPlayed(quoteId: number, played_at: Date): Promise<void> {
-		console.log('🔍🔍🔍ℹ markQuoteAsPlayed', quoteId, played_at);
-		const result = await this.executeQuery('UPDATE quotes SET played_at = ? WHERE id = ?', [
+		await this.executeQuery('UPDATE quotes SET played_at = ? WHERE id = ?', [
 			played_at.toISOString(),
 			quoteId
 		]);
-		console.log('🔍🔍🔍ℹ markQuoteAsPlayed result', result);
 	}
 
 	public async markGridAsPlayed(
@@ -261,7 +259,6 @@ class DatabaseService {
 	}
 
 	public async getAllQuotes(): Promise<Quote[]> {
-		console.log('🔍🔍🔍ℹ getAllQuotes');
 		return this.executeQuery<Quote>('SELECT * FROM quotes');
 	}
 

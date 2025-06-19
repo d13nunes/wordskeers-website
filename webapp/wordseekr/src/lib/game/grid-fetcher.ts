@@ -126,7 +126,6 @@ export async function getUnplayedAndTotalForDifficulty(difficulty: Difficulty): 
 		total: grids.filter((grid) => grid.rows === config.rows && grid.columns === config.columns)
 			.length
 	};
-	console.log('result', result);
 	return result;
 }
 

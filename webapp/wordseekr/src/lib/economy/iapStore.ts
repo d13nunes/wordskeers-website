@@ -239,7 +239,6 @@ export async function isIAPAvailable(): Promise<boolean> {
 		const result = await CapacitorInAppPurchase.getProducts({
 			productIds: [PRODUCT_IDS.COIN_PACK_SMALL] // Just check with one product
 		});
-		console.log('result', result);
 		return result.products.length > 0;
 	} catch (error) {
 		console.warn('IAP is not available in this environment:', error);

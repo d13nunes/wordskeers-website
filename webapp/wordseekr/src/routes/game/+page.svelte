@@ -99,7 +99,6 @@
 
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
-		console.log('🤷‍♂️ℹ isLandscape', isLandscape);
 	};
 	async function loadClockVisibility() {
 		try {
@@ -187,13 +186,6 @@
 				document.getElementById(getPositionId(p.row, p.col))
 			);
 			const prefixForOrientation = isSmallScreen && isLandscape ? 'l-' : 'p-';
-			console.log(
-				'🤷‍♂️ℹ prefixForOrientation',
-				prefixForOrientation,
-
-				isSmallScreen,
-				isLandscape
-			);
 			const wordElementId = prefixForOrientation + wordToDiscover.toLowerCase();
 			const wordElement = document.getElementById(wordElementId);
 

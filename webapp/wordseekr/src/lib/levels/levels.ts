@@ -55,13 +55,6 @@ class LevelsManager {
 		} catch (error) {
 			console.error('🙏 levelsManager init error', JSON.stringify(error));
 		}
-
-		console.log(
-			'🙏 !!! levelsManager init. current level ',
-			this.__currentLevel?.orderIndex,
-			' progress:',
-			this.getCurrentProgress()
-		);
 	}
 
 	private async getLevel(levelNumber: number): Promise<Level> {
@@ -88,15 +81,12 @@ class LevelsManager {
 
 	getCurrentProgress(): number {
 		const totalGrids = this.__currentLevel?.gridIds.length ?? 0;
-		console.log('🙏 !!! getCurrentProgress', totalGrids, this.gridIdsCompleted.length);
 		const progress = totalGrids > 0 ? this.gridIdsCompleted.length / totalGrids : 0;
 		return progress;
 	}
 
 	private updateProgress(): number {
-		console.log('🙏 !!! updateProgress');
 		const progress = this.getCurrentProgress();
-		console.log('🙏 !!! updateProgress 2', progress);
 		this._progress.set(progress);
 		return progress;
 	}
@@ -104,7 +94,6 @@ class LevelsManager {
 	private async progressLevel() {
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		const nextLevelNumber = currentLevelNumber + 1;
-		console.log('🙏 !!! progressLevel', currentLevelNumber, nextLevelNumber);
 		const nextLevel = await databaseService.getLevel(nextLevelNumber);
 		if (nextLevel) {
 			await this.storage.setCurrentLevelNumber(nextLevel.orderIndex);
@@ -117,15 +106,13 @@ class LevelsManager {
 	}
 
 	async markGridAsCompleted(gridId: number): Promise<number> {
-		console.log('🙏 !!! markGridAsCompleted', gridId);
 		this.gridIdsCompleted.push(gridId);
 		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
 		this._currentLevel.set(await this.getLevel(currentLevelNumber));
 		await this.storage.setGridIdsCompletedForLevel(currentLevelNumber, this.gridIdsCompleted);
-		const savedGridIds = await this.storage.getGridIdsCompletedForLevel(currentLevelNumber);
-		console.log('🙏 !!! markGridAsCompleted 2', this.gridIdsCompleted, savedGridIds);
+
 		const currentProgress = this.updateProgress();
-		console.log('🙏 !!! markGridAsCompleted 3', currentProgress);
+
 		if (currentProgress >= 1) {
 			this.progressLevel();
 		}

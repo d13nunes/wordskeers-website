@@ -56,9 +56,7 @@ class CompletionTracker {
 	}
 
 	trackCompletionPercentageOfAllDifficulties() {
-		console.log('🔍ℹ tracking completion percentage of all difficulties');
 		const difficulties = Object.values(Difficulty);
-		console.log(`🔍ℹ difficulties: ${difficulties}`);
 		for (const difficulty of difficulties) {
 			this.trackCompletion(difficulty);
 		}
@@ -67,9 +65,6 @@ class CompletionTracker {
 	private async trackCompletion(difficulty: Difficulty): Promise<void> {
 		const { unplayed, total } = await getUnplayedAndTotalForDifficulty(difficulty);
 		const unplayedPercentage = (unplayed / total) * 100;
-		console.log(
-			`🔍ℹ checking completion for ${difficulty} ${unplayedPercentage} ${unplayed}/${total}`
-		);
 
 		if (unplayedPercentage > 75) {
 			return;
@@ -92,10 +87,6 @@ class CompletionTracker {
 		if (!doesKeyExist) {
 			await this.localStorage.set(key, Date.now().toString());
 			analytics.track(key, { date: Date.now().toString() });
-		} else {
-			console.log(
-				`🔍ℹ already tracked completion for ${difficulty} ${unplayedPercentage} ${unplayed}/${total}`
-			);
 		}
 	}
 }
@@ -126,14 +117,11 @@ export class LevelsStorage {
 	async getGridIdsCompletedForLevel(levelNumber: number): Promise<number[]> {
 		const key = `${this.GridIdsCompleted}_${levelNumber}`;
 		const gridIds = await this.localStorage.get(key);
-		console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel', key, gridIds);
 		if (!gridIds) {
-			console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel no gridIds');
 			return [];
 		}
-		const re = gridIds.split(',').map((id) => parseInt(id));
-		console.log('🔍🔍🔍ℹ getGridIdsCompletedForLevel result', re);
-		return re;
+		const grids = gridIds.split(',').map((id) => parseInt(id));
+		return grids;
 	}
 
 	async clearStorage() {

@@ -18,7 +18,6 @@ export async function onGameSelectionAppear(): Promise<OnAppearAction> {
 		return OnAppearAction.ShowQuoteModal;
 	}
 	const isFreeRewardAvailable = await dailyRewardsStore.isFreeRewardAvailable();
-	console.log('🔍🔍🔍ℹ isFreeRewardAvailable', isFreeRewardAvailable);
 	if (isFreeRewardAvailable) {
 		return OnAppearAction.ShowRewardModal;
 	}

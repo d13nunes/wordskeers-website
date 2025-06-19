@@ -251,7 +251,6 @@
 	}
 
 	function animateDiscovered(positions: Position[]) {
-		console.log('🌲animateDiscovered');
 		const colorTheme = currentColor;
 		isAnimatingIsDiscovered = true;
 
@@ -334,7 +333,6 @@
 
 	let ignoredFirstRotationUpdate = false;
 	function fixBoardRotation(newRotation: boolean) {
-		console.log('🔍🔍🔍ℹ fixBoardRotation', newRotation, ignoredFirstRotationUpdate);
 		if (!ignoredFirstRotationUpdate) {
 			ignoredFirstRotationUpdate = true;
 			return;

@@ -20,7 +20,6 @@
 
 	onMount(async () => {
 		const todaysQuote = await getTodaysQuote();
-		console.log('todaysQuote', todaysQuote);
 		quote = todaysQuote?.author || 'Unknown';
 		id = todaysQuote?.id || 0;
 	});
