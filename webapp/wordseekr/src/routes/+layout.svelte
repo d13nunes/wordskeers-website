@@ -125,37 +125,11 @@
 		}, delay);
 	}
 
-	$effect(() => {
-		// Subscribe to app state changes
-		unsubscribeAppState = appStateManager.subscribe((isActive: boolean) => {
-			if (isActive && isMainMenu) {
-				updateTagState();
-				showOnAppearPopup();
-			}
-		});
-
-		// Cleanup subscription when component unmounts
-		return () => {
-			if (unsubscribeAppState) {
-				unsubscribeAppState();
-			}
-		};
-	});
-
-	beforeNavigate((navigation) => {
-		isMainMenu = navigation.to?.route?.id === '/main-menu';
-		console.log('🔍🔍🔍🔍 beforeNavigate', isMainMenu, navigation.to?.route?.id);
-		if (isMainMenu) {
-			showOnAppearPopup(500);
-		}
-	});
-
-	onDestroy(() => {
-		unsubscribeQuoteAvailable?.();
-		if (onAppearTimeout) {
-			clearTimeout(onAppearTimeout);
-		}
-	});
+	function onGameTagModeClick() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
+		toggleGameMode();
+	}
 
 	async function initAds() {
 		console.log('📺 initAds');
@@ -175,6 +149,36 @@
 			}
 		);
 	}
+	let count = 0;
+
+	$effect(() => {
+		// Subscribe to app state changes
+		unsubscribeAppState = appStateManager.subscribe((isActive: boolean) => {
+			if (isActive) {
+				isMainMenu = page.url.pathname === '/main-menu';
+				if (isMainMenu) {
+					updateTagState();
+					const delay = count > 0 ? 0 : 500;
+					showOnAppearPopup(delay);
+				}
+			}
+			count++;
+		});
+
+		// Cleanup subscription when component unmounts
+		return () => {
+			if (unsubscribeAppState) {
+				unsubscribeAppState();
+			}
+		};
+	});
+
+	onDestroy(() => {
+		unsubscribeQuoteAvailable?.();
+		if (onAppearTimeout) {
+			clearTimeout(onAppearTimeout);
+		}
+	});
 
 	onMount(async () => {
 		const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
@@ -190,11 +194,6 @@
 		});
 		subscribeToQuoteAvailable();
 	});
-	function onGameTagModeClick() {
-		showQuoteModal = false;
-		isDailyRewardsOpen = false;
-		toggleGameMode();
-	}
 </script>
 
 <main class="flex flex-col bg-slate-50 select-none">
