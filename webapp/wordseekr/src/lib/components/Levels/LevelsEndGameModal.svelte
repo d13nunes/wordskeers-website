@@ -50,7 +50,7 @@
 		nextLevelIn--;
 		nextLevelTimeText = `Next level in ${nextLevelIn}`;
 		if (nextLevelIn <= 0) {
-			nextLevelTimeText = `Have Fun!`;
+			nextLevelTimeText = ''; //`Have Fun!`;
 			clearInterval(timerInterval);
 			if (!didFinishAnimating) {
 				navigateToNextLevelTimeout = setTimeout(() => {
