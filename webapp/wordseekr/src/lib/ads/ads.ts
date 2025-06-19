@@ -87,17 +87,22 @@ function createAdStore(adProviders: AdProvider[]) {
 		try {
 			await AdMob.initialize({
 				initializeForTesting: isDev,
-				testingDevices: ['d7ede148874b25ba659bae00e86d4b08']
+				testingDevices: [
+					'd7ede148874b25ba659bae00e86d4b08',
+					'039fe60594edefc4629bd0334cdfc40e',
+					'D4509E0F2ABC437942CE171740D38E17'
+				]
 			});
 			console.log('📺 AdMob initialized', isDev);
-
 			const trackingInfo = await AdMob.trackingAuthorizationStatus();
 			if (trackingInfo.status === 'notDetermined') {
 				await AdMob.requestTrackingAuthorization();
 			}
-
 			const consentInfo = await AdMob.requestConsentInfo({
-				testDeviceIdentifiers: ['1FDD0459-EEB7-4159-B950-432E05F7260B']
+				testDeviceIdentifiers: [
+					'1FDD0459-EEB7-4159-B950-432E05F7260B',
+					'47E66C11-F1E2-411F-B9FC-AE5CF9AB2F21'
+				]
 			});
 			if (!consentInfo.isConsentFormAvailable) {
 				console.log('📺 consent form not available');
