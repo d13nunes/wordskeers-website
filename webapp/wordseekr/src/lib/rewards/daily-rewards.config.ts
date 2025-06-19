@@ -18,3 +18,5 @@ export const NOTIFICATION_CHANNEL_ID = 'daily_rewards_channel';
 export const NOTIFICATION_CHANNEL_NAME = 'Daily Rewards';
 export const NOTIFICATION_CHANNEL_DESCRIPTION = 'Notifications for daily reward availability';
 export const NEXT_REWARD_NOTIFICATION_ID = 1001; // Unique ID for the "next reward" notification
+export const QUOTE_TODAY_NOTIFICATION_ID_START = 200; // Start interval value for quote of the day notifications
+export const QUOTE_TODAY_NOTIFICATION_ID_END = 299; // End interval value for quote of the day notifications

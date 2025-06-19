@@ -17,6 +17,7 @@
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import { page } from '$app/state';
 	import {
+		ensureScheduledNotificationForTheNNextDay,
 		getIsTodaysQuoteAvailableStore,
 		getTodaysQuote
 	} from '$lib/daily-challenge/quote-fetcher';
@@ -31,6 +32,11 @@
 	import { myLocalStorage } from '$lib/storage/local-storage';
 	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
+	import { LocalNotifications } from '@capacitor/local-notifications';
+	import {
+		QUOTE_TODAY_NOTIFICATION_ID_END,
+		QUOTE_TODAY_NOTIFICATION_ID_START
+	} from '$lib/rewards/daily-rewards.config';
 
 	interface Props {
 		children: Snippet;
@@ -83,6 +89,7 @@
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
 		const todaysQuote = await getTodaysQuote();
+
 		if (!todaysQuote) {
 			return;
 		}
@@ -99,8 +106,10 @@
 		await initAds();
 		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
 		if (permissionStatus?.display === 'prompt') {
-			DailyRewardsNotifications.requestPermissions();
+			await DailyRewardsNotifications.requestPermissions();
 		}
+		subscribeToQuoteAvailable();
+		ensureScheduledNotificationForTheNNextDay(5, true);
 	}
 
 	function showOnAppearPopup(delay: number = 300) {
@@ -186,13 +195,23 @@
 			isWelcomeModalVisible = true;
 		} else {
 			initAds();
+			subscribeToQuoteAvailable();
+			ensureScheduledNotificationForTheNNextDay(5);
 		}
 		showBalanceTag = true;
 		isSmallScreen = getIsSmallScreen();
 		isGameModeSelectionClassic.subscribe((value) => {
 			showClassicTag = value;
 		});
-		subscribeToQuoteAvailable();
+
+		LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
+			if (
+				action.notification.id >= QUOTE_TODAY_NOTIFICATION_ID_START &&
+				action.notification.id <= QUOTE_TODAY_NOTIFICATION_ID_END
+			) {
+				showQuoteModal = true;
+			}
+		});
 	});
 </script>
 

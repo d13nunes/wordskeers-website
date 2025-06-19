@@ -13,6 +13,7 @@ import type {
 	Level,
 	LevelDB
 } from './types';
+import { isToday } from 'date-fns/isToday';
 
 // Database configuration
 const DB_NAME = 'wordseekr_v3.db';
@@ -237,6 +238,18 @@ class DatabaseService {
 			played_at.toISOString(),
 			quoteId
 		]);
+	}
+
+	public async didPlayedQuote(quoteId: number): Promise<boolean> {
+		const quote = await this.getQuoteById(quoteId);
+		if (!quote) {
+			return false;
+		}
+		const playedAt = quote.played_at ? new Date(quote.played_at) : null;
+		if (!playedAt) {
+			return false;
+		}
+		return isToday(playedAt);
 	}
 
 	public async markGridAsPlayed(
