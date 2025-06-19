@@ -41,7 +41,7 @@
 	import type { Level } from '$lib/database/types';
 	import LevelAllCleared from '$lib/components/Levels/LevelAllCleared.svelte';
 	import { gotoMainMenu } from '../utils/naviation';
-	import QuoteGameEndedModal from './QuoteGameEndedModal.svelte';
+	import QuotesGameEndedModal from './QuotesGameEndedModal.svelte';
 
 	const powerUpCooldownButton = 1500;
 
@@ -62,7 +62,6 @@
 	let isGameEnded = $state(false);
 	let isRemoveAdsActive = $state(false);
 	let showAllLevelCleared = $state(false);
-
 	let title = $derived(game?.title ?? '');
 	let level = $state<Level | null>(null);
 	let levelName = $derived(level?.name ?? '');
@@ -70,12 +69,9 @@
 	let stageName = $derived(title ?? '');
 	let previousProgressValue: number | null = $state(null);
 	let currentProgressValue: number | null = $state(null);
-
 	let didWatchAd = false;
-
 	let dailyChallenge = $state<DailyChallenge | null>(null);
 	let showGameEnded = $state(false);
-
 	let difficulty: Difficulty | undefined = undefined;
 
 	async function loadGridFromDatabase(gridID: number) {
@@ -714,7 +710,7 @@
 			/>
 		{/if}
 		{#if showGameEnded && !isLevel && isDailyChallenge && dailyChallenge}
-			<QuoteGameEndedModal
+			<QuotesGameEndedModal
 				quoteChallenge={dailyChallenge}
 				{accumulatedCoins}
 				{onRewardAnimationCompleted}

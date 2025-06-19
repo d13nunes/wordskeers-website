@@ -5,7 +5,7 @@
 	import Modal from '../Modal.svelte';
 
 	interface Props {
-		icon: string;
+		icon?: string;
 		title: string;
 		subtitle: string;
 		continueButtonText: string;

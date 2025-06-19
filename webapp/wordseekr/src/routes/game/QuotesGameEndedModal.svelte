@@ -14,7 +14,6 @@
 	}
 	const {
 		quoteChallenge,
-
 		accumulatedCoins,
 		collectReward,
 		doubleReward,
@@ -25,7 +24,6 @@
 </script>
 
 <GameEndedModal
-	icon={QuoteIcon}
 	title="Quotes"
 	subtitle="Daily Challenge"
 	continueButtonText="Collect"

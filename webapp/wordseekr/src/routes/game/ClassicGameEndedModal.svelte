@@ -1,7 +1,5 @@
 <script lang="ts">
 	import GameEndedModal from '$lib/components/Game/GameEndedModal.svelte';
-	import magnifyingGlass from '$lib/assets/magnifier-glass.webp';
-	import Modal from '$lib/components/Modal.svelte';
 	interface Props {
 		elapsedTime: string;
 		accumulatedCoins: number;
@@ -23,7 +21,6 @@
 </script>
 
 <GameEndedModal
-	icon={magnifyingGlass}
 	title="Classic"
 	subtitle="Game Mode"
 	continueButtonText="Collect"
@@ -34,7 +31,7 @@
 	{onRewardAnimationCompleted}
 	{onRewardGiven}
 >
-	<p class="text-center text-lg text-gray-700" style="white-space: pre-line;">
-		You found all the words in {elapsedTime}<br />You've earned <b> {accumulatedCoins}</b> coins!
+	<p class="w-2xs text-center text-lg leading-relaxed text-gray-700">
+		You found all the words in {elapsedTime}.<br />You've earned <b>{accumulatedCoins}</b> coins!
 	</p>
 </GameEndedModal>
