@@ -42,7 +42,8 @@
 		<div
 			class="mt-6 flex max-w-3xs flex-col items-center justify-center gap-0 px-4 text-center text-base text-gray-900"
 		>
-			<span class="">Search the grid to complete a famous quotation and <b>earn 100 coins</b>.</span
+			<span class=""
+				>Search the grid to complete a famous quotation and <br /><b>earn 100 coins</b>.</span
 			>
 		</div>
 		<button
