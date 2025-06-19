@@ -9,7 +9,7 @@ export interface ColorTheme {
 	isSelectedColorHex: string;
 }
 
-export class ColorGenerator {
+class ColorGenerator {
 	colors: ColorTheme[];
 	private useRedOnly: boolean = false;
 
@@ -157,4 +157,14 @@ export class ColorGenerator {
 	isRedOnly() {
 		return this.useRedOnly;
 	}
+
+	private index = 0;
+	getNextColor(): ColorTheme {
+		this.index = (this.index + 1) % this.colors.length;
+		return this.colors[this.index];
+	}
 }
+
+const colorGenerator = new ColorGenerator();
+
+export default colorGenerator;

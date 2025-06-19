@@ -13,7 +13,7 @@
 	} from '$lib/components/Game/game';
 	import Board from '$lib/components/Game/Board.svelte';
 	import { type Position } from '$lib/components/Game/Position';
-	import { ColorGenerator, type ColorTheme } from '$lib/components/Game/color-generator';
+	import colorGenerator, { type ColorTheme } from '$lib/components/Game/color-generator';
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { animate, utils } from 'animejs';
@@ -45,7 +45,6 @@
 
 	const powerUpCooldownButton = 1500;
 
-	let colorGenerator = new ColorGenerator();
 	let isSmallScreen = $state(true);
 	let isLandscape = $state(false);
 	let progressCircle = $state<SVGCircleElement | null>(null);
@@ -144,11 +143,9 @@
 		};
 	});
 
-	let currentColorIndex = 0;
-	let currentColor: ColorTheme = $state(colorGenerator.getColor(0));
+	let currentColor: ColorTheme = $state(colorGenerator.getNextColor());
 	function loadNextColor() {
-		currentColorIndex++;
-		currentColor = colorGenerator.getColor(currentColorIndex);
+		currentColor = colorGenerator.getNextColor();
 	}
 
 	function getWordIndex(word: string): { index: number; isReversed: boolean } | undefined {
