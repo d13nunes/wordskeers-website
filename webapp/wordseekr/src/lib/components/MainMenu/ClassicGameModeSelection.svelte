@@ -1,5 +1,4 @@
 <script lang="ts">
-	import GameModeSelection from './GameModeSelection.svelte';
 	import { goto } from '$app/navigation';
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
 	import { Difficulty } from '$lib/game/difficulty';
@@ -11,6 +10,7 @@
 	import { animate } from 'animejs';
 	import { analytics } from '$lib/analytics/analytics';
 	import { myLocalStorage, completionTracker } from '$lib/storage/local-storage';
+	import GameModeSelection from './GameModeSelection.svelte';
 
 	const magnifierglassId = 'magnifierglass';
 	let gridSize = $state(0);

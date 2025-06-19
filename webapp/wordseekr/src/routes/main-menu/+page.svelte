@@ -1,12 +1,12 @@
 <script lang="ts">
-	import ClassicGameModeSelection from '../ClassicGameModeSelection.svelte';
-	import LevelsGameModeSelection from '../LevelsGameModeSelection.svelte';
 	import { isGameModeSelectionClassic } from '$lib/tag-store';
 	import { onMount } from 'svelte';
 	import { levelsManager } from '$lib/levels/levels';
 	import { gameCounter } from '$lib/storage/local-storage';
 	import { goto } from '$app/navigation';
 	import { fade } from 'svelte/transition';
+	import LevelsGameModeSelection from '$lib/components/MainMenu/LevelsGameModeSelection.svelte';
+	import ClassicGameModeSelection from '$lib/components/MainMenu/ClassicGameModeSelection.svelte';
 
 	let isClassicGameMode = $state(false);
 	let isVisible = $state(false);
