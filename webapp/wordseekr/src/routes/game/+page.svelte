@@ -44,7 +44,6 @@
 	import QuotesGameEndedModal from './QuotesGameEndedModal.svelte';
 
 	const powerUpCooldownButton = 1500;
-
 	let isSmallScreen = $state(true);
 	let isLandscape = $state(false);
 	let progressCircle = $state<SVGCircleElement | null>(null);
@@ -74,12 +73,28 @@
 	let showGameEnded = $state(false);
 	let difficulty: Difficulty | undefined = undefined;
 
+	let dailyChallengeID = $state(parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1'));
+	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
+	let isDailyChallenge = dailyChallengeID !== -1;
+	let gridID: number = -1;
+	let showOnBoarding = $derived(isLevel && levelNumber === 1);
+	// get first word that is !discovered and get its first position
+	let onboardingPositions: Position[] = $derived(
+		showOnBoarding
+			? words
+					.filter((w) => !w.isDiscovered)
+					.slice(0, 1)
+					.flatMap((w) => getWordPositions(w))
+			: []
+	);
+
 	async function loadGridFromDatabase(gridID: number) {
 		try {
 			// Get a random grid for the selected difficulty
 			const configuration = await getGridWithID(gridID);
 			game = createGameForConfiguration(configuration);
-
+			console.log('grid', JSON.stringify(game.grid));
+			console.log('words', JSON.stringify(game.words));
 			difficulty = page.url.searchParams.get('difficulty') as Difficulty;
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load game';
@@ -92,11 +107,6 @@
 		game = createGameFromDailyChallenge(dailyChallenge);
 		analytics.startedPlayingQuote(dailyChallengeID);
 	}
-	let dailyChallengeID = $state(parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1'));
-	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
-	let isDailyChallenge = dailyChallengeID !== -1;
-	let gridID: number = -1;
-
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
 	};
@@ -767,21 +777,23 @@
 							/>
 						{/if}
 					</div>
-					<GameButtons
-						findWordIconId="fwi-l"
-						findLetterIconId="fli-l"
-						rotateIconId="ri-l"
-						{onPauseClick}
-						{onPowerUpFindWordClick}
-						{onPowerUpFindLetterClick}
-						{onPowerUpRotateClick}
-						{isFindWordDisabled}
-						{isFindLetterDisabled}
-						{isRotateDisabled}
-						findWordPrice={powerUpPrices.findWord.toString()}
-						findLetterPrice={powerUpPrices.findLetter.toString()}
-						rotatePrice={powerUpPrices.rotate.toString()}
-					/>
+					{#if !showOnBoarding}
+						<GameButtons
+							findWordIconId="fwi-l"
+							findLetterIconId="fli-l"
+							rotateIconId="ri-l"
+							{onPauseClick}
+							{onPowerUpFindWordClick}
+							{onPowerUpFindLetterClick}
+							{onPowerUpRotateClick}
+							{isFindWordDisabled}
+							{isFindLetterDisabled}
+							{isRotateDisabled}
+							findWordPrice={powerUpPrices.findWord.toString()}
+							findLetterPrice={powerUpPrices.findLetter.toString()}
+							rotatePrice={powerUpPrices.rotate.toString()}
+						/>
+					{/if}
 				</div>
 			{/if}
 			<div
@@ -843,6 +855,7 @@
 						{isRotated}
 						{hintPositions}
 						class="board-container"
+						{onboardingPositions}
 					/>
 				</div>
 				<!-- Game Buttons -->
@@ -852,21 +865,23 @@
 						? 'calc(var(--safe-area-inset-bottom) + 8px)'
 						: '0px'}"
 				>
-					<GameButtons
-						findWordIconId="fwi-p"
-						findLetterIconId="fli-p"
-						rotateIconId="ri-p"
-						{onPauseClick}
-						{onPowerUpFindWordClick}
-						{onPowerUpFindLetterClick}
-						{onPowerUpRotateClick}
-						{isFindWordDisabled}
-						{isFindLetterDisabled}
-						{isRotateDisabled}
-						findWordPrice={powerUpPrices.findWord.toString()}
-						findLetterPrice={powerUpPrices.findLetter.toString()}
-						rotatePrice={powerUpPrices.rotate.toString()}
-					/>
+					{#if !showOnBoarding}
+						<GameButtons
+							findWordIconId="fwi-p"
+							findLetterIconId="fli-p"
+							rotateIconId="ri-p"
+							{onPauseClick}
+							{onPowerUpFindWordClick}
+							{onPowerUpFindLetterClick}
+							{onPowerUpRotateClick}
+							{isFindWordDisabled}
+							{isFindLetterDisabled}
+							{isRotateDisabled}
+							findWordPrice={powerUpPrices.findWord.toString()}
+							findLetterPrice={powerUpPrices.findLetter.toString()}
+							rotatePrice={powerUpPrices.rotate.toString()}
+						/>
+					{/if}
 				</div>
 			</div>
 		</div>

@@ -2,10 +2,12 @@
 	import { type Position } from './Position';
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
-	import { animate } from 'animejs';
+	import { animate, createTimeline, Timeline, utils } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
+	import OnboardingHand from '../Onboarding/OnboardingHand.svelte';
+	import { number } from '$lib/paraglide/registry';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -20,6 +22,7 @@
 		onWordSelect: (word: string, path: Position[], letterSize: number) => Position[];
 		currentColor: ColorTheme;
 		class?: string;
+		onboardingPositions?: Position[];
 	}
 
 	// Add some constraints to prevent cells from getting too small or too large
@@ -37,7 +40,8 @@
 		currentColor,
 		isRotated = false,
 		hintPositions = [],
-		class: classProp = ''
+		class: classProp = '',
+		onboardingPositions = []
 	}: Props = $props();
 
 	// Calculate number of columns dynamically
@@ -129,6 +133,7 @@
 	// Touch event handlers
 	function handleTouchStart(event: TouchEvent, rowIndex: number, colIndex: number) {
 		event.preventDefault();
+		cancelOnBoardingAnimation();
 		handleInteractionStart(rowIndex, colIndex);
 	}
 
@@ -151,25 +156,25 @@
 
 	function handleTouchEnd(event: TouchEvent) {
 		event.preventDefault();
+		cancelOnBoardingAnimation();
 		handleInteractionEnd();
 	}
 
 	function handleTouchCancel(event: TouchEvent) {
 		event.preventDefault();
+		cancelOnBoardingAnimation();
 		handleInteractionCancel();
 	}
 
 	// Mouse event handlers (renamed from the originals)
 	function handleMouseDown(rowIndex: number, colIndex: number) {
+		cancelOnBoardingAnimation();
 		handleInteractionStart(rowIndex, colIndex);
 	}
 
 	function handleMouseUp() {
+		cancelOnBoardingAnimation();
 		handleInteractionEnd();
-	}
-
-	function handleMouseEnter(rowIndex: number, colIndex: number) {
-		handleInteractionMove(rowIndex, colIndex);
 	}
 
 	function handleMouseLeave() {
@@ -369,18 +374,152 @@
 		updateFactor(boardWidth);
 		resizeObserver.observe(boardElement);
 		isInitialized = true;
-		// Initial fade-in animation
-		// animate(boardElement, {
-		// 	opacity: [0, 1],
-		// 	duration: 500,
-		// 	ease: 'inOutQuad'
-		// });
 		return () => {
 			if (resizeTimeout) {
 				window.cancelAnimationFrame(resizeTimeout);
 			}
 			resizeObserver.disconnect();
 		};
+	});
+
+	let onBoardingAnimation: Timeline | null = null;
+	let idleAnimationTimer: NodeJS.Timeout | null = null;
+
+	async function cancelOnBoardingAnimation() {
+		if (idleAnimationTimer) {
+			clearTimeout(idleAnimationTimer);
+		}
+		idleAnimationTimer = setTimeout(() => {
+			animateOnBoarding(onboardingPositions);
+			idleAnimationTimer = null;
+		}, 7000);
+		if (!onBoardingAnimation) {
+			return;
+		}
+		onBoardingAnimation.reset();
+	}
+
+	function animateOnBoarding(positions: Position[]) {
+		if (positions.length === 0) {
+			return;
+		}
+		if (idleAnimationTimer) {
+			clearTimeout(idleAnimationTimer);
+			idleAnimationTimer = null;
+		}
+		if (onBoardingAnimation) {
+			onBoardingAnimation.play();
+			return;
+		}
+		const partialDuration = 300;
+		const totalDuration = positions.length * partialDuration + partialDuration;
+		// position hand on first position
+		const hand = document.getElementById('onboarding-hand');
+		const firstPosition = positions[0];
+		const firstPositionElement = document.getElementById(
+			getPositionId(firstPosition.row, firstPosition.col)
+		);
+		const lastPosition = positions[positions.length - 1];
+		const lastPositionElement = document.getElementById(
+			getPositionId(lastPosition.row, lastPosition.col)
+		);
+		if (hand && firstPositionElement && lastPositionElement) {
+			const firstPositionRect = firstPositionElement.getBoundingClientRect();
+			const lastPositionRect = lastPositionElement.getBoundingClientRect();
+			if (!handRectLeft) {
+				handRectLeft = hand.getBoundingClientRect().left;
+			}
+			if (!handRectTop) {
+				handRectTop = hand.getBoundingClientRect().top;
+			}
+			const handInitialPositionX =
+				firstPositionRect.left - handRectLeft + firstPositionRect.width / 4;
+			const handInitialPositionY =
+				firstPositionRect.top - handRectTop + firstPositionRect.height * 0.75;
+
+			const translateFinalPositionX =
+				handInitialPositionX +
+				lastPositionRect.left -
+				firstPositionRect.left +
+				lastPositionRect.width / 4;
+			const translateFinalPositionY =
+				handInitialPositionY + lastPositionRect.top - firstPositionRect.top;
+
+			// move hand to initial position
+			onBoardingAnimation = createTimeline({
+				duration: totalDuration,
+				loop: true,
+				loopDelay: 1000,
+				autoplay: false
+			});
+
+			onBoardingAnimation.sync(
+				animate(hand, {
+					opacity: [0, 1],
+					duration: 1
+				})
+			);
+			onBoardingAnimation.add(
+				hand,
+				{
+					translateX: [handInitialPositionX, translateFinalPositionX],
+					translateY: [handInitialPositionY, translateFinalPositionY],
+					// rotate: [-20, 20],
+					ease: 'linear',
+					duration: totalDuration - partialDuration
+				},
+				1
+			);
+			onBoardingAnimation.add(
+				hand,
+				{
+					opacity: [1, 0],
+					duration: 2 * partialDuration,
+					ease: 'outQuad'
+				},
+				totalDuration - partialDuration
+			);
+			const cells = positions.map((position) => {
+				return document.getElementById(getPositionId(position.row, position.col)) as HTMLElement;
+			});
+
+			cells.forEach((cell, index) => {
+				if (cell) {
+					onBoardingAnimation?.add(
+						cell,
+						{
+							backgroundColor: ['#ffffff', currentColor.isSelectedColorHex],
+							duration: partialDuration,
+							ease: 'linear'
+						},
+						index * partialDuration
+					);
+					onBoardingAnimation?.add(
+						cell,
+						{
+							backgroundColor: [currentColor.isSelectedColorHex, '#ffffff'],
+							duration: partialDuration,
+							ease: 'linear'
+						},
+						totalDuration
+					);
+				}
+			});
+		}
+		onBoardingAnimation?.play();
+	}
+
+	$effect(() => {
+		console.log('👇👇👇👇 onboardingPositions', onboardingPositions);
+		if (onboardingPositions.length > 0) {
+			if (onBoardingAnimation) {
+				onBoardingAnimation.cancel();
+				onBoardingAnimation = null;
+			}
+			setTimeout(() => {
+				animateOnBoarding(onboardingPositions);
+			}, 1);
+		}
 	});
 
 	$effect(() => {
@@ -410,12 +549,21 @@
 	$effect(() => {
 		fixBoardRotation(isRotated);
 	});
+	let handRectLeft: number | undefined = undefined;
+	let handRectTop: number | undefined = undefined;
+
+	onDestroy(() => {
+		if (idleAnimationTimer) {
+			clearTimeout(idleAnimationTimer);
+			idleAnimationTimer = null;
+		}
+	});
 </script>
 
 <div bind:this={boardElement} class="flex w-full flex-col items-center justify-center {classProp}">
 	{#if isInitialized}
 		<div
-			class="rounded-md bg-white p-2 shadow-md"
+			class="relative rounded-md bg-white p-2 shadow-md"
 			onmouseleave={handleMouseLeave}
 			onmouseup={handleMouseUp}
 			ontouchend={handleTouchEnd}
@@ -424,6 +572,9 @@
 			role="grid"
 			tabindex="0"
 		>
+			<div id="onboarding-hand" class="pointer-events-none absolute z-100 h-10 w-10 opacity-0">
+				<OnboardingHand />
+			</div>
 			<div
 				id="board"
 				class="grid"
