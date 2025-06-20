@@ -109,6 +109,10 @@ class Analytics {
 		// 	}
 		// });
 	}
+
+	error(errorName: string, error: string) {
+		this.track(errorName, { error });
+	}
 }
 
 export const analytics = new Analytics();

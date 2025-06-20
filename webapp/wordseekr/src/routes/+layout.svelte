@@ -102,14 +102,21 @@
 	}
 	async function onWelcomeCoinAnimationCompleted() {
 		isWelcomeModalVisible = false;
+		try {
+			const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
+			if (permissionStatus?.display === 'prompt') {
+				await DailyRewardsNotifications.requestPermissions();
+			}
+			subscribeToQuoteAvailable();
+			ensureScheduledNotificationForTheNNextDay(5, true);
+		} catch (error) {
+			analytics.error(
+				'error_welcome_notification_permission',
+				error instanceof Error ? error.message : 'Unknown error'
+			);
+		}
 		// Check if notifications are enabled
 		await initAds();
-		const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
-		if (permissionStatus?.display === 'prompt') {
-			await DailyRewardsNotifications.requestPermissions();
-		}
-		subscribeToQuoteAvailable();
-		ensureScheduledNotificationForTheNNextDay(5, true);
 	}
 
 	function showOnAppearPopup(delay: number = 300) {
