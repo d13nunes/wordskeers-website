@@ -123,8 +123,7 @@
 	}
 
 	function handleInteractionCancel() {
-		isInteracting = false;
-		resetSelectedCells();
+		handleInteractionEnd();
 	}
 
 	// Touch event handlers
