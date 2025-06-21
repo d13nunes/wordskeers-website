@@ -22,9 +22,9 @@
 	let progressAnimation: JSAnimation | null = null;
 
 	function animateProgress(previous: number, current: number) {
-		let counter = { value: previous };
+		let counter = { value: Math.round(previous) };
 		progressAnimation = animate(counter, {
-			value: current,
+			value: Math.round(current),
 			delay: 500,
 			duration: 2000,
 			ease: 'outQuad',
