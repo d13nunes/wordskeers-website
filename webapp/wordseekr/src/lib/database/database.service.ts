@@ -16,7 +16,7 @@ import type {
 import { isToday } from 'date-fns/isToday';
 
 // Database configuration
-const DB_NAME = 'wordseekr_v3.db';
+const DB_NAME = 'wordseekr_v4.db';
 const DB_VERSION = 1;
 
 // Platform types
@@ -113,10 +113,10 @@ class DatabaseService {
 			});
 
 			// Fetch the pre-populated database from assets
-			const response = await fetch('/assets/databases/wordseekr_v3.db');
+			const response = await fetch('/assets/databases/wordseekr_v4.db');
 			if (!response.ok) {
 				throw new Error(
-					'Failed to fetch pre-populated database from /assets/databases/wordseekr_v3.db'
+					'Failed to fetch pre-populated database from /assets/databases/wordseekr_v4.db'
 				);
 			}
 			const buffer = await response.arrayBuffer();
