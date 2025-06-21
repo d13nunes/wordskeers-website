@@ -1,7 +1,7 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "2.4.2",
+  "version": "2.4.3",
   "build": 2,
   "type": "module",
   "scripts": {
