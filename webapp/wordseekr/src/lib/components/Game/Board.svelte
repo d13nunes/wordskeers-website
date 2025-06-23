@@ -97,6 +97,7 @@
 
 				const discoveredPositions = onWordSelect(selectedWord, cells, fontSize);
 				if (discoveredPositions.length > 0) {
+					clearIdleAnimationTimer();
 					setDiscovered(discoveredPositions);
 					animateDiscovered(discoveredPositions);
 					resetSelectedCells();
@@ -385,7 +386,18 @@
 	let onBoardingAnimation: Timeline | null = null;
 	let idleAnimationTimer: NodeJS.Timeout | null = null;
 
-	async function cancelOnBoardingAnimation() {
+	function clearIdleAnimationTimer() {
+		if (idleAnimationTimer) {
+			clearTimeout(idleAnimationTimer);
+			idleAnimationTimer = null;
+		}
+		if (onBoardingAnimation) {
+			onBoardingAnimation.cancel();
+			onBoardingAnimation = null;
+		}
+	}
+
+	async function cancelOnBoardingAnimation(reset: boolean = true) {
 		if (idleAnimationTimer) {
 			clearTimeout(idleAnimationTimer);
 		}
@@ -396,7 +408,10 @@
 		if (!onBoardingAnimation) {
 			return;
 		}
-		onBoardingAnimation.reset();
+		if (reset) {
+			console.log('👇👇👇👇 reset');
+			onBoardingAnimation.reset();
+		}
 	}
 
 	function animateOnBoarding(positions: Position[]) {
@@ -485,10 +500,15 @@
 
 			cells.forEach((cell, index) => {
 				if (cell) {
+					const position = positions[index];
+					const id = getPositionId(position.row, position.col);
 					onBoardingAnimation?.add(
 						cell,
 						{
-							backgroundColor: ['#ffffff', currentColor.isSelectedColorHex],
+							backgroundColor: [
+								discoveredColorMapping[id] ?? '#ffffff',
+								currentColor.isSelectedColorHex
+							],
 							duration: partialDuration,
 							ease: 'linear'
 						},
@@ -497,7 +517,10 @@
 					onBoardingAnimation?.add(
 						cell,
 						{
-							backgroundColor: [currentColor.isSelectedColorHex, '#ffffff'],
+							backgroundColor: [
+								currentColor.isSelectedColorHex,
+								discoveredColorMapping[id] ?? '#ffffff'
+							],
 							duration: partialDuration,
 							ease: 'linear'
 						},
@@ -516,7 +539,7 @@
 				onBoardingAnimation.cancel();
 				onBoardingAnimation = null;
 			}
-			setTimeout(() => {
+			idleAnimationTimer = setTimeout(() => {
 				animateOnBoarding(onboardingPositions);
 			}, 1);
 		}
