@@ -10,6 +10,7 @@
         "@capacitor-community/sqlite": "^7.0.0",
         "@capacitor-firebase/analytics": "^7.2.0",
         "@capacitor-firebase/crashlytics": "^7.2.0",
+        "@capacitor-firebase/firestore": "^7.2.0",
         "@capacitor-firebase/performance": "^7.2.0",
         "@capacitor/android": "^7.2.0",
         "@capacitor/app": "^7.0.1",
@@ -102,6 +103,8 @@
     "@capacitor-firebase/analytics": ["@capacitor-firebase/analytics@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-6a1f4MXdQhfP7I4nzjx5Bdg7LGIcgRMVWTFSMGkuygLNJ66ZkgdjLAeh36pYtd22qkPtVOu61DnsJjz6iWqGng=="],
 
     "@capacitor-firebase/crashlytics": ["@capacitor-firebase/crashlytics@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-SzffZ+/gRUR7ZnWY1eHwpHSrscetRFCdsebo8KrqLqkFtB2WZfVO+YO+UNEeDRblXkGmuGsKE6uX9lX3PzaZ2g=="],
+
+    "@capacitor-firebase/firestore": ["@capacitor-firebase/firestore@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-x68U1RgMkQ2ZXk88RcJyxcCkRWABNk8G1+mW/Na9PCgIOWm8cryVgNA9JJ8cMdOo2tGIU8Oh+wI++r9lTTRDNQ=="],
 
     "@capacitor-firebase/performance": ["@capacitor-firebase/performance@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-Md+iqfsJwgar4SN5K/tdPTD0ARe+dQPCrkFX3u/h/fgperk14X1jPXBXITBb9D3Awb2t/MPwwiUguXcspPqdcg=="],
 

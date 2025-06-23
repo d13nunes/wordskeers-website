@@ -233,6 +233,19 @@ class DatabaseService {
 		]);
 	}
 
+	public async insertQuote(
+		id: number,
+		grid_id: number,
+		author: string,
+		quote: string,
+		playable_at: string
+	): Promise<void> {
+		await this.executeQuery(
+			'INSERT INTO quotes (id, grid_id, author, quote, playable_at) VALUES (?, ?, ?, ?, ?)',
+			[id, grid_id, author, quote, playable_at]
+		);
+	}
+
 	public async markQuoteAsPlayed(quoteId: number, played_at: Date): Promise<void> {
 		await this.executeQuery('UPDATE quotes SET played_at = ? WHERE id = ?', [
 			played_at.toISOString(),
@@ -250,6 +263,59 @@ class DatabaseService {
 			return false;
 		}
 		return isToday(playedAt);
+	}
+
+	public async getHighestDateQuote(): Promise<string> {
+		const results = await this.executeQuery<{ 'MAX(playable_at)': string }>(
+			'SELECT MAX(playable_at) FROM quotes'
+		);
+		return results[0]?.['MAX(playable_at)'] ?? '';
+	}
+
+	public async insertGrid(gridData: WordSearchGrid): Promise<void> {
+		await this.executeQuery(
+			`
+				INSERT INTO word_search_grids (id, name, rows, columns, words_count, directions, grid_hash, is_challenge)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			`,
+			[
+				gridData.id,
+				gridData.name,
+				gridData.rows,
+				gridData.columns,
+				gridData.words_count,
+				gridData.directions,
+				gridData.grid_hash,
+				JSON.stringify(gridData.is_challenge)
+			]
+		);
+	}
+
+	public async insertWordPlacements(placedWords: WordPlacement[]): Promise<void> {
+		for (const placement of placedWords) {
+			try {
+				await this.insertWordPlacement(placement);
+			} catch (error) {
+				console.error('!!!! error inserting word placement: ', error);
+			}
+		}
+	}
+
+	public async insertWordPlacement(placement: WordPlacement): Promise<void> {
+		await this.executeQuery(
+			`
+				INSERT INTO word_placements (id, grid_id, word, row, col, direction)
+				VALUES (?, ?, ?, ?, ?, ?)
+			`,
+			[
+				placement.id,
+				placement.grid_id,
+				placement.word,
+				placement.row,
+				placement.col,
+				placement.direction
+			]
+		);
 	}
 
 	public async markGridAsPlayed(
@@ -284,7 +350,6 @@ class DatabaseService {
 		if (!result) {
 			return null;
 		}
-
 		return {
 			id: result.id,
 			grid_id: result.grid_id,
@@ -303,7 +368,6 @@ class DatabaseService {
 
 	public async getDailyChallengeById(id: number): Promise<DailyChallenge | null> {
 		const quote = await this.getQuoteById(id);
-		console.log('quote', quote);
 		if (!quote) {
 			return null;
 		}
@@ -328,6 +392,32 @@ class DatabaseService {
 
 	public async getAllLevels(): Promise<Level[]> {
 		return this.executeQuery<Level>('SELECT * FROM levels ORDER BY order_index ASC');
+	}
+
+	public async getHighestLevel(): Promise<number> {
+		console.log('highestLevel !!!');
+		const results = await this.executeQuery<{ 'MAX(order_index)': number }>(
+			'SELECT MAX(order_index) FROM levels'
+		);
+		return results[0]?.['MAX(order_index)'] ?? 0;
+	}
+
+	public async insertLevel(
+		id: number,
+		name: string,
+		grid_ids: string,
+		order_index: number
+	): Promise<void> {
+		try {
+			console.log('🙏 insertLevel will insert level:', id, name, grid_ids, order_index);
+			await this.executeQuery(
+				'INSERT INTO levels (id, name, grid_ids, order_index) VALUES (?, ?, ?, ?)',
+				[id, name, grid_ids, order_index]
+			);
+		} catch (error) {
+			console.error('error inserting level: ', id, name, grid_ids, order_index, error);
+			throw error;
+		}
 	}
 
 	// Levels methods

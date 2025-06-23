@@ -1,5 +1,6 @@
 import { databaseService } from '$lib/database/database.service';
 import type { Quote } from '$lib/database/types';
+import { syncQuotes } from '$lib/firestore/firestore';
 import {
 	NOTIFICATION_CHANNEL_ID,
 	QUOTE_TODAY_NOTIFICATION_ID_END,
@@ -84,11 +85,13 @@ export async function getAllQuotes(): Promise<Quote[]> {
 }
 
 export async function getTodaysQuote(): Promise<Quote | null> {
+	syncQuotes();
 	const quote = await databaseService.getQuoteForDate(new Date());
 	return quote;
 }
 
 export async function isTodaysQuoteAvailable(): Promise<boolean> {
+	syncQuotes();
 	const quote = await getTodaysQuote();
 	const isAvailable = !!(quote && quote.played_at === null);
 	isTodaysQuoteAvailable_.set(isAvailable);
@@ -96,6 +99,7 @@ export async function isTodaysQuoteAvailable(): Promise<boolean> {
 }
 
 export async function markQuoteAsPlayed(quoteId: number): Promise<void> {
+	syncQuotes();
 	await databaseService.markQuoteAsPlayed(quoteId, new Date());
 	isTodaysQuoteAvailable_.set(false);
 	await ensureScheduledNotificationForTheNNextDay(5);

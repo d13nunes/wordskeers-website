@@ -42,6 +42,7 @@
 	import LevelAllCleared from '$lib/components/Levels/LevelAllCleared.svelte';
 	import { gotoMainMenu } from '../utils/naviation';
 	import QuotesGameEndedModal from './QuotesGameEndedModal.svelte';
+	import { syncLevels } from '$lib/firestore/firestore';
 
 	const powerUpCooldownButton = 1500;
 	let isSmallScreen = $state(true);
@@ -61,6 +62,7 @@
 	let isGameEnded = $state(false);
 	let isRemoveAdsActive = $state(false);
 	let showAllLevelCleared = $state(false);
+	let isCheckingMoreLevels = $state(false);
 	let title = $derived(game?.title ?? '');
 	let level = $state<Level | null>(null);
 	let levelName = $derived(level?.name ?? '');
@@ -131,6 +133,9 @@
 			gridID = parseInt(page.url.searchParams.get('id') ?? '-1');
 			if (!gridID) {
 				showAllLevelCleared = true;
+				isCheckingMoreLevels = true;
+				await syncLevels();
+				isCheckingMoreLevels = false;
 			} else {
 				loadGridFromDatabase(gridID);
 			}
@@ -666,6 +671,7 @@
 		if (canShowAdLevel && currentProgressValue && currentProgressValue >= 1) {
 			adStore.showAd(AdType.Interstitial, null);
 		}
+		syncLevels();
 
 		setTimeout(() => {
 			goto(`/levels`, { replaceState: true });
@@ -687,7 +693,12 @@
 		</div>
 	</div>
 {:else if !game}
-	{#if showAllLevelCleared}
+	{#if isCheckingMoreLevels}
+		// spinner
+		<div class="fixed inset-0 z-50 flex items-center justify-center bg-white">
+			<div class="h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-gray-900"></div>
+		</div>
+	{:else if showAllLevelCleared}
 		<div
 			class="fixed inset-0 z-50 flex max-h-full items-center justify-center bg-white"
 			style="	padding-top: var(--safe-area-inset-top);
@@ -698,7 +709,12 @@
 			<LevelAllCleared />
 		</div>
 	{:else}
-		<div class="bg-opacity-75 fixed inset-0 flex items-center justify-center bg-white"></div>
+		<button
+			class="fixed inset-0 z-50 flex items-center justify-center bg-white"
+			onclick={() => gotoMainMenu()}
+		>
+			Main Menu
+		</button>
 	{/if}
 {:else}
 	<div
