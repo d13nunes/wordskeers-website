@@ -9,6 +9,7 @@
         "@capacitor-community/safe-area": "7.0.0-alpha.1",
         "@capacitor-community/sqlite": "^7.0.0",
         "@capacitor-firebase/analytics": "^7.2.0",
+        "@capacitor-firebase/crashlytics": "^7.2.0",
         "@capacitor/android": "^7.2.0",
         "@capacitor/app": "^7.0.1",
         "@capacitor/core": "^7.2.0",
@@ -98,6 +99,8 @@
     "@capacitor-community/sqlite": ["@capacitor-community/sqlite@7.0.0", "", { "dependencies": { "jeep-sqlite": "^2.7.2" }, "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-GSHxLEiyuhPoWwpMLOwfaOhLpfZglhfI1sqEgA5bSbtIYt1I+iK02b/ymonaghB176NhA5wuGd+spOIaL0kgHw=="],
 
     "@capacitor-firebase/analytics": ["@capacitor-firebase/analytics@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0", "firebase": "^11.2.0" }, "optionalPeers": ["firebase"] }, "sha512-6a1f4MXdQhfP7I4nzjx5Bdg7LGIcgRMVWTFSMGkuygLNJ66ZkgdjLAeh36pYtd22qkPtVOu61DnsJjz6iWqGng=="],
+
+    "@capacitor-firebase/crashlytics": ["@capacitor-firebase/crashlytics@7.2.0", "", { "peerDependencies": { "@capacitor/core": ">=7.0.0" } }, "sha512-SzffZ+/gRUR7ZnWY1eHwpHSrscetRFCdsebo8KrqLqkFtB2WZfVO+YO+UNEeDRblXkGmuGsKE6uX9lX3PzaZ2g=="],
 
     "@capacitor/android": ["@capacitor/android@7.2.0", "", { "peerDependencies": { "@capacitor/core": "^7.2.0" } }, "sha512-zdhEy3jZPG5Toe/pGzKtDgIiBGywjaoEuQWnGVjBYPlSAEUtAhpZ2At7V0SCb26yluAuzrAUV0Ue+LQeEtHwFQ=="],
 
