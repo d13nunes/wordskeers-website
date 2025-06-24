@@ -41,7 +41,7 @@
 	let rewardIconScaleInitial = Math.max(Math.min(1 + (previousProgressValue / 100) * 4, 2), 1.5);
 	let rewardIconScaleFinal = rewardIconScaleInitial + (currentProgressValue / 100) * 1.5;
 
-	let title = $state('Levels');
+	let title = $derived(`Level ${levelNumber}`);
 	let shakeAnimation: JSAnimation | null = null;
 	let scaleAnimation: JSAnimation | null = null;
 	let nextLevelIn = $state(initialCountdown);

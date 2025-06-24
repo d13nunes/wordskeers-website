@@ -1,12 +1,10 @@
 <script lang="ts">
 	import GameModeSelection from './GameModeSelection.svelte';
-	import levelsIcon from '$lib/assets/levels-icon.png';
 	import LevelsProgressBar from '$lib/components/Levels/LevelsProgressBar.svelte';
 	import { onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { levelsManager } from '$lib/levels/levels';
 	import type { Level } from '$lib/database/types';
-	import { goto } from '$app/navigation';
 	import LevelsGiftIcon from '$lib/components/Levels/LevelsGiftIcon.svelte';
 	import { gotoLevel } from '../../../routes/utils/naviation';
 
