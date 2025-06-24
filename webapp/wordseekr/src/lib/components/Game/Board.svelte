@@ -2,13 +2,12 @@
 	import { type Position } from './Position';
 	import { PathValidator } from './PathValidator';
 	import type { ColorTheme } from './color-generator';
-	import { animate, createTimeline, Timeline, utils } from 'animejs';
+	import { animate, createTimeline, Timeline } from 'animejs';
 	import { getPositionId } from '$lib/utils/string-utils';
 	import { onDestroy, onMount } from 'svelte';
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import OnboardingHand from '../Onboarding/OnboardingHand.svelte';
-	import { number } from '$lib/paraglide/registry';
-	import { fly, slide } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -534,7 +533,6 @@
 	}
 
 	$effect(() => {
-		console.log('👇👇👇👇 onboardingPositions', onboardingPositions);
 		if (onboardingPositions.length > 0) {
 			if (onBoardingAnimation) {
 				onBoardingAnimation.cancel();
@@ -542,7 +540,7 @@
 			}
 			idleAnimationTimer = setTimeout(() => {
 				animateOnBoarding(onboardingPositions);
-			}, 1);
+			}, 1500);
 		}
 	});
 

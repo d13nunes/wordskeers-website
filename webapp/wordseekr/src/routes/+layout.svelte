@@ -279,9 +279,9 @@
 
 	{@render children()}
 
-	<BottomSheet visible={isDailyRewardsOpen} close={() => (isDailyRewardsOpen = false)}>
-		<DailyRewards />
-	</BottomSheet>
+	{#if isDailyRewardsOpen}
+		<DailyRewards onClose={() => (isDailyRewardsOpen = false)} />
+	{/if}
 	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
 		<Store />
 	</BottomSheet>

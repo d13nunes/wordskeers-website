@@ -48,6 +48,20 @@ export const dailyRewardsState: Readable<DailyRewardsState | null> = derived(
 	($state) => $state
 );
 
+export async function markRewardHasClaimed(rewardId: string): Promise<boolean> {
+	const currentState = get(_dailyRewardsState);
+	if (!currentState) {
+		console.error('No current state');
+		return false;
+	}
+	const result = await DailyRewardsService.markRewardHasClaimed(currentState, rewardId);
+	if (result) {
+		setRefreshTimer(currentState);
+		_dailyRewardsState.set(currentState);
+	}
+	return result?.success ?? false;
+}
+
 // Actions to interact with the rewards system
 
 async function claimRewardAction(
@@ -105,5 +119,6 @@ export const dailyRewardsStore = {
 	claimReward: claimRewardAction,
 	setEnableNotifications: setEnableNotificationsAction,
 	refresh: refreshStateAction,
-	isFreeRewardAvailable: isFreeRewardAvailableAction
+	isFreeRewardAvailable: isFreeRewardAvailableAction,
+	markRewardHasClaimed: markRewardHasClaimed
 };

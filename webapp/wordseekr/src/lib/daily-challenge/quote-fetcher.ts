@@ -85,13 +85,21 @@ export async function getAllQuotes(): Promise<Quote[]> {
 }
 
 export async function getTodaysQuote(): Promise<Quote | null> {
-	syncQuotes();
+	try {
+		syncQuotes();
+	} catch (error) {
+		console.error('Error trying to sync quotes:', error);
+	}
 	const quote = await databaseService.getQuoteForDate(new Date());
 	return quote;
 }
 
 export async function isTodaysQuoteAvailable(): Promise<boolean> {
-	syncQuotes();
+	try {
+		syncQuotes();
+	} catch (error) {
+		console.error('Error trying to sync quotes:', error);
+	}
 	const quote = await getTodaysQuote();
 	const isAvailable = !!(quote && quote.played_at === null);
 	isTodaysQuoteAvailable_.set(isAvailable);
@@ -99,7 +107,11 @@ export async function isTodaysQuoteAvailable(): Promise<boolean> {
 }
 
 export async function markQuoteAsPlayed(quoteId: number): Promise<void> {
-	syncQuotes();
+	try {
+		syncQuotes();
+	} catch (error) {
+		console.error('Error trying to sync quotes:', error);
+	}
 	await databaseService.markQuoteAsPlayed(quoteId, new Date());
 	isTodaysQuoteAvailable_.set(false);
 	await ensureScheduledNotificationForTheNNextDay(5);

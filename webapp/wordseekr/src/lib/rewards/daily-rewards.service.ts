@@ -152,6 +152,48 @@ async function scheduleNotifications(state: DailyRewardsState): Promise<void> {
 	}
 }
 
+async function markRewardHasClaimed(
+	state: DailyRewardsState,
+	rewardId: string
+): Promise<{
+	state: DailyRewardsState;
+	success: boolean;
+	coinsAwarded?: number;
+	noAdsAvailable?: boolean;
+} | null> {
+	const reward = state.currentRewards.find((r) => r.id === rewardId);
+	if (!reward) {
+		console.warn('Cannot mark reward as claimed. Not found.', rewardId);
+		return null;
+	}
+	const nextClaimableReward = state.currentRewards
+		.sort((a, b) => a.coins - b.coins)
+		.find((r) => r.status === DailyRewardStatus.Locked);
+
+	state.currentRewards = state.currentRewards.map((r) => {
+		if (r.id === rewardId) {
+			r.status = DailyRewardStatus.Claimed;
+		}
+		if (r.id === nextClaimableReward?.id) {
+			r.status = DailyRewardStatus.Claimable;
+		}
+		return r;
+	});
+
+	if (state.rewardsCollectedToday === 0) {
+		scheduleNotifications(state);
+	}
+	state.rewardsCollectedToday += 1;
+
+	state.resetRewardDate = new Date(Date.now() + RESET_WINDOW_MS);
+	await scheduleNotifications(state);
+
+	analytics.rewardCollected();
+
+	await saveState(state);
+	return { state, success: true };
+}
+
 async function claimReward(
 	state: DailyRewardsState,
 	rewardId: string
@@ -235,6 +277,7 @@ export const DailyRewardsService = {
 	initialize,
 	claimReward,
 	setEnableNotifications,
+	markRewardHasClaimed,
 	// Expose internal helpers for testing
 	_checkAndApplyResets: checkAndApplyResets
 };

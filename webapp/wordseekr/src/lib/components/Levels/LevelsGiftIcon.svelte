@@ -2,16 +2,12 @@
 	import CoinsPileIcon from '../Icons/CoinsPileIcon.svelte';
 	import LevelGiftBottom from './LevelGiftBottom.svelte';
 	import LevelGiftTop from './LevelGiftTop.svelte';
-	import { JSAnimation, Timeline, animate, eases } from 'animejs';
-
-	// Animation state
-
-	let topElement: any;
-	let bottomElement: any;
+	import { JSAnimation, animate, eases } from 'animejs';
 
 	interface Props {
 		isAnimating?: boolean;
 		animateCoin?: boolean;
+		id?: string;
 		onGiveReward?: () => void;
 		onCoinAnimationCompleted?: () => void;
 	}
@@ -19,10 +15,14 @@
 	let {
 		isAnimating = false,
 		animateCoin = false,
+		id = 'default',
 		onGiveReward,
 		onCoinAnimationCompleted
 	}: Props = $props();
 	let shakingAnimation: JSAnimation | null = null;
+	let topId = $derived(`${id}-level-gift-icon-top`);
+	let bottomId = $derived(`${id}-level-gift-icon-bottom`);
+	let coinsPileIconId = $derived(`${id}-coins-pile-icon`);
 
 	$effect(() => {
 		if (isAnimating) {
@@ -41,8 +41,8 @@
 			return;
 		}
 		// Shake animation for top part
-		const top = document.getElementById('level-gift-icon-top');
-		const bottom = document.getElementById('level-gift-icon-bottom');
+		const top = document.getElementById(topId);
+		const bottom = document.getElementById(bottomId);
 		if (!top || !bottom) return;
 
 		shakingAnimation = animate(top, {
@@ -62,9 +62,9 @@
 
 	function animateCoinAnimation() {
 		const balanceTag = document.getElementById('balance-tag-icon');
-		const coinsPileIcon = document.getElementById('coins-pile-icon');
-		const levelGiftTop = document.getElementById('level-gift-icon-top');
-		const levelGiftBottom = document.getElementById('level-gift-icon-bottom');
+		const coinsPileIcon = document.getElementById(coinsPileIconId);
+		const levelGiftTop = document.getElementById(topId);
+		const levelGiftBottom = document.getElementById(bottomId);
 
 		if (coinsPileIcon && balanceTag && levelGiftTop && levelGiftBottom) {
 			const balanceTagRect = balanceTag.getBoundingClientRect();
@@ -125,13 +125,9 @@
 </script>
 
 <div class="relative h-36 w-40">
-	<div id="coins-pile-icon" class="absolute top-[48px] left-[48px] z-50 h-16 w-16 opacity-100">
-		<CoinsPileIcon />
+	<div id={coinsPileIconId} class="absolute top-[48px] left-[48px] z-50 h-16 w-16 opacity-100">
+		<CoinsPileIcon {id} />
 	</div>
-	<LevelGiftTop class="absolute top-0 right-[0px] z-70 w-40" style="" id="level-gift-icon-top" />
-	<LevelGiftBottom
-		class="absolute bottom-[10px] left-[0px] z-60 w-40"
-		style=""
-		id="level-gift-icon-bottom"
-	/>
+	<LevelGiftTop class="absolute top-0 right-[0px] z-70 w-40" style="" id={topId} />
+	<LevelGiftBottom class="absolute bottom-[10px] left-[0px] z-60 w-40" style="" id={bottomId} />
 </div>

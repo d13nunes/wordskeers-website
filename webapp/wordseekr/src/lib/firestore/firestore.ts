@@ -2,6 +2,7 @@ import { databaseService } from '$lib/database/database.service';
 import type { WordPlacement, WordSearchGrid } from '$lib/database/types';
 import { levelsManager } from '$lib/levels/levels';
 import { FirebaseFirestore } from '@capacitor-firebase/firestore';
+import { Capacitor } from '@capacitor/core';
 
 export async function syncGrid(id: number): Promise<void> {
 	const { snapshots } = await FirebaseFirestore.getCollection({
@@ -59,7 +60,12 @@ export async function syncGrid(id: number): Promise<void> {
 let lastSyncQuotesTime = 0;
 const syncQuotesCooldown = 1000 * 60 * 10; // 10 minutes
 
+const hasFirebaseEnabled = Capacitor.isNativePlatform();
+
 export async function syncQuotes(): Promise<boolean> {
+	if (!hasFirebaseEnabled) {
+		return false;
+	}
 	try {
 		const highestDateQuote = await databaseService.getHighestDateQuote();
 		// if highestDateQuote bigger than today bypass cooldown
@@ -122,6 +128,9 @@ let lastSyncLevelsTime = 0;
 const syncLevelsCooldown = 1000 * 60 * 10; // 10 minutes
 
 export async function syncLevels(): Promise<boolean> {
+	if (!hasFirebaseEnabled) {
+		return false;
+	}
 	try {
 		const highestLevel = await databaseService.getHighestLevel();
 		const currentLevel = (await levelsManager.getCurrentLevel())?.orderIndex ?? 0;
