@@ -8,8 +8,9 @@
 	import type { Level } from '$lib/database/types';
 	import { goto } from '$app/navigation';
 	import LevelsGiftIcon from '$lib/components/Levels/LevelsGiftIcon.svelte';
+	import { gotoLevel } from '../../../routes/utils/naviation';
 
-	let { onPlayClick }: { onPlayClick: () => void } = $props();
+	let { isNewUser }: { isNewUser: boolean } = $props();
 
 	let isSmallScreen = $state(getIsSmallScreen());
 	let level: Level | undefined = $state(undefined);
@@ -17,7 +18,7 @@
 	let levelNumber: number | undefined = $state(levelsManager.level?.orderIndex ?? undefined);
 	let previousProgressPercentage = $state(0);
 	let currentProgressPercentage = $state(0);
-
+	let nextGridId = $state(0);
 	let isGiftAnimating = $state(true);
 
 	onMount(async () => {
@@ -25,13 +26,22 @@
 			levelsManager.progress.subscribe((progress) => {
 				currentProgressPercentage = progress * 100;
 			});
-			levelsManager.currentLevel.subscribe((_level) => {
+			levelsManager.currentLevel.subscribe(async (_level) => {
 				level = _level;
 				levelName = _level?.name ?? '';
 				levelNumber = _level?.orderIndex ?? 0;
+				nextGridId = await levelsManager.getNextGridId();
 			});
 		});
+		if (isNewUser) {
+			onPlayClick();
+		}
 	});
+
+	async function onPlayClick() {
+		console.log('onPlayClick', nextGridId, levelNumber);
+		gotoLevel(nextGridId, levelNumber ?? -1);
+	}
 </script>
 
 <!-- Levels Game Mode -->

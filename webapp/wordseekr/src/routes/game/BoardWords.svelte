@@ -2,6 +2,7 @@
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
 	import type { Snippet } from 'svelte';
+	import { fly, fade } from 'svelte/transition';
 
 	interface Props {
 		showClock: boolean;

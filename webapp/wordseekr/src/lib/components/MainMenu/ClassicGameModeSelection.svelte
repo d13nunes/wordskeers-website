@@ -11,6 +11,7 @@
 	import { analytics } from '$lib/analytics/analytics';
 	import { myLocalStorage, completionTracker } from '$lib/storage/local-storage';
 	import GameModeSelection from './GameModeSelection.svelte';
+	import { gotoClassicGame } from '../../../routes/utils/naviation';
 
 	const magnifierglassId = 'magnifierglass';
 	let gridSize = $state(0);
@@ -43,7 +44,7 @@
 		// const { unplayed, total } = await getUnplayedAndTotalForDifficulty(selectedDifficulty);
 		const id = await getRandomUnplayedGridID(selectedDifficulty);
 		analytics.startGame(selectedDifficulty, id.toString());
-		goto(`/game?id=${id}&difficulty=${selectedDifficulty}`);
+		gotoClassicGame(id, selectedDifficulty);
 	}
 
 	$effect(() => {

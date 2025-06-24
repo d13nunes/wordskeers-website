@@ -8,6 +8,7 @@
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import OnboardingHand from '../Onboarding/OnboardingHand.svelte';
 	import { number } from '$lib/paraglide/registry';
+	import { fly, slide } from 'svelte/transition';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -583,9 +584,14 @@
 	});
 </script>
 
-<div bind:this={boardElement} class="flex w-full flex-col items-center justify-center {classProp}">
+<div
+	out:fly={{ x: -500, duration: 1000 }}
+	bind:this={boardElement}
+	class="flex w-full flex-col items-center justify-center {classProp}"
+>
 	{#if isInitialized}
 		<div
+			in:fly={{ x: 500, duration: 1000 }}
 			class="relative rounded-md bg-white p-2 shadow-md"
 			onmouseleave={handleMouseLeave}
 			onmouseup={handleMouseUp}

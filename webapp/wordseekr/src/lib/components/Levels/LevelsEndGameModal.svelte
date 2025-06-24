@@ -253,7 +253,7 @@
 		</div>
 		{#if !isFinishingLastAnimation}
 			<div out:slide={{ duration: 200, axis: 'y' }} class="mt-8 flex w-full flex-col gap-2">
-				<div class=" ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
+				<div class=" min-h-2 ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
 					{nextLevelTimeText}
 				</div>
 				<button

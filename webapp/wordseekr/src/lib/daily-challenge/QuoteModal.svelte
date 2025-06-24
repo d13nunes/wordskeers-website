@@ -5,11 +5,13 @@
 	import { goto } from '$app/navigation';
 	import Modal from '$lib/components/Modal.svelte';
 	import { getTodaysQuote } from './quote-fetcher';
+	import { gotoDailyChallenge } from '../../routes/utils/naviation';
 
 	const quoteIconId = 'quoteIconID';
 
 	let quote = $state('');
 	let id = 0;
+	let gridId = 0;
 
 	interface Props {
 		onClickPlay: () => void;
@@ -22,10 +24,11 @@
 		const todaysQuote = await getTodaysQuote();
 		quote = todaysQuote?.author || 'Unknown';
 		id = todaysQuote?.id || 0;
+		gridId = todaysQuote?.grid_id || 0;
 	});
 
 	function onPlayClick() {
-		goto(`/game?dailyChallengeId=${id}&difficulty=challenge`);
+		gotoDailyChallenge(gridId, id);
 		onClickPlay();
 	}
 </script>

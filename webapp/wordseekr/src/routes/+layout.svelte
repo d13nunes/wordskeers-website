@@ -37,6 +37,7 @@
 		QUOTE_TODAY_NOTIFICATION_ID_END,
 		QUOTE_TODAY_NOTIFICATION_ID_START
 	} from '$lib/rewards/daily-rewards.config';
+	import { gotoDailyChallenge } from './utils/naviation';
 
 	interface Props {
 		children: Snippet;
@@ -93,7 +94,7 @@
 		if (!todaysQuote) {
 			return;
 		}
-		goto(`/game?dailyChallengeId=${todaysQuote.id}&difficulty=challenge`);
+		gotoDailyChallenge(todaysQuote.grid_id, todaysQuote.id);
 	}
 
 	function onGiveWelcomeReward() {

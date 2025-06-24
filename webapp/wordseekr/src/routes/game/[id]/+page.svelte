@@ -1,8 +1,8 @@
 <script lang="ts">
-	import ClassicGameEndedModal from './ClassicGameEndedModal.svelte';
+	import ClassicGameEndedModal from '../ClassicGameEndedModal.svelte';
 
 	import { Haptics, ImpactStyle } from '@capacitor/haptics';
-	import GameButtons from './GameButtons.svelte';
+	import GameButtons from '../GameButtons.svelte';
 	import { page } from '$app/state';
 	import {
 		createGameForConfiguration,
@@ -30,21 +30,23 @@
 	import { analytics } from '$lib/analytics/analytics';
 	import type { Difficulty } from '$lib/game/difficulty';
 	import { gameCounter, myLocalStorage } from '$lib/storage/local-storage';
-	import { type DailyChallenge } from '$lib/daily-challenge/models';
 	import DailyChallengeBoardWords from '$lib/daily-challenge/DailyChallengeBoardWords.svelte';
-	import ClassicBoardWords from './ClassicBoardWords.svelte';
+	import ClassicBoardWords from '../ClassicBoardWords.svelte';
 	import Confetti from 'svelte-confetti';
-	import PauseMenu from './PauseMenu.svelte';
+	import PauseMenu from '../PauseMenu.svelte';
 	import { markQuoteAsPlayed } from '$lib/daily-challenge/quote-fetcher';
 	import { levelsManager } from '$lib/levels/levels';
 	import LevelsEndGameModal from '$lib/components/Levels/LevelsEndGameModal.svelte';
 	import type { Level } from '$lib/database/types';
+	import type { DailyChallenge } from '$lib/daily-challenge/models';
 	import LevelAllCleared from '$lib/components/Levels/LevelAllCleared.svelte';
-	import { gotoMainMenu } from '../utils/naviation';
-	import QuotesGameEndedModal from './QuotesGameEndedModal.svelte';
+	import { gotoLevel, gotoMainMenu } from '../../utils/naviation';
+	import QuotesGameEndedModal from '../QuotesGameEndedModal.svelte';
 	import { syncLevels } from '$lib/firestore/firestore';
+	import { fade } from 'svelte/transition';
 
 	const powerUpCooldownButton = 1500;
+	let showBoard = $state(false);
 	let isSmallScreen = $state(true);
 	let isLandscape = $state(false);
 	let progressCircle = $state<SVGCircleElement | null>(null);
@@ -53,7 +55,7 @@
 	let isFindLetterDisabled = $state(false);
 	let isFindWordDisabled = $state(false);
 	let isClockVisible = $state(false);
-	let game = $state<Game | null>(null);
+	let game = $state<Game | undefined>(undefined);
 	let words = $derived<Word[]>(game?.words ?? []);
 	let error: string | null = $state(null);
 	let hintPositions: Position[] = $state([]);
@@ -71,14 +73,17 @@
 	let previousProgressValue: number | null = $state(null);
 	let currentProgressValue: number | null = $state(null);
 	let didWatchAd = false;
-	let dailyChallenge = $state<DailyChallenge | null>(null);
 	let showGameEnded = $state(false);
-	let difficulty: Difficulty | undefined = undefined;
-
+	let difficulty: string = $state(page.url.searchParams.get('difficulty') as Difficulty);
 	let dailyChallengeID = $state(parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1'));
+	let isDailyChallenge = $derived(dailyChallengeID !== -1);
+	let dailyChallenge = $state<DailyChallenge | null>(null);
+
+	let setGameEndedTimeOut: NodeJS.Timeout | null = $state(null);
+
 	let isLevel = $state(parseInt(page.url.searchParams.get('level') ?? '-1') !== -1);
-	let isDailyChallenge = dailyChallengeID !== -1;
-	let gridID: number = -1;
+	let gridID: number = $state(parseInt(page.params.id ?? '-1'));
+
 	let showOnBoarding = $derived(isLevel && levelNumber === 1);
 	// get first word that is !discovered and get its first position
 	let onboardingPositions: Position[] = $derived(
@@ -95,20 +100,15 @@
 			// Get a random grid for the selected difficulty
 			const configuration = await getGridWithID(gridID);
 			game = createGameForConfiguration(configuration);
+			showBoard = true;
 			console.log('grid', JSON.stringify(game.grid));
 			console.log('words', JSON.stringify(game.words));
-			difficulty = page.url.searchParams.get('difficulty') as Difficulty;
 		} catch (e) {
 			error = e instanceof Error ? e.message : 'Failed to load game';
 			console.error('Error loading game:', e);
 		}
 	}
 
-	async function loadGridFromDailyChallenge(dailyChallengeID: number) {
-		dailyChallenge = await getDailyChallenge(dailyChallengeID);
-		game = createGameFromDailyChallenge(dailyChallenge);
-		analytics.startedPlayingQuote(dailyChallengeID);
-	}
 	const handleResize = () => {
 		isLandscape = window.innerWidth > window.innerHeight;
 	};
@@ -121,24 +121,31 @@
 		}
 	}
 	async function createBoard() {
+		if (setGameEndedTimeOut) {
+			clearTimeout(setGameEndedTimeOut);
+			setGameEndedTimeOut = null;
+		}
+		isGameEnded = false;
+		showGameEnded = false;
+
+		if (isLevel) {
+			level = await levelsManager.getCurrentLevel();
+
+			const currentProgress = await levelsManager.getCurrentProgress();
+			previousProgressValue = currentProgress;
+		}
 		if (isDailyChallenge) {
-			gridID = dailyChallengeID;
-			loadGridFromDailyChallenge(dailyChallengeID);
+			dailyChallenge = await getDailyChallenge(dailyChallengeID);
+			analytics.startedPlayingQuote(dailyChallengeID);
+		}
+		if (!gridID) {
+			showAllLevelCleared = true;
+			isCheckingMoreLevels = true;
+			await syncLevels();
+			isCheckingMoreLevels = false;
 		} else {
-			if (isLevel) {
-				level = await levelsManager.getCurrentLevel();
-				const currentProgress = await levelsManager.getCurrentProgress();
-				previousProgressValue = currentProgress;
-			}
-			gridID = parseInt(page.url.searchParams.get('id') ?? '-1');
-			if (!gridID) {
-				showAllLevelCleared = true;
-				isCheckingMoreLevels = true;
-				await syncLevels();
-				isCheckingMoreLevels = false;
-			} else {
-				loadGridFromDatabase(gridID);
-			}
+			game = undefined;
+			loadGridFromDatabase(gridID);
 		}
 	}
 
@@ -288,25 +295,25 @@
 			isGameEnded = true;
 
 			Haptics.impact({ style: ImpactStyle.Heavy });
-			const gridID = game?.config.id.toString() ?? 'undefined';
-			analytics.completeGame(difficulty ?? 'undefined', gridID);
+
+			analytics.completeGame(difficulty ?? 'undefined', gridID.toString());
 			// Mark grid as played when game ends
-			const gridId = parseInt(game?.config.id ?? '-1');
-			if (!isNaN(gridId)) {
-				databaseService.markGridAsPlayed(gridId, new Date(), elapsedTime);
+
+			if (!isNaN(gridID)) {
+				databaseService.markGridAsPlayed(gridID, new Date(), elapsedTime);
 			}
 			if (isDailyChallenge && dailyChallengeID) {
 				analytics.markQuoteAsPlayed(dailyChallengeID);
 				await markQuoteAsPlayed(dailyChallengeID);
 			}
 			if (isLevel) {
-				const currentProgress = await levelsManager.markGridAsCompleted(gridId);
+				const currentProgress = await levelsManager.markGridAsCompleted(gridID);
 				currentProgressValue = currentProgress;
 			}
 
 			gameCounter.increment();
 			Haptics.impact({ style: ImpactStyle.Heavy });
-			setTimeout(() => {
+			setGameEndedTimeOut = setTimeout(() => {
 				showGameEnded = true;
 			}, 1000);
 		}
@@ -667,15 +674,39 @@
 	async function navigateToNextLevel() {
 		clearInterval(timerInterval);
 		showGameEnded = false;
-		const canShowAdLevel = level && level.orderIndex > 3;
-		if (canShowAdLevel && currentProgressValue && currentProgressValue >= 1) {
-			adStore.showAd(AdType.Interstitial, null);
-		}
-		syncLevels();
+		showBoard = false;
 
+		const canShowAdLevel = level && level.orderIndex > 3;
+		const didCompleteLevel = currentProgressValue && currentProgressValue >= 1;
+		const isLevelWithMoreThan3Stages = level && level.gridIds.length > 3;
+		const isFirstStage = level && level.orderIndex === 0;
+		const isEvenStage = level && level.orderIndex % 2 === 0;
+		const showAd =
+			(canShowAdLevel && didCompleteLevel) ||
+			(canShowAdLevel && isLevelWithMoreThan3Stages && !isFirstStage && isEvenStage);
+		if (showAd) {
+			const maxFrequencyMillis = 1000 * 60; // 1 minute
+			adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
+		}
+		const nextLevel = (await levelsManager.getCurrentLevel()).orderIndex;
+		const nextGridId = await levelsManager.getNextGridId();
+
+		difficulty = 'levels';
 		setTimeout(() => {
-			goto(`/levels`, { replaceState: true });
+			gotoLevel(nextGridId, nextLevel, true);
+
+			gridID = nextGridId;
+			levelNumber = nextLevel;
+			showOnBoarding = false;
+
+			createBoard();
 		}, 500);
+
+		try {
+			syncLevels();
+		} catch (e) {
+			console.error('!!!!!!! navigateToNextLevel error', e);
+		}
 	}
 </script>
 
@@ -710,7 +741,8 @@
 		</div>
 	{:else}
 		<button
-			class="fixed inset-0 z-50 flex items-center justify-center bg-white"
+			in:fade={{ duration: 1000, delay: 2000 }}
+			class="fixed inset-0 z-50 flex items-center justify-center bg-white text-white"
 			onclick={() => gotoMainMenu()}
 		>
 			Main Menu
@@ -742,8 +774,8 @@
 				{levelName}
 				{stageName}
 				{levelNumber}
-				previousProgressValue={previousProgressValue * 100}
-				currentProgressValue={currentProgressValue * 100}
+				previousProgressValue={Math.round(previousProgressValue * 100)}
+				currentProgressValue={Math.round(currentProgressValue * 100)}
 				{navigateToNextLevel}
 				onClose={() => gotoMainMenu()}
 			/>
@@ -770,29 +802,31 @@
 				landscape:block
 				"
 				>
-					<div class="mb-4">
-						{#if dailyChallenge}
-							<DailyChallengeBoardWords
-								idPrefix="l-"
-								{dailyChallenge}
-								words={sortedWords}
-								showClock={isClockVisible}
-								{elapsedTime}
-								{title}
-								{onClockClick}
-							/>
-						{:else}
-							<ClassicBoardWords
-								idPrefix="l-"
-								words={sortedWords}
-								showClockTime={isClockVisible}
-								hideClock={isLevel}
-								{elapsedTime}
-								{title}
-								{onClockClick}
-							/>
-						{/if}
-					</div>
+					{#if showBoard}
+						<div in:fade={{ duration: 1000 }} out:fade={{ duration: 200, delay: 500 }} class="mb-4">
+							{#if dailyChallenge}
+								<DailyChallengeBoardWords
+									idPrefix="l-"
+									{dailyChallenge}
+									words={sortedWords}
+									showClock={isClockVisible}
+									{elapsedTime}
+									{title}
+									{onClockClick}
+								/>
+							{:else}
+								<ClassicBoardWords
+									idPrefix="l-"
+									words={sortedWords}
+									showClockTime={isClockVisible}
+									hideClock={isLevel}
+									{elapsedTime}
+									{title}
+									{onClockClick}
+								/>
+							{/if}
+						</div>
+					{/if}
 					{#if !showOnBoarding}
 						<GameButtons
 							findWordIconId="fwi-l"
@@ -824,33 +858,37 @@
 					class="flex h-full w-full flex-col items-center justify-start gap-4 px-4 sm:gap-6 md:gap-1
 					{isSmallScreen ? 'landscape:items-start ' : ''}"
 				>
-					<div
-						class="{isSmallScreen
-							? 'portrait:block portrait:w-full landscape:hidden'
-							: 'min-w-xs'} px-1"
-					>
-						{#if dailyChallenge}
-							<DailyChallengeBoardWords
-								idPrefix="p-"
-								{dailyChallenge}
-								words={sortedWords}
-								showClock={isClockVisible}
-								{elapsedTime}
-								{title}
-								{onClockClick}
-							/>
-						{:else}
-							<ClassicBoardWords
-								idPrefix="p-"
-								words={sortedWords}
-								showClockTime={isClockVisible}
-								hideClock={isLevel}
-								{elapsedTime}
-								{title}
-								{onClockClick}
-							/>
-						{/if}
-					</div>
+					{#if showBoard}
+						<div
+							in:fade={{ duration: 1000 }}
+							out:fade={{ duration: 200, delay: 500 }}
+							class="{isSmallScreen
+								? 'portrait:block portrait:w-full landscape:hidden'
+								: 'min-w-xs'} px-1"
+						>
+							{#if dailyChallenge}
+								<DailyChallengeBoardWords
+									idPrefix="p-"
+									{dailyChallenge}
+									words={sortedWords}
+									showClock={isClockVisible}
+									{elapsedTime}
+									{title}
+									{onClockClick}
+								/>
+							{:else}
+								<ClassicBoardWords
+									idPrefix="p-"
+									words={sortedWords}
+									showClockTime={isClockVisible}
+									hideClock={isLevel}
+									{elapsedTime}
+									{title}
+									{onClockClick}
+								/>
+							{/if}
+						</div>
+					{/if}
 
 					{#if isGameEnded}
 						<div class="fixed inset-0 z-10 flex items-center justify-center">
@@ -864,15 +902,17 @@
 							/>
 						</div>
 					{/if}
-					<Board
-						grid={game.grid}
-						{onWordSelect}
-						{currentColor}
-						{isRotated}
-						{hintPositions}
-						class="board-container"
-						{onboardingPositions}
-					/>
+					{#if showBoard}
+						<Board
+							grid={game.grid}
+							{onWordSelect}
+							{currentColor}
+							{isRotated}
+							{hintPositions}
+							class="board-container"
+							{onboardingPositions}
+						/>
+					{/if}
 				</div>
 				<!-- Game Buttons -->
 				<div

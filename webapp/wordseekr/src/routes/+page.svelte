@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { gotoMainMenu } from './utils/naviation';
+	import { gotoLevel, gotoMainMenu } from './utils/naviation';
 	import magnifyingGlass from '$lib/assets/magnifier-glass.webp';
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
@@ -24,7 +24,7 @@
 		await levelsManager.init();
 		const id = await levelsManager.getNextGridId();
 		const currentLevelNumber = (await levelsManager.getCurrentLevel()).orderIndex;
-		goto(`/game?id=${id}&difficulty=levels&level=${currentLevelNumber}`);
+		gotoLevel(id, currentLevelNumber);
 	}
 </script>
 
