@@ -676,7 +676,7 @@
 		showGameEnded = false;
 		showBoard = false;
 
-		const canShowAdLevel = level && level.orderIndex > 3;
+		const canShowAdLevel = level && level.orderIndex >= 3;
 		const didCompleteLevel = currentProgressValue && currentProgressValue >= 1;
 		const isLevelWithMoreThan3Stages = level && level.gridIds.length > 3;
 		const isFirstStage = level && level.orderIndex === 0;
@@ -692,11 +692,20 @@
 		const nextGridId = await levelsManager.getNextGridId();
 
 		difficulty = 'levels';
+
 		setTimeout(() => {
 			gotoLevel(nextGridId, nextLevel, true);
 
 			gridID = nextGridId;
 			levelNumber = nextLevel;
+
+			setTimeout(async () => {
+				await adStore.initialize();
+				console.log('📺 initAds game - completed');
+				const success = await adStore.showAd(AdType.Banner, null);
+				console.log('📺 BannerAd shown', success);
+			}, 1500);
+
 			showOnBoarding = false;
 
 			createBoard();

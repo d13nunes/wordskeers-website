@@ -116,8 +116,6 @@
 				error instanceof Error ? error.message : 'Unknown error'
 			);
 		}
-		// Check if notifications are enabled
-		await initAds();
 	}
 
 	function showOnAppearPopup(delay: number = 300) {
