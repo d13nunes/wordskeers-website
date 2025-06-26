@@ -44,6 +44,7 @@
 	import QuotesGameEndedModal from '../QuotesGameEndedModal.svelte';
 	import { syncLevels } from '$lib/firestore/firestore';
 	import { fade } from 'svelte/transition';
+	import { openStoreModal } from '$lib/tag-store';
 
 	const powerUpCooldownButton = 1500;
 	let showBoard = $state(false);
@@ -155,6 +156,12 @@
 		window.addEventListener('resize', handleResize);
 		createBoard();
 		loadClockVisibility();
+		walletStore.removeAds((removeAds) => {
+			isRemoveAdsActive = removeAds;
+		});
+		openStoreModal.subscribe((value) => {
+			showPauseModal = value;
+		});
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
@@ -368,7 +375,13 @@
 	}
 
 	async function onPowerUpRotateClick(iconId: string) {
-		if (isRotateDisabled || isPowerUpAnimationActive) return;
+		if (isPowerUpAnimationActive) {
+			return;
+		}
+		if (isRotateDisabled) {
+			openStoreModal.set(true);
+			return;
+		}
 		isPowerUpAnimationActive = true;
 
 		const powerUpId = 'rotate';
@@ -405,7 +418,13 @@
 	}
 
 	async function onPowerUpFindLetterClick(iconId: string) {
-		if (isFindLetterDisabled || isPowerUpAnimationActive) return;
+		if (isPowerUpAnimationActive) {
+			return;
+		}
+		if (isFindLetterDisabled) {
+			openStoreModal.set(true);
+			return;
+		}
 		isPowerUpAnimationActive = true;
 		hintPositions.length = 0;
 		const suggestedWord = getRandonUndiscoveredWord();
@@ -525,7 +544,13 @@
 	}
 
 	async function onPowerUpFindWordClick(iconId: string) {
-		if (isFindWordDisabled || isPowerUpAnimationActive) return;
+		if (isPowerUpAnimationActive) {
+			return;
+		}
+		if (isFindWordDisabled) {
+			openStoreModal.set(true);
+			return;
+		}
 		isPowerUpAnimationActive = true;
 		const suggestedWord = getRandonUndiscoveredWord();
 		hintPositions.length = 0;
@@ -554,9 +579,6 @@
 		}, powerUpCooldownButton);
 	}
 
-	walletStore.removeAds((removeAds) => {
-		isRemoveAdsActive = removeAds;
-	});
 	const powerUpPrices = {
 		rotate: 5,
 		findLetter: 100,
@@ -597,6 +619,8 @@
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
 			if (!isActive) {
 				showPauseModal = !isLevel && !isGameEnded;
+			} else {
+				openStoreModal.set(false);
 			}
 		});
 
@@ -758,10 +782,7 @@
 		</button>
 	{/if}
 {:else}
-	<div
-		class="fixed inset-0 z-50 flex max-h-full flex-row items-end justify-center sm:items-center"
-		style="padding-left: calc(var(--safe-area-inset-left)"
-	>
+	<div class=" flex h-full flex-row items-end justify-center md:items-center">
 		{#if showPauseModal}
 			<PauseMenu
 				onClickResume={() => (showPauseModal = false)}
@@ -845,9 +866,9 @@
 							{onPowerUpFindWordClick}
 							{onPowerUpFindLetterClick}
 							{onPowerUpRotateClick}
-							{isFindWordDisabled}
-							{isFindLetterDisabled}
-							{isRotateDisabled}
+							isFindWordDisabled={false}
+							isFindLetterDisabled={false}
+							isRotateDisabled={false}
 							findWordPrice={powerUpPrices.findWord.toString()}
 							findLetterPrice={powerUpPrices.findLetter.toString()}
 							rotatePrice={powerUpPrices.rotate.toString()}
@@ -856,7 +877,7 @@
 				</div>
 			{/if}
 			<div
-				class="flex h-full w-full flex-col items-center gap-6 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
+				class="flex h-full w-full flex-col items-center gap-6 max-[24rem]:gap-2 sm:max-w-3/4 sm:gap-2 sm:px-0 md:max-w-2/4 md:gap-2 lg:items-center lg:justify-center
 				{isSmallScreen ? 'landscape:w-1/2 ' : ''} {isRemoveAdsActive && isSmallScreen
 					? 'portrait:pb-2'
 					: 'portrait:pb-[54px]'} 
@@ -864,7 +885,7 @@
 			>
 				<!-- Board & Words -->
 				<div
-					class="flex h-full w-full flex-col items-center justify-start gap-4 px-4 sm:gap-6 md:gap-1
+					class="flex h-full w-full flex-col items-center justify-start gap-4 px-4 max-[24rem]:gap-0 sm:gap-6 md:gap-1
 					{isSmallScreen ? 'landscape:items-start ' : ''}"
 				>
 					{#if showBoard}
@@ -925,7 +946,9 @@
 				</div>
 				<!-- Game Buttons -->
 				<div
-					class="{isSmallScreen ? 'w-full portrait:block landscape:hidden' : 'mt-4 w-xs'}  px-4"
+					class="{isSmallScreen
+						? 'w-full portrait:block landscape:hidden'
+						: 'mt-4 w-xs'} px-4 max-[24rem]:mt-0"
 					style="padding-bottom: {isSmallScreen
 						? 'calc(var(--safe-area-inset-bottom) + 8px)'
 						: '0px'}"
@@ -939,9 +962,9 @@
 							{onPowerUpFindWordClick}
 							{onPowerUpFindLetterClick}
 							{onPowerUpRotateClick}
-							{isFindWordDisabled}
-							{isFindLetterDisabled}
-							{isRotateDisabled}
+							isFindWordDisabled={false}
+							isFindLetterDisabled={false}
+							isRotateDisabled={false}
 							findWordPrice={powerUpPrices.findWord.toString()}
 							findLetterPrice={powerUpPrices.findLetter.toString()}
 							rotatePrice={powerUpPrices.rotate.toString()}

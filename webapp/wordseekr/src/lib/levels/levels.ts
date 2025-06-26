@@ -15,7 +15,7 @@ class LevelsManager {
 	private __isInitialized: boolean = false;
 	private _isInitialized: Writable<boolean> = writable(false);
 	private _progress: Writable<number> = writable(0);
-	private __currentLevel: Level | undefined = undefined;
+	__currentLevel: Level | undefined = undefined;
 	private _currentLevel: Writable<Level | undefined> = writable(this.__currentLevel);
 
 	currentLevelNumber: Readable<number> = this._currentLevelNumber;

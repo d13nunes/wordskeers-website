@@ -31,8 +31,10 @@
 </script>
 
 <BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
-	<div class="flex flex-row flex-wrap gap-2 font-mono text-base text-gray-700">
-		{#each dailyChallenge.quotes as quote, index}
+	<div
+		class="flex flex-row flex-wrap gap-2 font-mono text-base text-gray-700 max-[24rem]:gap-1 max-[24rem]:text-sm"
+	>
+		{#each dailyChallenge.quotes as quote}
 			{#if quote.isHidden}
 				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px] pe-1.5">
 					{#each quote.text.split('') as char, index}

@@ -25,7 +25,7 @@
 </script>
 
 <BoardWords {showClock} {hideClock} {elapsedTime} {title} {onClockClick}>
-	<div class="flex w-full flex-row flex-wrap items-start justify-start gap-2">
+	<div class="flex w-full flex-row flex-wrap items-start justify-start gap-2 max-[24rem]:gap-1">
 		{#each words as word (word.word)}
 			<Tag
 				id={idPrefix + word.word.toLowerCase()}

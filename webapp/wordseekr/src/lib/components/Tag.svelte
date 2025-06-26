@@ -56,7 +56,9 @@
 			/>
 		</div>
 	{/if}
-	<span class="px-2 py-2 {isDiscovered ? 'line-through' : ''} font-regular text-xs/2 {textColor}"
-		>{tag}</span
+	<span
+		class="px-2 py-1 max-[24rem]:px-1.5 {isDiscovered
+			? 'line-through'
+			: ''} font-regular text-xs max-[24rem]:text-[14px] {textColor}">{tag}</span
 	>
 </div>

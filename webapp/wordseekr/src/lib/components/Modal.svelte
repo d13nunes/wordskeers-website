@@ -49,6 +49,7 @@
 		in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
 		out:scale={{ duration: 300, easing: cubicInOut }}
 		class="relative mx-4 flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg"
+		style="margin-top: var(--safe-area-inset-top)"
 		onclick={(e) => e.stopPropagation()}
 		ontouchstart={(e) => e.stopPropagation()}
 		ontouchmove={(e) => e.stopPropagation()}

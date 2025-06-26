@@ -80,7 +80,7 @@
 </script>
 
 <Modal {onClose} backgroundOpacity={50} onDismiss={onClose}>
-	<div class="flex h-[70svh] w-2xs flex-col items-center justify-start gap-4">
+	<div class="flex h-[65svh] w-2xs flex-col items-center justify-start gap-4">
 		<div class="flex flex-row items-center justify-center gap-2">
 			<div class="flex flex-row items-center justify-center gap-2">
 				<div class="w-12">
@@ -98,12 +98,12 @@
 					<SegmentedSelector segments={['All', 'Locked', 'Playable']} {selectedIndex} {onChange} />
 				</div>
 			</div>
-			<div class="mb-4 flex max-h-[60svh] min-w-full flex-col items-center justify-center">
+			<div class="mb-4 flex max-h-[54svh] min-w-full flex-col items-center justify-center">
 				{#if filteredQuotes.length > 0}
 					<VList
 						bind:this={quoteList}
 						data={filteredQuotes}
-						style="height: 60svh; max-height: 60svh; min-height: 200px;"
+						style="height: 59svh; max-height: 59svh; min-height: 200px;"
 					>
 						{#snippet children(quote)}
 							<div class="mb-4">

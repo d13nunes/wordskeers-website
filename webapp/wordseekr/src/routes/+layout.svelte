@@ -3,7 +3,6 @@
 	import '../app.css';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
 	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
-	import BottomSheet from '$lib/components/shared/BottomSheet.svelte';
 	import DailyRewards from './dailyrewards/+page.svelte';
 	import Store from './store/+page.svelte';
 	import ModalHost from '$lib/components/shared/ModalHost.svelte';
@@ -20,7 +19,12 @@
 	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
 	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
 	import ClassicTag from '$lib/components/Classic/ClassicTag.svelte';
-	import { isGameModeSelectionClassic, toggleGameMode, updateTagState } from '$lib/tag-store';
+	import {
+		isGameModeSelectionClassic,
+		openStoreModal,
+		toggleGameMode,
+		updateTagState
+	} from '$lib/tag-store';
 	import { DailyRewardsNotifications } from '$lib/rewards/daily-rewards.notifications';
 	import { myLocalStorage } from '$lib/storage/local-storage';
 	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
@@ -31,7 +35,6 @@
 		QUOTE_TODAY_NOTIFICATION_ID_END,
 		QUOTE_TODAY_NOTIFICATION_ID_START
 	} from '$lib/rewards/daily-rewards.config';
-	import { goto } from '$app/navigation';
 	import QuotesModal from './quotes/+page.svelte';
 
 	interface Props {
@@ -41,7 +44,7 @@
 	const { children }: Props = $props();
 	let isDailyRewardsOpen = $state(false);
 	let isQuotesModalOpen = $state(false);
-	let isStoreOpen = $state(false);
+	let isStoreOpen = $derived($openStoreModal);
 	let isSmallScreen = $state(false);
 
 	let showQuoteModal = $state(false);
@@ -67,7 +70,7 @@
 		if (!isStoreOpen) {
 			analytics.storedOpen();
 		}
-		isStoreOpen = true;
+		openStoreModal.set(true);
 		isDailyRewardsOpen = false;
 	}
 
@@ -79,7 +82,7 @@
 			analytics.rewardsOpen();
 		}
 		isDailyRewardsOpen = true;
-		isStoreOpen = false;
+		openStoreModal.set(false);
 	}
 
 	export async function onDailyQuoteClick() {
@@ -140,7 +143,7 @@
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
 		isQuotesModalOpen = false;
-		isStoreOpen = true;
+		openStoreModal.set(true);
 	}
 
 	async function initAds() {
@@ -206,7 +209,7 @@
 	});
 </script>
 
-<main class="flex flex-col bg-slate-50 select-none">
+<main class="fixed inset-0 flex flex-col bg-slate-50 select-none">
 	{#if isWelcomeModalVisible}
 		<WecolmeModal
 			onGiveReward={onGiveWelcomeReward}
@@ -220,7 +223,7 @@
 		/>
 	{/if}
 	<div
-		class="z-[100] mx-4 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
+		class="mx-4 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
 			? 'landscape:justify-start'
 			: ''} "
 	>
@@ -254,11 +257,15 @@
 			</div>
 		{/if}
 		{#if showBalanceTag}
-			<BalanceTag onclick={onStoreClick} />
+			<BalanceTag
+				onclick={onStoreClick}
+				class=" {isQuotesModalOpen || showQuoteModal ? ' z-0 ' : 'z-[900] delay-500'}"
+			/>
 		{/if}
 	</div>
-
-	{@render children()}
+	<div class="h-full w-full overflow-visible overflow-y-auto">
+		{@render children()}
+	</div>
 
 	{#if isDailyRewardsOpen}
 		<DailyRewards onClose={() => (isDailyRewardsOpen = false)} />
@@ -269,9 +276,9 @@
 			onNotEnoughCoinsToUnlock={onNotEnoughCoinsToUnlockQuote}
 		/>
 	{/if}
-	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
-		<Store />
-	</BottomSheet>
+	{#if isStoreOpen}
+		<Store onClose={() => openStoreModal.set(false)} />
+	{/if}
 	<ModalHost />
 </main>
 
@@ -283,7 +290,6 @@
 		padding-left: var(--safe-area-inset-left);
 		min-height: 100vh;
 		box-sizing: border-box;
-		overflow-y: auto; /* Make main scrollable */
-		-webkit-overflow-scrolling: touch; /* Improve iOS scrolling */
+		overflow: hidden; /* No scrollable */
 	}
 </style>

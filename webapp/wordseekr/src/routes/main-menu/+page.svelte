@@ -19,7 +19,7 @@
 </script>
 
 {#if isVisible}
-	<div in:fade class="fixed inset-0 z-50 bg-slate-50">
+	<div in:fade class="flex h-full items-center justify-center">
 		{#if isClassicGameMode}
 			<!-- Classic Game Mode -->
 			<ClassicGameModeSelection />

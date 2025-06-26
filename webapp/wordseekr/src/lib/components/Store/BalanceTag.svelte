@@ -5,12 +5,16 @@
 	import { isIAPAvailable } from '$lib/economy/iapStore';
 	import { onMount } from 'svelte';
 	import { animate, utils } from 'animejs';
-	import BaseTag from '../BaseTag.svelte';
 	import { formatedBalance } from '$lib/utils/string-utils';
+
+	interface Props {
+		className?: string;
+		onclick: () => void;
+	}
 
 	let balance = $state(0);
 	let isActive = $state(false);
-	let { onclick } = $props();
+	let { onclick, class: className } = $props();
 	let displayBalance = $state(0);
 	let balanceTagIcon: HTMLElement | null = null;
 
@@ -57,7 +61,11 @@
 	});
 </script>
 
-<button class="card-button flex h-8 flex-row items-center justify-center lg:h-9" {onclick}>
+<button
+	id="balance-tag"
+	class="card-button flex h-8 flex-row items-center justify-center lg:h-9 {className}"
+	{onclick}
+>
 	<div class="h-4 w-4 lg:h-5 lg:w-5">
 		<CoinsPileIcon id="balance-tag-icon" />
 	</div>

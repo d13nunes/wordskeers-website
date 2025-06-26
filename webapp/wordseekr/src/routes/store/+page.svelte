@@ -9,14 +9,23 @@
 		productsStore,
 		purchasesStore,
 		PRODUCT_IDS,
-		COIN_PACKS_META
+		COIN_PACKS_META,
+		isIAPAvailable
 	} from '$lib/economy/iapStore';
 
 	import { closeModal, openModal } from '$lib/components/shared/ModalHost';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { analytics } from '$lib/analytics/analytics';
+	import Modal from '$lib/components/Modal.svelte';
+	import { VList } from 'virtua/svelte';
+	import { animate, eases, utils } from 'animejs';
+
+	interface Props {
+		onClose: () => void;
+	}
+	const { onClose } = $props();
 
 	onDestroy(() => {
 		analytics.storedClosed();
@@ -31,16 +40,18 @@
 		});
 	}
 
+	let isActive = $state(false);
 	let isLoading = $state(false);
-
 	interface Product {
 		id: string;
 		name: string;
+		detail: string;
 		coins: number;
 		price: string | undefined;
 		productId: string;
 		callout?: string;
 		isCalloutRed?: boolean;
+		isRemoveAds?: boolean;
 		type: 'iap' | 'ad';
 	}
 
@@ -61,6 +72,7 @@
 				return {
 					id: product.id,
 					name: meta.title,
+					detail: `${meta.coins} coins`,
 					coins: meta.coins,
 					price: product.displayPrice,
 					productId: product.id,
@@ -70,18 +82,44 @@
 				} as Product;
 			});
 	});
+	let showRemoveAds = $state(false);
+	let isRewardedAdAvailable = $state(false);
 
-	const rewardedAdProducts: Product[] = [
-		{
-			id: 'REWARDED_AD',
-			name: 'Get Free Coins',
-			coins: 100,
-			price: undefined,
-			productId: PRODUCT_IDS.REMOVE_ADS,
-			type: 'ad'
-		}
-	];
+	const rewardedAdProducts: Product[] = $derived(
+		isRewardedAdAvailable
+			? [
+					{
+						id: 'REWARDED_AD',
+						name: 'Free Coins',
+						detail: '100 coins',
+						coins: 100,
+						price: undefined,
+						productId: PRODUCT_IDS.REMOVE_ADS,
+						type: 'ad'
+					}
+				]
+			: []
+	);
 
+	let removeAdsProduct: Product | undefined = $derived(
+		isActive && showRemoveAds
+			? {
+					id: 'REMOVE_ADS',
+					name: 'Ad-Free Experience',
+					detail: 'Remove all ads permanently',
+					coins: 0,
+					price: undefined,
+					productId: PRODUCT_IDS.REMOVE_ADS,
+					isRemoveAds: true,
+					type: 'iap'
+				}
+			: undefined
+	);
+	let products: Product[] = $derived(
+		[removeAdsProduct, ...coinPacks, ...rewardedAdProducts].filter(
+			(product) => product !== undefined
+		)
+	);
 	function handleProductClick(product: Product) {
 		if (product.type === 'iap') {
 			buyProduct(product);
@@ -97,7 +135,14 @@
 			.makePurchase(productId)
 			.then((success) => {
 				if (success) {
-					walletStore.addCoins(product.coins);
+					isLoading = false;
+					setTimeout(() => {
+						animateCoins(product.id, () => {
+							walletStore.addCoins(product.coins);
+						});
+					}, 1);
+				} else {
+					isLoading = false;
 				}
 			})
 			.catch((error) => {
@@ -106,6 +151,59 @@
 			.finally(() => {
 				isLoading = false;
 			});
+	}
+
+	function animateCoins(coinId: string, onGiveReward: () => void) {
+		const original = document.getElementById(coinId);
+		const balanceTagIcon = document.getElementById('balance-tag-icon');
+
+		if (!original || !balanceTagIcon) {
+			return;
+		}
+		const rect = original.getBoundingClientRect();
+		const coinsPileIcon = original.cloneNode(true) as HTMLElement;
+		coinsPileIcon.removeAttribute('id');
+		Object.assign(coinsPileIcon.style, {
+			position: 'fixed',
+			left: `${rect.left}px`,
+			top: `${rect.top}px`,
+			width: `${rect.width}px`,
+			height: `${rect.height}px`,
+			margin: 0,
+			zIndex: 9999,
+			pointerEvents: 'none' // prevent accidental clicks
+		});
+		utils.set(coinsPileIcon, {
+			opacity: 1
+		});
+
+		const balanceTagRect = balanceTagIcon.getBoundingClientRect();
+
+		const translateX = balanceTagRect.left - rect.left;
+		const translateY = balanceTagRect.top - rect.top;
+
+		document.body.appendChild(coinsPileIcon);
+		const animationDuration = 1000;
+		animate(coinsPileIcon, {
+			translateX,
+			ease: 'in',
+			duration: animationDuration
+		});
+		animate(coinsPileIcon, {
+			translateY,
+			ease: 'out',
+			duration: animationDuration
+		});
+		animate(coinsPileIcon, {
+			opacity: [1, 1, 0],
+			scale: [1, 0.5, 0],
+			ease: 'inOut',
+			delay: animationDuration / 2,
+			duration: animationDuration / 2
+		}).then(() => {
+			onGiveReward?.();
+			coinsPileIcon.remove();
+		});
 	}
 
 	async function watchAd(product: Product) {
@@ -117,7 +215,9 @@
 			// const watched = await mockWatchAd(product);
 			if (watched) {
 				setTimeout(() => {
-					walletStore.addCoins(100);
+					animateCoins(product.id, () => {
+						walletStore.addCoins(100);
+					});
 				}, 150);
 			}
 		} catch (error) {
@@ -125,52 +225,55 @@
 		}
 		isLoading = false;
 	}
-	let showRemoveAds = $state(false);
-	walletStore.removeAds((removeAds) => {
-		showRemoveAds = !removeAds;
+
+	onMount(async () => {
+		isActive = await isIAPAvailable();
+		adStore.getAdLoadingState(AdType.Rewarded).subscribe((isLoaded) => {
+			isRewardedAdAvailable = isLoaded;
+		});
+		walletStore.removeAds((removeAds) => {
+			showRemoveAds = !removeAds;
+		});
 	});
 </script>
 
-<div class="relative h-svh bg-white select-none">
-	<div class="flex flex-col items-stretch gap-3 p-4">
-		<span class="self-center text-2xl font-bold">Store</span>
-		<BalanceCard />
-		{#if showRemoveAds}
-			<StoreProductCard
-				title="Ad-Free Experience"
-				detail="Remove all ads permanently"
-				isIndicatorActive={true}
-				onclick={handleRemoveAds}
-				callout="Limited Time"
-				isRemoveAds={true}
-				isCalloutRed={true}
-				isCalloutAnimating={true}
-			/>
-		{/if}
-		<div class="flex flex-col items-stretch gap-2">
-			<span class="text-xl font-bold">Coins</span>
-			{#each coinPacks as product}
-				<StoreProductCard
-					title={product.name}
-					detail={`${product.coins} coins`}
-					callout={product.callout}
-					price={product.price}
-					isCalloutRed={product.isCalloutRed}
-					onclick={() => handleProductClick(product)}
-				/>
-			{/each}
-			{#each rewardedAdProducts as product}
-				<StoreProductCard
-					title={product.name}
-					detail={`${product.coins} coins`}
-					isCalloutRed={false}
-					onclick={() => handleProductClick(product)}
-				/>
-			{/each}
+<Modal {onClose} backgroundOpacity={50} onDismiss={onClose} canDismissOnBackground={true}>
+	<div class="flex max-h-[75svh] w-full flex-col items-center justify-start gap-4">
+		<div class="flex w-2xs flex-col items-stretch gap-3">
+			<span class="self-center text-2xl font-bold">Store</span>
+			<div
+				class="mt-2 flex max-h-[75svh] w-full min-w-full flex-col items-stretch justify-center gap-2"
+			>
+				<VList
+					data={products}
+					style="height: {isActive
+						? showRemoveAds
+							? '60svh'
+							: '51vh'
+						: '90px'}; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none;"
+				>
+					{#snippet children(product)}
+						<div class="relative mb-4">
+							<StoreProductCard
+								iconId={product.id}
+								title={product.name}
+								detail={product.detail}
+								callout={product.callout}
+								price={product.price}
+								isCalloutRed={product.isCalloutRed}
+								isIndicatorActive={product.isRemoveAds}
+								onclick={() =>
+									product.isRemoveAds ? handleRemoveAds() : handleProductClick(product)}
+								isRemoveAds={product.isRemoveAds}
+							/>
+						</div>
+					{/snippet}
+				</VList>
+			</div>
 		</div>
-	</div>
 
-	{#if isLoading}
-		<LoadSpinner />
-	{/if}
-</div>
+		{#if isLoading}
+			<LoadSpinner />
+		{/if}
+	</div>
+</Modal>

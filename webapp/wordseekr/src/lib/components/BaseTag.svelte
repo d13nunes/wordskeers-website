@@ -1,18 +1,8 @@
 <script lang="ts">
-	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 	import { rotateIconAnimation } from '$lib/utils/animation-utils';
-	import { animate } from 'animejs';
 	import { onMount, type Snippet } from 'svelte';
-	import { fade, fly, slide } from 'svelte/transition';
-	import {
-		elasticOut,
-		elasticIn,
-		linear,
-		expoOut,
-		expoIn,
-		bounceOut,
-		bounceIn
-	} from 'svelte/easing';
+	import { slide } from 'svelte/transition';
+	import { expoOut } from 'svelte/easing';
 
 	interface Props {
 		onclick: () => void;
@@ -44,7 +34,7 @@
 </script>
 
 <button
-	class="card-button flex h-8 flex-row items-center justify-center lg:h-9"
+	class="card-button z-50 flex h-8 flex-row items-center justify-center bg-red-500 lg:h-9"
 	{onclick}
 	{disabled}
 	{id}

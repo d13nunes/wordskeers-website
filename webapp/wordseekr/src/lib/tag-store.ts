@@ -4,6 +4,8 @@ import { dailyRewardsStore } from './rewards/daily-rewards.store';
 import { gameCounter } from './storage/local-storage';
 
 export const isGameModeSelectionClassic = writable(false);
+export const openStoreModal = writable(false);
+
 export function toggleGameMode() {
 	isGameModeSelectionClassic.update((value) => !value);
 }

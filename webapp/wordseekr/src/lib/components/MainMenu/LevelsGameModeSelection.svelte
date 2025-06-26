@@ -12,7 +12,7 @@
 
 	let isSmallScreen = $state(getIsSmallScreen());
 	let level: Level | undefined = $state(undefined);
-	let levelName: string = $state('');
+	let levelName: string = $state(levelsManager.level?.name ?? '');
 	let levelNumber: number | undefined = $state(levelsManager.level?.orderIndex ?? undefined);
 	let previousProgressPercentage = $state(0);
 	let currentProgressPercentage = $state(0);
@@ -26,10 +26,17 @@
 			});
 			levelsManager.currentLevel.subscribe(async (_level) => {
 				level = _level;
-				levelName = _level?.name ?? '';
-				levelNumber = _level?.orderIndex ?? 0;
+				levelName = level?.name ?? '';
+				levelNumber = level?.orderIndex ?? 0;
 				nextGridId = await levelsManager.getNextGridId();
+				console.log('!!!111 levelNumber', levelNumber);
+				console.log('!!!111 levelName', levelName);
 			});
+			if (levelsManager.__currentLevel) {
+				level = levelsManager.__currentLevel;
+				levelName = level?.name ?? '';
+				levelNumber = level?.orderIndex ?? 0;
+			}
 		});
 		if (isNewUser) {
 			onPlayClick();
@@ -44,7 +51,7 @@
 
 <!-- Levels Game Mode -->
 <GameModeSelection
-	title={levelNumber ? `Level ${levelNumber}` : ''}
+	title={levelNumber ? `Level ${levelNumber}` : 'Levels'}
 	subtitle={levelName}
 	{onPlayClick}
 >

@@ -12,10 +12,12 @@
 		isIndicatorActive?: boolean;
 		isCalloutAnimating?: boolean;
 		isRemoveAds?: boolean;
+		iconId: string;
 		onclick: () => void;
 	}
 
 	let {
+		iconId,
 		title,
 		detail,
 		price = undefined,
@@ -43,11 +45,11 @@
 {/if}
 <StoreSmallCard {title} {detail} {onclick}>
 	{#snippet icon()}
-		<div class="h-8 w-8">
+		<div class="z-100 h-8 w-8">
 			{#if isRemoveAds}
 				<RemoveAdsIcon />
 			{:else}
-				<CoinsPileIcon />
+				<CoinsPileIcon id={iconId} />
 			{/if}
 		</div>
 	{/snippet}
