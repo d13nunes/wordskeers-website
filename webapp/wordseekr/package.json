@@ -108,6 +108,7 @@
     "sql.js": "^1.13.0",
     "sqlite3": "^5.1.7",
     "svelte-confetti": "^2.3.1",
-    "svelte-loading-spinners": "^0.3.6"
+    "svelte-loading-spinners": "^0.3.6",
+    "virtua": "^0.41.5"
   }
 }

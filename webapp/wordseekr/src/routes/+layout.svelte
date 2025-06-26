@@ -13,16 +13,9 @@
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import { analytics } from '$lib/analytics/analytics';
 	import DailyQuoteTag from '$lib/daily-challenge/DailyQuoteTag.svelte';
-	import { fade, fly, slide } from 'svelte/transition';
-	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
+	import { fade, slide } from 'svelte/transition';
 	import { page } from '$app/state';
-	import {
-		ensureScheduledNotificationForTheNNextDay,
-		getIsTodaysQuoteAvailableStore,
-		getTodaysQuote
-	} from '$lib/daily-challenge/quote-fetcher';
-	import { beforeNavigate, goto } from '$app/navigation';
-	import type { Unsubscriber } from 'svelte/store';
+	import { ensureScheduledNotificationForTheNNextDay } from '$lib/daily-challenge/quote-fetcher';
 	import { appStateManager } from '$lib/utils/app-state';
 	import { onGameSelectionAppear, OnAppearAction } from '$lib/logic/on-game-selection-actions';
 	import LevelsTag from '$lib/components/Levels/LevelsTag.svelte';
@@ -33,11 +26,13 @@
 	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { LocalNotifications } from '@capacitor/local-notifications';
+	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import {
 		QUOTE_TODAY_NOTIFICATION_ID_END,
 		QUOTE_TODAY_NOTIFICATION_ID_START
 	} from '$lib/rewards/daily-rewards.config';
-	import { gotoDailyChallenge } from './utils/naviation';
+	import { goto } from '$app/navigation';
+	import QuotesModal from './quotes/+page.svelte';
 
 	interface Props {
 		children: Snippet;
@@ -45,15 +40,14 @@
 
 	const { children }: Props = $props();
 	let isDailyRewardsOpen = $state(false);
+	let isQuotesModalOpen = $state(false);
 	let isStoreOpen = $state(false);
 	let isSmallScreen = $state(false);
-	let isQuoteAvailable = $state(false);
+
 	let showQuoteModal = $state(false);
 	let isMainMenu = $state(false);
 	let isWelcomeModalVisible = $state(false);
-	let isDailyQuoteVisible = $derived(isMainMenu && isQuoteAvailable && !isWelcomeModalVisible);
 	let showBalanceTag = $state(false);
-	let unsubscribeQuoteAvailable: Unsubscriber | undefined;
 	let unsubscribeAppState: (() => void) | undefined;
 
 	let onAppearTimeout: NodeJS.Timeout | null = null;
@@ -66,6 +60,7 @@
 	function onStoreClick() {
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
+		isQuotesModalOpen = false;
 		if (isWelcomeModalVisible) {
 			return;
 		}
@@ -79,6 +74,7 @@
 	function onDailyRewardClick() {
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
+		isQuotesModalOpen = false;
 		if (!isDailyRewardsOpen) {
 			analytics.rewardsOpen();
 		}
@@ -89,12 +85,7 @@
 	export async function onDailyQuoteClick() {
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
-		const todaysQuote = await getTodaysQuote();
-
-		if (!todaysQuote) {
-			return;
-		}
-		gotoDailyChallenge(todaysQuote.grid_id, todaysQuote.id);
+		isQuotesModalOpen = true;
 	}
 
 	function onGiveWelcomeReward() {
@@ -108,7 +99,6 @@
 			if (permissionStatus?.display === 'prompt') {
 				await DailyRewardsNotifications.requestPermissions();
 			}
-			subscribeToQuoteAvailable();
 			ensureScheduledNotificationForTheNNextDay(5, true);
 		} catch (error) {
 			analytics.error(
@@ -146,6 +136,13 @@
 		toggleGameMode();
 	}
 
+	function onNotEnoughCoinsToUnlockQuote() {
+		showQuoteModal = false;
+		isDailyRewardsOpen = false;
+		isQuotesModalOpen = false;
+		isStoreOpen = true;
+	}
+
 	async function initAds() {
 		console.log('📺 initAds');
 		await adStore.initialize();
@@ -154,16 +151,6 @@
 		console.log('📺 BannerAd shown', success);
 	}
 
-	async function subscribeToQuoteAvailable() {
-		if (unsubscribeQuoteAvailable) {
-			unsubscribeQuoteAvailable();
-		}
-		unsubscribeQuoteAvailable = (await getIsTodaysQuoteAvailableStore()).subscribe(
-			(isAvailable: boolean) => {
-				isQuoteAvailable = isAvailable;
-			}
-		);
-	}
 	let count = 0;
 
 	$effect(() => {
@@ -189,7 +176,6 @@
 	});
 
 	onDestroy(() => {
-		unsubscribeQuoteAvailable?.();
 		if (onAppearTimeout) {
 			clearTimeout(onAppearTimeout);
 		}
@@ -201,7 +187,6 @@
 			isWelcomeModalVisible = true;
 		} else {
 			initAds();
-			subscribeToQuoteAvailable();
 			ensureScheduledNotificationForTheNNextDay(5);
 		}
 		showBalanceTag = true;
@@ -239,12 +224,10 @@
 			? 'landscape:justify-start'
 			: ''} "
 	>
-		{#if isDailyQuoteVisible && !isWelcomeModalVisible}
+		{#if isMainMenu && !isWelcomeModalVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
 			</div>
-		{/if}
-		{#if isMainMenu && !isWelcomeModalVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyRewardTag onclick={onDailyRewardClick} />
 			</div>
@@ -279,6 +262,12 @@
 
 	{#if isDailyRewardsOpen}
 		<DailyRewards onClose={() => (isDailyRewardsOpen = false)} />
+	{/if}
+	{#if isQuotesModalOpen}
+		<QuotesModal
+			onClose={() => (isQuotesModalOpen = false)}
+			onNotEnoughCoinsToUnlock={onNotEnoughCoinsToUnlockQuote}
+		/>
 	{/if}
 	<BottomSheet visible={isStoreOpen} close={() => (isStoreOpen = false)}>
 		<Store />

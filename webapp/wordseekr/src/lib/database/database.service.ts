@@ -79,11 +79,13 @@ class DatabaseService {
 			if (!this.connection) {
 				this.isInitializing = false;
 				console.error(
-					'!!! -> DatabaseService 33 initialize error',
+					'!!! -> DatabaseService initialize error',
 					'Init mehtod returned no connection'
 				);
 				return;
 			}
+
+			await this.migrateIfNeeded();
 
 			databaseState.update((state) => ({
 				...state,
@@ -105,6 +107,16 @@ class DatabaseService {
 		this.isInitializing = false;
 	}
 
+	private async migrateIfNeeded(): Promise<void> {
+		try {
+			const quotes = await this.executeQuery<Quote>('SELECT * FROM quotes');
+			if (!quotes.some((quote) => quote.unlocked)) {
+				await this.executeQuery('ALTER TABLE quotes ADD COLUMN unlocked BOOLEAN DEFAULT FALSE');
+			}
+		} catch (error) {
+			console.error('CapacitorSQLite migrateIfNeeded error', error);
+		}
+	}
 	private async initializeWebDatabase(): Promise<DatabaseConnection | null> {
 		try {
 			// Initialize SQL.js
@@ -338,7 +350,26 @@ class DatabaseService {
 	}
 
 	public async getAllQuotes(): Promise<Quote[]> {
-		return this.executeQuery<Quote>('SELECT * FROM quotes');
+		const quotes = await this.executeQuery<Quote>('SELECT * FROM quotes');
+		quotes.forEach((quote) => {
+			quote.quote = JSON.parse(quote.quote as unknown as string) as QuoteSegment[];
+		});
+		return quotes;
+	}
+
+	public async getAllQuotesTillToday(): Promise<Quote[]> {
+		const quotes = await this.executeQuery<Quote>('SELECT * FROM quotes WHERE playable_at <= ?', [
+			new Date().toISOString().split('T')[0]
+		]);
+		quotes.forEach((quote) => {
+			quote.quote = JSON.parse(quote.quote as unknown as string) as QuoteSegment[];
+		});
+		return quotes;
+	}
+
+	public async unlockQuoteWithId(quoteId: number): Promise<Quote | null> {
+		await this.executeQuery('UPDATE quotes SET unlocked = true WHERE id = ?', [quoteId]);
+		return this.getQuoteById(quoteId);
 	}
 
 	public async getQuoteById(id: number): Promise<Quote | null> {
@@ -434,6 +465,66 @@ class DatabaseService {
 			} as Level;
 		}
 		return null;
+	}
+
+	/**
+	 * Check if a table exists in the database
+	 * @param tableName - The name of the table to check
+	 * @returns Promise<boolean> - True if table exists, false otherwise
+	 */
+	public async tableExists(tableName: string): Promise<boolean> {
+		try {
+			if (this.platform === 'web') {
+				const db = this.connection as SqlJsDatabase;
+				const stmt = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?");
+				stmt.bind([tableName]);
+				const exists = stmt.step();
+				stmt.free();
+				return Boolean(exists);
+			} else {
+				const db = this.connection as SQLiteDBConnection;
+				const result = await db.query(
+					"SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+					[tableName]
+				);
+				return Boolean(result.values && result.values.length > 0);
+			}
+		} catch (error) {
+			console.error(`Error checking if table ${tableName} exists:`, error);
+			return false;
+		}
+	}
+
+	/**
+	 * Check if a column exists in a table
+	 * @param tableName - The name of the table
+	 * @param columnName - The name of the column to check
+	 * @returns Promise<boolean> - True if column exists, false otherwise
+	 */
+	public async columnExists(tableName: string, columnName: string): Promise<boolean> {
+		try {
+			if (this.platform === 'web') {
+				const db = this.connection as SqlJsDatabase;
+				const stmt = db.prepare('PRAGMA table_info(?)');
+				stmt.bind([tableName]);
+				const columns: Record<string, unknown>[] = [];
+				while (stmt.step()) {
+					columns.push(stmt.getAsObject());
+				}
+				stmt.free();
+				return columns.some((col) => col.name === columnName);
+			} else {
+				const db = this.connection as SQLiteDBConnection;
+				const result = await db.query('PRAGMA table_info(?)', [tableName]);
+				return Boolean(
+					result.values &&
+						result.values.some((col: Record<string, unknown>) => col.name === columnName)
+				);
+			}
+		} catch (error) {
+			console.error(`Error checking if column ${columnName} exists in table ${tableName}:`, error);
+			return false;
+		}
 	}
 }
 

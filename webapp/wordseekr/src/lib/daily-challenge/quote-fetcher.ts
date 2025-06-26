@@ -84,6 +84,11 @@ export async function getAllQuotes(): Promise<Quote[]> {
 	return quotes;
 }
 
+export async function unlockQuote(quoteId: number): Promise<Quote | null> {
+	const quote = await databaseService.unlockQuoteWithId(quoteId);
+	return quote;
+}
+
 export async function getTodaysQuote(): Promise<Quote | null> {
 	try {
 		syncQuotes();

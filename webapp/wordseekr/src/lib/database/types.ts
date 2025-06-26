@@ -27,6 +27,7 @@ export interface Quote {
 	quote: QuoteSegment[];
 	playable_at: string;
 	played_at: string | null;
+	unlocked: boolean;
 }
 
 export interface QuoteSegment {
