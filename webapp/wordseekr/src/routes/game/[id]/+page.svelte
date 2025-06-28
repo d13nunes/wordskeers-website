@@ -140,9 +140,13 @@
 			analytics.startedPlayingQuote(dailyChallengeID);
 		}
 		if (!gridID) {
-			showAllLevelCleared = true;
 			isCheckingMoreLevels = true;
 			await syncLevels();
+			const itHasMoreLevels = await levelsManager.onMoreLevelsLoadedCheckItHasMoreLevels();
+			if (itHasMoreLevels) {
+				await navigateToNextLevel(true);
+			}
+			showAllLevelCleared = !itHasMoreLevels;
 			isCheckingMoreLevels = false;
 		} else {
 			game = undefined;
@@ -695,7 +699,7 @@
 		gotoMainMenu();
 	}
 
-	async function navigateToNextLevel() {
+	async function navigateToNextLevel(skipAd: boolean = false) {
 		clearInterval(timerInterval);
 		showGameEnded = false;
 		showBoard = false;
@@ -708,7 +712,7 @@
 		const showAd =
 			(canShowAdLevel && didCompleteLevel) ||
 			(canShowAdLevel && isLevelWithMoreThan3Stages && !isFirstStage && isEvenStage);
-		if (showAd) {
+		if (showAd && !skipAd) {
 			const maxFrequencyMillis = 1000 * 60; // 1 minute
 			adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
 		}

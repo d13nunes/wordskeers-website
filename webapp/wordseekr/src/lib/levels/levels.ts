@@ -118,6 +118,17 @@ class LevelsManager {
 		}
 		return currentProgress;
 	}
+
+	// check if it has more levels to load after database sync
+	async onMoreLevelsLoadedCheckItHasMoreLevels() {
+		const currentLevelNumber = await this.storage.getCurrentLevelNumber();
+		const level = await this.getLevel(currentLevelNumber);
+		if (level.gridIds.length === this.gridIdsCompleted.length) {
+			this.progressLevel();
+			return true;
+		}
+		return false;
+	}
 }
 
 export const levelsManager = new LevelsManager(levelsStorage);

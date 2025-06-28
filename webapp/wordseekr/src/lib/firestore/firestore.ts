@@ -75,6 +75,14 @@ export async function syncQuotes(): Promise<boolean> {
 		if (isCooldown && haveQuoteForToday) {
 			return false;
 		}
+		const distanceInDaysFromTodayToHighestDateQuote = Math.floor(
+			(new Date(highestDateQuote).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+		);
+		let ajustForToday = 0;
+		if (distanceInDaysFromTodayToHighestDateQuote <= 0) {
+			ajustForToday = Math.abs(distanceInDaysFromTodayToHighestDateQuote);
+		}
+
 		const { snapshots } = await FirebaseFirestore.getCollection({
 			reference: 'quotes',
 			compositeFilter: {
@@ -89,7 +97,7 @@ export async function syncQuotes(): Promise<boolean> {
 				]
 			},
 			queryConstraints: [
-				{ type: 'limit', limit: 30 },
+				{ type: 'limit', limit: 30 + ajustForToday },
 				{ type: 'orderBy', fieldPath: 'playable_at', directionStr: 'asc' }
 			]
 		});
@@ -158,7 +166,7 @@ export async function syncLevels(): Promise<boolean> {
 				]
 			},
 			queryConstraints: [
-				{ type: 'limit', limit: levelsToSync },
+				{ type: 'limit', limit: 10 },
 				{ type: 'orderBy', fieldPath: 'order_index', directionStr: 'asc' }
 			]
 		});
