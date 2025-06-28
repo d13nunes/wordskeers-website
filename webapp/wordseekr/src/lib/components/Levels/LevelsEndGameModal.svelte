@@ -3,7 +3,6 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { animate, eases, JSAnimation, utils } from 'animejs';
-	import Confetti from 'svelte-confetti';
 	import CoinsPileIcon from '../Icons/CoinsPileIcon.svelte';
 	import LevelGiftTop from './LevelGiftTop.svelte';
 	import LevelGiftBottom from './LevelGiftBottom.svelte';

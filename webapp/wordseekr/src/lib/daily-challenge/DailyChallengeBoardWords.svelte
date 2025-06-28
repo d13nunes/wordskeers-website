@@ -32,7 +32,7 @@
 
 <BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
 	<div
-		class="flex flex-row flex-wrap gap-2 font-mono text-base text-gray-700 max-[24rem]:gap-1 max-[24rem]:text-sm"
+		class="flex flex-row flex-wrap gap-2 font-mono text-sm text-gray-700 max-[24rem]:gap-1 max-[24rem]:text-sm"
 	>
 		{#each dailyChallenge.quotes as quote}
 			{#if quote.isHidden}

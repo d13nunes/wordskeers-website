@@ -26,7 +26,7 @@
 		<span
 			class="text-start font-bold text-gray-700"
 			style="
-				font-size: 2.2rem;
+				font-size: 1.8rem;
 				line-height: 1;
 			">{toTitleCase(title)}</span
 		>
