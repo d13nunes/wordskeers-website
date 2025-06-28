@@ -292,8 +292,8 @@
 
 	const cellBaseValues: CellBaseValues = {
 		squareSize: 34,
-		letterSize: 32,
-		fontSize: 22
+		letterSize: 28,
+		fontSize: 20
 	};
 
 	let factor = $state(0.5);
