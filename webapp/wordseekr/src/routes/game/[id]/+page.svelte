@@ -73,6 +73,7 @@
 	let stageName = $derived(title ?? '');
 	let previousProgressValue: number | null = $state(null);
 	let currentProgressValue: number | null = $state(null);
+	let levelStage: number | null = $state(null);
 	let didWatchAd = false;
 	let showGameEnded = $state(false);
 	let difficulty: string = $state(page.url.searchParams.get('difficulty') as Difficulty);
@@ -134,6 +135,8 @@
 
 			const currentProgress = await levelsManager.getCurrentProgress();
 			previousProgressValue = currentProgress;
+			levelStage = await levelsManager.getCurrentStageNumber();
+			analytics.startLevelStage(levelNumber, levelStage, gridID);
 		}
 		if (isDailyChallenge) {
 			dailyChallenge = await getDailyChallenge(dailyChallengeID);
@@ -320,6 +323,7 @@
 			if (isLevel) {
 				const currentProgress = await levelsManager.markGridAsCompleted(gridID);
 				currentProgressValue = currentProgress;
+				analytics.completeLevelStage(levelNumber, levelStage ?? 0, gridID, elapsedTime);
 			}
 
 			gameCounter.increment();

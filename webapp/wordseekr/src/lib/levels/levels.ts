@@ -85,6 +85,12 @@ class LevelsManager {
 		return progress;
 	}
 
+	getCurrentStageNumber(): number {
+		const totalGrids = this.__currentLevel?.gridIds.length ?? 0;
+		const stageNumber = totalGrids > 0 ? this.gridIdsCompleted.length + 1 : 0;
+		return stageNumber;
+	}
+
 	private updateProgress(): number {
 		const progress = this.getCurrentProgress();
 		this._progress.set(progress);

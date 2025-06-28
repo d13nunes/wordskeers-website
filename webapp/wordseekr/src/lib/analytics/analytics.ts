@@ -87,6 +87,27 @@ class Analytics {
 	rewardCollectedAd() {
 		this.track(AnalyticsEvent.RewardsCollectedAd, {});
 	}
+	startLevelStage(levelNumber: number, stageNumber: number, gridId: number) {
+		this.track(`${AnalyticsEvent.StartGame}_${levelNumber}_${stageNumber}`, {
+			levelNumber,
+			stageNumber,
+			gridId
+		});
+	}
+
+	completeLevelStage(
+		levelNumber: number,
+		stageNumber: number,
+		gridId: number,
+		elapsedTime: number
+	) {
+		this.track(`${AnalyticsEvent.CompleteGame}_${levelNumber}_${stageNumber}`, {
+			levelNumber,
+			stageNumber,
+			gridId,
+			elapsedTime
+		});
+	}
 
 	track(event: string, properties: Record<string, unknown>) {
 		console.log('🔍 track', event, properties);
