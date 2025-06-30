@@ -790,7 +790,10 @@
 		</button>
 	{/if}
 {:else}
-	<div class=" flex h-full flex-row items-end justify-center md:items-center">
+	<div
+		class=" flex h-full flex-row items-end justify-center md:items-center"
+		style="overflow: hidden;"
+	>
 		{#if showPauseModal}
 			<PauseMenu
 				onClickResume={() => (showPauseModal = false)}
