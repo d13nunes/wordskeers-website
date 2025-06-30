@@ -96,7 +96,7 @@ function createAdStore(adProviders: AdProvider[]) {
 			console.log('📺 AdMob initialized', isDev);
 			const trackingInfo = await AdMob.trackingAuthorizationStatus();
 			if (trackingInfo.status === 'notDetermined') {
-				await AdMob.requestTrackingAuthorization();
+				AdMob.requestTrackingAuthorization();
 			}
 			const consentInfo = await AdMob.requestConsentInfo({
 				testDeviceIdentifiers: [

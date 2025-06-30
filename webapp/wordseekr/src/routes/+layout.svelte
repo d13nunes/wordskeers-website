@@ -22,13 +22,11 @@
 	import {
 		isGameModeSelectionClassic,
 		openStoreModal,
+		showQuoteModalStore,
 		toggleGameMode,
 		updateTagState
 	} from '$lib/tag-store';
-	import { DailyRewardsNotifications } from '$lib/rewards/daily-rewards.notifications';
 	import { myLocalStorage } from '$lib/storage/local-storage';
-	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
-	import { walletStore } from '$lib/economy/walletStore';
 	import { LocalNotifications } from '@capacitor/local-notifications';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import {
@@ -36,6 +34,9 @@
 		QUOTE_TODAY_NOTIFICATION_ID_START
 	} from '$lib/rewards/daily-rewards.config';
 	import QuotesModal from './quotes/+page.svelte';
+	import NotificationRequest from './notification-request/+page.svelte';
+	import { onNavigate } from '$app/navigation';
+	import { Capacitor } from '@capacitor/core';
 
 	interface Props {
 		children: Snippet;
@@ -43,6 +44,7 @@
 
 	const { children }: Props = $props();
 	let isDailyRewardsOpen = $state(false);
+	let isNotificationRequestOpen = $state(false);
 	let isQuotesModalOpen = $state(false);
 	let isStoreOpen = $derived($openStoreModal);
 	let isSmallScreen = $state(false);
@@ -73,11 +75,14 @@
 		openStoreModal.set(true);
 		isDailyRewardsOpen = false;
 	}
-
-	function onDailyRewardClick() {
+	let canShowNotificationRequest = $state(false);
+	async function onDailyRewardClick() {
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
 		isQuotesModalOpen = false;
+		hasNotificationPermission = (await LocalNotifications.checkPermissions()).display === 'granted';
+		const dontShowAgain = await myLocalStorage.get(myLocalStorage.NotificationRequestDontShowAgain);
+		canShowNotificationRequest = !hasNotificationPermission && dontShowAgain !== 'true';
 		if (!isDailyRewardsOpen) {
 			analytics.rewardsOpen();
 		}
@@ -89,26 +94,6 @@
 		showQuoteModal = false;
 		isDailyRewardsOpen = false;
 		isQuotesModalOpen = true;
-	}
-
-	function onGiveWelcomeReward() {
-		walletStore.addCoins(350);
-		myLocalStorage.set(myLocalStorage.WelcomeModalGiftClaimed, 'true');
-	}
-	async function onWelcomeCoinAnimationCompleted() {
-		isWelcomeModalVisible = false;
-		try {
-			const permissionStatus = await DailyRewardsNotifications.initializeNotifications();
-			if (permissionStatus?.display === 'prompt') {
-				await DailyRewardsNotifications.requestPermissions();
-			}
-			ensureScheduledNotificationForTheNNextDay(5, true);
-		} catch (error) {
-			analytics.error(
-				'error_welcome_notification_permission',
-				error instanceof Error ? error.message : 'Unknown error'
-			);
-		}
 	}
 
 	function showOnAppearPopup(delay: number = 300) {
@@ -182,6 +167,15 @@
 			clearTimeout(onAppearTimeout);
 		}
 	});
+	let hasNotificationPermission = false;
+
+	onNavigate(async () => {
+		isWelcomeModalVisible = false;
+		if (!hasNotificationPermission && Capacitor.isPluginAvailable('LocalNotifications')) {
+			hasNotificationPermission =
+				(await LocalNotifications.checkPermissions()).display === 'granted';
+		}
+	});
 
 	onMount(async () => {
 		const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
@@ -191,6 +185,12 @@
 			initAds();
 			ensureScheduledNotificationForTheNNextDay(5);
 		}
+		showQuoteModalStore.subscribe((value) => {
+			if (value) {
+				showQuoteModal = true;
+				showQuoteModalStore.set(false);
+			}
+		});
 		showBalanceTag = true;
 		isSmallScreen = getIsSmallScreen();
 		isGameModeSelectionClassic.subscribe((value) => {
@@ -209,12 +209,6 @@
 </script>
 
 <main class="fixed inset-0 flex flex-col bg-slate-50 select-none">
-	{#if isWelcomeModalVisible}
-		<WecolmeModal
-			onGiveReward={onGiveWelcomeReward}
-			onCoinAnimationCompleted={onWelcomeCoinAnimationCompleted}
-		/>
-	{/if}
 	{#if showQuoteModal}
 		<QuotePage
 			onClickPlay={() => (showQuoteModal = false)}
@@ -269,7 +263,19 @@
 	</div>
 
 	{#if isDailyRewardsOpen}
-		<DailyRewards onClose={() => (isDailyRewardsOpen = false)} />
+		<DailyRewards
+			onClose={() => {
+				isDailyRewardsOpen = false;
+				isNotificationRequestOpen = canShowNotificationRequest;
+			}}
+		/>
+	{/if}
+	{#if isNotificationRequestOpen}
+		<NotificationRequest
+			onClose={() => {
+				isNotificationRequestOpen = false;
+			}}
+		/>
 	{/if}
 	{#if isQuotesModalOpen}
 		<QuotesModal

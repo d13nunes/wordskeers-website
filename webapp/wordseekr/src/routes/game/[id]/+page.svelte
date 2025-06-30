@@ -1,12 +1,12 @@
 <script lang="ts">
 	import ClassicGameEndedModal from '../ClassicGameEndedModal.svelte';
-
+	import DailyRewards from '../../dailyrewards/+page.svelte';
+	import NotificationRequest from '../../notification-request/+page.svelte';
 	import { Haptics, ImpactStyle } from '@capacitor/haptics';
 	import GameButtons from '../GameButtons.svelte';
 	import { page } from '$app/state';
 	import {
 		createGameForConfiguration,
-		createGameFromDailyChallenge,
 		getWordPositions,
 		type Game,
 		type Word
@@ -17,7 +17,6 @@
 	import { randomInt } from '$lib/utils/random-utils';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { animate, utils } from 'animejs';
-	import { goto } from '$app/navigation';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { getFormatedTime, getPositionId } from '$lib/utils/string-utils';
@@ -44,7 +43,11 @@
 	import QuotesGameEndedModal from '../QuotesGameEndedModal.svelte';
 	import { syncLevels } from '$lib/firestore/firestore';
 	import { fade } from 'svelte/transition';
-	import { openStoreModal } from '$lib/tag-store';
+	import { openStoreModal, showQuoteModalStore } from '$lib/tag-store';
+	import WecolmeModal from '$lib/components/Levels/WecolmeModal.svelte';
+	import { Capacitor } from '@capacitor/core';
+	import { LocalNotifications } from '@capacitor/local-notifications';
+	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 
 	const powerUpCooldownButton = 1500;
 	let showBoard = $state(false);
@@ -80,6 +83,8 @@
 	let dailyChallengeID = $state(parseInt(page.url.searchParams.get('dailyChallengeId') ?? '-1'));
 	let isDailyChallenge = $derived(dailyChallengeID !== -1);
 	let dailyChallenge = $state<DailyChallenge | null>(null);
+	let isNotificationRequestOpen = $state(false);
+	let hasNotificationPermission = false;
 
 	let setGameEndedTimeOut: NodeJS.Timeout | null = $state(null);
 
@@ -89,7 +94,7 @@
 	let showOnBoarding = $derived(isLevel && levelNumber === 1);
 	// get first word that is !discovered and get its first position
 	let onboardingPositions: Position[] = $derived(
-		showOnBoarding
+		showOnBoarding && words.filter((w) => !w.isDiscovered).length > 0
 			? words
 					.filter((w) => !w.isDiscovered)
 					.slice(0, 1)
@@ -129,13 +134,31 @@
 		}
 		isGameEnded = false;
 		showGameEnded = false;
-
 		if (isLevel) {
 			level = await levelsManager.getCurrentLevel();
-
-			const currentProgress = await levelsManager.getCurrentProgress();
+			const currentProgress = levelsManager.getCurrentProgress();
 			previousProgressValue = currentProgress;
-			levelStage = await levelsManager.getCurrentStageNumber();
+			levelStage = levelsManager.getCurrentStageNumber();
+			const isNewUser = (await gameCounter.getCount()) === 1;
+			const welcomeModalClaimed = await myLocalStorage.get(myLocalStorage.WelcomeModalGiftClaimed);
+			const shouldShowWelcomeModal = !welcomeModalClaimed && isNewUser && levelNumber > 1;
+			if (shouldShowWelcomeModal) {
+				setTimeout(() => {
+					isWelcomeModalVisible = true;
+				}, 100);
+			} else {
+				isWelcomeModalVisible = false;
+			}
+
+			const shouldShowDailyRewards = levelNumber === 3 && currentProgress === 0;
+			const rewardAvailable = await dailyRewardsStore.isFreeRewardAvailable();
+			if (shouldShowDailyRewards) {
+				setTimeout(() => {
+					isDailyRewardsOpen = rewardAvailable;
+				}, 100);
+			} else {
+				isDailyRewardsOpen = false;
+			}
 			analytics.startLevelStage(levelNumber, levelStage, gridID);
 		}
 		if (isDailyChallenge) {
@@ -169,6 +192,14 @@
 		openStoreModal.subscribe((value) => {
 			showPauseModal = value;
 		});
+		async function checkNotificationPermission() {
+			if (Capacitor.isPluginAvailable('LocalNotifications')) {
+				const result = await LocalNotifications.checkPermissions();
+				console.log('noti result', result);
+				hasNotificationPermission = result.display === 'granted';
+			}
+		}
+		checkNotificationPermission();
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
@@ -680,8 +711,6 @@
 	}
 
 	function onRewardAnimationCompleted() {
-		console.log('📺📺📺 show end game ad');
-
 		endGameAdStore.show({ didWatchRewardAd: didWatchAd, isDailyChallenge: isDailyChallenge });
 		gotoMainMenu();
 	}
@@ -707,12 +736,18 @@
 		clearInterval(timerInterval);
 		showGameEnded = false;
 		showBoard = false;
+		if (!level) {
+			return;
+		}
 
-		const canShowAdLevel = level && level.orderIndex >= 3;
+		const currentLevelNumber: number = level.orderIndex;
+		const canShowAdLevel = currentLevelNumber >= 3;
 		const didCompleteLevel = currentProgressValue && currentProgressValue >= 1;
 		const isLevelWithMoreThan3Stages = level && level.gridIds.length > 3;
-		const isFirstStage = level && level.orderIndex === 0;
-		const isEvenStage = level && level.orderIndex % 2 === 0;
+
+		const isFirstStage = previousProgressValue === 0;
+		const isEvenStage = previousProgressValue && previousProgressValue % 2 === 0;
+
 		const showAd =
 			(canShowAdLevel && didCompleteLevel) ||
 			(canShowAdLevel && isLevelWithMoreThan3Stages && !isFirstStage && isEvenStage);
@@ -722,24 +757,21 @@
 		}
 		const nextLevel = (await levelsManager.getCurrentLevel()).orderIndex;
 		const nextGridId = await levelsManager.getNextGridId();
+		const isLastStage = nextLevel !== currentLevelNumber;
+
+		if (currentLevelNumber === 3 && nextLevel === 4) {
+			showQuoteModalStore.set(true);
+			gotoMainMenu();
+			return;
+		}
 
 		difficulty = 'levels';
 
 		setTimeout(() => {
 			gotoLevel(nextGridId, nextLevel, true);
-
 			gridID = nextGridId;
 			levelNumber = nextLevel;
-
-			setTimeout(async () => {
-				await adStore.initialize();
-				console.log('📺 initAds game - completed');
-				const success = await adStore.showAd(AdType.Banner, null);
-				console.log('📺 BannerAd shown', success);
-			}, 1500);
-
 			showOnBoarding = false;
-
 			createBoard();
 		}, 500);
 
@@ -747,6 +779,25 @@
 			syncLevels();
 		} catch (e) {
 			console.error('navigateToNextLevel error', e);
+		}
+	}
+
+	let isDailyRewardsOpen = $state(false);
+	let isWelcomeModalVisible = $state(false);
+	function onGiveWelcomeReward() {
+		walletStore.addCoins(350);
+		myLocalStorage.set(myLocalStorage.WelcomeModalGiftClaimed, 'true');
+	}
+	async function onWelcomeCoinAnimationCompleted() {
+		isWelcomeModalVisible = false;
+		try {
+			await adStore.initialize();
+			await adStore.showAd(AdType.Banner, null);
+		} catch (error) {
+			analytics.error(
+				'error_welcome_ad_initialization',
+				error instanceof Error ? error.message : 'Unknown error'
+			);
 		}
 	}
 </script>
@@ -794,7 +845,12 @@
 		class=" flex h-full flex-row items-end justify-center md:items-center landscape:items-center"
 		style="overflow: hidden;"
 	>
-		{#if showPauseModal}
+		{#if isWelcomeModalVisible}
+			<WecolmeModal
+				onGiveReward={onGiveWelcomeReward}
+				onCoinAnimationCompleted={onWelcomeCoinAnimationCompleted}
+			/>
+		{:else if showPauseModal}
 			<PauseMenu
 				onClickResume={() => (showPauseModal = false)}
 				onClickNewGame={pauseMenuNewGameClick}
@@ -818,7 +874,7 @@
 				previousProgressValue={Math.round(previousProgressValue * 100)}
 				currentProgressValue={Math.round(currentProgressValue * 100)}
 				{navigateToNextLevel}
-				onClose={() => gotoMainMenu()}
+				onClose={() => (level && level.orderIndex === 1 ? navigateToNextLevel() : gotoMainMenu())}
 			/>
 		{:else if showGameEnded && !isLevel && !isDailyChallenge}
 			<ClassicGameEndedModal
@@ -830,6 +886,14 @@
 				doubleReward={() => collectReward(true)}
 				{isRewardAdReady}
 			/>
+		{:else if isDailyRewardsOpen}
+			<DailyRewards
+				onClose={() => (
+					(isDailyRewardsOpen = false), (isNotificationRequestOpen = !hasNotificationPermission)
+				)}
+			/>
+		{:else if isNotificationRequestOpen}
+			<NotificationRequest onClose={() => (isNotificationRequestOpen = false)} />
 		{/if}
 
 		<div

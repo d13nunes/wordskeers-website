@@ -20,6 +20,7 @@ export const expandRewardsTag = writable(false);
 export const animateRewardsTag = writable(false);
 export const expandQuoteTag = writable(false);
 export const animateQuoteTag = writable(false);
+export const showQuoteModalStore = writable(false);
 
 let hasFreeRewardToCollect = false;
 

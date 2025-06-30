@@ -5,16 +5,15 @@
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
 	import { adsIconBase64 } from '$lib/utils/utils';
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 
 	import RewardTimer from '$lib/components/DailyRewards/RewardTimer.svelte';
 	import type { DailyRewardsState } from '$lib/rewards/daily-rewards.state';
-	import { analytics } from '$lib/analytics/analytics';
 	import { DailyRewardStatus } from '$lib/rewards/daily-reward.model';
 	import { updateTagState } from '$lib/tag-store';
 	import { walletStore } from '$lib/economy/walletStore';
-	import { fade, fly, slide } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 
 	interface Props {
 		onClose?: () => void;
@@ -115,7 +114,7 @@
 </script>
 
 <Modal backgroundOpacity={50} {onClose} {onDismiss} canDismissOnBackground={!buttonDisabled}>
-	<div class="mt-4 flex max-w-sm min-w-2xs flex-col items-center gap-4">
+	<div class="mt-4 flex h-[330px] max-w-sm min-w-2xs flex-col items-center gap-4">
 		<GameModeIconTitle icon={undefined} title="Reward" subtitle="Collect your free reward" />
 		<button class="mt-2" onclick={onGiftClick}>
 			<LevelsGiftIcon
@@ -151,8 +150,8 @@
 			{/if}
 			{#if resetRewardTimestamp}
 				<div
-					in:fly={{ duration: 200, y: 100, opacity: 0 }}
-					out:fade={{ duration: 200 }}
+					in:fly={{ duration: 400, y: 100, opacity: 0 }}
+					out:fade={{ duration: 400 }}
 					class="flex flex-col gap-2"
 				>
 					<div class="text-center text-sm text-gray-500">Next reward available in:</div>

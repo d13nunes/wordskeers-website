@@ -10,6 +10,8 @@ class MyLocalStorage {
 	ClockVisible = 'isClockVisible';
 	TotalPlayedGamesCount = 'totalPlayedGamesCount';
 	WelcomeModalGiftClaimed = 'welcomeModalGiftClaimed';
+	NotificationRequestDontShowAgain = 'notificationRequestDontShowAgain';
+	NotificationRequestBeenShownAtLeastOnce = 'notificationRequestBeenShownAtLeastOnce';
 
 	constructor() {}
 

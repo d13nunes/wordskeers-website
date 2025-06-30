@@ -19,7 +19,7 @@
 	}
 </script>
 
-<Modal>
+<Modal backgroundOpacity={50}>
 	<div class="flex w-full max-w-md flex-col items-center pt-2">
 		<GameModeIconTitle title="WELCOME!" subtitle="Ready to Play?" />
 		<button class="mt-8" onclick={handlePlayClick}>

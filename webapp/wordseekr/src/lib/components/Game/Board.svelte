@@ -409,7 +409,6 @@
 			return;
 		}
 		if (reset) {
-			console.log('👇👇👇👇 reset');
 			onBoardingAnimation.reset();
 		}
 	}
@@ -541,6 +540,8 @@
 			idleAnimationTimer = setTimeout(() => {
 				animateOnBoarding(onboardingPositions);
 			}, 1500);
+		} else {
+			cancelOnBoardingAnimation();
 		}
 	});
 
