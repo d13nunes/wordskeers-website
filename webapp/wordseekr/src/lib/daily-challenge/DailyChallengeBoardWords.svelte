@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import BoardWords from '../../routes/game/BoardWords.svelte';
 	import type { DailyChallenge } from './models';
+	import { normalizeQuoteText } from '$lib/utils/utils';
 
 	interface Props {
 		dailyChallenge: DailyChallenge;
@@ -17,6 +18,7 @@
 	const { dailyChallenge, words, showClock, elapsedTime, title, idPrefix, onClockClick }: Props =
 		$props();
 
+	const normalizedQuoteSegments = $derived(normalizeQuoteText(dailyChallenge.quotes));
 	$effect(() => {
 		words
 			.filter((word) => word.isDiscovered)
@@ -34,7 +36,7 @@
 	<div
 		class="flex flex-row flex-wrap gap-2 font-mono text-sm text-gray-700 max-[24rem]:gap-1 max-[24rem]:text-sm"
 	>
-		{#each dailyChallenge.quotes as quote}
+		{#each normalizedQuoteSegments as quote}
 			{#if quote.isHidden}
 				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px] pe-1.5">
 					{#each quote.text.split('') as char, index}

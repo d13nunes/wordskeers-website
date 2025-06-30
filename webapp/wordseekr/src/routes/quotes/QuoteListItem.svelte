@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import type { Quote } from '$lib/database/types';
+	import { normalizeQuoteText } from '$lib/utils/utils';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -24,9 +25,7 @@
 	}: Props = $props();
 
 	let height = $state(0);
-	$inspect('!!!height', height);
-
-	onMount(() => {});
+	let normalizedQuote = $derived(normalizeQuoteText(quote.quote));
 </script>
 
 <div
@@ -42,8 +41,8 @@
 
 	<div class="relative h-full w-full">
 		<div class="pb-1 text-sm text-gray-700 {showBlured ? 'blur-xs' : ''}">
-			{#if quote.quote}
-				{#each quote.quote as quoteSegment}
+			{#if normalizedQuote}
+				{#each normalizedQuote as quoteSegment}
 					{#if quoteSegment.isHidden}
 						<span class="font-semibold">{quoteSegment.text}</span>
 					{:else}

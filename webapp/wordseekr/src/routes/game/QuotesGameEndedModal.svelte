@@ -2,6 +2,7 @@
 	import GameEndedModal from '$lib/components/Game/GameEndedModal.svelte';
 	import QuoteIcon from '$lib/assets/Quote.png';
 	import type { DailyChallenge } from '$lib/daily-challenge/models';
+	import { normalizeQuoteText } from '$lib/utils/utils';
 
 	interface Props {
 		accumulatedCoins: number;
@@ -21,6 +22,8 @@
 		onRewardAnimationCompleted,
 		onRewardGiven
 	}: Props = $props();
+
+	let normalizedQuote = $derived(normalizeQuoteText(quoteChallenge.quotes));
 </script>
 
 <GameEndedModal
@@ -41,8 +44,8 @@
 					<b>{quoteChallenge.title}</b>
 				</span>
 				<div class="text-sm text-gray-700">
-					{#if quoteChallenge.quotes}
-						{#each quoteChallenge.quotes as quote}
+					{#if normalizedQuote}
+						{#each normalizedQuote as quote}
 							{#if quote.isHidden}
 								<span class="font-semibold">{quote.text}</span>
 							{:else}
