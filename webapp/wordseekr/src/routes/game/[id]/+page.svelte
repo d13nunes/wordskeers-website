@@ -746,7 +746,7 @@
 		try {
 			syncLevels();
 		} catch (e) {
-			console.error('!!!!!!! navigateToNextLevel error', e);
+			console.error('navigateToNextLevel error', e);
 		}
 	}
 </script>
@@ -791,7 +791,7 @@
 	{/if}
 {:else}
 	<div
-		class=" flex h-full flex-row items-end justify-center md:items-center"
+		class=" flex h-full flex-row items-end justify-center md:items-center landscape:items-center"
 		style="overflow: hidden;"
 	>
 		{#if showPauseModal}
