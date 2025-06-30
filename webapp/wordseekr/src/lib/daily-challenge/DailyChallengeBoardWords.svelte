@@ -33,25 +33,24 @@
 </script>
 
 <BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
-	<div
-		class="flex flex-row flex-wrap gap-2 font-mono text-sm text-gray-700 max-[24rem]:gap-1 max-[24rem]:text-sm"
-	>
-		{#each normalizedQuoteSegments as quote}
+	<div class="flex flex-row flex-wrap gap-x-2 gap-y-0.5 font-mono text-sm text-gray-700">
+		{#each normalizedQuoteSegments as quote, index}
+			{#if index > 0}
+				<!-- <span class="w-[7px]"></span> -->
+			{/if}
 			{#if quote.isHidden}
-				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px] pe-1.5">
+				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px]">
 					{#each quote.text.split('') as char, index}
-						<span class="relative min-h-[18px] min-w-[0.5ch]">
+						<span class="relative min-h-[18px] min-w-[0.3ch]">
 							{#if quote.isDiscovered}
-								<span
-									in:fade={{ delay: 200 * index, duration: 200 }}
-									class="absolute ps-[1px] italic"
+								<span in:fade={{ delay: 200 * index, duration: 200 }} class="absolute italic"
+									>{char}</span
 								>
-									{char}
-								</span>
 							{/if}
 							<span class="absolute">{'_'}</span>
 						</span>
 					{/each}
+					<span class=""></span>
 				</div>
 			{:else}
 				{#each quote.text.split(' ') as char}

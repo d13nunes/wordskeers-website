@@ -173,7 +173,6 @@
 		// Cleanup subscription when component unmounts
 		return () => {
 			if (unsubscribeAppState) {
-				unsubscribeAppState();
 			}
 		};
 	});
@@ -223,9 +222,11 @@
 		/>
 	{/if}
 	<div
-		class="mx-4 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
+		class="absolute mx-4 mt-2 flex flex-row items-center justify-end gap-2 md:mx-4 {isSmallScreen
 			? 'landscape:justify-start'
 			: ''} "
+		style="right: calc(var(--safe-area-inset-right));
+		left: calc(var(--safe-area-inset-left));"
 	>
 		{#if isMainMenu && !isWelcomeModalVisible}
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
@@ -263,7 +264,7 @@
 			/>
 		{/if}
 	</div>
-	<div class="h-full w-full overflow-visible overflow-y-auto">
+	<div class="h-full w-full overflow-y-visible">
 		{@render children()}
 	</div>
 
