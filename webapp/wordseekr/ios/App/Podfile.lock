@@ -1460,7 +1460,7 @@ DEPENDENCIES:
   - "CapacitorFirebaseFirestore (from `../../node_modules/@capacitor-firebase/firestore`)"
   - "CapacitorFirebasePerformance (from `../../node_modules/@capacitor-firebase/performance`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
-  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
+  - CapacitorLocalNotifications (from `../../../../../../capacitor-plugins/local-notifications`)
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
 
@@ -1524,7 +1524,7 @@ EXTERNAL SOURCES:
   CapacitorHaptics:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorLocalNotifications:
-    :path: "../../node_modules/@capacitor/local-notifications"
+    :path: "../../../../../../capacitor-plugins/local-notifications"
   CapacitorPreferences:
     :path: "../../node_modules/@capacitor/preferences"
   CordovaPlugins:
@@ -1578,6 +1578,6 @@ SPEC CHECKSUMS:
   SQLCipher: 31878d8ebd27e5c96db0b7cb695c96e9f8ad77da
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 7f758628eaff4aad8ed2ff06c50a0b2d57997ed5
+PODFILE CHECKSUM: ca12d7e1c024dc2009ab76665633d51c51909302
 
 COCOAPODS: 1.16.2

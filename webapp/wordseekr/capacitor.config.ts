@@ -43,6 +43,11 @@ const config: CapacitorConfig = {
 				biometricSubTitle: 'Log in using your biometric'
 			}
 		},
+		LocalNotifications: {
+			smallIcon: 'ic_stat_icon_config_sample',
+			iconColor: '#488AFF',
+			sound: 'beep.wav'
+		},
 		SafeArea: {
 			enabled: true
 		}
