@@ -68,7 +68,7 @@ export class AdmobBanner implements AdProvider {
 		return bannerOptions;
 	}
 
-	private async updateBannerPosition(params: BannerAdOptions) {
+	private async updateBannerPosition(params: BannerAdOptions, delay: number = 3000) {
 		console.log('📺 updateBannerPosition', this.isShowing);
 		if (!this.isShowing) {
 			return;
@@ -82,34 +82,43 @@ export class AdmobBanner implements AdProvider {
 				err instanceof Error ? err.message : 'Unknown error'
 			);
 		}
-		try {
-			await AdMob.showBanner(params);
-		} catch (err) {
-			console.warn(
-				'📺 Failed to reposition banner:',
-				err instanceof Error ? err.message : 'Unknown error'
-			);
+		if (this.showBannerAdTimeout) {
+			clearTimeout(this.showBannerAdTimeout);
 		}
+		this.showBannerAdTimeout = setTimeout(async () => {
+			try {
+				if (params.position === BannerAdPosition.TOP_CENTER) {
+					// Don't show banner in top center
+					// await AdMob.showBanner(params);
+				} else {
+					await AdMob.showBanner(params);
+				}
+			} catch (err) {
+				console.warn(
+					'📺 Failed to reposition banner:',
+					err instanceof Error ? err.message : 'Unknown error'
+				);
+			}
+		}, delay);
 	}
 
 	load(): Promise<boolean> {
 		console.log('📺 Loading BannerAd');
 		return Promise.resolve(true);
 	}
-
+	private showBannerAdTimeout: NodeJS.Timeout | null = null;
 	async show(): Promise<boolean> {
 		console.log('📺 Showing BannerAd');
 		if (this.isShowing) {
 			return true;
 		}
 		this.isShowing = true;
+		// Set up orientation change listener
 		this.orientationChangeHandler = () => {
 			this.updateBannerPosition(this.getBannerParams());
 		};
-
-		await AdMob.showBanner(this.getBannerParams());
-		// Set up orientation change listener
 		window.addEventListener('orientationchange', this.orientationChangeHandler);
+		this.updateBannerPosition(this.getBannerParams(), 0);
 
 		return true;
 	}
