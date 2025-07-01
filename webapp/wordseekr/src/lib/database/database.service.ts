@@ -308,7 +308,7 @@ class DatabaseService {
 			try {
 				await this.insertWordPlacement(placement);
 			} catch (error) {
-				console.error('!!!! error inserting word placement: ', error);
+				console.error('error inserting word placement: ', JSON.stringify(placement), error);
 			}
 		}
 	}

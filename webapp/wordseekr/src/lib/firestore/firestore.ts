@@ -6,57 +6,13 @@ import { myLocalStorage } from '$lib/storage/local-storage';
 import { Capacitor } from '@capacitor/core';
 import { isToday } from 'date-fns';
 
-export async function syncGrid(id: number): Promise<void> {
-	const { snapshots } = await FirebaseFirestore.getCollection({
-		reference: 'word_search_grids',
-		compositeFilter: {
-			type: 'and',
-			queryConstraints: [
-				{
-					type: 'where',
-					fieldPath: 'id',
-					opStr: '==',
-					value: id
-				}
-			]
-		}
-	});
-	const gridData = {
-		id: id,
-		name: snapshots[0].data?.name ?? '',
-		rows: snapshots[0].data?.rows ?? 0,
-		columns: snapshots[0].data?.columns ?? 0,
-		words_count: snapshots[0].data?.words_count ?? 0,
-		directions: snapshots[0].data?.directions ?? [],
-		grid_hash: snapshots[0].data?.grid_hash ?? '',
-		is_challenge: snapshots[0].data?.is_challenge ?? false
-	} as WordSearchGrid;
-
-	await databaseService.insertGrid(gridData);
-	const words = await FirebaseFirestore.getCollection({
-		reference: `word_placements`,
-		compositeFilter: {
-			type: 'and',
-			queryConstraints: [
-				{
-					type: 'where',
-					fieldPath: 'grid_id',
-					opStr: '==',
-					value: id
-				}
-			]
-		}
-	});
-
-	const wordPlacements: WordPlacement[] = words.snapshots.map((word) => ({
-		id: parseInt(word.id),
-		grid_id: id,
-		word: word.data?.word ?? '',
-		row: word.data?.row ?? 0,
-		col: word.data?.col ?? 0,
-		direction: word.data?.direction ?? ''
-	}));
-	await databaseService.insertWordPlacements(wordPlacements);
+export async function syncGrid(grid: WordSearchGrid, words: WordPlacement[]): Promise<void> {
+	try {
+		await databaseService.insertGrid(grid);
+	} catch (error) {
+		console.error('error syncing grid: ', JSON.stringify(grid), error);
+	}
+	await databaseService.insertWordPlacements(words);
 }
 
 const hasFirebaseEnabled = Capacitor.isNativePlatform();
@@ -101,7 +57,6 @@ export async function syncQuotes(): Promise<boolean> {
 				{ type: 'orderBy', fieldPath: 'playable_at', directionStr: 'asc' }
 			]
 		});
-		console.log('syncQuotes snapshots', snapshots);
 		myLocalStorage.set(myLocalStorage.LastSyncQuotesTime, Date.now().toString());
 		if (snapshots.length === 0) {
 			return false;
@@ -114,11 +69,32 @@ export async function syncQuotes(): Promise<boolean> {
 					return;
 				}
 				try {
-					const { id, grid_id, author, quote, playable_at } = data;
+					const { id, grid_id, author, quote, playable_at, grid } = data;
 					if (!id || !grid_id || !author || !quote || !playable_at) {
 						return;
 					}
-					await syncGrid(grid_id);
+					const gridData: WordSearchGrid = {
+						id: grid_id,
+						name: grid.name,
+						rows: grid.rows,
+						columns: grid.columns,
+						words_count: grid.placedWords.length,
+						directions: grid.directions,
+						grid_hash: grid.gridHash,
+						played_at: null,
+						is_challenge: grid.isChallenge,
+						created_at: grid.createdAt
+					};
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const wordPlacements: WordPlacement[] = grid.placedWords.map((word: any) => ({
+						id: word.id,
+						grid_id: grid_id,
+						word: word.word,
+						row: word.row,
+						col: word.col,
+						direction: word.direction
+					}));
+					await syncGrid(gridData, wordPlacements);
 					await databaseService.insertQuote(id, grid_id, author, quote, playable_at);
 				} catch (error) {
 					console.error('error inserting quote: ', error);
@@ -144,12 +120,9 @@ export async function syncLevels(): Promise<boolean> {
 		const lastSyncLevelsTime = await myLocalStorage.get(myLocalStorage.LastSyncLevelsTime);
 		const isCooldown = lastSyncLevelsTime && isToday(lastSyncLevelsTime);
 		// if cooldown is true and levelsToSync is greater than 3, return false
-		console.log('syncLevels cooldown', isCooldown, levelsToSync);
-		console.log('syncLevels lastSyncLevelsTime', lastSyncLevelsTime, lastSyncLevelsTime);
 		if (isCooldown && levelsToSync > 3) {
 			return false;
 		}
-		console.log('syncLevels highestLevel', highestLevel);
 		const { snapshots } = await FirebaseFirestore.getCollection({
 			reference: 'levels',
 			compositeFilter: {
@@ -168,7 +141,6 @@ export async function syncLevels(): Promise<boolean> {
 				{ type: 'orderBy', fieldPath: 'order_index', directionStr: 'asc' }
 			]
 		});
-		console.log('syncLevels snapshots', snapshots);
 		if (snapshots.length === 0) {
 			return false;
 		}
@@ -177,26 +149,46 @@ export async function syncLevels(): Promise<boolean> {
 				snapshots.map(async (doc) => {
 					const data = doc.data;
 					if (!data) {
-						console.log('syncLevels no data');
+						console.warn('syncLevels no data');
 						return;
 					}
-					const { id, name, grid_ids, order_index } = data;
-					if (!id || !name || !grid_ids || !order_index) {
-						console.log('syncLevels no data', id, name, grid_ids, order_index);
+					const { id, name, grid_ids, order_index, grids } = data;
+					if (!id || !name || !grid_ids || !order_index || !grids) {
+						console.warn('syncLevels no data', id, name, grid_ids, order_index);
 						return;
 					}
-					const gridIds: number[] = grid_ids.split(',').map(Number);
 					await Promise.all(
-						gridIds.map(async (gridId: number) => {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						grids.map(async (grid: any) => {
 							try {
-								await syncGrid(gridId);
+								await syncGrid(
+									{
+										id: grid.id,
+										name: grid.name,
+										rows: grid.rows,
+										columns: grid.columns,
+										words_count: grid.placedWords.length,
+										directions: grid.directions,
+										grid_hash: grid.gridHash,
+										played_at: null,
+										is_challenge: grid.isChallenge,
+										created_at: grid.createdAt
+									},
+									grid.placedWords.map((word: WordPlacement) => ({
+										id: word.id,
+										grid_id: grid.id,
+										word: word.word,
+										row: word.row,
+										col: word.col,
+										direction: word.direction
+									}))
+								);
 							} catch (error) {
-								console.error('error syncing grid: ', error);
+								console.error('level error syncing grid: ', error);
 							}
 						})
 					);
 					try {
-						console.log('syncLevels inserting level: ', id, name, grid_ids, order_index);
 						await databaseService.insertLevel(id, name, grid_ids, order_index);
 					} catch (error) {
 						console.error('syncLevels error inserting level: ', error);
