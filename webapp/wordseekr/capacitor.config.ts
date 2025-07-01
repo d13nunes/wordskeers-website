@@ -44,9 +44,8 @@ const config: CapacitorConfig = {
 			}
 		},
 		LocalNotifications: {
-			smallIcon: 'ic_stat_icon_config_sample',
-			iconColor: '#488AFF',
-			sound: 'beep.wav'
+			smallIcon: 'ic_notification',
+			iconColor: '#F8FAFC'
 		},
 		SafeArea: {
 			enabled: true

@@ -143,12 +143,10 @@ async function initialize(): Promise<DailyRewardsState> {
 }
 
 async function scheduleNotifications(state: DailyRewardsState): Promise<void> {
-	if (state.notificationsEnabled) {
-		await DailyRewardsNotifications.initializeNotifications();
-		if (state.resetRewardDate) {
-			const lastRewardCollectionDate = new Date(state.resetRewardDate);
-			await DailyRewardsNotifications.scheduleNextRewardNotification(lastRewardCollectionDate);
-		}
+	const permission = await DailyRewardsNotifications.initializeNotifications();
+	if (state.resetRewardDate) {
+		const lastRewardCollectionDate = new Date(state.resetRewardDate);
+		await DailyRewardsNotifications.scheduleNextRewardNotification(lastRewardCollectionDate);
 	}
 }
 
