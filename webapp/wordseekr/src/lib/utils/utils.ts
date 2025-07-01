@@ -35,7 +35,8 @@ export function normalizeQuoteText(
 	for (const index in quote) {
 		const segment = quote[index];
 		const text = segment.text;
-		if (punctuation.includes(text)) {
+		const isPreviousHidden = normalizedQuote[normalizedQuote.length - 1]?.isHidden;
+		if (punctuation.includes(text) && !isPreviousHidden) {
 			console.log(text);
 			// go to the previous segment and merge it with the current segment
 			const previousSegment = normalizedQuote[normalizedQuote.length - 1];
