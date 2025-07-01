@@ -128,7 +128,7 @@
 
 		<div class="mt-2 flex w-full flex-col gap-4">
 			{#if rewardAvailable}
-				<div in:fade={{ duration: 200, delay: 200 }} class="mt-2 flex w-full flex-row gap-4">
+				<div in:fade={{ duration: 200, delay: 0 }} class="mt-2 flex w-full flex-row gap-4">
 					<button
 						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white"
 						disabled={buttonDisabled}
@@ -150,14 +150,14 @@
 			{/if}
 			{#if resetRewardTimestamp}
 				<div
-					in:fly={{ duration: 400, y: 100, opacity: 0 }}
+					in:fly={{ duration: 400, y: -50, opacity: 0 }}
 					out:fade={{ duration: 400 }}
 					class="flex flex-col gap-2"
 				>
 					<div class="text-center text-sm text-gray-500">Next reward available in:</div>
 					<RewardTimer endDate={new Date(resetRewardTimestamp)} />
 				</div>
-			{:else}{/if}
+			{/if}
 		</div>
 	</div>
 </Modal>

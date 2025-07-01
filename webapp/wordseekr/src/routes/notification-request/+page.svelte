@@ -79,7 +79,7 @@
 	onDismiss={closeModal}
 	canDismissOnBackground={true}
 >
-	<div class="mt-4 flex w-2xs max-w-sm flex-col items-center gap-4">
+	<div class="mt-4 flex w-2xs max-w-sm flex-col items-center gap-4 lg:w-sm">
 		<GameModeIconTitle icon={undefined} title="Notifications" subtitle="Don't Miss Out!" />
 		<div class="text-md flex flex-col gap-2 text-xl">
 			Enable notifications to get alerts when your rewards are ready to collect and new daily

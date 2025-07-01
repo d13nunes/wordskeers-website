@@ -404,7 +404,7 @@
 		idleAnimationTimer = setTimeout(() => {
 			animateOnBoarding(onboardingPositions);
 			idleAnimationTimer = null;
-		}, 3000);
+		}, 6000);
 		if (!onBoardingAnimation) {
 			return;
 		}
