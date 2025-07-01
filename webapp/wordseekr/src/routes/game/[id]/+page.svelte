@@ -658,8 +658,6 @@
 		unsubscribeAppState = appStateManager.subscribe((isActive) => {
 			if (!isActive) {
 				showPauseModal = !isLevel && !isGameEnded;
-			} else {
-				openStoreModal.set(false);
 			}
 		});
 
@@ -732,6 +730,30 @@
 		gotoMainMenu();
 	}
 
+	async function showAdBeforeNextLevel(
+		currentLevelNumber: number,
+		skipAd: boolean = false
+	): Promise<void> {
+		const canShowAdLevel = currentLevelNumber >= 3;
+		const showAd = canShowAdLevel;
+		if (showAd && !skipAd) {
+			const maxFrequencyMillis = 1000 * 60; // 1 minute
+			await adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
+		}
+	}
+
+	async function onCloseNextLevel() {
+		if (level && level.orderIndex === 1) {
+			navigateToNextLevel();
+		} else {
+			if (level) {
+				const currentLevelNumber: number = level.orderIndex;
+				await showAdBeforeNextLevel(currentLevelNumber);
+			}
+			gotoMainMenu();
+		}
+	}
+
 	async function navigateToNextLevel(skipAd: boolean = false) {
 		clearInterval(timerInterval);
 		showGameEnded = false;
@@ -739,25 +761,10 @@
 		if (!level) {
 			return;
 		}
-
 		const currentLevelNumber: number = level.orderIndex;
-		const canShowAdLevel = currentLevelNumber >= 3;
-		const didCompleteLevel = currentProgressValue && currentProgressValue >= 1;
-		const isLevelWithMoreThan3Stages = level && level.gridIds.length > 3;
-
-		const isFirstStage = previousProgressValue === 0;
-		const isEvenStage = previousProgressValue && previousProgressValue % 2 === 0;
-
-		const showAd =
-			(canShowAdLevel && didCompleteLevel) ||
-			(canShowAdLevel && isLevelWithMoreThan3Stages && !isFirstStage && isEvenStage);
-		if (showAd && !skipAd) {
-			const maxFrequencyMillis = 1000 * 60; // 1 minute
-			adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
-		}
+		await showAdBeforeNextLevel(currentLevelNumber, skipAd);
 		const nextLevel = (await levelsManager.getCurrentLevel()).orderIndex;
 		const nextGridId = await levelsManager.getNextGridId();
-		const isLastStage = nextLevel !== currentLevelNumber;
 
 		if (currentLevelNumber === 3 && nextLevel === 4) {
 			showQuoteModalStore.set(true);
@@ -874,7 +881,7 @@
 				previousProgressValue={Math.round(previousProgressValue * 100)}
 				currentProgressValue={Math.round(currentProgressValue * 100)}
 				{navigateToNextLevel}
-				onClose={() => (level && level.orderIndex === 1 ? navigateToNextLevel() : gotoMainMenu())}
+				onClose={onCloseNextLevel}
 			/>
 		{:else if showGameEnded && !isLevel && !isDailyChallenge}
 			<ClassicGameEndedModal

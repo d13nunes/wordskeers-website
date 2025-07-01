@@ -1,7 +1,5 @@
 <script lang="ts">
 	import LoadSpinner from '$lib/components/shared/LoadSpinner.svelte';
-
-	import BalanceCard from '$lib/components/Store/BalanceCard.svelte';
 	import StoreProductCard from '$lib/components/Store/StoreProductCard.svelte';
 	import RemoveAdsPage from '../remove-ads/+page.svelte';
 	import { walletStore } from '$lib/economy/walletStore';
@@ -20,7 +18,7 @@
 	import { analytics } from '$lib/analytics/analytics';
 	import Modal from '$lib/components/Modal.svelte';
 	import { VList } from 'virtua/svelte';
-	import { animate, eases, utils } from 'animejs';
+	import { animate, utils } from 'animejs';
 
 	interface Props {
 		onClose: () => void;

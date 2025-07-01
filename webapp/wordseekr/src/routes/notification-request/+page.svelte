@@ -30,8 +30,8 @@
 			return false;
 		}
 		if (hasRequestedPermission) {
-			const result = await LocalNotifications.changeExactNotificationSetting();
 			closeModal();
+			const result = await LocalNotifications.changeExactNotificationSetting();
 			return;
 		}
 
