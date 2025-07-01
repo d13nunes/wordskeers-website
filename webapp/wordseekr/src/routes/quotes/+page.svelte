@@ -13,6 +13,7 @@
 	import { unlockQuote } from '$lib/daily-challenge/quote-fetcher';
 	import { walletStore } from '$lib/economy/walletStore';
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
+	import { analytics } from '$lib/analytics/analytics';
 	const { onClose, onNotEnoughCoinsToUnlock } = $props();
 	const unlockQuotePrice = 1000;
 
@@ -65,6 +66,7 @@
 	async function unlock(quote: Quote) {
 		if (hasEnoughCoins) {
 			if (await walletStore.tryAndBuy(unlockQuotePrice)) {
+				analytics.unlockedQuote(quote.id);
 				await unlockQuote(quote.id);
 				playQuote(quote);
 			}

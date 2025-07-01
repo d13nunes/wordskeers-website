@@ -16,7 +16,8 @@ export enum AnalyticsEvent {
 	RewardsCollectedAd = 'rewards_collected_ad',
 	RewardsClosed = 'rewards_closed',
 	MarkQuoteAsPlayed = 'mark_quote_as_played',
-	StartedPlayingQuote = 'started_playing_quote'
+	StartedPlayingQuote = 'started_playing_quote',
+	UnlockedQuote = 'unlocked_quote'
 }
 
 class Analytics {
@@ -107,6 +108,10 @@ class Analytics {
 			gridId,
 			elapsedTime
 		});
+	}
+
+	unlockedQuote(id: number) {
+		this.track(AnalyticsEvent.UnlockedQuote, { id });
 	}
 
 	track(event: string, properties: Record<string, unknown>) {
