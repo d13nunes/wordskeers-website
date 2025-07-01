@@ -35,7 +35,7 @@
 	} from '$lib/rewards/daily-rewards.config';
 	import QuotesModal from './quotes/+page.svelte';
 	import NotificationRequest from './notification-request/+page.svelte';
-	import { onNavigate } from '$app/navigation';
+	import { afterNavigate, onNavigate } from '$app/navigation';
 	import { Capacitor } from '@capacitor/core';
 
 	interface Props {
@@ -175,6 +175,9 @@
 			hasNotificationPermission =
 				(await LocalNotifications.checkPermissions()).display === 'granted';
 		}
+	});
+	afterNavigate(async () => {
+		isMainMenu = page.url.pathname === '/main-menu';
 	});
 
 	onMount(async () => {
