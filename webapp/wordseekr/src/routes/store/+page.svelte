@@ -91,8 +91,8 @@
 					{
 						id: 'REWARDED_AD',
 						name: 'Free Coins',
-						detail: '100 coins',
-						coins: 100,
+						detail: '50 coins',
+						coins: 50,
 						price: undefined,
 						productId: PRODUCT_IDS.REMOVE_ADS,
 						type: 'ad'
