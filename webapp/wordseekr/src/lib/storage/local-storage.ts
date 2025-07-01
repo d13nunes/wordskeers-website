@@ -12,6 +12,8 @@ class MyLocalStorage {
 	WelcomeModalGiftClaimed = 'welcomeModalGiftClaimed';
 	NotificationRequestDontShowAgain = 'notificationRequestDontShowAgain';
 	NotificationRequestBeenShownAtLeastOnce = 'notificationRequestBeenShownAtLeastOnce';
+	LastSyncQuotesTime = 'lastSyncQuotesTime';
+	LastSyncLevelsTime = 'lastSyncLevelsTime';
 
 	constructor() {}
 

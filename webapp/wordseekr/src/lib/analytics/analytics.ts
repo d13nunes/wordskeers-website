@@ -128,12 +128,6 @@ class Analytics {
 				}
 			});
 		}
-		// FirebaseAnalytics.logEvent({
-		// 	name: event,
-		// 	params: {
-		// 		...properties
-		// 	}
-		// });
 	}
 
 	error(errorName: string, error: string) {

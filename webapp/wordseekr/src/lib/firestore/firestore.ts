@@ -2,7 +2,9 @@ import { databaseService } from '$lib/database/database.service';
 import type { WordPlacement, WordSearchGrid } from '$lib/database/types';
 import { levelsManager } from '$lib/levels/levels';
 import { FirebaseFirestore } from '@capacitor-firebase/firestore';
+import { myLocalStorage } from '$lib/storage/local-storage';
 import { Capacitor } from '@capacitor/core';
+import { isToday } from 'date-fns';
 
 export async function syncGrid(id: number): Promise<void> {
 	const { snapshots } = await FirebaseFirestore.getCollection({
@@ -57,9 +59,6 @@ export async function syncGrid(id: number): Promise<void> {
 	await databaseService.insertWordPlacements(wordPlacements);
 }
 
-let lastSyncQuotesTime = 0;
-const syncQuotesCooldown = 1000 * 60 * 10; // 10 minutes
-
 const hasFirebaseEnabled = Capacitor.isNativePlatform();
 
 export async function syncQuotes(): Promise<boolean> {
@@ -67,14 +66,15 @@ export async function syncQuotes(): Promise<boolean> {
 		return false;
 	}
 	try {
-		const highestDateQuote = await databaseService.getHighestDateQuote();
-		// if highestDateQuote bigger than today bypass cooldown
-		const haveQuoteForToday = new Date(highestDateQuote) > new Date();
-		const isCooldown = Date.now() - lastSyncQuotesTime < syncQuotesCooldown;
-		console.log('syncQuotes cooldown', isCooldown, haveQuoteForToday);
-		if (isCooldown && haveQuoteForToday) {
-			return false;
+		const lastSyncQuotesTime = await myLocalStorage.get(myLocalStorage.LastSyncQuotesTime);
+		if (lastSyncQuotesTime) {
+			const lastSyncDate = new Date(parseInt(lastSyncQuotesTime));
+			if (isToday(lastSyncDate)) {
+				return false;
+			}
 		}
+
+		const highestDateQuote = await databaseService.getHighestDateQuote();
 		const distanceInDaysFromTodayToHighestDateQuote = Math.floor(
 			(new Date(highestDateQuote).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
 		);
@@ -102,7 +102,7 @@ export async function syncQuotes(): Promise<boolean> {
 			]
 		});
 		console.log('syncQuotes snapshots', snapshots);
-		lastSyncQuotesTime = Date.now();
+		myLocalStorage.set(myLocalStorage.LastSyncQuotesTime, Date.now().toString());
 		if (snapshots.length === 0) {
 			return false;
 		}
@@ -132,9 +132,6 @@ export async function syncQuotes(): Promise<boolean> {
 	return true;
 }
 
-let lastSyncLevelsTime = 0;
-const syncLevelsCooldown = 1000 * 60 * 10; // 10 minutes
-
 export async function syncLevels(): Promise<boolean> {
 	if (!hasFirebaseEnabled) {
 		return false;
@@ -144,10 +141,11 @@ export async function syncLevels(): Promise<boolean> {
 		const currentLevel = (await levelsManager.getCurrentLevel())?.orderIndex ?? 0;
 		// ensure there is at least 10 levels after the current level
 		const levelsToSync = 10 - (highestLevel - currentLevel);
-		const isCooldown = Date.now() - lastSyncLevelsTime < syncLevelsCooldown;
+		const lastSyncLevelsTime = await myLocalStorage.get(myLocalStorage.LastSyncLevelsTime);
+		const isCooldown = lastSyncLevelsTime && isToday(lastSyncLevelsTime);
 		// if cooldown is true and levelsToSync is greater than 3, return false
 		console.log('syncLevels cooldown', isCooldown, levelsToSync);
-		console.log('syncLevels lastSyncLevelsTime', lastSyncLevelsTime, syncLevelsCooldown);
+		console.log('syncLevels lastSyncLevelsTime', lastSyncLevelsTime, lastSyncLevelsTime);
 		if (isCooldown && levelsToSync > 3) {
 			return false;
 		}
@@ -208,7 +206,7 @@ export async function syncLevels(): Promise<boolean> {
 		} catch (error) {
 			console.error('error syncing levels: ', error);
 		}
-		lastSyncLevelsTime = Date.now();
+		myLocalStorage.set(myLocalStorage.LastSyncLevelsTime, Date.now().toString());
 	} catch (error) {
 		console.error('error syncing levels: ', error);
 		return false;
