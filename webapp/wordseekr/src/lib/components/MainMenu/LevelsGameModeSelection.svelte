@@ -29,8 +29,6 @@
 				levelName = level?.name ?? '';
 				levelNumber = level?.orderIndex ?? 0;
 				nextGridId = await levelsManager.getNextGridId();
-				console.log('!!!111 levelNumber', levelNumber);
-				console.log('!!!111 levelName', levelName);
 			});
 			if (levelsManager.__currentLevel) {
 				level = levelsManager.__currentLevel;

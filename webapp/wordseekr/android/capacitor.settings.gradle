@@ -6,7 +6,7 @@ include ':adplorg-capacitor-in-app-purchase'
 project(':adplorg-capacitor-in-app-purchase').projectDir = new File('../node_modules/@adplorg/capacitor-in-app-purchase/android')
 
 include ':capacitor-community-admob'
-project(':capacitor-community-admob').projectDir = new File('../node_modules/@capacitor-community/admob/android')
+project(':capacitor-community-admob').projectDir = new File('../../../../../oss/admob/android')
 
 include ':capacitor-community-safe-area'
 project(':capacitor-community-safe-area').projectDir = new File('../node_modules/@capacitor-community/safe-area/android')
