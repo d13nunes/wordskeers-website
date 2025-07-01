@@ -738,7 +738,7 @@
 		const showAd = canShowAdLevel;
 		if (showAd && !skipAd) {
 			const maxFrequencyMillis = 1000 * 60; // 1 minute
-			await adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
+			adStore.showAd(AdType.Interstitial, maxFrequencyMillis);
 		}
 	}
 
