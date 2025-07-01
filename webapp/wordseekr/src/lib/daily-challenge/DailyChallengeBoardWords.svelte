@@ -41,7 +41,7 @@
 			{#if quote.isHidden}
 				<div id={idPrefix + quote.text.toLowerCase()} class="flex flex-row gap-[7px]">
 					{#each quote.text.split('') as char, index}
-						<span class="relative min-h-[18px] min-w-[0.3ch]">
+						<span class="relative min-h-[18px] min-w-[0.4ch]">
 							{#if quote.isDiscovered}
 								<span in:fade={{ delay: 200 * index, duration: 200 }} class="absolute italic"
 									>{char}</span
