@@ -1,8 +1,8 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "2.9.5",
-  "build": 2,
+  "version": "2.10.0",
+  "build": 1,
   "type": "module",
   "scripts": {
     "dev": "npm run db:sync && vite dev",

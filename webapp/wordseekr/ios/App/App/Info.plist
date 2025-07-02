@@ -17,9 +17,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.9.5</string>
+	<string>2.10.0</string>
 	<key>CFBundleVersion</key>
-	<string>02090502</string>
+	<string>02100001</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-9539843520256562~3311880429</string>
 	<key>GADIsAdManagerApp</key>
@@ -30,6 +30,14 @@
 	<string>Allow tracking to receive personalized ads, analyze app usage, and improve the app for you. This helps to keep WordSkeers free</string>
 	<key>SKAdNetworkItems</key>
 	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>v9wttpbfk9.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>n38lu8286q.skadnetwork</string>
+		</dict>
 		<dict>
 			<key>SKAdNetworkIdentifier</key>
 			<string>cstr6suwn9.skadnetwork</string>

@@ -1194,6 +1194,7 @@ PODS:
     - Capacitor
   - CordovaPlugins (7.4.0):
     - CapacitorCordova
+  - FBAudienceNetwork (6.20.0)
   - FirebaseABTesting (11.7.0):
     - FirebaseCore (~> 11.7.0)
   - FirebaseAnalytics (11.7.0):
@@ -1312,6 +1313,9 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationFacebook (6.20.0.0):
+    - FBAudienceNetwork (= 6.20.0)
+    - Google-Mobile-Ads-SDK (~> 12.0)
   - GoogleUserMessagingPlatform (2.7.0)
   - GoogleUtilities/AppDelegateSwizzler (8.1.0):
     - GoogleUtilities/Environment
@@ -1463,11 +1467,13 @@ DEPENDENCIES:
   - CapacitorLocalNotifications (from `../../../../../../capacitor-plugins/local-notifications`)
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
+  - GoogleMobileAdsMediationFacebook
 
 SPEC REPOS:
   trunk:
     - abseil
     - BoringSSL-GRPC
+    - FBAudienceNetwork
     - FirebaseABTesting
     - FirebaseAnalytics
     - FirebaseAppCheckInterop
@@ -1487,6 +1493,7 @@ SPEC REPOS:
     - GoogleAppMeasurement
     - GoogleAppMeasurementOnDeviceConversion
     - GoogleDataTransport
+    - GoogleMobileAdsMediationFacebook
     - GoogleUserMessagingPlatform
     - GoogleUtilities
     - "gRPC-C++"
@@ -1548,6 +1555,7 @@ SPEC CHECKSUMS:
   CapacitorLocalNotifications: c2212755b33d2513b8bb325096ce3a64d4039ae3
   CapacitorPreferences: 6c98117d4d7508034a4af9db64d6b26fc75d7b94
   CordovaPlugins: aee9db35670f4db90168a1a515b058d76b77711d
+  FBAudienceNetwork: 51d3681e66c00ee36811c0d96e9fa39d5673eba8
   FirebaseABTesting: 08b3e19b28504632a9cd03e7a796b355c5d39b27
   FirebaseAnalytics: bc9e565af9044ba8d6c6e4157e4edca8e5fdf7ec
   FirebaseAppCheckInterop: a92ba81d0ee3c4cddb1a2e52c668ea51dc63c3ae
@@ -1567,6 +1575,7 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 0471a5b5bff51f3a91b1e76df22c952d04c63967
   GoogleAppMeasurementOnDeviceConversion: 35ca1deeb019c506d04da8d4887f0d107d1ffca4
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMobileAdsMediationFacebook: 9ca21f40f6873d557900cef231315ef21965b8c8
   GoogleUserMessagingPlatform: a8b56893477f67212fbc8411c139e61d463349f5
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   "gRPC-C++": 2fa52b3141e7789a28a737f251e0c45b4cb20a87
@@ -1578,6 +1587,6 @@ SPEC CHECKSUMS:
   SQLCipher: 31878d8ebd27e5c96db0b7cb695c96e9f8ad77da
   ZIPFoundation: b8c29ea7ae353b309bc810586181fd073cb3312c
 
-PODFILE CHECKSUM: 6165d647e0c3d24739ea6e1d1d93dbb6fd561985
+PODFILE CHECKSUM: cc9ca89bf4f9e93fcdeb2eaf113dfb6f58a8e975
 
 COCOAPODS: 1.16.2
