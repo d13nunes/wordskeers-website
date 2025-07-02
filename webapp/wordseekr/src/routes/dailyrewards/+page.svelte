@@ -27,7 +27,7 @@
 	let rewardAvailable = $state(false);
 	let rewards = $derived($dailyRewardsStore?.currentRewards ?? []);
 	let claimableRewards = $derived(rewards.filter((r) => r.status === DailyRewardStatus.Claimable));
-	let resetRewardTimestamp = $derived($dailyRewardsStore?.resetRewardDate);
+	let resetRewardTimestamp: Date | undefined = $state($dailyRewardsStore?.resetRewardDate);
 	let canAnimateShake = $derived(resetRewardTimestamp ? false : true);
 
 	let didWatchAd = false;
@@ -59,13 +59,11 @@
 	async function onClickContinue() {
 		buttonDisabled = true;
 		await handleClaimDailyReward(false);
-		buttonDisabled = false;
 	}
 
 	async function onClickDouble() {
 		buttonDisabled = true;
 		await handleClaimDailyReward(true);
-		buttonDisabled = false;
 	}
 
 	async function onGiftClick() {
@@ -109,7 +107,7 @@
 </script>
 
 <Modal backgroundOpacity={50} {onClose} {onDismiss} canDismissOnBackground={!buttonDisabled}>
-	<div class="mt-4 flex h-[330px] max-w-sm min-w-2xs flex-col items-center gap-4">
+	<div class="mt-4 flex max-w-sm min-w-2xs flex-col items-center gap-4">
 		<GameModeIconTitle icon={undefined} title="Reward" subtitle="Collect your free reward" />
 		<button class="mt-2" onclick={onGiftClick}>
 			<LevelsGiftIcon
@@ -121,11 +119,16 @@
 			/>
 		</button>
 
-		<div class="relative mt-2 flex w-full flex-col gap-4">
-			{#if rewardAvailable}
+		<div class=" flex w-full flex-col gap-4">
+			{#if resetRewardTimestamp}
+				<div class="flex w-full flex-col gap-2">
+					<div class="text-center text-sm text-gray-500">Next reward available in:</div>
+					<RewardTimer endDate={new Date(resetRewardTimestamp)} />
+				</div>
+			{:else}
 				<div class="mt-2 flex w-full flex-row gap-4">
 					<button
-						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white"
+						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50"
 						disabled={buttonDisabled}
 						onclick={onClickContinue}
 					>
@@ -133,7 +136,7 @@
 					</button>
 					{#if showDoubleButton}
 						<button
-							class="button-active mt-0 flex w-full flex-row items-center justify-center gap-1 rounded-md bg-green-800 px-4 py-2 text-xl font-bold text-white"
+							class="button-active mt-0 flex w-full flex-row items-center justify-center gap-1 rounded-md bg-green-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50"
 							disabled={buttonDisabled}
 							onclick={onClickDouble}
 						>
@@ -141,12 +144,6 @@
 							Double
 						</button>
 					{/if}
-				</div>
-			{/if}
-			{#if resetRewardTimestamp}
-				<div class="absolute flex w-full flex-col gap-2">
-					<div class="text-center text-sm text-gray-500">Next reward available in:</div>
-					<RewardTimer endDate={new Date(resetRewardTimestamp)} />
 				</div>
 			{/if}
 		</div>
