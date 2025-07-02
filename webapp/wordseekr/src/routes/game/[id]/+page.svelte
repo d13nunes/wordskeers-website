@@ -145,7 +145,7 @@
 			if (shouldShowWelcomeModal) {
 				setTimeout(() => {
 					isWelcomeModalVisible = true;
-				}, 100);
+				}, 750);
 			} else {
 				isWelcomeModalVisible = false;
 			}
@@ -155,7 +155,7 @@
 			if (shouldShowDailyRewards) {
 				setTimeout(() => {
 					isDailyRewardsOpen = rewardAvailable;
-				}, 100);
+				}, 750);
 			} else {
 				isDailyRewardsOpen = false;
 			}
@@ -896,7 +896,8 @@
 		{:else if isDailyRewardsOpen}
 			<DailyRewards
 				onClose={() => (
-					(isDailyRewardsOpen = false), (isNotificationRequestOpen = !hasNotificationPermission)
+					(isDailyRewardsOpen = false),
+					(isNotificationRequestOpen = !hasNotificationPermission)
 				)}
 			/>
 		{:else if isNotificationRequestOpen}
