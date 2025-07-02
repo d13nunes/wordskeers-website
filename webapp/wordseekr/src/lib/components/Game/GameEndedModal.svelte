@@ -3,7 +3,7 @@
 	import GameModeIconTitle from '../GameModeIconTitle.svelte';
 	import LevelsGiftIcon from '../Levels/LevelsGiftIcon.svelte';
 	import Modal from '../Modal.svelte';
-	import { adsIconBase64 } from '$lib/utils/utils';
+	import AdIcon from '$lib/assets/AdIcon.svelte';
 
 	interface Props {
 		icon?: string;
@@ -90,7 +90,7 @@
 					class="button-active mt-0 flex w-full flex-row items-center justify-center gap-1 rounded-md bg-green-800 px-4 py-2 text-xl font-bold text-white"
 					onclick={onClickContinue_}
 				>
-					<img class="h-5 w-5" src={adsIconBase64} alt="" />
+					<AdIcon class="h-5" fill="white" />
 					{doubleButtonText}
 				</button>
 			{/if}

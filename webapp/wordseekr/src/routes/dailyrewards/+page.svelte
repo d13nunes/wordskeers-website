@@ -4,7 +4,7 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { adStore } from '$lib/ads/ads';
 	import { AdType } from '$lib/ads/ads-types';
-	import { adsIconBase64 } from '$lib/utils/utils';
+
 	import { onMount } from 'svelte';
 	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
 
@@ -14,6 +14,7 @@
 	import { updateTagState } from '$lib/tag-store';
 	import { walletStore } from '$lib/economy/walletStore';
 	import { fade, fly } from 'svelte/transition';
+	import AdIcon from '$lib/assets/AdIcon.svelte';
 
 	interface Props {
 		onClose?: () => void;
@@ -136,7 +137,7 @@
 							disabled={buttonDisabled}
 							onclick={onClickDouble}
 						>
-							<img class="h-5 w-5" src={adsIconBase64} alt="" />
+							<AdIcon class="h-5" fill="white" />
 							Double
 						</button>
 					{/if}
