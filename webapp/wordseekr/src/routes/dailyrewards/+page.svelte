@@ -68,9 +68,7 @@
 	}
 
 	async function onGiftClick() {
-		console.log('onGiftClick', buttonDisabled, resetRewardTimestamp);
 		if (buttonDisabled) {
-			console.log('onGiftClick not', buttonDisabled, resetRewardTimestamp);
 			return;
 		}
 		if (resetRewardTimestamp) {
@@ -81,20 +79,17 @@
 			return;
 		}
 		buttonDisabled = true;
-		await handleClaimDailyReward(showDoubleButton);
+		await handleClaimDailyReward(false);
 		buttonDisabled = false;
 	}
 
 	async function onRewardGiven() {
 		const currentReward = claimableRewards[0];
 		if (!currentReward) {
-			console.log('onRewardGiven no current reward');
 			return;
 		}
 		const prize = currentReward.coins * (didWatchAd ? 2 : 1);
-		console.log('onRewardGiven', prize);
 		const markRewardHasClaimed = await dailyRewardsStore.markRewardHasClaimed(currentReward.id);
-		console.log('markRewardHasClaimed', markRewardHasClaimed);
 		if (!markRewardHasClaimed) {
 			return;
 		}
@@ -102,12 +97,11 @@
 	}
 
 	async function onRewardAnimationCompleted() {
+		updateTagState();
+		onClose?.();
 		const result = await dailyRewardsStore.markRewardHasClaimed(
 			rewardsState?.currentRewards[0].id ?? ''
 		);
-		console.log('onRewardAnimationCompleted', result);
-		updateTagState();
-		onClose?.();
 	}
 
 	const onDismiss = $derived(canAnimateReward ? undefined : onClose);
@@ -126,9 +120,9 @@
 			/>
 		</button>
 
-		<div class="mt-2 flex w-full flex-col gap-4">
+		<div class="relative mt-2 flex w-full flex-col gap-4">
 			{#if rewardAvailable}
-				<div in:fade={{ duration: 200, delay: 0 }} class="mt-2 flex w-full flex-row gap-4">
+				<div class="mt-2 flex w-full flex-row gap-4">
 					<button
 						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white"
 						disabled={buttonDisabled}
@@ -149,11 +143,7 @@
 				</div>
 			{/if}
 			{#if resetRewardTimestamp}
-				<div
-					in:fly={{ duration: 400, y: -50, opacity: 0 }}
-					out:fade={{ duration: 400 }}
-					class="flex flex-col gap-2"
-				>
+				<div class="absolute flex w-full flex-col gap-2">
 					<div class="text-center text-sm text-gray-500">Next reward available in:</div>
 					<RewardTimer endDate={new Date(resetRewardTimestamp)} />
 				</div>
