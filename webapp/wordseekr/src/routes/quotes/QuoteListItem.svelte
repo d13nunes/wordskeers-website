@@ -2,8 +2,6 @@
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import type { Quote } from '$lib/database/types';
 	import { normalizeQuoteText } from '$lib/utils/utils';
-	import { onMount } from 'svelte';
-
 	interface Props {
 		quote: Quote;
 		showUnlockButton: boolean;
@@ -58,11 +56,11 @@
 					class=" button-active h-12 w-46 rounded-md bg-blue-800 px-4 text-xl font-bold text-white"
 					onclick={onUnlockClick}
 				>
-					<div class="flex flex-row items-center justify-center gap-2">
+					<div class="flex flex-row items-center justify-center gap-1">
+						<span class="font-regular text-lg">Play {unlockPrice}</span>
 						<div class="h-5 w-5">
 							<CoinsPileIcon />
 						</div>
-						<span class="font-regular text-xl">{unlockPrice}</span>
 					</div>
 				</button>
 			{:else if showPlayButton}

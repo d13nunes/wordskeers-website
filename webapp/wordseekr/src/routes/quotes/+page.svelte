@@ -92,20 +92,24 @@
 			</div>
 		</div>
 
+		<div class="flex flex-row items-center justify-center px-3 text-center">
+			Past quotes are waiting for you! Unlock any you missed
+		</div>
+
 		{#if isLoading}
 			<p>Loading...</p>
 		{:else}
 			<div class="flex flex-row items-center justify-center gap-2">
-				<div class="mt-4 w-full">
+				<div class="w-full">
 					<SegmentedSelector segments={['All', 'Locked', 'Playable']} {selectedIndex} {onChange} />
 				</div>
 			</div>
-			<div class="mb-4 flex max-h-[54svh] min-w-full flex-col items-center justify-center">
+			<div class="mb-4 flex max-h-[48svh] min-w-full flex-col items-center justify-center">
 				{#if filteredQuotes.length > 0}
 					<VList
 						bind:this={quoteList}
 						data={filteredQuotes}
-						style="height: 59svh; max-height: 59svh; min-height: 200px;"
+						style="height: 48svh; max-height: 48svh; min-height: 200px;"
 					>
 						{#snippet children(quote)}
 							<div class="mb-4">
