@@ -15,13 +15,30 @@ interface AdmobAdIds {
 	banner: string;
 }
 
+interface AdStore {
+	isInitialized: Readable<boolean>;
+	initialize: () => Promise<void>;
+	loadAd: (adType: AdType) => Promise<boolean>;
+	showAd: (adType: AdType, maxFrequencyMillis: number | null) => Promise<boolean>;
+	hideAd: (adType: AdType) => Promise<void>;
+	isAdLoaded: (adType: AdType) => Readable<boolean>;
+	getAdLoadingState: (adType: AdType) => Readable<boolean>;
+}
+
+const isDev = import.meta.env.DEV;
+const lastTimeAdShown: Record<AdType, Date> = {
+	[AdType.Interstitial]: new Date(),
+	[AdType.Rewarded]: new Date(),
+	[AdType.RewardedInterstitial]: new Date(),
+	[AdType.Banner]: new Date()
+};
+const removeAdAdType: AdType[] = [AdType.Interstitial, AdType.Banner];
 const admobAdIdsDebug: AdmobAdIds = {
 	interstitial: 'ca-app-pub-3940256099942544/4411468910',
 	rewardInterstitial: 'ca-app-pub-3940256099942544/6978759866',
 	reward: 'ca-app-pub-3940256099942544/1712485313',
 	banner: 'ca-app-pub-3940256099942544/2934735716'
 };
-
 const admobAdIdsProductionIOS: AdmobAdIds = {
 	banner: 'ca-app-pub-9539843520256562/1015855733',
 	interstitial: 'ca-app-pub-9539843520256562/2545593663',
@@ -36,8 +53,7 @@ const admobAdIdsProductionAndroid: AdmobAdIds = {
 };
 // Initialize with debug ads by default
 let admobAdIds: AdmobAdIds = admobAdIdsDebug;
-// Access query parameters
-const isDev = import.meta.env.DEV;
+
 if (!isDev) {
 	if (Capacitor.getPlatform() === 'ios') {
 		console.log('Loaded Ads Production iOS config');
@@ -50,13 +66,6 @@ if (!isDev) {
 	console.log('Loaded Ads Debug config');
 }
 console.log('AdmobAdIds', admobAdIds);
-
-const lastTimeAdShown: Record<AdType, Date> = {
-	[AdType.Interstitial]: new Date(),
-	[AdType.Rewarded]: new Date(),
-	[AdType.RewardedInterstitial]: new Date(),
-	[AdType.Banner]: new Date()
-};
 
 function createAdStore(adProviders: AdProvider[]) {
 	let canShowInterstitial = false;
@@ -134,8 +143,6 @@ function createAdStore(adProviders: AdProvider[]) {
 			})
 		);
 	}
-
-	const removeAdAdType: AdType[] = [AdType.Interstitial, AdType.Banner];
 
 	async function loadAd(adType: AdType): Promise<boolean> {
 		const adProvider = adProviders.find((ad) => ad.adType === adType);
@@ -219,16 +226,6 @@ function createAdStore(adProviders: AdProvider[]) {
 			return derived(adProvider.isLoaded, ($state) => $state);
 		}
 	};
-}
-
-interface AdStore {
-	isInitialized: Readable<boolean>;
-	initialize: () => Promise<void>;
-	loadAd: (adType: AdType) => Promise<boolean>;
-	showAd: (adType: AdType, maxFrequencyMillis: number | null) => Promise<boolean>;
-	hideAd: (adType: AdType) => Promise<void>;
-	isAdLoaded: (adType: AdType) => Readable<boolean>;
-	getAdLoadingState: (adType: AdType) => Readable<boolean>;
 }
 
 const adProviders: AdProvider[] = [
