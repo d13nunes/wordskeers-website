@@ -30,6 +30,7 @@
 	import { LocalNotifications } from '@capacitor/local-notifications';
 	import QuotePage from '$lib/daily-challenge/QuoteModal.svelte';
 	import {
+		NEXT_REWARD_NOTIFICATION_ID,
 		QUOTE_TODAY_NOTIFICATION_ID_END,
 		QUOTE_TODAY_NOTIFICATION_ID_START
 	} from '$lib/rewards/daily-rewards.config';
@@ -206,6 +207,8 @@
 				action.notification.id <= QUOTE_TODAY_NOTIFICATION_ID_END
 			) {
 				showQuoteModal = true;
+			} else if (action.notification.id === NEXT_REWARD_NOTIFICATION_ID) {
+				isDailyRewardsOpen = true;
 			}
 		});
 	});
