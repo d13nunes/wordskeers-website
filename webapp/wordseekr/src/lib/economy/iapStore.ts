@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
-import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
-import type { Product, TransactionEvent } from '@adplorg/capacitor-in-app-purchase';
+import { IAPFacade } from './IAPFacade';
+import type { IAPProduct, IAPTransactionEvent } from './IAPFacade';
 import { walletStore } from './walletStore';
 import { Capacitor } from '@capacitor/core';
 import { RestorePurchases } from '$lib/plugins/RestorePurchases';
@@ -81,25 +81,25 @@ function generateReferenceUUID(): string {
 	});
 }
 
-export interface IAPProduct extends Product {
+export interface IAPProductWithLoaded extends IAPProduct {
 	loaded: boolean;
 }
 
 // Store for tracking products
 const createProductsStore = () => {
-	const { subscribe, set } = writable<Record<string, IAPProduct>>({});
+	const { subscribe, set } = writable<Record<string, IAPProductWithLoaded>>({});
 
 	return {
 		subscribe,
 		loadProducts: async () => {
 			try {
 				// Get available products from stores
-				const result = await CapacitorInAppPurchase.getProducts({
+				const result = await IAPFacade.getProducts({
 					productIds: Object.values(PRODUCT_IDS)
 				});
 
 				const products = result.products.reduce(
-					(acc: Record<string, IAPProduct>, product: Product) => ({
+					(acc: Record<string, IAPProductWithLoaded>, product: IAPProduct) => ({
 						...acc,
 						[product.id]: {
 							...product,
@@ -161,7 +161,7 @@ const createPurchasesStore = () => {
 		initializePurchases: async () => {
 			try {
 				// Listen for transaction events
-				await CapacitorInAppPurchase.addListener('transaction', async (event: TransactionEvent) => {
+				await IAPFacade.addListener('transaction', async (event: IAPTransactionEvent) => {
 					console.log('Transaction event:', event);
 
 					if (event.type === 'success' && event.transaction) {
@@ -187,7 +187,7 @@ const createPurchasesStore = () => {
 		},
 		makePurchase: async (productId: string) => {
 			try {
-				const result = await CapacitorInAppPurchase.purchaseProduct({
+				const result = await IAPFacade.purchaseProduct({
 					productId,
 					referenceUUID: generateReferenceUUID()
 				});
@@ -206,7 +206,7 @@ const createPurchasesStore = () => {
 		},
 		purchaseSubscription: async (productId: string) => {
 			try {
-				const result = await CapacitorInAppPurchase.purchaseSubscription({
+				const result = await IAPFacade.purchaseSubscription({
 					productId,
 					referenceUUID: generateReferenceUUID()
 				});
@@ -218,7 +218,7 @@ const createPurchasesStore = () => {
 		},
 		manageSubscriptions: async () => {
 			try {
-				await CapacitorInAppPurchase.manageSubscriptions({});
+				await IAPFacade.manageSubscriptions({});
 			} catch (error) {
 				console.error('Failed to open subscription management:', error);
 				throw error;
@@ -236,7 +236,7 @@ export const purchasesStore = createPurchasesStore();
 // Helper function to check if IAP is available
 export async function isIAPAvailable(): Promise<boolean> {
 	try {
-		const result = await CapacitorInAppPurchase.getProducts({
+		const result = await IAPFacade.getProducts({
 			productIds: [PRODUCT_IDS.COIN_PACK_SMALL] // Just check with one product
 		});
 		return result.products.length > 0;
