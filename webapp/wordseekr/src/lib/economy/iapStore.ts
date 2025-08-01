@@ -236,9 +236,7 @@ export const purchasesStore = createPurchasesStore();
 // Helper function to check if IAP is available
 export async function isIAPAvailable(): Promise<boolean> {
 	try {
-		const result = await IAPFacade.getProducts({
-			productIds: [PRODUCT_IDS.COIN_PACK_SMALL] // Just check with one product
-		});
+		const result = await IAPFacade.getProducts({ productIds: [] });
 		return result.products.length > 0;
 	} catch (error) {
 		console.warn('IAP is not available in this environment:', error);

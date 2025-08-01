@@ -50,8 +50,15 @@
             ReferencedContainer = "container:App.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <AdditionalOptions>
+         <AdditionalOption
+            key = "APP_DISTRIBUTOR_ID_OVERRIDE"
+            value = "com.apple.AppStore"
+            isEnabled = "YES">
+         </AdditionalOption>
+      </AdditionalOptions>
       <StoreKitConfigurationFileReference
-         identifier = "../Preview Content/version1.storekit">
+         identifier = "../../Preview Content/version1.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction

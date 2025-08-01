@@ -2,24 +2,11 @@
 // import { Capacitor } from '@capacitor/core';
 
 // Import both SDKs (replace with actual import for Aptoide if available)
-import { CapacitorInAppPurchase as DefaultIAP } from '@adplorg/capacitor-in-app-purchase';
+import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
 // Placeholder import for Aptoide SDK
 // Replace with the actual import path for your Aptoide plugin
 // import { AppCoinsSdk } from '@aptoide/appcoins-capacitor-plugin';
-const AppCoinsSdk = (globalThis as any).AppCoinsSdk; // TEMP: Replace with real import
-
-// Use a build flag to determine which SDK to use
-// This example uses import.meta.env.VITE_IS_APTOIDE (set in your build config)
-const IS_APTOIDE = Boolean(import.meta.env.VITE_IS_APTOIDE);
-
-// Select the correct SDK implementation
-const IAP = IS_APTOIDE ? AppCoinsSdk : DefaultIAP;
-
-if (IS_APTOIDE && !IAP) {
-	throw new Error(
-		'Aptoide IAP SDK is not implemented. Please provide the correct import and assignment.'
-	);
-}
+import { AppCoinsSdk } from 'aptoide-appcoinssdk';
 
 // Unified types for IAP
 export interface IAPProduct {
@@ -61,39 +48,35 @@ export interface IAPTransactionEvent {
 	// Add any Aptoide-specific fields here as optional
 }
 
-// Aptoide types for mapping
-type AptoideProduct = {
-	sku: string;
-	title: string;
-	description: string;
-	price: string;
-	currency: string;
-};
+let isAptoideAvailable: boolean | null = null;
+async function isAptoide() {
+	if (isAptoideAvailable === null) {
+		isAptoideAvailable = (await AppCoinsSdk.isAvailable()).isAvailable;
+	}
+	return isAptoideAvailable;
+}
 
 // Facade methods (mimic the interface used in iapStore.ts, but only use unified types)
 export const IAPFacade = {
 	getProducts: async (args: { productIds: string[] }): Promise<{ products: IAPProduct[] }> => {
-		if (!IAP) {
-			throw new Error('IAP SDK not available');
-		}
-		if (IS_APTOIDE) {
+		if (await isAptoide()) {
 			// Aptoide: get all products, filter by productIds
-			const result = await IAP.getProducts();
-			const products: IAPProduct[] = (result.products as AptoideProduct[])
+			const result = await AppCoinsSdk.getProducts();
+			const products: IAPProduct[] = result.products
 				.filter((p) => args.productIds.includes(p.sku))
 				.map((p) => ({
 					id: p.sku,
 					type: 'iap',
 					displayName: p.title,
 					description: p.description,
-					displayPrice: p.price,
+					displayPrice: p.label,
 					priceInMicros: 0, // Aptoide does not provide, set to 0 or parse if possible
 					currencyCode: p.currency
 				}));
 			return { products };
 		} else {
 			// adplorg
-			const result = await IAP.getProducts(args);
+			const result = await CapacitorInAppPurchase.getProducts(args);
 			const products: IAPProduct[] = result.products.map((p: IAPProduct) => ({ ...p }));
 			return { products };
 		}
@@ -102,54 +85,42 @@ export const IAPFacade = {
 		productId: string;
 		referenceUUID: string;
 	}): Promise<{ transaction: string }> => {
-		if (!IAP) {
-			throw new Error('IAP SDK not available');
-		}
-		if (IS_APTOIDE) {
+		if (await isAptoide()) {
 			// Aptoide: purchase({ sku })
-			const result = await IAP.purchase({ sku: args.productId });
+			const result = await AppCoinsSdk.purchase({ sku: args.productId });
 			return { transaction: JSON.stringify(result) };
 		} else {
 			// adplorg
-			return IAP.purchaseProduct(args);
+			return CapacitorInAppPurchase.purchaseProduct(args);
 		}
 	},
 	purchaseSubscription: async (args: {
 		productId: string;
 		referenceUUID: string;
 	}): Promise<{ transaction: string }> => {
-		if (!IAP) {
-			throw new Error('IAP SDK not available');
-		}
-		if (IS_APTOIDE) {
+		if (await isAptoide()) {
 			// Aptoide does not support subscriptions, throw or fallback
 			throw new Error('Subscriptions not supported on Aptoide');
 		} else {
-			return IAP.purchaseSubscription(args);
+			return CapacitorInAppPurchase.purchaseSubscription(args);
 		}
 	},
 	manageSubscriptions: async (args: object): Promise<void> => {
-		if (!IAP) {
-			throw new Error('IAP SDK not available');
-		}
-		if (IS_APTOIDE) {
+		if (await isAptoide()) {
 			// Not supported on Aptoide
 			throw new Error('Manage subscriptions not supported on Aptoide');
 		} else {
-			return IAP.manageSubscriptions(args);
+			return CapacitorInAppPurchase.manageSubscriptions(args);
 		}
 	},
-	addListener: (event: 'transaction', callback: (event: IAPTransactionEvent) => void) => {
-		if (!IAP) {
-			throw new Error('IAP SDK not available');
-		}
-		if (IS_APTOIDE) {
+	addListener: async (event: 'transaction', callback: (event: IAPTransactionEvent) => void) => {
+		if (await isAptoide()) {
 			// Aptoide: no event system, so simulate with polling or not supported
 			// For now, do nothing and warn
 			console.warn('Aptoide SDK does not support transaction events.');
 			return { remove: async () => {} };
 		} else {
-			return IAP.addListener(event, callback);
+			return CapacitorInAppPurchase.addListener(event, callback);
 		}
 	}
 };
