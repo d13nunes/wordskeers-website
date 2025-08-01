@@ -14,7 +14,7 @@ let package = Package(
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "7.4.2"),
         .package(name: "AdplorgCapacitorInAppPurchase", path: "../../../node_modules/@adplorg/capacitor-in-app-purchase"),
         .package(name: "CapacitorCommunityAdmob", path: "../../../../../../../oss/admob"),
-        .package(name: "CapacitorCommunitySafeArea", path: "../../../node_modules/@capacitor-community/safe-area"),
+        .package(name: "CapacitorCommunitySafeArea", path: "../../../../../../../forks/safe-area"),
         .package(name: "CapacitorCommunitySqlite", path: "../../../../../../../forks/sqlite"),
         .package(name: "CapacitorFirebaseAnalytics", path: "../../../node_modules/@capacitor-firebase/analytics"),
         .package(name: "CapacitorFirebaseCrashlytics", path: "../../../node_modules/@capacitor-firebase/crashlytics"),

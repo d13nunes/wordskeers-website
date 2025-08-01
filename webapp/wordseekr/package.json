@@ -83,7 +83,7 @@
   "dependencies": {
     "@adplorg/capacitor-in-app-purchase": "^2.0.64",
     "@capacitor-community/admob": "file:/../../../../oss/admob",
-    "@capacitor-community/safe-area": "capacitor-community/safe-area#master",
+    "@capacitor-community/safe-area": "file:/../../../../forks/safe-area",
     "@capacitor-community/sqlite": "file:/../../../../forks/sqlite",
     "@capacitor-firebase/analytics": "^7.3.0",
     "@capacitor-firebase/crashlytics": "^7.3.0",
