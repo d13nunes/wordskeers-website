@@ -2,7 +2,9 @@
 // import { Capacitor } from '@capacitor/core';
 
 // Import both SDKs (replace with actual import for Aptoide if available)
+import { GetOwnedProductsPlugin } from '$lib/plugins/GetOwnedProductsPlugin';
 import { CapacitorInAppPurchase } from '@adplorg/capacitor-in-app-purchase';
+import { Capacitor } from '@capacitor/core';
 // Placeholder import for Aptoide SDK
 // Replace with the actual import path for your Aptoide plugin
 // import { AppCoinsSdk } from '@aptoide/appcoins-capacitor-plugin';
@@ -43,7 +45,7 @@ export interface IAPProduct {
 
 export interface IAPTransactionEvent {
 	type: 'success' | 'error';
-	transaction?: string;
+	productId?: string;
 	message?: string;
 	// Add any Aptoide-specific fields here as optional
 }
@@ -51,13 +53,20 @@ export interface IAPTransactionEvent {
 let isAptoideAvailable: boolean | null = null;
 async function isAptoide() {
 	if (isAptoideAvailable === null) {
-		isAptoideAvailable = (await AppCoinsSdk.isAvailable()).isAvailable;
+		try {
+			const result = await AppCoinsSdk.isAvailable();
+			isAptoideAvailable = result.isAvailable;
+		} catch (error) {
+			console.error('Error checking Aptoide availability:', error);
+			isAptoideAvailable = false;
+		}
 	}
 	return isAptoideAvailable;
 }
 
 // Facade methods (mimic the interface used in iapStore.ts, but only use unified types)
 export const IAPFacade = {
+	isAptoide,
 	getProducts: async (args: { productIds: string[] }): Promise<{ products: IAPProduct[] }> => {
 		if (await isAptoide()) {
 			// Aptoide: get all products, filter by productIds
@@ -69,9 +78,9 @@ export const IAPFacade = {
 					type: 'iap',
 					displayName: p.title,
 					description: p.description,
-					displayPrice: p.label,
-					priceInMicros: 0, // Aptoide does not provide, set to 0 or parse if possible
-					currencyCode: p.currency
+					displayPrice: p.price,
+					priceInMicros: 0,
+					currencyCode: p.currency + ' ' + p.price
 				}));
 			return { products };
 		} else {
@@ -81,18 +90,33 @@ export const IAPFacade = {
 			return { products };
 		}
 	},
-	purchaseProduct: async (args: {
+	_purchaseProduct: async (args: {
 		productId: string;
 		referenceUUID: string;
 	}): Promise<{ transaction: string }> => {
-		if (await isAptoide()) {
-			// Aptoide: purchase({ sku })
-			const result = await AppCoinsSdk.purchase({ sku: args.productId });
-			return { transaction: JSON.stringify(result) };
-		} else {
-			// adplorg
-			return CapacitorInAppPurchase.purchaseProduct(args);
+		try {
+			if (await isAptoide()) {
+				const result = await AppCoinsSdk.purchase({ sku: args.productId });
+				return {
+					transaction: JSON.stringify({
+						...result,
+						productId: result.sku
+					})
+				};
+			} else {
+				// adplorg
+				return CapacitorInAppPurchase.purchaseProduct(args);
+			}
+		} catch (error) {
+			console.error('Purchase failed:', error);
+			throw error;
 		}
+	},
+	get purchaseProduct() {
+		return this._purchaseProduct;
+	},
+	set purchaseProduct(value) {
+		this._purchaseProduct = value;
 	},
 	purchaseSubscription: async (args: {
 		productId: string;
@@ -115,12 +139,52 @@ export const IAPFacade = {
 	},
 	addListener: async (event: 'transaction', callback: (event: IAPTransactionEvent) => void) => {
 		if (await isAptoide()) {
-			// Aptoide: no event system, so simulate with polling or not supported
-			// For now, do nothing and warn
-			console.warn('Aptoide SDK does not support transaction events.');
-			return { remove: async () => {} };
+			AppCoinsSdk.addListener(event, (event) => {
+				callback({
+					type: event.type,
+					productId: event.sku,
+					message: event.message
+				});
+			});
 		} else {
-			return CapacitorInAppPurchase.addListener(event, callback);
+			return CapacitorInAppPurchase.addListener(event, (event) => {
+				let productId = undefined;
+				if (event.transaction) {
+					const transaction = JSON.parse(event.transaction);
+					productId = transaction.productId;
+				}
+				callback({
+					type: event.type,
+					productId: productId,
+					message: event.message
+				});
+			});
+		}
+	},
+	isRestoreAvailable: async (): Promise<boolean> => {
+		try {
+			isAptoideAvailable = await isAptoide();
+			if (isAptoideAvailable) {
+				return false;
+			}
+			const isAvailable = Capacitor.isPluginAvailable('RestorePurchases');
+			return isAvailable;
+		} catch (error) {
+			console.error('Failed to check restore availability: isRestoreAvailable', error);
+			return false;
+		}
+		return true;
+	},
+	restorePurchases: async () => {
+		return true;
+	},
+	getOwnedProducts: async (): Promise<{ productIds: string[] }> => {
+		if (await isAptoide()) {
+			const ownedProducts = await AppCoinsSdk.getPurchases();
+			return { productIds: ownedProducts.purchases.map((p) => p.sku) };
+		} else {
+			const ownedProducts = await GetOwnedProductsPlugin.getOwnedProducts();
+			return { productIds: ownedProducts.productIds };
 		}
 	}
 };

@@ -351,6 +351,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.3;
+				MARKETPLACES = com.aptoide.ios.store;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rhenis.gridwords;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -375,6 +376,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.1.3;
+				MARKETPLACES = com.aptoide.ios.store;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rhenis.gridwords;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";

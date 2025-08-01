@@ -2,9 +2,7 @@ import { writable } from 'svelte/store';
 import { IAPFacade } from './IAPFacade';
 import type { IAPProduct, IAPTransactionEvent } from './IAPFacade';
 import { walletStore } from './walletStore';
-import { Capacitor } from '@capacitor/core';
 import { RestorePurchases } from '$lib/plugins/RestorePurchases';
-import { GetOwnedProductsPlugin } from '$lib/plugins/GetOwnedProductsPlugin';
 
 // Product IDs as they appear in App Store/Google Play
 export const PRODUCT_IDS = {
@@ -119,14 +117,8 @@ const createProductsStore = () => {
 	};
 };
 
-function isRestoreAvailable() {
-	try {
-		const isAvailable = Capacitor.isPluginAvailable('RestorePurchases');
-		return isAvailable;
-	} catch (error) {
-		console.error('Failed to check restore availability: isRestoreAvailable', error);
-		return false;
-	}
+function isRestoreAvailable(): Promise<boolean> {
+	return IAPFacade.isRestoreAvailable();
 }
 
 async function restorePurchases(): Promise<boolean> {
@@ -146,7 +138,7 @@ async function restorePurchases(): Promise<boolean> {
 const createPurchasesStore = () => {
 	async function processOwnedProducts() {
 		try {
-			const ownedProducts = await GetOwnedProductsPlugin.getOwnedProducts();
+			const ownedProducts = await IAPFacade.getOwnedProducts();
 			const hasRemoveAds =
 				ownedProducts.productIds.filter((productId: string) => removeAds.includes(productId))
 					.length > 0;
@@ -161,22 +153,32 @@ const createPurchasesStore = () => {
 		initializePurchases: async () => {
 			try {
 				// Listen for transaction events
+				console.log('🏪1112 initializePurchases');
 				await IAPFacade.addListener('transaction', async (event: IAPTransactionEvent) => {
-					console.log('Transaction event:', event);
+					try {
+						console.log('🏪111 Transaction event:', event);
+						if (event.type === 'success' && event.productId) {
+							const productId = event.productId;
 
-					if (event.type === 'success' && event.transaction) {
-						const transactionData = JSON.parse(event.transaction);
-						const productId = transactionData.productId;
+							// Handle coins purchase
+							const coins = COIN_PACKS_META[productId]?.coins;
+							if (coins && coins > 0) {
+								walletStore.addCoins(coins);
+								console.log('🏪111 Coins purchased:', coins);
+								// alert(`Coins purchased: ${coins}`);
+							}
 
-						// Handle coins purchase
-						if (COIN_PACKS_META[productId]) {
-							walletStore.addCoins(COIN_PACKS_META[productId].coins);
+							// Handle non-consumable purchases like Remove Ads
+							if (removeAds.includes(productId)) {
+								console.log('🏪111 Remove Ads purchased:', productId);
+								walletStore.setRemoveAds(true);
+								// alert('Remove Ads purchased');
+							}
+						} else if (event.type === 'error' && event.message) {
+							alert(event.message);
 						}
-
-						// Handle non-consumable purchases like Remove Ads
-						if (removeAds.includes(productId)) {
-							walletStore.setRemoveAds(true);
-						}
+					} catch (error) {
+						console.error('Failed to process transaction event:', error);
 					}
 				});
 
@@ -187,13 +189,17 @@ const createPurchasesStore = () => {
 		},
 		makePurchase: async (productId: string) => {
 			try {
+				console.log('🏪 makePurchase', productId);
 				const result = await IAPFacade.purchaseProduct({
 					productId,
 					referenceUUID: generateReferenceUUID()
 				});
+				console.log('🏪 makePurchase result', JSON.stringify(result));
 				if (result.transaction) {
 					const transactionData = JSON.parse(result.transaction);
+					console.log('🏪 makePurchase transactionData', transactionData);
 					const productId = transactionData.productId;
+					console.log('🏪 makePurchase productId', productId);
 					if (removeAds.includes(productId)) {
 						walletStore.setRemoveAds(true);
 					}
@@ -236,7 +242,7 @@ export const purchasesStore = createPurchasesStore();
 // Helper function to check if IAP is available
 export async function isIAPAvailable(): Promise<boolean> {
 	try {
-		const result = await IAPFacade.getProducts({ productIds: [] });
+		const result = await IAPFacade.getProducts({ productIds: Object.values(PRODUCT_IDS) });
 		return result.products.length > 0;
 	} catch (error) {
 		console.warn('IAP is not available in this environment:', error);
@@ -251,7 +257,8 @@ export async function initializeIAP() {
 		console.warn('IAP initialization skipped - not available in this environment');
 		return;
 	}
-
+	const isAptoide = await IAPFacade.isAptoide();
+	console.debug('Loaded IAP Provider:', isAptoide ? 'Aptoide' : 'Native');
 	await purchasesStore.initializePurchases();
 	await productsStore.loadProducts();
 }

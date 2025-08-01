@@ -71,7 +71,10 @@
 				isLoading = false;
 			});
 	}
-	let isRestoreAvailable = purchasesStore.isRestoreAvailable();
+	let isRestoreAvailable = $state(false);
+	onMount(async () => {
+		isRestoreAvailable = await purchasesStore.isRestoreAvailable();
+	});
 </script>
 
 <!-- Header -->

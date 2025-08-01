@@ -78,7 +78,9 @@
 					isCalloutRed: meta.isCalloutRed,
 					type: 'iap'
 				} as Product;
-			});
+			})
+			.sort((a, b) => a.coins - b.coins)
+			;
 	});
 	let showRemoveAds = $state(false);
 	let isRewardedAdAvailable = $state(false);

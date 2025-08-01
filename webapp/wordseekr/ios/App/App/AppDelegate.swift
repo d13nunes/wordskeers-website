@@ -36,8 +36,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(
     _ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    if AppcSDK.handle(redirectURL: url) { return true }
-          
+    if AppcSDK.handle(redirectURL: url) {
+      return true
+    }
     return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
   }
 
