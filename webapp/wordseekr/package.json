@@ -1,8 +1,8 @@
 {
   "name": "wordseekr",
   "private": true,
-  "version": "2.15.0",
-  "build": 2,
+  "version": "2.16.1",
+  "build": 3,
   "type": "module",
   "scripts": {
     "dev": "npm run db:sync && vite dev",
@@ -43,7 +43,7 @@
     "version:major": "node scripts/update-version.js --major",
     "version:minor": "node scripts/update-version.js --minor",
     "version:patch": "node scripts/update-version.js --patch",
-    "release:build": "build:mobile:full",
+    "release": "build:mobile:full",
     "release:patch": "bun run version:patch && bun run build:mobile:full",
     "release:minor": "bun run version:minor && bun run build:mobile:full",
     "release:major": "bun run version:major && bun run build:mobile:full"
