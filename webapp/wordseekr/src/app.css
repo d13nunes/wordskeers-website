@@ -48,8 +48,14 @@ html {
 }
 
 @theme {
+    --background-color: #FF0000;
     --text-tiny: 0.625rem;
     --text-tiny--line-height: 1.5rem; 
     --text-tiny--letter-spacing: 0.015rem; 
     --text-tiny--font-weight: 500; 
+  }
+  .dark {
+      --color-primary: #d0d0d0;
+      --color-muted: #242424;
+      --color-tertiary: #6a6a6a;
   }
