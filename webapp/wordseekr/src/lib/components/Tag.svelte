@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isDarkMode } from '$lib/utils/darkmode';
 	import Confetti from 'svelte-confetti';
 
 	// Define theme name constants
@@ -19,8 +20,8 @@
 
 	// Define color themes
 	const defaultTheme: Theme = {
-		bg: 'bg-slate-200',
-		text: 'text-gray-700'
+		bg: $isDarkMode ? 'bg-gray-700' : 'bg-slate-200',
+		text: $isDarkMode ? 'text-gray-200' : 'text-gray-700'
 	};
 
 	interface Props {

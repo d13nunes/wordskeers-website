@@ -3,7 +3,9 @@ import type { Difficulty } from '$lib/game/difficulty';
 import { levelsManager } from '$lib/levels/levels';
 
 export function gotoMainMenu() {
-	goto('/main-menu');
+	goto('/main-menu', {
+		replaceState: true
+	});
 }
 
 export async function gotoNextLevel(delay: number): Promise<void> {

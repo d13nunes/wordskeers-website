@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import BaseTag from '../BaseTag.svelte';
 	import { animateRewardsTag, expandRewardsTag } from '$lib/tag-store';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	interface Props {
 		onclick: () => void;
 	}
@@ -26,5 +27,5 @@
 </script>
 
 <BaseTag {onclick} title="Rewards" {isExpanded} {isAnimating}>
-	<DailyRewardIcon fill="#c10007" />
+	<DailyRewardIcon fill={$isDarkMode ? '#fb2c36' : '#c10007'} />
 </BaseTag>

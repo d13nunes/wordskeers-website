@@ -77,14 +77,14 @@
 			? 'portrait:mt-8 landscape:mt-4'
 			: 'mt-8'} flex flex-col items-center gap-0"
 	>
-		<div class="flex flex-row items-center justify-center gap-1">
-			<span class="text-black-500 text-base font-normal">Search for words in</span>
-			<span class="text-black-500 text-base font-bold">{gridSize}x{gridSize}</span>
-			<span class="text-black-500 text-base font-normal">grid</span>
+		<div class="flex flex-row items-center justify-center gap-1 dark:text-gray-300 text-black-500">
+			<span class="text-base font-normal ">Search for words in</span>
+			<span class="text-base font-bold">{gridSize}x{gridSize}</span>
+			<span class="text-base font-normal">grid</span>
 		</div>
-		<div class="flex flex-col items-center justify-center gap-0.5">
-			<span class="text-black-500 text-base font-normal">Words can be found in</span>
-			<span class="text-black-500 min-h-5 text-sm font-bold">
+		<div class="flex flex-col items-center justify-center gap-0.5 text-black-500 dark:text-gray-300">
+			<span class="text-base font-normal">Words can be found in</span>
+			<span class="min-h-5 text-sm font-bold">
 				{directionsSymbols}
 			</span>
 		</div>

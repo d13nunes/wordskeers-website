@@ -15,7 +15,7 @@
 		title,
 		detail,
 		disabled = false,
-		iconBGColor = 'bg-gray-50',
+		iconBGColor = 'surface-hover',
 		onClick,
 		icon,
 		action,
@@ -25,7 +25,7 @@
 
 <button
 	class="flex flex-col items-stretch gap-2 rounded-lg border-[1px] border-amber-200 bg-amber-100 p-4 active:bg-amber-200
-    disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400 max-[24rem]:px-4 max-[24rem]:py-2 {_class}"
+    disabled:border-gray-200 disabled:bg-background-secondary disabled:text-gray-400 max-[24rem]:px-4 max-[24rem]:py-2 {_class}"
 	onclick={onClick}
 	{disabled}
 >

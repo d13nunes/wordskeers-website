@@ -27,7 +27,7 @@
 </script>
 
 {#if isInitializing}
-	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center surface">
 		<div class="text-center">
 			<div class="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-gray-900"></div>
 			<p class="mt-4 text-gray-700">Initializing database...</p>
@@ -36,7 +36,7 @@
 {/if}
 
 {#if error}
-	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center surface">
 		<div class="mx-4 max-w-md rounded-lg border border-red-200 bg-red-50 p-4">
 			<h3 class="text-lg font-medium text-red-800">Database Error</h3>
 			<p class="mt-2 text-sm text-red-700">{error}</p>

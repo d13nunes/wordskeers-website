@@ -42,14 +42,14 @@
 			subtitle="Daily Challenge"
 		/>
 		<div
-			class="mt-6 flex max-w-3xs flex-col items-center justify-center gap-0 px-4 text-center text-base text-gray-900"
+			class="mt-6 flex max-w-3xs flex-col items-center justify-center gap-0 px-4 text-center text-base text-gray-900 dark:text-gray-100"
 		>
 			<span class=""
 				>Search the grid to complete a famous quotation and <br /><b>earn 100 coins</b>.</span
 			>
 		</div>
 		<button
-			class="button-active mt-8 w-full rounded-md bg-red-800 px-4 py-2 text-xl font-bold text-white lg:mt-8"
+			class="button-active mt-8 w-full rounded-md bg-red-800 px-4 py-2 text-xl font-bold text-white lg:mt-8 dark:bg-red-600 dark:hover:bg-red-700 dark:text-gray-100"
 			onclick={onPlayClick}
 		>
 			Play

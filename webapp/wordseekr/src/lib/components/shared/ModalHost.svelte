@@ -13,7 +13,7 @@
 		out:fade={{ duration: 150, delay: 100 }}
 	>
 		<div
-			class=" m-4 max-h-[80%] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-2 shadow-lg"
+			class=" m-4 max-h-[80%] w-full max-w-md overflow-y-auto rounded-2xl surface p-2 shadow-lg"
 			on:click|stopPropagation
 			in:scale={{ duration: 200 }}
 			out:scale={{ duration: 150 }}

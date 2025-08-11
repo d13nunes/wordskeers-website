@@ -62,7 +62,7 @@
 		<LevelsGiftIcon isAnimating={isGiftAnimating} />
 	</button>
 	<div class="flex flex-col items-center pb-2 {isSmallScreen ? 'landscape:pb-0' : ''}">
-		<span class="text-base font-normal text-gray-500">Complete levels and win prizes</span>
+		<span class="text-base font-normal text-gray-500 dark:text-gray-300">Complete levels and win prizes</span>
 	</div>
 
 	<LevelsProgressBar

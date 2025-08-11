@@ -7,7 +7,7 @@
 	let { value } = $props();
 </script>
 
-<div class="flex h-16 max-w-16 min-w-16 items-center justify-center rounded-full bg-gray-100">
+<div class="flex h-16 max-w-16 min-w-16 items-center justify-center rounded-full bg-background-secondary">
 	<div class="relative">
 		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
 			<div class="coin-icon h-6 w-6">

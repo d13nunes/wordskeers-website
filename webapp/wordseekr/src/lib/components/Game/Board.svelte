@@ -8,6 +8,7 @@
 	import { getIsSmallScreen } from '$lib/utils/utils';
 	import OnboardingHand from '../Onboarding/OnboardingHand.svelte';
 	import { fly } from 'svelte/transition';
+	import { currentMode, isDarkMode } from '$lib/utils/darkmode';
 	interface Cell {
 		letter: string;
 		row: number;
@@ -216,7 +217,7 @@
 			animate(cell, {
 				scale: [1, 1.1, 1],
 				opacity: [1, 0.8, 1],
-				backgroundColor: discoveredColorMapping[id] ?? '#ffffff',
+				backgroundColor: discoveredColorMapping[id] ?? getBackgroundColor(),
 				duration: 1,
 				ease: 'inOutQuad'
 			});
@@ -228,7 +229,7 @@
 		if (cell) {
 			const colorTheme = currentColor;
 			const backgroundColor =
-				discoveredColorMapping[getPositionId(position.row, position.col)] ?? '#ffffff';
+				discoveredColorMapping[getPositionId(position.row, position.col)] ?? getBackgroundColor();
 			animate(cell, {
 				rotate: [0, -5, +5, -5, +5, -5, +5, 0],
 				duration: 1000,
@@ -244,7 +245,7 @@
 			const cell = document.getElementById(getPositionId(position.row, position.col));
 			if (cell) {
 				const backgroundColor =
-					discoveredColorMapping[getPositionId(position.row, position.col)] ?? '#ffffff';
+					discoveredColorMapping[getPositionId(position.row, position.col)] ?? getBackgroundColor();
 				animate(cell, {
 					rotate: [-5, +5, -5, +5, -5, 0],
 					duration: 300,
@@ -505,7 +506,7 @@
 						cell,
 						{
 							backgroundColor: [
-								discoveredColorMapping[id] ?? '#ffffff',
+								discoveredColorMapping[id] ?? getBackgroundColor(),
 								currentColor.isSelectedColorHex
 							],
 							duration: partialDuration,
@@ -518,7 +519,7 @@
 						{
 							backgroundColor: [
 								currentColor.isSelectedColorHex,
-								discoveredColorMapping[id] ?? '#ffffff'
+								discoveredColorMapping[id] ?? getBackgroundColor()
 							],
 							duration: partialDuration,
 							ease: 'linear'
@@ -581,6 +582,12 @@
 			idleAnimationTimer = null;
 		}
 	});
+
+
+
+	function getBackgroundColor() {
+		return '#ffffff00';
+	}
 </script>
 
 <div
@@ -591,7 +598,7 @@
 	{#if isInitialized}
 		<div
 			in:fly={{ x: 500, duration: 1000 }}
-			class="relative rounded-md bg-white p-2 shadow-md"
+			class="relative rounded-md p-2 shadow-md {$isDarkMode ? 'bg-gray-700' : 'bg-white'}"
 			onmouseleave={handleMouseLeave}
 			onmouseup={handleMouseUp}
 			ontouchend={handleTouchEnd}
@@ -612,13 +619,14 @@
 				--letter-size: {letterSize}px;
 				--font-size: {fontSize}px;
 				transform: rotate({isRotated ? 180 : 0}deg);
+
 			"
 			>
 				{#each cells as row}
 					{#each row as cell}
 						<div
 							style="height: var(--square-size); width: var(--square-size)"
-							class="flex items-center justify-center ease-in-out"
+							class="flex items-center justify-center ease-in-out "
 							onmousedown={() => handleMouseDown(cell.row, cell.col)}
 							onmouseenter={() => handleInteractionMove(cell.row, cell.col)}
 							ontouchstart={(e) => handleTouchStart(e, cell.row, cell.col)}
@@ -629,7 +637,7 @@
 							<div
 								id={getPositionId(cell.row, cell.col)}
 								style="height: var(--letter-size); width: var(--letter-size); font-size: var(--font-size) "
-								class="flex items-center justify-center rounded-md text-center font-semibold text-gray-900"
+								class="flex items-center justify-center rounded-md text-center font-semibold {$isDarkMode ? 'text-gray-200' : 'text-gray-900'}"
 								data-row={cell.row}
 								data-col={cell.col}
 							>

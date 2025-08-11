@@ -33,7 +33,7 @@
 </script>
 
 <BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
-	<div class="flex flex-row flex-wrap gap-x-2 gap-y-0.5 font-mono text-sm text-gray-700">
+	<div class="flex flex-row flex-wrap gap-x-2 gap-y-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">
 		{#each normalizedQuoteSegments as quote, index}
 			{#if index > 0}
 				<!-- <span class="w-[7px]"></span> -->

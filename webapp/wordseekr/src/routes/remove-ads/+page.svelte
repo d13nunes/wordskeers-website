@@ -79,10 +79,10 @@
 
 <!-- Header -->
 
-<div class="relative flex w-full flex-col bg-white select-none">
+<div class="relative flex w-full flex-col surface select-none dark:bg-gray-800 ">
 	<!-- Main Content -->
 	<button
-		class="text-md absolute top-4 left-4 font-normal text-blue-500 active:text-blue-800"
+		class="text-md absolute top-4 left-4 font-normal text-blue-500 active:text-blue-800 dark:text-blue-500 dark:active:text-blue-700"
 		onclick={close}
 	>
 		Close
@@ -90,7 +90,7 @@
 
 	{#if isRestoreAvailable}
 		<button
-			class="text-md absolute top-4 right-4 font-normal text-blue-500 active:text-blue-800"
+			class="text-md absolute top-4 right-4 font-normal text-blue-500 active:text-blue-800 dark:text-blue-600 dark:active:text-blue-700"
 			onclick={restore}
 		>
 			Restore
@@ -100,12 +100,12 @@
 	<div class=" flex-1 justify-items-center px-4 pt-16 max-[24rem]:pt-10">
 		<p
 			class="mb-2 text-3xl font-bold max-[24rem]:-mb-1 max-[24rem]:text-center max-[24rem]:text-lg sm:text-xl"
-		>
+		>	
 			Ad-Free Experience
 		</p>
 
 		<!-- Offer Box -->
-		<div class="mb-8 rounded-xl bg-gray-50 px-4 py-3">
+		<div class="mb-8 rounded-xl surface-hover px-4 py-3">
 			<div class="">
 				<p class="text-xl font-semibold max-[24rem]:text-lg">Remove all ads permanently</p>
 				<p class="text-sm font-normal max-[24rem]:text-sm">

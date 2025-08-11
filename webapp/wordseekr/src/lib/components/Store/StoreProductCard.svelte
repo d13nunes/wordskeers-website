@@ -3,6 +3,7 @@
 	import CoinsPileIcon from '$lib/components/Icons/CoinsPileIcon.svelte';
 	import ArrowIcon from './Icons/ArrowIcon.svelte';
 	import RemoveAdsIcon from './Icons/RemoveAdsIcon.svelte';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	interface Props {
 		title: string;
 		detail: string;
@@ -56,12 +57,12 @@
 	{#snippet action()}
 		{#if isIndicatorActive}
 			<div class="h-4 w-4">
-				<ArrowIcon color="#2563eb" />
+				<ArrowIcon color={$isDarkMode ? '#d1d5dc' : '#2563eb'} />
 			</div>
 		{:else if price}
-			<div class="min-w-[80px] rounded-md bg-blue-700 px-2 py-1 text-white">{price}</div>
+			<div class="min-w-[80px] rounded-md bg-blue-700 px-2 py-1 text-white dark:bg-blue-600 dark:text-gray-100">{price}</div>
 		{:else}
-			<div class="min-w-[80px] rounded-md bg-emerald-700 px-3 py-1 text-white">Watch Ad</div>
+			<div class="min-w-[80px] rounded-md bg-emerald-700 px-3 py-1 text-white dark:bg-emerald-600 dark:text-gray-00">Watch Ad</div>
 		{/if}
 	{/snippet}
 </StoreSmallCard>

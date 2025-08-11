@@ -31,7 +31,7 @@
 	{onRewardAnimationCompleted}
 	{onRewardGiven}
 >
-	<p class="w-2xs text-center text-lg leading-relaxed text-gray-700">
+	<p class="w-2xs text-center text-lg leading-relaxed text-gray-700 dark:text-gray-300 ">
 		You found all the words in {elapsedTime}.<br />You've earned <b>{accumulatedCoins}</b> coins!
 	</p>
 </GameEndedModal>

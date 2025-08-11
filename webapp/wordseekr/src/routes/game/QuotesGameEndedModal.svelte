@@ -39,11 +39,11 @@
 >
 	<div class="my-2 flex flex-col gap-1">
 		<div>
-			<div class="rounded-md border border-gray-200 bg-gray-100 p-4">
-				<span class="text-center text-lg font-medium text-gray-700">
+			<div class="rounded-md  bg-background-secondary p-4 dark:bg-gray-800">
+				<span class="text-center text-lg font-medium text-gray-700 dark:text-gray-300">
 					<b>{quoteChallenge.title}</b>
 				</span>
-				<div class="text-sm text-gray-700">
+				<div class="text-sm text-gray-700 dark:text-gray-300">
 					{#if normalizedQuote}
 						{#each normalizedQuote as quote}
 							{#if quote.isHidden}

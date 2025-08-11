@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import BaseTag from '../BaseTag.svelte';
 	import LevelsIcon from './LevelsIcon.svelte';
-
+	import { isDarkMode } from '$lib/utils/darkmode';
 	interface Props {
 		onclick: () => void;
 	}
@@ -22,5 +22,5 @@
 </script>
 
 <BaseTag {onclick} title="Levels" {isExpanded} {isAnimating}>
-	<LevelsIcon />
+	<LevelsIcon color={$isDarkMode ? '#f3f4f6' : '#000000'} />
 </BaseTag>

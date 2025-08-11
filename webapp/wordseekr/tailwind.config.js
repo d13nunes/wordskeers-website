@@ -6,14 +6,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'background-main': 'var(--color-background-main)',
-        'background-muted': 'var(--color-background-muted)',
-        'background-secondary': 'var(--color-background-secondary)',
-        'surface': 'var(--color-surface)',
-        'primary': 'var(--color-primary)',
-        'text-primary': 'var(--color-text-primary)',
-        'text-tertiary': 'var(--color-text-tertiary)',
-        'accent': 'var(--color-accent)',
+        'background-main': '#121212',
+        'background-muted': '#242424',
+        'background-secondary': '#F3F4F6',
+        'surface': '#FFFFFF',
+        'surface-hover': '#F9FAFB',
+        'primary': '#FFFFFF',
+        'text-primary': '#d0d0d0',
+        'text-tertiary': '#6a6a6a',
+        'accent': '#4F46E5',
       }
     }
   },

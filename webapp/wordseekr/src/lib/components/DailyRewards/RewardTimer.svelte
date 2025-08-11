@@ -41,8 +41,8 @@
 	});
 </script>
 
-<button onclick={onClick} disabled={true} class="w-full bg-blue-100">
-	<div class="small-card-action bg-blue-700 font-mono font-semibold text-white">
+<button onclick={onClick} disabled={true} class="w-full">
+	<div class="small-card-action bg-blue-700 font-mono font-semibold text-white dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-100">
 		{timeRemaining}
 	</div>
 </button>

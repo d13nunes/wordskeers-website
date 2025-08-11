@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+@import './lib/theme.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 
 /* Optional mobile enhancements */
@@ -13,15 +16,26 @@ html {
   }
 
 .card-button {
-    @apply rounded-md bg-white px-2.5 py-2 shadow-sm select-none  hover:bg-gray-50 active:shadow-xs gap-1.5 lg:gap-2 lg:px-4 lg:py-3;
+    @apply rounded-md px-2.5 py-2 shadow-sm select-none gap-1.5 lg:gap-2 lg:px-4 lg:py-3;
+        background-color: var(--surface);
+    }
+    
+    .card-button:hover {
+        background-color: var(--surface-hover);
+    }
+    
+    .card-button:active {
+        box-shadow: var(--shadow-xs);
 }
 
 .card {
-    @apply rounded-md bg-white px-4 py-4 shadow-sm select-none;
+    @apply rounded-md px-4 py-4 shadow-sm select-none;
+        background-color: var(--surface);
 }
 
 .dailyreward-card {
-    @apply rounded-xl bg-gray-100 p-5  max-[24rem]:p-3;
+    @apply rounded-xl p-5 max-[24rem]:p-3;
+        background-color: var(--background-secondary);
 }
 
 @keyframes subtle-pulse {
@@ -46,16 +60,3 @@ html {
 .small-card-action {
     @apply min-w-[100px] rounded-md px-4 py-2 max-[24rem]:px-4 max-[24rem]:py-2  max-[24rem]:min-w-[80px] max-[24rem]:text-sm font-semibold;
 }
-
-@theme {
-    --background-color: #FF0000;
-    --text-tiny: 0.625rem;
-    --text-tiny--line-height: 1.5rem; 
-    --text-tiny--letter-spacing: 0.015rem; 
-    --text-tiny--font-weight: 500; 
-  }
-  .dark {
-      --color-primary: #d0d0d0;
-      --color-muted: #242424;
-      --color-tertiary: #6a6a6a;
-  }

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Board from '$lib/components/Game/Board.svelte';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	import type { Position } from '$lib/components/Game/Position';
 	import colorGenerator, { type ColorTheme } from '$lib/components/Game/color-generator';
 	import { getWordPositions, type Word } from '$lib/components/Game/game';
@@ -47,7 +48,7 @@
 		return [];
 	}
 
-	let currentColor: ColorTheme = colorGenerator.getNextColor();
+	let currentColor: ColorTheme = colorGenerator.getNextColor($isDarkMode);
 	let isRotated = false;
 </script>
 

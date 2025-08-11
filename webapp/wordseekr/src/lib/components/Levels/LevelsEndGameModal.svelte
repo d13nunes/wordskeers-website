@@ -214,8 +214,8 @@
 
 <Modal onClose={onClose_} {onDismiss} backgroundOpacity={50}>
 	<div class="mt-2 flex w-3xs flex-col items-center justify-center">
-		<div class="mt-0 text-center text-4xl font-bold text-gray-900">{title}</div>
-		<div class="mt-1 text-center text-2xl font-bold text-gray-600">
+		<div class="mt-0 text-center text-4xl font-bold text-gray-900 dark:text-gray-100">{title}</div>
+		<div class="mt-1 text-center text-2xl font-bold text-gray-600 dark:text-gray-300">
 			{levelName} - {stageName}
 		</div>
 		<div class="mt-8 flex w-full flex-col items-center gap-1 px-4">
@@ -252,14 +252,14 @@
 		</div>
 		{#if !isFinishingLastAnimation}
 			<div out:slide={{ duration: 200, axis: 'y' }} class="mt-8 flex w-full flex-col gap-2">
-				<div class=" min-h-2 ps-2 text-left font-mono text-xs/2 font-bold text-gray-600">
+				<div class=" min-h-2 ps-2 text-left font-mono text-xs/2 font-bold text-gray-600 dark:text-gray-300">
 					{nextLevelTimeText}
 				</div>
 				<button
 					class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-red-800 px-4 py-2 text-xl font-bold text-white"
 					onclick={onPlayClick}
 				>
-					<div class="w-full text-xl font-bold text-white">Play Now</div>
+					<div class="w-full text-xl font-bold text-white dark:text-gray-100">Play Now</div>
 				</button>
 			</div>
 		{/if}

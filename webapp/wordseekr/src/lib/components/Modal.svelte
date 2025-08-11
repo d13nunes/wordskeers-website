@@ -3,6 +3,7 @@
 	import { fade, scale } from 'svelte/transition';
 	import { onMount, type Snippet } from 'svelte';
 	import CloseX from './CloseX.svelte';
+	import { isDarkMode } from '$lib/utils/darkmode';
 
 	interface Props {
 		children: Snippet;
@@ -48,7 +49,7 @@
 	<div
 		in:scale={{ delay: 100, duration: 300, easing: cubicInOut }}
 		out:scale={{ duration: 300, easing: cubicInOut }}
-		class="relative mx-4 flex flex-col items-center gap-4 rounded-lg bg-white p-8 shadow-lg"
+		class="relative mx-4 flex flex-col items-center gap-4 rounded-lg bg-white dark:bg-gray-800 p-8 shadow-lg"
 		style="margin-top: var(--safe-area-inset-top)"
 		onclick={(e) => e.stopPropagation()}
 		ontouchstart={(e) => e.stopPropagation()}
@@ -62,7 +63,7 @@
 	>
 		{#if onClose}
 			<button class="absolute top-4 right-4 h-6 w-6" onclick={() => onClose()}>
-				<CloseX />
+				<CloseX color={$isDarkMode ? '#d1d5dc' : '#000000'} />
 			</button>
 		{/if}
 		{@render children()}

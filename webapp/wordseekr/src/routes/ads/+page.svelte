@@ -45,61 +45,61 @@
 	let showAdResult = $state('');
 </script>
 
-<div class="h-svh bg-white p-4 pt-32 select-none">
+<div class="h-svh surface p-4 pt-32 select-none">
 	<div class="flex flex-col items-start gap-4">
 		<h1 class=" text-2xl font-bold">Ad Testing</h1>
-		<div class="h-8 w-full bg-gray-100">{showAdResult}</div>
+		<div class="h-8 w-full bg-background-secondary">{showAdResult}</div>
 		<div class="flex flex-row items-start gap-4">
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => setRemoveAds(true)}>Set Remove Ads</button
 			><button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => setRemoveAds(false)}>Unset Remove Ads</button
 			>
 		</div>
 		<div class="flex flex-row flex-wrap items-start gap-4">
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => handleAdClick(AdType.Interstitial)}>Show Interstitial</button
 			>
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => handleAdClick(AdType.Rewarded)}>Show Rewarded</button
 			>
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => handleAdClick(AdType.RewardedInterstitial)}
 				>Show Rewarded Interstitial</button
 			>
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => handleAdClick(AdType.Banner)}>Refresh Banner</button
 			>
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => adStore.hideAd(AdType.Banner)}>Hide Banner</button
 			>
 			<button
-				class="rounded-lg bg-gray-100 px-4 py-2 text-black transition-colors"
+				class="rounded-lg bg-background-secondary px-4 py-2 text-black transition-colors"
 				onclick={() => adStore.loadAd(AdType.RewardedInterstitial)}
 				>Load Rewarded Interstitial</button
 			>
 		</div>
-		<div class="h-8 w-full bg-gray-100">
+		<div class="h-8 w-full bg-background-secondary">
 			isInitialized: {isInitialized ? 'Yes' : 'No'}
 		</div>
-		<div class="h-8 w-full bg-gray-100">Interstitial: {isInterstitialAvailable}</div>
-		<div class="h-8 w-full bg-gray-100">Rewarded: {isRewardedAvailable}</div>
-		<div class="h-8 w-full bg-gray-100">
+		<div class="h-8 w-full bg-background-secondary">Interstitial: {isInterstitialAvailable}</div>
+		<div class="h-8 w-full bg-background-secondary">Rewarded: {isRewardedAvailable}</div>
+		<div class="h-8 w-full bg-background-secondary">
 			Rewarded Interstitial: {isRewardedInterstitialAvailable}
 		</div>
-		<div class="h-8 w-full bg-gray-100">
+		<div class="h-8 w-full bg-background-secondary">
 			Remove Ads Active: {isRemoveAdsActive ? 'Yes' : 'No'}
 		</div>
-		<div class="h-8 w-full bg-gray-100">Banner: {isBannerAvailable}</div>
+		<div class="h-8 w-full bg-background-secondary">Banner: {isBannerAvailable}</div>
 
-		<div class="mt-4 rounded-lg bg-gray-100 p-4">
+		<div class="mt-4 rounded-lg bg-background-secondary p-4">
 			<h2 class="mb-2 text-lg font-semibold">Debug Info</h2>
 			<div class="space-y-1 text-sm">
 				<p>Initialized: {isInitialized ? 'Yes' : 'No'}</p>

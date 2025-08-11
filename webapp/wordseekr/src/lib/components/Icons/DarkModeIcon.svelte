@@ -1,0 +1,10 @@
+<script lang="ts">
+	export let fillColor: string = 'currentColor';
+</script>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+	><path
+		d="M4.79 17.17A10.3 10.3 0 0 1 8.4 3.06a10.47 10.47 0 0 1 3.35-1.27.94.94 0 0 1 .93 1.47 9.37 9.37 0 0 0 7.08 14.87.94.94 0 0 1 .56 1.65 10.87 10.87 0 0 1-1.41 1 10.3 10.3 0 0 1-14.12-3.61Z"
+		style="fill:none;stroke:{fillColor};stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;fill-rule:evenodd"
+	/></svg
+>

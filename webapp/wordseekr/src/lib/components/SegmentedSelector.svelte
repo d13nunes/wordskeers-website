@@ -72,7 +72,7 @@
 >
 	<div
 		bind:this={activeIndicator}
-		class="absolute top-0.5 z-0 h-[calc(100%-4px)] rounded-[7px] bg-white shadow-sm transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
+		class="absolute top-0.5 z-0 h-[calc(100%-4px)] rounded-[7px] surface shadow-sm transition-all duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]"
 	></div>
 	<div bind:this={buttonsContainer} class="relative z-10 flex w-full">
 		{#each segments as segment, i}

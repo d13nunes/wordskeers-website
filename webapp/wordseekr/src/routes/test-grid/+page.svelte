@@ -2,7 +2,7 @@
 	// No specific Svelte logic needed for this layout example
 </script>
 
-<div class="bg-gray-100 p-4">
+<div class="bg-background-secondary p-4">
 	<h1 class="mb-4 text-center text-2xl font-bold">Special Grid Layout</h1>
 
 	<div class="grid h-96 grid-cols-2 grid-rows-2 gap-4 border border-gray-300 p-2">

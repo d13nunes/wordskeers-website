@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { isDarkMode } from '$lib/utils/darkmode';
 
 	interface Props {
 		icon?: string;
@@ -17,11 +18,12 @@
 			src={icon}
 			alt="Logo"
 			class="pointer-events-none mb-1 aspect-square h-24 w-24 object-contain lg:h-32 lg:w-32"
+			style="filter: {$isDarkMode ? 'invert(1)' : 'none'};"
 		/>
 	{/if}
 	<div class="flex flex-col items-center justify-center gap-1 lg:gap-1">
-		<span in:fade class="text-5xl font-bold lg:text-6xl">{title}</span>
+		<span in:fade class="text-5xl font-bold lg:text-6xl dark:text-gray-100">{title}</span>
 		{#if title}{/if}
-		<span class="text-sm text-gray-500 lg:text-base">{subtitle}</span>
+		<span class="text-sm text-gray-500 lg:text-base dark:text-gray-200">{subtitle}</span>
 	</div>
 </div>

@@ -66,7 +66,7 @@
 		on:click={handleDismiss}
 	>
 		<div
-			class="shadow-top pointer-events-auto max-h-[90vh] w-full touch-none overflow-y-scroll rounded-t-4xl bg-white px-4"
+			class="shadow-top pointer-events-auto max-h-[90vh] w-full touch-none overflow-y-scroll rounded-t-4xl surface px-4"
 			on:click|stopPropagation
 			on:pointerdown={handlePointerDown}
 			class:slide-up={visible && !hasAnimated && !isDismissing}

@@ -47,7 +47,7 @@
 		<div
 			in:slide={{ duration: 300, axis: 'x', easing: expoOut }}
 			out:slide={{ duration: 300, axis: 'x', easing: expoOut }}
-			class="text-black-500 text-sm font-medium whitespace-nowrap lg:text-base"
+			class="text-black-500 text-sm font-medium whitespace-nowrap lg:text-base dark:text-gray-100"
 		>
 			{title}
 		</div>

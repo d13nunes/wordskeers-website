@@ -122,13 +122,13 @@
 		<div class=" flex w-full flex-col gap-4">
 			{#if resetRewardTimestamp}
 				<div class="flex w-full flex-col gap-2">
-					<div class="text-center text-sm text-gray-500">Next reward available in:</div>
+					<div class="text-center text-sm text-gray-500 dark:text-gray-300">Next reward available in:</div>
 					<RewardTimer endDate={new Date(resetRewardTimestamp)} />
 				</div>
-			{:else}
+			{:else}	
 				<div class="mt-2 flex w-full flex-row gap-4">
 					<button
-						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50"
+						class="button-active mt-0 flex w-full flex-row items-center justify-center gap-2 rounded-md bg-blue-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-100"
 						disabled={buttonDisabled}
 						onclick={onClickContinue}
 					>
@@ -136,7 +136,7 @@
 					</button>
 					{#if showDoubleButton}
 						<button
-							class="button-active mt-0 flex w-full flex-row items-center justify-center gap-1 rounded-md bg-green-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50"
+							class="button-active mt-0 flex w-full flex-row items-center justify-center gap-1 rounded-md bg-green-800 px-4 py-2 text-xl font-bold text-white disabled:opacity-50 dark:bg-green-600 dark:hover:bg-green-700 dark:text-gray-100"
 							disabled={buttonDisabled}
 							onclick={onClickDouble}
 						>

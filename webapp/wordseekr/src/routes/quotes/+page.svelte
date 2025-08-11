@@ -14,6 +14,7 @@
 	import { walletStore } from '$lib/economy/walletStore';
 	import SegmentedSelector from '$lib/components/SegmentedSelector.svelte';
 	import { analytics } from '$lib/analytics/analytics';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	const { onClose, onNotEnoughCoinsToUnlock } = $props();
 	const unlockQuotePrice = 1000;
 
@@ -86,9 +87,9 @@
 		<div class="flex flex-row items-center justify-center gap-2">
 			<div class="flex flex-row items-center justify-center gap-2">
 				<div class="w-12">
-					<DailyQuoteIcon />
+					<DailyQuoteIcon color={$isDarkMode ? '#f3f4f6' : '#000000'} />
 				</div>
-				<span class="text-4xl font-medium text-black">Quotes</span>
+				<span class="text-4xl font-medium text-black dark:text-gray-100">Quotes</span>
 			</div>
 		</div>
 

@@ -13,7 +13,7 @@
 </script>
 
 <button
-	class="flex w-full flex-col items-stretch gap-2 rounded-xl border-[1px] border-gray-200 bg-gray-100 p-4 text-gray-400 active:bg-gray-200 max-[24rem]:p-3"
+	class="flex w-full flex-col items-stretch gap-2 rounded-xl border-[1px] border-gray-200 bg-background-secondary p-4 text-gray-400 active:bg-gray-200 max-[24rem]:p-3 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:active:bg-gray-700"
 	{onclick}
 	{disabled}
 >
@@ -24,11 +24,11 @@
 
 			<div class="flex flex-col items-start gap-0">
 				<span
-					class="text-left text-base leading-tight font-normal break-words text-gray-900 max-[24rem]:text-sm"
+					class="text-left text-base leading-tight font-normal break-words text-gray-900 max-[24rem]:text-sm dark:text-gray-100"
 					>{title}</span
 				>
 				<span
-					class="max-[24rem]:text-tiny text-left text-sm leading-snug font-light break-words text-gray-900"
+					class="max-[24rem]:text-tiny text-left text-sm leading-snug font-light break-words text-gray-900 dark:text-gray-300"
 					>{detail}</span
 				>
 			</div>

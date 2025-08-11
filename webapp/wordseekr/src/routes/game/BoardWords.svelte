@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getFormatedTime, toTitleCase } from '$lib/utils/string-utils';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	import ClockIcon from '$lib/components/Icons/ClockIcon.svelte';
 	import type { Snippet } from 'svelte';
 	import { fly, fade } from 'svelte/transition';
@@ -24,7 +25,7 @@
 <div class="flex flex-col items-center justify-center gap-2 py-2">
 	<button type="button" class="flex w-full items-end justify-between" onclick={onClockClick_}>
 		<span
-			class="text-start font-bold text-gray-700"
+			class="text-start font-bold { $isDarkMode ? 'text-gray-200' : 'text-gray-700'}"
 			style="
 				font-size: 1.8rem;
 				line-height: 1;
@@ -33,10 +34,10 @@
 		{#if !hideClock}
 			<div class="flex h-7 min-w-18 items-center justify-end gap-1">
 				{#if isClockVisible}
-					<span class="font-mono text-gray-700">{getFormatedTime(elapsedTime, false)}</span>
+					<span class="font-mono text-gray-700 dark:text-gray-300">{getFormatedTime(elapsedTime, false)}</span>
 				{/if}
 				<div class="h-4 w-4">
-					<ClockIcon color="#37385F" />
+					<ClockIcon color={$isDarkMode ? '#d1d5dc' : '#37385F'} />
 				</div>
 			</div>
 		{/if}

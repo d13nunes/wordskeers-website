@@ -53,8 +53,8 @@
 </script>
 
 <div class="flex w-full flex-col items-center justify-center gap-1 {className}">
-	<div class="self-start ps-2 text-sm text-gray-500">{label} {progress}%</div>
-	<div class=" min-h-4 w-full overflow-hidden rounded-md bg-gray-300">
-		<div class="progress-bar-fill h-4 rounded-e-md bg-green-800" style="width: {progress}%;"></div>
+	<div class="self-start ps-2 text-sm text-gray-500 dark:text-gray-300">{label} {progress}%</div>
+	<div class=" min-h-4 w-full overflow-hidden rounded-md bg-gray-300 dark:bg-gray-700">
+		<div class="progress-bar-fill h-4 rounded-e-md bg-green-800 dark:bg-green-600" style="width: {progress}%;"></div>
 	</div>
 </div>

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { ModeWatcher, toggleMode } from 'mode-watcher';
+	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
+	import { ModeWatcher, mode, setMode } from 'mode-watcher';
 	import { onDestroy, onMount, type Snippet } from 'svelte';
 	import '../app.css';
-	import '$lib/theme.css';
 	import DailyRewardTag from '$lib/components/DailyRewards/DailyRewardTag.svelte';
 	import BalanceTag from '$lib/components/Store/BalanceTag.svelte';
 	import DailyRewards from './dailyrewards/+page.svelte';
@@ -40,7 +40,7 @@
 	import NotificationRequest from './notification-request/+page.svelte';
 	import { afterNavigate, onNavigate } from '$app/navigation';
 	import { Capacitor } from '@capacitor/core';
-
+	
 	interface Props {
 		children: Snippet;
 	}
@@ -194,7 +194,7 @@
 		showQuoteModalStore.subscribe((value) => {
 			if (value) {
 				showQuoteModal = true;
-				showQuoteModalStore.set(false);
+				showQuoteModalStore.set(false); 
 			}
 		});
 		showBalanceTag = true;
@@ -219,7 +219,6 @@
 
 <ModeWatcher />
 <main class="fixed inset-0 flex flex-col  select-none">
-	<button onclick={() => {console.log('toggleMode')}} class="w-32 h-12 bg-tertiary hover:bg-primary active:bg-secondary">Toggle Mode</button>
 	{#if showQuoteModal}
 		<QuotePage
 			onClickPlay={() => (showQuoteModal = false)}
@@ -234,6 +233,9 @@
 		left: calc(var(--safe-area-inset-left));"
 	>
 		{#if isMainMenu && !isWelcomeModalVisible}
+		<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
+			<DarkModeToggle />
+		</div>
 			<div in:fade={{ duration: 200 }} out:fade={{ duration: 200 }}>
 				<DailyQuoteTag onclick={onDailyQuoteClick} />
 			</div>

@@ -21,14 +21,14 @@
 	<div class="flex flex-row gap-4">
 		{#if showMainButton}
 			<button
-				class="rounded bg-red-700 px-4 py-2 text-white hover:bg-red-800"
+				class="rounded bg-red-700 px-4 py-2 text-white hover:bg-red-800 dark:bg-red-600 dark:hover:bg-red-700"
 				onclick={onClickNewGame}
 			>
 				Main Menu
 			</button>
 		{/if}
 		<button
-			class="rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800"
+			class="rounded bg-blue-700 px-4 py-2 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
 			onclick={onClickResume}
 		>
 			Resume

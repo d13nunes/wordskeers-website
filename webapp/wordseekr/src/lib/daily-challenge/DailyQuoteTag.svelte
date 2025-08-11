@@ -3,10 +3,12 @@
 	import dailyQuoteIcon from '$lib/assets/quote-icon.png';
 	import { onMount } from 'svelte';
 	import { animateQuoteTag, expandQuoteTag } from '$lib/tag-store';
+	import { isDarkMode } from '$lib/utils/darkmode';
 	interface Props {
 		onclick: () => void;
+		color: string;
 	}
-	let { onclick }: Props = $props();
+	let { onclick, color }: Props = $props();
 	let isExpanded = $state(false);
 	let isAnimating = $state(false);
 
@@ -22,6 +24,6 @@
 
 <BaseTag {onclick} {isExpanded} {isAnimating} title="Quotes">
 	<div class="pt-[2px] lg:pt-[3px]">
-		<img src={dailyQuoteIcon} alt="Daily Quote" />
+		<img src={dailyQuoteIcon} alt="Daily Quote" style="filter: {$isDarkMode ? 'invert(1)' : 'none'};" />
 	</div>
 </BaseTag>

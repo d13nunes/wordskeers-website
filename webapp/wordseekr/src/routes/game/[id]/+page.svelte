@@ -48,6 +48,7 @@
 	import { Capacitor } from '@capacitor/core';
 	import { LocalNotifications } from '@capacitor/local-notifications';
 	import { dailyRewardsStore } from '$lib/rewards/daily-rewards.store';
+	import { isDarkMode } from '$lib/utils/darkmode';
 
 	const powerUpCooldownButton = 1500;
 	let showBoard = $state(false);
@@ -205,9 +206,9 @@
 		};
 	});
 
-	let currentColor: ColorTheme = $state(colorGenerator.getNextColor());
+	let currentColor: ColorTheme = $state(colorGenerator.getNextColor($isDarkMode));
 	function loadNextColor() {
-		currentColor = colorGenerator.getNextColor();
+		currentColor = colorGenerator.getNextColor($isDarkMode);
 	}
 
 	function getWordIndex(word: string): { index: number; isReversed: boolean } | undefined {
@@ -498,6 +499,7 @@
 		const { index } = getWordIndex(word) ?? { index: -1 };
 		if (index !== undefined) {
 			words[index].color = color;
+			words[index].textColor = $isDarkMode ? '#f3f4f6' : '#000000';
 		}
 	}
 
@@ -810,7 +812,7 @@
 </script>
 
 {#if error}
-	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center bg-white">
+	<div class="bg-opacity-75 fixed inset-0 z-50 flex items-center justify-center surface">
 		<div class="mx-4 max-w-md rounded-lg border border-red-900 bg-red-50 p-4">
 			<h3 class="text-lg font-medium text-red-800">Error</h3>
 			<p class="mt-2 text-sm text-red-700">{error}</p>
@@ -825,12 +827,12 @@
 {:else if !game}
 	{#if isCheckingMoreLevels}
 		// spinner
-		<div class="fixed inset-0 z-50 flex items-center justify-center bg-white">
+		<div class="fixed inset-0 z-50 flex items-center justify-center surface">
 			<div class="h-10 w-10 animate-spin rounded-full border-t-2 border-b-2 border-gray-900"></div>
 		</div>
 	{:else if showAllLevelCleared}
 		<div
-			class="fixed inset-0 z-50 flex max-h-full items-center justify-center bg-white"
+			class="fixed inset-0 z-50 flex max-h-full items-center justify-center surface"
 			style="	padding-top: var(--safe-area-inset-top);
 		padding-right: var(--safe-area-inset-right);
 		padding-bottom: var(--safe-area-inset-bottom);
@@ -841,7 +843,7 @@
 	{:else}
 		<button
 			in:fade={{ duration: 1000, delay: 2000 }}
-			class="fixed inset-0 z-50 flex items-center justify-center bg-white text-white"
+			class="fixed inset-0 z-50 flex items-center justify-center surface text-black"
 			onclick={() => gotoMainMenu()}
 		>
 			Main Menu
