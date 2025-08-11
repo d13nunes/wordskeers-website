@@ -17,7 +17,11 @@
 </script>
 
 <Modal onDismiss={onClickResume}>
-	<h2 class="mb-4 text-2xl font-bold">Game Paused</h2>
+	<h2 class=" text-2xl font-bold">Game Paused</h2>
+	<div class="mb-4 text-sm text-gray-500 max-w-[200px] text-center">
+		You'll lose your progress by navigating to main menu.
+	</div>
+	
 	<div class="flex flex-row gap-4">
 		{#if showMainButton}
 			<button

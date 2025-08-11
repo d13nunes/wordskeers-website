@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { App } from '@capacitor/app';
 	import DarkModeToggle from '$lib/components/DarkModeToggle.svelte';
 	import { ModeWatcher, mode, setMode } from 'mode-watcher';
 	import { onDestroy, onMount, type Snippet } from 'svelte';
@@ -211,6 +212,12 @@
 				showQuoteModal = true;
 			} else if (action.notification.id === NEXT_REWARD_NOTIFICATION_ID) {
 				isDailyRewardsOpen = true;
+			}
+		});
+
+		App.addListener('backButton', () => {
+			if (isMainMenu) {
+				App.exitApp();
 			}
 		});
 	});

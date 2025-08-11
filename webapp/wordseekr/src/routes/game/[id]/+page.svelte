@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { App } from '@capacitor/app';
 	import ClassicGameEndedModal from '../ClassicGameEndedModal.svelte';
 	import DailyRewards from '../../dailyrewards/+page.svelte';
 	import NotificationRequest from '../../notification-request/+page.svelte';
@@ -201,6 +202,10 @@
 			}
 		}
 		checkNotificationPermission();
+		App.addListener('backButton', () => {
+			showPauseModal = !showPauseModal;
+		});
+
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
