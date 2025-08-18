@@ -2,14 +2,13 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import fs from 'fs';
 
+const isApk = process.argv[3] === 'apk=true';
 const isLocal = process.argv[3] !== 'gha';
-console.log(process.argv[3], isLocal);
+console.log(process.argv[3], isApk, isLocal);
 let config = {};
 if (isLocal) {
     console.log('Local build');
     const KEYSTORE_CONFIG_PATH = '/Users/diogonunes/Documents/code/wordseekr/keys/android_keystore_config.json';
-
-    console.log("!!", KEYSTORE_CONFIG_PATH);
     config = JSON.parse(fs.readFileSync(KEYSTORE_CONFIG_PATH, 'utf8'));    
 } else {
     console.log('CI build');
@@ -42,7 +41,7 @@ try {
     export ANDROID_KEY_PASSWORD=${KEY_PASSWORD}
     cd android \
     && ./gradlew clean \
-    && ./gradlew bundleRelease
+    && ./gradlew ${isApk ? 'assembleRelease' : 'bundleRelease'}
     `;
     
     console.log('Signing bundle...', signCommand);
