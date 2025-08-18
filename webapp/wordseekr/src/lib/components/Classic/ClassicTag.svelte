@@ -9,7 +9,7 @@
 	}
 	let { onclick }: Props = $props();
 
-	let isExpanded = $state(true);
+	let isExpanded = $state(false);
 	let isAnimating = $state(false);
 
 	onMount(() => {
