@@ -21,6 +21,7 @@ export const animateRewardsTag = writable(false);
 export const expandQuoteTag = writable(false);
 export const animateQuoteTag = writable(false);
 export const showQuoteModalStore = writable(false);
+export const expandClassicTag = writable(false);
 
 let hasFreeRewardToCollect = false;
 
@@ -36,24 +37,28 @@ export async function updateTagState() {
 	const isNewUser = (await gameCounter.getCount()) === 0;
 	const onAppearAction = await onGameSelectionAppear();
 
+	const isRewardExpanded = !isNewUser && hasFreeRewardToCollect;
 	switch (onAppearAction) {
 		case OnAppearAction.DoNothing:
 			expandRewardsTag.set(false);
-			animateRewardsTag.set(!isNewUser && hasFreeRewardToCollect);
+			animateRewardsTag.set(isRewardExpanded);
 			expandQuoteTag.set(false);
 			animateQuoteTag.set(false);
+			expandClassicTag.set(!isRewardExpanded);
 			break;
 		case OnAppearAction.ShowQuoteModal:
 			expandQuoteTag.set(true);
 			animateQuoteTag.set(!hasFreeRewardToCollect);
 			expandRewardsTag.set(false);
 			animateRewardsTag.set(hasFreeRewardToCollect);
+			expandClassicTag.set(false);
 			break;
 		case OnAppearAction.ShowRewardModal:
 			expandRewardsTag.set(true);
 			animateRewardsTag.set(true);
 			expandQuoteTag.set(false);
 			animateQuoteTag.set(false);
+			expandClassicTag.set(false);
 			break;
 	}
 }

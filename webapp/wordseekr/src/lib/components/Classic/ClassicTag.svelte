@@ -2,6 +2,8 @@
 	import BaseTag from '../BaseTag.svelte';
 	import classicModeIcon from '$lib/assets/magnifier-glass.webp';
 	import { isDarkMode } from '$lib/utils/darkmode';
+	import { onMount } from 'svelte';
+	import { expandClassicTag } from '$lib/tag-store';
 	interface Props {
 		onclick: () => void;
 	}
@@ -9,6 +11,12 @@
 
 	let isExpanded = $state(true);
 	let isAnimating = $state(false);
+
+	onMount(() => {
+		expandClassicTag.subscribe((value: boolean) => {
+			isExpanded = value;
+		});
+	});
 </script>
 
 <BaseTag {onclick} title="Classic" {isExpanded} {isAnimating}>
