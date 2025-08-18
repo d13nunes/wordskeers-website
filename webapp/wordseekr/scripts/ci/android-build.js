@@ -2,9 +2,12 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 import fs from 'fs';
 
-const isApk = process.argv[3] === 'apk=true';
+const isApk = process.argv[2] === 'apk=true';
 const isLocal = process.argv[3] !== 'gha';
-console.log(process.argv[3], isApk, isLocal);
+
+console.log("isApk", isApk);
+console.log("isLocal", isLocal);
+
 let config = {};
 if (isLocal) {
     console.log('Local build');
