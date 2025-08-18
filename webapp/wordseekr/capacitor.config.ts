@@ -29,7 +29,7 @@ const config: CapacitorConfig = {
 		backgroundColor: '#F8FAFC'
 	},
 	plugins: {
-		SQLite: {
+		CapacitorSQLite: {
 			iosDatabaseLocation: 'Library/WordSeekrDatabase',
 			iosIsEncryption: false,
 			iosBiometric: {

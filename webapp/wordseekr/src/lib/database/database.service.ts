@@ -14,6 +14,7 @@ import type {
 	LevelDB
 } from './types';
 import { isToday } from 'date-fns/isToday';
+import { analytics } from '$lib/analytics/analytics';
 
 // Database configuration
 const DB_NAME = 'wordseekr_v4.db';
@@ -152,6 +153,7 @@ class DatabaseService {
 			const isDbExists = await CapacitorSQLite.isDatabase({ database: DB_NAME });
 			if (!isDbExists.result) {
 				console.log('CapacitorSQLite Database does not exist, copying from assets...');
+
 				await CapacitorSQLite.copyFromAssets({});
 			} else {
 				console.log('CapacitorSQLite Database already exists, skipping copy from assets');
@@ -162,6 +164,10 @@ class DatabaseService {
 			console.log('CapacitorSQLite opened, returning connection...');
 			return db;
 		} catch (error) {
+			analytics.error(
+				'initializeNativeDatabase',
+				error instanceof Error ? error.message : 'Unknown error'
+			);
 			throw new Error(`CapacitorSQLite Failed to initialize native database📺: ${error}`);
 		}
 	}

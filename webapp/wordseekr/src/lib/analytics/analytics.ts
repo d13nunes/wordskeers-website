@@ -131,7 +131,7 @@ class Analytics {
 	}
 
 	error(errorName: string, error: string) {
-		this.track(errorName, { error });
+		this.track(`error_${errorName}`, { error });
 	}
 }
 
