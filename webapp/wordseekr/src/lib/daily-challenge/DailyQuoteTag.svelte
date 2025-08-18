@@ -6,9 +6,8 @@
 	import { isDarkMode } from '$lib/utils/darkmode';
 	interface Props {
 		onclick: () => void;
-		color: string;
 	}
-	let { onclick, color }: Props = $props();
+	let { onclick }: Props = $props();
 	let isExpanded = $state(false);
 	let isAnimating = $state(false);
 
