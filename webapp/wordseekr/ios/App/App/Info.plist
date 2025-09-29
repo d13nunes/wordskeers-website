@@ -19,7 +19,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.17.0</string>
+	<string>2.17.1</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>02170002</string>
+	<string>02170102</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-9539843520256562~3311880429</string>
 	<key>GADIsAdManagerApp</key>
