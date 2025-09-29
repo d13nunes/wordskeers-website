@@ -39,7 +39,7 @@
 	} from '$lib/rewards/daily-rewards.config';
 	import QuotesModal from './quotes/+page.svelte';
 	import NotificationRequest from './notification-request/+page.svelte';
-	import { afterNavigate, onNavigate } from '$app/navigation';
+	import { afterNavigate, goto, onNavigate } from '$app/navigation';
 	import { Capacitor } from '@capacitor/core';
 	
 	interface Props {
@@ -209,6 +209,7 @@
 				action.notification.id >= QUOTE_TODAY_NOTIFICATION_ID_START &&
 				action.notification.id <= QUOTE_TODAY_NOTIFICATION_ID_END
 			) {
+				goto('/main-menu');
 				showQuoteModal = true;
 			} else if (action.notification.id === NEXT_REWARD_NOTIFICATION_ID) {
 				isDailyRewardsOpen = true;

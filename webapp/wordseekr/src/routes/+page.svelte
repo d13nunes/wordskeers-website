@@ -3,7 +3,6 @@
 	import { gotoLevel, gotoMainMenu } from './utils/naviation';
 	import magnifyingGlass from '$lib/assets/magnifier-glass.webp';
 	import { fade } from 'svelte/transition';
-	import { goto } from '$app/navigation';
 	import { levelsManager } from '$lib/levels/levels';
 	import { gameCounter } from '$lib/storage/local-storage';
 
