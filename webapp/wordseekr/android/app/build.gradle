@@ -8,7 +8,7 @@ android {
         applicationId "com.rhenis.gridwords"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2170102
+        versionCode 2170105
         versionName "2.17.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
