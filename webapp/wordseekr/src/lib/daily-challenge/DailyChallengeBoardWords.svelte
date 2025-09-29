@@ -3,7 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import BoardWords from '../../routes/game/BoardWords.svelte';
 	import type { DailyChallenge } from './models';
-	import { normalizeQuoteText } from '$lib/utils/utils';
+	import { normalizeQuoteText, punctuationNeedsSpaceAfter, punctuationNeedsSpaceBefore } from '$lib/utils/utils';
 
 	interface Props {
 		dailyChallenge: DailyChallenge;
@@ -18,7 +18,7 @@
 	const { dailyChallenge, words, showClock, elapsedTime, title, idPrefix, onClockClick }: Props =
 		$props();
 
-	const normalizedQuoteSegments = $derived(normalizeQuoteText(dailyChallenge.quotes));
+	let normalizedQuoteSegments = $state(dailyChallenge.quotes);
 	$effect(() => {
 		words
 			.filter((word) => word.isDiscovered)
@@ -29,11 +29,12 @@
 					}
 				});
 			});
+		normalizedQuoteSegments = dailyChallenge.quotes
 	});
 </script>
 
-<BoardWords {showClock} hideClock={false} {elapsedTime} {title} {onClockClick}>
-	<div class="flex flex-row flex-wrap gap-x-2 gap-y-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">
+<BoardWords {showClock} hideClock={!showClock} {elapsedTime} {title} {onClockClick}>
+	<div class="flex flex-row flex-wrap gap-y-0.5 font-mono text-sm text-gray-700 dark:text-gray-300">
 		{#each normalizedQuoteSegments as quote, index}
 			{#if index > 0}
 				<!-- <span class="w-[7px]"></span> -->
@@ -57,6 +58,11 @@
 					<span class="">{char}</span>
 				{/each}
 			{/if}
+			{#if punctuationNeedsSpaceAfter.includes(normalizedQuoteSegments[index + 1]?.text ?? '') || punctuationNeedsSpaceBefore.includes(normalizedQuoteSegments[index+1]?.text ?? '') || punctuationNeedsSpaceBefore.includes(normalizedQuoteSegments[index]?.text ?? '')}
+			<span class="w-[1px]"></span>
+			{:else}
+			<span class="w-[8px]"></span>
+			{/if} 
 		{/each}
 	</div>
 </BoardWords>

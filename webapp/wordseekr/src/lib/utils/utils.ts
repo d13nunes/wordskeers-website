@@ -1,5 +1,28 @@
 import { Capacitor } from '@capacitor/core';
 
+export const punctuation = [
+	',',
+	'!',
+	'?',
+	'.',
+	"'",
+	';',
+	':',
+	'"',
+	'(',
+	')',
+	'-',
+	'—',
+	'…',
+	'[',
+	']',
+	'{',
+	'}'
+];
+
+export const punctuationNeedsSpaceAfter = [',', '!', '?', '.', ';', ':', '…'];
+export const punctuationNeedsSpaceBefore = ['-', '—'];
+
 export function getIsSmallScreen() {
 	// const smallWidth = 1134;
 	const isSmallScreen = Capacitor.isNativePlatform(); // && window.innerWidth < smallWidth;
@@ -9,25 +32,6 @@ export function getIsSmallScreen() {
 export function normalizeQuoteText(
 	quote: { text: string; isHidden: boolean; isDiscovered?: boolean }[]
 ): { text: string; isHidden: boolean; isDiscovered: boolean }[] {
-	const punctuation = [
-		',',
-		'!',
-		'?',
-		'.',
-		"'",
-		';',
-		':',
-		'"',
-		'(',
-		')',
-		'-',
-		'—',
-		'…',
-		'[',
-		']',
-		'{',
-		'}'
-	];
 	const normalizedQuote: { text: string; isHidden: boolean; isDiscovered: boolean }[] = [];
 	for (const index in quote) {
 		const segment = quote[index];
